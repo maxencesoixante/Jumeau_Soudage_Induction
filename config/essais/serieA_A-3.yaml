@@ -1,0 +1,18 @@
+# Essai A-3 — 200 A, 70 N (test de la loi en courant, validation croisée)
+nom: serieA_A-3
+fichier_mesures: data/serieA_A-3_200A_2026-06-05.csv
+courant: 200.0
+duree_chauffe: 3300.0        # s (fiche A-3)
+duree_totale: 3320.0
+spots:
+  - {centre_x: 0.015875, t_debut: 0.0,    t_fin: 825.0}
+  - {centre_x: 0.045875, t_debut: 825.0,  t_fin: 1650.0}
+  - {centre_x: 0.075875, t_debut: 1650.0, t_fin: 2475.0}
+  - {centre_x: 0.105875, t_debut: 2475.0, t_fin: 3300.0}
+thermocouples:
+  TC1: {x: 0.015875, y: 0.020, z: surface}
+  TC2: {x: 0.015875, y: 0.020, z: interface}
+  TC3: {x: 0.045875, y: 0.020, z: interface}
+  TC4: {x: 0.075875, y: 0.020, z: interface}
+  TC5: {x: 0.105875, y: 0.020, z: interface}
+tc_valides: [TC1, TC2, TC3, TC4, TC5]

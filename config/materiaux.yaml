@@ -1,0 +1,43 @@
+# Propriétés matériaux — sources : vault Obsidian Memoire_Soudage_Induction
+#   - CF/PEKK Solvay APC (PEKK-FC) : CLAUDE.md §3 du vault + notebook 1D MAX_InductionNumerical
+#   - Conductivités électriques anisotropes : Grouve 2020, Table 1 (Solvay C/PEKK)
+#   - Émissivité, convection : notebook 1D (ε=0.96, h=15) ; Grouve h=10 ; O'Shaughnessey h=5
+# Les valeurs marquées "incertain" sont candidates à la calibration.
+
+cf_pekk:
+  densite: 1600.0            # kg/m3
+  cp_base: 1200.0            # J/kg.K (hors pic de fusion)
+  T_fusion: 337.0            # °C (PEKK)
+  delta_T_fusion: 15.0       # °C — largeur du pic gaussien de fusion (DSC)
+  chaleur_latente: 130000.0  # J/kg
+  T_glass: 159.0             # °C (Tg, repère seulement)
+  # Conductivité thermique du laminé homogénéisé quasi-iso [45/-45/0/90]3s
+  k_plan: 3.0                # W/m.K — dans le plan (homogénéisé quasi-iso), incertain
+  k_z: 0.64                  # W/m.K — transverse (Buser / CLAUDE.md vault)
+  # Conductivités électriques d'un pli UD (Grouve 2020 Table 1, Solvay)
+  sigma_0: 2.2e+4            # S/m — sens fibre
+  sigma_90: 3.4              # S/m — travers fibre (intra-pli)
+  sigma_z: 0.64              # S/m — transverse
+  emissivite: 0.96
+
+# Pli twill (sergé) suscepteur à l'interface de soudure : tissé => boucles
+# conductrices fermées dans les deux directions => siège principal des courants
+# de Foucault (hypothèse Série A, cahier de labo).
+twill_suscepteur:
+  epaisseur: 0.00028         # m — ~2 CPT (tissé), à confirmer
+  sigma_plan: 1.1e+4         # S/m — isotrope plan (ordre sigma_0/2, tissé équilibré), incertain
+  facteur_couplage: 1.0      # facteur d'efficacité calibré (blindage, contacts fibre-fibre)
+
+ceramique:
+  epaisseur: 0.002           # m — Pamitherm, EM-transparente
+  # Conductance de contact laminé -> céramique -> concentrateur.
+  # O'Shaughnessey 2014 : bobine + concentrateur refroidis à l'eau, fixés à 20 °C
+  # => la céramique agit comme un puits thermique vers T_puits.
+  h_contact: 50.0            # W/m2.K, incertain (calibré)
+  T_puits: 20.0              # °C
+
+ambiant:
+  T_amb: 20.0                # °C
+  h_convection: 15.0         # W/m2.K — faces libres (notebook 1D ; litt. 5-15)
+  h_bas: 15.0                # W/m2.K — face inférieure vers bâti/table, incertain
+  stefan_boltzmann: 5.67e-8

@@ -1,0 +1,47 @@
+# Géométrie du montage semi-statique — source : cahier de laboratoire (vault)
+# §0.1 (indexation des passes), §1.2.3 (générateur/CFC), Série A/B (empilement)
+
+laminate:
+  longueur: 0.120            # m — axe x (direction des passes)
+  largeur: 0.040             # m — axe y
+  epaisseur_sup: 0.00336     # m — laminé supérieur [45/-45/0/90]3s (+ twill interface)
+  epaisseur_film: 0.0001     # m — film PEKK 0,004 po
+  epaisseur_inf: 0.00336     # m — laminé inférieur
+  # z = 0 : surface supérieure (côté bobine) ; z croît vers le bas
+
+coil:
+  # Bobine hairpin (épingle) Ambrell — d'après la CAO du montage
+  # (positionnement_CFC+coil.png, échelle = CFC 55 mm) : deux tubes de cuivre
+  # carrés ~9,5 mm (3/8 po) traversant le CFC le long de son grand côté.
+  type: hairpin
+  longueur_jambe: 0.055      # m — brins parallèles au grand côté du CFC (55 mm)
+  entraxe_jambes: 0.019      # m — centre à centre (~tube 9,5 + gap ~9,5 mm), mesuré CAO
+  rayon_tube: 0.00476        # m — demi-hauteur du tube carré 9,5 mm (filament équivalent)
+  # Hauteur de l'axe du conducteur au-dessus de la surface du laminé :
+  # gap céramique 2 mm + demi-tube
+  hauteur: 0.0068            # m
+  # CONFIRMÉ (2026-07-17) : le grand côté 55 mm du CFC est parallèle à la
+  # LARGEUR des échantillons (axe y) => brins du hairpin le long de y.
+  orientation: y
+
+cfc:
+  # Concentrateur de flux Fluxtrol Ferrotron 559H, mu_r ~ 16
+  longueur: 0.055            # m — CFC labo (essais A/B) ; CFC réduit commandé : 0.03175
+  largeur: 0.0315            # m
+  hauteur: 0.012             # m
+  mu_r: 16.0
+  # CONFIRMÉ (2026-07-17) : grande longueur 55 mm parallèle à la largeur des
+  # échantillons (y) ; côté 31,5 mm le long du déplacement (x) — cohérent avec
+  # l'empreinte de passe w = 31,75 mm du cahier §0.1
+
+generateur:
+  modele: "Ambrell EASYHEAT 4.2 kW"
+  frequence: 388.0e+3        # Hz — relevé machine (2026-07-17)
+  courant_max: 600.0         # A
+
+empreintes:
+  # Passe 1 — 4 empreintes le long des 120 mm (cahier §0.1).
+  # Réglage réellement utilisé pour A/B : pas de 30 mm (Tableau 2).
+  # Consigne corrigée (Tableau 3, prochains essais) : pas de 29,42 mm.
+  centres_pas30: [0.015875, 0.045875, 0.075875, 0.105875]     # m
+  centres_corriges: [0.015875, 0.04529, 0.07471, 0.104125]    # m

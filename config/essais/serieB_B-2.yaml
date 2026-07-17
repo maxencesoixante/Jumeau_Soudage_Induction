@@ -1,0 +1,19 @@
+# Essai B-2 — 250 A, 25 N, consigne 360 °C (validation croisée)
+# TC5 défaillant (cahier §2.1.4) — exclu.
+nom: serieB_B-2
+fichier_mesures: data/serieB_B-2_250A_25N_360C_2026-07-08.csv
+courant: 250.0
+duree_chauffe: 1200.0
+duree_totale: 1240.0
+spots:
+  - {centre_x: 0.015875, t_debut: 0.0,   t_fin: 300.0}
+  - {centre_x: 0.045875, t_debut: 300.0, t_fin: 600.0}
+  - {centre_x: 0.075875, t_debut: 600.0, t_fin: 900.0}
+  - {centre_x: 0.105875, t_debut: 900.0, t_fin: 1200.0}
+thermocouples:
+  TC1: {x: 0.015875, y: 0.020, z: surface}
+  TC2: {x: 0.015875, y: 0.020, z: interface}
+  TC3: {x: 0.045875, y: 0.020, z: interface}
+  TC4: {x: 0.075875, y: 0.020, z: interface}
+  TC5: {x: 0.105875, y: 0.020, z: interface}
+tc_valides: [TC1, TC2, TC3, TC4]
