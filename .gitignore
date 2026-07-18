@@ -9,5 +9,6 @@ build/
 dist/
 resultats/
 resultats_calibration.log
+resultats_validation.log
 .pytest_cache/
 resultats_validation.log
