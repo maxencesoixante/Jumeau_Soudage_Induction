@@ -3,13 +3,16 @@
 nom: serieB_B-2
 fichier_mesures: data/serieB_B-2_250A_25N_360C_2026-07-08.csv
 courant: 250.0
-duree_chauffe: 1200.0
+consigne_interface: 360.0    # °C — consigne explicite de l'essai B-2
+duree_chauffe: 227.0         # s CUMULÉS de chauffe effective (4 impulsions détectées)
 duree_totale: 1240.0
 spots:
-  - {centre_x: 0.015875, t_debut: 0.0,   t_fin: 300.0}
-  - {centre_x: 0.045875, t_debut: 300.0, t_fin: 600.0}
-  - {centre_x: 0.075875, t_debut: 600.0, t_fin: 900.0}
-  - {centre_x: 0.105875, t_debut: 900.0, t_fin: 1200.0}
+  # Fenêtres d'impulsion DÉTECTÉES sur les courbes TC. Consigne 360 °C :
+  # tous les pics mesurés plafonnent à 354-361 °C (coupure sur température).
+  - {centre_x: 0.015875, t_debut: 35.0,  t_fin: 80.0}
+  - {centre_x: 0.045875, t_debut: 232.0, t_fin: 334.0}
+  - {centre_x: 0.075875, t_debut: 591.0, t_fin: 642.0}
+  - {centre_x: 0.105875, t_debut: 878.0, t_fin: 907.0}
 thermocouples:
   TC1: {x: 0.015875, y: 0.020, z: surface}
   TC2: {x: 0.015875, y: 0.020, z: interface}

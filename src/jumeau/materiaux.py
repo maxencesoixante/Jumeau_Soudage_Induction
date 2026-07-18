@@ -57,6 +57,22 @@ class Materiau:
         )
         return self.cp_base + pic
 
+    def degre_de_fusion(self, T: np.ndarray) -> np.ndarray:
+        """Degré de fusion quasi-statique Xm(T) ∈ [0, 1].
+
+        Intégrale normalisée du pic gaussien de fusion du cp apparent
+        (le pic représente dH_fusion/dT, donc Xm = H(T)/H_mTOT — même
+        définition que l'éq. 8 de Lionetto et al. 2017, la distribution
+        statistique de températures de fusion étant ici une gaussienne) :
+            Xm(T) = Φ((T − Tf)/σ_f) = ½·[1 + erf((T − Tf)/(σ_f·√2))]
+        Quasi-statique : sur un refroidissement, Xm redescend à l'équilibre
+        (la cinétique de cristallisation type Ozawa n'est pas modélisée).
+        """
+        from scipy.special import erf
+
+        sig_f = self.delta_T_fusion / 2.0
+        return 0.5 * (1.0 + erf((np.asarray(T, float) - self.T_fusion) / (sig_f * np.sqrt(2.0))))
+
 
 @dataclass
 class Ambiant:

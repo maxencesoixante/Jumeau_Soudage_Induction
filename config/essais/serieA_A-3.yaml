@@ -2,13 +2,20 @@
 nom: serieA_A-3
 fichier_mesures: data/serieA_A-3_200A_2026-06-05.csv
 courant: 200.0
-duree_chauffe: 3300.0        # s (fiche A-3)
+# HYPOTHÈSE : même consigne que A-1 (fiche A-3 : T max interface 400 °C).
+consigne_interface: 400.0    # °C
+duree_chauffe: 594.0         # s CUMULÉS de chauffe effective (5 impulsions détectées)
 duree_totale: 3320.0
 spots:
-  - {centre_x: 0.015875, t_debut: 0.0,    t_fin: 825.0}
-  - {centre_x: 0.045875, t_debut: 825.0,  t_fin: 1650.0}
-  - {centre_x: 0.075875, t_debut: 1650.0, t_fin: 2475.0}
-  - {centre_x: 0.105875, t_debut: 2475.0, t_fin: 3300.0}
+  # Fenêtres d'impulsion DÉTECTÉES sur les courbes TC. À 200 A les impulsions
+  # durent ~110-155 s (vs ~60-85 s à 250 A en A-1) : la machine vise le même
+  # pic ~400 °C avec moins de puissance. Le spot 4 a eu une REPRISE de chauffe
+  # (2 impulsions séparées de 23 s) -> deux entrées à la même position.
+  - {centre_x: 0.015875, t_debut: 1.0,    t_fin: 150.0}
+  - {centre_x: 0.045875, t_debut: 1034.0, t_fin: 1188.0}
+  - {centre_x: 0.075875, t_debut: 1749.0, t_fin: 1857.0}
+  - {centre_x: 0.105875, t_debut: 2853.0, t_fin: 2981.0}
+  - {centre_x: 0.105875, t_debut: 3004.0, t_fin: 3059.0}
 thermocouples:
   TC1: {x: 0.015875, y: 0.020, z: surface}
   TC2: {x: 0.015875, y: 0.020, z: interface}

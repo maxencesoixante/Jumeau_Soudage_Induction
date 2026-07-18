@@ -4,16 +4,19 @@
 nom: serieA_A-1
 fichier_mesures: data/serieA_A-1_250A_2026-06-05.csv
 courant: 250.0               # A
-duree_chauffe: 1400.0        # s (fiche A-1)
+# Coupure sur consigne : « chauffe à 250 A jusqu'à T_processing » (fiche A-1,
+# T max interface 398 °C) — la source est asservie à cette température.
+consigne_interface: 400.0    # °C
+duree_chauffe: 302.0         # s CUMULÉS de chauffe effective (4 impulsions détectées)
 duree_totale: 1420.0         # s simulés (le CSV fait 1423 points à 1 Hz)
 spots:
-  # 4 empreintes au pas de 30 mm (réglage Tableau 2, réellement utilisé en A/B).
-  # Découpage temporel : ~350 s par spot, à AJUSTER en lisant les 4 vagues de
-  # chauffe sur les courbes TC (le code peut auto-détecter les transitions).
-  - {centre_x: 0.015875, t_debut: 0.0,    t_fin: 350.0}
-  - {centre_x: 0.045875, t_debut: 350.0,  t_fin: 700.0}
-  - {centre_x: 0.075875, t_debut: 700.0,  t_fin: 1050.0}
-  - {centre_x: 0.105875, t_debut: 1050.0, t_fin: 1400.0}
+  # 4 empreintes au pas de 30 mm. Fenêtres d'impulsion DÉTECTÉES sur les
+  # courbes TC (seuil dT/dt lissé > 1 °C/s, fusion < 20 s) : le générateur est
+  # coupé entre les empreintes (repositionnement), les TC retombent vers ~40 °C.
+  - {centre_x: 0.015875, t_debut: 0.0,    t_fin: 79.0}
+  - {centre_x: 0.045875, t_debut: 393.0,  t_fin: 473.0}
+  - {centre_x: 0.075875, t_debut: 761.0,  t_fin: 820.0}
+  - {centre_x: 0.105875, t_debut: 1085.0, t_fin: 1169.0}
 thermocouples:
   # HYPOTHÈSE À CONFIRMER AU CAHIER : TC1 en surface au spot 1 ; TC2-TC5 à
   # l'interface, un par empreinte (ordre spatial supposé = ordre des spots).

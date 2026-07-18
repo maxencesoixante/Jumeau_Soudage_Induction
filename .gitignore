@@ -10,3 +10,4 @@ dist/
 resultats/
 resultats_calibration.log
 .pytest_cache/
+resultats_validation.log

@@ -138,7 +138,9 @@ class SolveurThermique3D:
         dT[:, :, -1] += (2.0 / g.dz) * (kz * (T[:, :, -2] - T_bot) / g.dz + flux_bot)
 
         # --- source Joule + normalisation par la masse thermique
-        Q = source_fn(t)
+        # source_fn est normalisée par simuler() : signature (t, T) -> Q, ce qui
+        # permet une source asservie à la température (coupure sur consigne).
+        Q = source_fn(t, T)
         return ((dT + Q) / rc).ravel()
 
     # ------------------------------------------------------------------
@@ -174,8 +176,17 @@ class SolveurThermique3D:
     ):
         """Intègre et renvoie ``sol`` de solve_ivp ; sol.y a la forme (n, nt).
 
+        ``source_fn`` : soit ``f(t) -> Q`` (source imposée), soit ``f(t, T) -> Q``
+        (source asservie au champ de température, T de forme (nx, ny, nz)).
         ``resultat_3d(sol, i)`` redonne le champ (nx, ny, nz) au pas i.
         """
+        import inspect
+
+        n_params = len(inspect.signature(source_fn).parameters)
+        if n_params == 1:
+            f_source = source_fn
+            source_fn = lambda t, T: f_source(t)
+
         g = self.g
         if T_initial is None:
             T0 = np.full(g.n, self.amb.T_amb)

@@ -54,9 +54,29 @@ class Essai:
                 return i
         return None
 
-    def source_fn(self, t: float) -> np.ndarray:
+    def source_fn(self, t: float, T: np.ndarray | None = None) -> np.ndarray:
+        """Source volumique au temps t, éventuellement asservie à la température.
+
+        Si l'essai déclare ``consigne_interface`` (°C), la source est modulée
+        par un thermostat lisse sur la température d'interface au centre du
+        spot actif : facteur = 1/(1+exp((T_ctrl−consigne)/2)). C'est le
+        comportement réel du procédé (« chauffe à I jusqu'à T_processing »,
+        coupure sur consigne — fiches Séries A/B, B-2 à 360 °C) : sans cet
+        asservissement, appliquer I pendant toute la fenêtre d'impulsion fait
+        diverger la température (validation du 2026-07-18 : ~1000 °C simulés
+        vs ~400 °C mesurés).
+        """
         i = self._spot_actif(t)
-        return self._Q_nul if i is None else self._Q_spots[i]
+        if i is None:
+            return self._Q_nul
+        Q = self._Q_spots[i]
+        consigne = self.spec.get("consigne_interface")
+        if consigne is not None and T is not None:
+            ix, iy = self.grille.indice_xy(float(self.spots[i]["centre_x"]),
+                                           self.grille.largeur / 2.0)
+            T_ctrl = T[ix, iy, self.grille.iz_interface]
+            Q = Q / (1.0 + np.exp((T_ctrl - float(consigne)) / 2.0))
+        return Q
 
     def masque_fn(self, t: float) -> np.ndarray:
         i = self._spot_actif(t)

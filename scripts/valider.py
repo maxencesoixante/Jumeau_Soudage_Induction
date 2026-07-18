@@ -14,7 +14,11 @@ import argparse
 import sys
 from pathlib import Path
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
 RACINE = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RACINE / "src"))
@@ -23,6 +27,47 @@ from jumeau.materiaux import Config
 from jumeau.procede import Essai
 from jumeau.validation.chargement import charger_mesures, recaler_a_la_chauffe
 from jumeau.validation.confrontation import rapport_essai
+
+
+def sauver_sorties(essai, sol, series, df, dossier):
+    """Séries simulées (CSV) + figures de confrontation, style simuler_essai."""
+    dossier.mkdir(exist_ok=True)
+    nom = essai.spec["nom"]
+
+    pd.DataFrame({"t (s)": sol.t, **{tc: T for tc, T in series.items()}}) \
+        .to_csv(dossier / f"{nom}_series_sim.csv", index=False)
+
+    g = essai.grille
+    Y4 = sol.y.reshape(g.nx, g.ny, g.nz, -1)
+    carte = Y4[:, :, g.iz_interface, :]
+    i_pic = int(np.argmax(carte.max(axis=(0, 1))))
+    plt.figure(figsize=(10, 4))
+    plt.pcolormesh(g.x * 1e3, g.y * 1e3, carte[:, :, i_pic].T,
+                   shading="gouraud", cmap="inferno")
+    plt.colorbar(label="T (°C)")
+    plt.xlabel("x (mm)"); plt.ylabel("y (mm)")
+    plt.title(f"{nom} — carte T interface à t={sol.t[i_pic]:.0f} s "
+              f"(max {carte[:, :, i_pic].max():.0f} °C)")
+    plt.tight_layout()
+    plt.savefig(dossier / f"{nom}_carte_interface_validation.png", dpi=140)
+    plt.close()
+
+    plt.figure(figsize=(11, 6))
+    couleurs = plt.cm.tab10.colors
+    tcol = df.columns[0]
+    for i, tc in enumerate(essai.spec.get("tc_valides", [])):
+        col = next((c for c in df.columns if c.startswith(tc)), None)
+        if col:
+            plt.plot(df[tcol], df[col], color=couleurs[i % 10], alpha=0.4,
+                     label=f"{tc} mesuré")
+    for i, (tc, T) in enumerate(series.items()):
+        plt.plot(sol.t, T, color=couleurs[i % 10], lw=2, ls="--", label=f"{tc} simulé")
+    plt.axhline(337, color="blue", lw=1, ls=":", label="Tf 337 °C")
+    plt.xlabel("t (s)"); plt.ylabel("T (°C)"); plt.legend(fontsize=8)
+    plt.title(f"{nom} — validation croisée (paramètres calibrés, sans recalage)")
+    plt.tight_layout()
+    plt.savefig(dossier / f"{nom}_courbes_validation.png", dpi=140)
+    plt.close()
 
 
 def principale():
@@ -58,6 +103,7 @@ def principale():
         print(rapport.round(1).to_string())
         print(f"RMSE moyen : {rapport['rmse'].mean():.1f} °C ; "
               f"écart T_max moyen : {rapport['delta_T_max'].abs().mean():.1f} °C")
+        sauver_sorties(essai, sol, series, df, RACINE / "resultats")
 
 
 if __name__ == "__main__":
