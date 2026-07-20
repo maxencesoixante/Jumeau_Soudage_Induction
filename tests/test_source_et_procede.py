@@ -43,6 +43,39 @@ def test_source_croit_avec_courant(cfg):
     assert np.allclose(Q2, Q1 * (250.0 / 200.0) ** 2, rtol=1e-9)
 
 
+def test_decalage_x_zero_est_identite(cfg):
+    """decalage_x=0.0 (explicite ou par défaut) doit reproduire EXACTEMENT
+    la source d'avant l'introduction du paramètre : non-régression bit-à-bit."""
+    g = construire_grille(cfg, nx=31, ny=11, nz=13)
+    couches = construire_couches(cfg)
+    Q_sans_arg = source_spot(g, cfg, couches, courant=250.0, centre_x=0.06)
+    Q_decalage_nul = source_spot(g, cfg, couches, courant=250.0, centre_x=0.06,
+                                  decalage_x=0.0)
+    assert np.array_equal(Q_sans_arg, Q_decalage_nul)
+
+
+def test_decalage_x_deplace_le_centre_bobine(cfg):
+    """decalage_x translate le centre effectif de la bobine (donc le profil de
+    Q en x) sans modifier la puissance totale déposée (même bobine, même I)."""
+    g = construire_grille(cfg, nx=31, ny=11, nz=13)
+    couches = construire_couches(cfg)
+    centre = 0.06
+    Q0 = source_spot(g, cfg, couches, courant=250.0, centre_x=centre)
+    Q_decale = source_spot(g, cfg, couches, courant=250.0, centre_x=centre,
+                            decalage_x=0.010)
+    assert not np.array_equal(Q0, Q_decale)
+    # puissance totale quasi conservée (translation de la bobine ; la légère
+    # différence vient de la BC psi=0 au bord de plaque, PAS translation-
+    # invariante — la bobine décalée est légèrement plus proche du bord x=L)
+    assert np.isclose(Q0.sum(), Q_decale.sum(), rtol=1e-2)
+    # décaler la bobine de +10 mm équivaut EXACTEMENT à évaluer la source non
+    # décalée à centre_x + 10 mm (même géométrie relative bobine<->grille) :
+    # c'est cette identité, pas la conservation approximative ci-dessus, qui
+    # définit le comportement attendu de decalage_x
+    Q_ref = source_spot(g, cfg, couches, courant=250.0, centre_x=centre + 0.010)
+    assert np.allclose(Q_decale, Q_ref, rtol=1e-9)
+
+
 def test_masque_cfc(cfg):
     g = construire_grille(cfg, nx=49, ny=17, nz=7)
     m = masque_empreinte_cfc(g, cfg, centre_x=0.015875)
@@ -67,3 +100,46 @@ def test_essai_chauffe_bout_en_bout(cfg):
     # aucune température aberrante
     assert np.all(np.isfinite(sol.y))
     assert sol.y.max() < 2000.0
+
+
+def test_essai_decalage_x_defaut_et_surcharge(cfg):
+    """decalage_x : valeur YAML (0.0) par défaut, surchargeable par programme
+    comme facteur_couplage ; ne déplace pas le masque céramique/CFC."""
+    chemin = RACINE / "config" / "essais" / "chauffe_250A_3TC.yaml"
+    essai_defaut = Essai(cfg, chemin, nx=21, ny=9, nz=9, racine=RACINE)
+    assert essai_defaut.decalage_x == 0.0
+
+    essai_decale = Essai(cfg, chemin, nx=21, ny=9, nz=9, decalage_x=0.010, racine=RACINE)
+    assert essai_decale.decalage_x == 0.010
+    # la source change avec le décalage bobine...
+    assert not np.array_equal(essai_defaut._Q_spots[0], essai_decale._Q_spots[0])
+    # ...mais le masque céramique/CFC (posé sur le spot, pas sur la bobine) ne bouge pas
+    assert np.array_equal(essai_defaut._masques[0], essai_decale._masques[0])
+
+
+def test_essai_decalage_x_augmente_taux_chauffe_tc2(cfg):
+    """Reproduit la découverte du 2026-07-18 : TC2 est au centre de symétrie
+    du hairpin (zéro de dissipation exact) pour l'essai chauffe_250A_3TC ; un
+    décalage bobine de +10 mm sort du zéro et accélère nettement la chauffe
+    locale (grille 31x11x13, facteur_couplage=3.85 — cf. resultats_validation.log,
+    taux_sim TC2 = 5.7 °C/s pour decalage_x=0)."""
+    from jumeau.validation.confrontation import taux_de_chauffe
+
+    chemin = RACINE / "config" / "essais" / "chauffe_250A_3TC.yaml"
+    essai0 = Essai(cfg, chemin, nx=31, ny=11, nz=13, facteur_couplage=3.85, racine=RACINE)
+    essai_decale = Essai(cfg, chemin, nx=31, ny=11, nz=13, facteur_couplage=3.85,
+                         decalage_x=0.010, racine=RACINE)
+    # taux_de_chauffe ne regarde que la montée (croisement de T_ref=75°C,
+    # atteint bien avant 30 s) : on écourte duree_totale pour le temps de
+    # test, dt_sortie=1.0 (défaut, identique à scripts/valider.py) préservé
+    essai0.spec["duree_totale"] = 60.0
+    essai_decale.spec["duree_totale"] = 60.0
+
+    solveur0, sol0 = essai0.simuler(dt_sortie=1.0)
+    solveur_d, sol_d = essai_decale.simuler(dt_sortie=1.0)
+    taux0 = taux_de_chauffe(sol0.t, essai0.series_tc(solveur0, sol0)["TC2"])
+    taux_d = taux_de_chauffe(sol_d.t, essai_decale.series_tc(solveur_d, sol_d)["TC2"])
+
+    assert taux0 == pytest.approx(5.7, abs=0.3)
+    assert taux_d == pytest.approx(13.2, abs=0.5)
+    assert taux_d > 2.0 * taux0

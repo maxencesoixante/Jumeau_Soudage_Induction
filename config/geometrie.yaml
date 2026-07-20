@@ -23,6 +23,18 @@ coil:
   # CONFIRMÉ (2026-07-17) : le grand côté 55 mm du CFC est parallèle à la
   # LARGEUR des échantillons (axe y) => brins du hairpin le long de y.
   orientation: y
+  # Décalage du centre de la bobine par rapport au centre_x nominal du spot,
+  # le long de x (m). L'incertitude de positionnement bobine/CFC/thermocouples
+  # au montage n'est PAS mesurée (cahier §2.1.4, pas de cartographie relative
+  # bobine<->CFC<->TC) : seule la position CAO nominale (decalage_x=0) est
+  # connue. Le hairpin a un zéro de dissipation exact sur son plan de symétrie
+  # (2026-07-18, validation TC2) : un décalage bobine/montage de quelques mm
+  # déplace ce zéro et change fortement le taux de chauffe local (5,7 ->
+  # 13,2 °C/s au TC2 pour +10 mm, essai chauffe_250A_3TC). Bornes physiques
+  # plausibles ±0,015 m (le CFC fait 31,5 mm le long de x : la bobine ne peut
+  # pas sortir de son empreinte). À IDENTIFIER PAR CALIBRATION tant qu'aucune
+  # mesure de position n'existe ; ne pas figer arbitrairement à 0.
+  decalage_x: 0.0            # m
 
 cfc:
   # Concentrateur de flux Fluxtrol Ferrotron 559H, mu_r ~ 16

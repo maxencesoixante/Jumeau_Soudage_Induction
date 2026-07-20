@@ -10,5 +10,5 @@ dist/
 resultats/
 resultats_calibration.log
 resultats_validation.log
+resultats_validation_thetafinal.log
 .pytest_cache/
-resultats_validation.log

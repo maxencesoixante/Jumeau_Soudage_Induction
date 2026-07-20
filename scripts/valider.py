@@ -75,6 +75,8 @@ def principale():
     ap.add_argument("--essais", nargs="+",
                     default=["chauffe_250A_3TC", "serieA_A-1", "serieA_A-3", "serieB_B-2"])
     ap.add_argument("--facteur", type=float, default=1.0)
+    ap.add_argument("--decalage-x", type=float, default=0.0,
+                    help="décalage bobine<->montage le long de x (m), calibré (amplitude non signée)")
     ap.add_argument("--h-contact", type=float, default=None)
     ap.add_argument("--h-bas", type=float, default=None)
     ap.add_argument("--nx", type=int, default=31)
@@ -92,7 +94,8 @@ def principale():
         chemin = RACINE / "config" / "essais" / f"{nom}.yaml"
         print(f"\n=== {nom} ===")
         essai = Essai(cfg, chemin, nx=args.nx, ny=args.ny, nz=args.nz,
-                      facteur_couplage=args.facteur, racine=RACINE)
+                      facteur_couplage=args.facteur, decalage_x=args.decalage_x,
+                      racine=RACINE)
         solveur, sol = essai.simuler()
         series = essai.series_tc(solveur, sol)
         df = recaler_a_la_chauffe(charger_mesures(essai.fichier_mesures))

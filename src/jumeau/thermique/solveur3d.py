@@ -144,7 +144,24 @@ class SolveurThermique3D:
         return ((dT + Q) / rc).ravel()
 
     # ------------------------------------------------------------------
-    def _sparsite_jacobien(self) -> sparse.csr_matrix:
+    def _sparsite_jacobien(self, colonnes_controle=None) -> sparse.csr_matrix:
+        """Motif de sparsité du jacobien de ``_rhs``.
+
+        Le stencil à 7 points (diagonale + 6 voisins) couvre le terme de
+        conduction. ``colonnes_controle`` ajoute des colonnes PLEINES (tous
+        les nœuds en ligne) pour les nœuds de contrôle d'une source asservie
+        (cf. ``simuler(noeuds_controle=...)``) : quand ``source_fn(t, T)``
+        module Q(x,y,z) par un facteur scalaire dépendant de T à un nœud de
+        contrôle c (thermostat, cf. Essai.source_fn), TOUT nœud i où Q_i≠0
+        acquiert une dérivée ∂(Q_i/rc_i)/∂T_c ≠ 0. Sans cette colonne, BDF
+        ne "voit" pas ce couplage (il est hors motif -> jamais évalué par les
+        différences finies groupées par couleur de scipy), et Newton peine à
+        converger près de la consigne (pas minuscules, quasi-plantage) alors
+        que la source reste en réalité localement quasi-linéaire en T_c.
+        Une poignée de colonnes pleines (une par nœud de contrôle distinct,
+        typiquement un par spot) coûte peu face au stencil (7·n non-nuls) et
+        la sparsité globale reste excellente.
+        """
         g = self.g
         n = g.n
         idx = np.arange(n).reshape(g.nx, g.ny, g.nz)
@@ -158,6 +175,13 @@ class SolveurThermique3D:
         lier(idx[1:], idx[:-1]); lier(idx[:-1], idx[1:])
         lier(idx[:, 1:], idx[:, :-1]); lier(idx[:, :-1], idx[:, 1:])
         lier(idx[:, :, 1:], idx[:, :, :-1]); lier(idx[:, :, :-1], idx[:, :, 1:])
+        if colonnes_controle is not None:
+            colonnes_controle = np.atleast_1d(np.asarray(colonnes_controle, dtype=np.intp))
+            colonnes_controle = np.unique(colonnes_controle)
+            toutes_lignes = np.arange(n, dtype=np.intp)
+            for c in colonnes_controle:
+                lignes.append(toutes_lignes)
+                cols.append(np.full(n, c, dtype=np.intp))
         lignes = np.concatenate(lignes)
         cols = np.concatenate(cols)
         donnees = np.ones(len(lignes), dtype=np.int8)
@@ -173,11 +197,19 @@ class SolveurThermique3D:
         rtol: float = 1e-4,
         atol: float = 1e-2,
         max_step: float = 5.0,
+        noeuds_controle=None,
     ):
         """Intègre et renvoie ``sol`` de solve_ivp ; sol.y a la forme (n, nt).
 
         ``source_fn`` : soit ``f(t) -> Q`` (source imposée), soit ``f(t, T) -> Q``
         (source asservie au champ de température, T de forme (nx, ny, nz)).
+        ``noeuds_controle`` : nœud(s) de contrôle dont dépend ``source_fn(t, T)``
+        (thermostat/asservissement), à déclarer pour que le jacobien creux
+        fourni à BDF inclue le couplage source<->T_controle (sinon les
+        différences finies groupées par couleur ne l'évaluent jamais, cf.
+        ``_sparsite_jacobien``). Chaque élément est un triplet d'indices
+        ``(ix, iy, iz)`` ou un indice aplati déjà en ``ravel()`` order C ;
+        ``None`` (défaut) pour une source non asservie (aucune colonne extra).
         ``resultat_3d(sol, i)`` redonne le champ (nx, ny, nz) au pas i.
         """
         import inspect
@@ -195,10 +227,17 @@ class SolveurThermique3D:
         else:
             T0 = np.asarray(T_initial).ravel().copy()
 
+        colonnes_controle = None
+        if noeuds_controle is not None:
+            colonnes_controle = [
+                int(np.ravel_multi_index(c, (g.nx, g.ny, g.nz))) if not np.isscalar(c) else int(c)
+                for c in noeuds_controle
+            ]
+
         sol = solve_ivp(
             self._rhs, t_span, T0, args=(source_fn,),
             method="BDF", t_eval=t_eval,
-            jac_sparsity=self._sparsite_jacobien(),
+            jac_sparsity=self._sparsite_jacobien(colonnes_controle),
             rtol=rtol, atol=atol, max_step=max_step,
         )
         if not sol.success:

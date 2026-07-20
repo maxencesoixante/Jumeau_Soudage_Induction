@@ -26,6 +26,7 @@ class Essai:
     def __init__(self, cfg: Config, chemin_essai: str | Path,
                  nx: int = 49, ny: int = 17, nz: int = 15,
                  facteur_couplage: float = 1.0,
+                 decalage_x: float | None = None,
                  racine: str | Path | None = None):
         self.cfg = cfg
         self.spec = charger_yaml(chemin_essai)
@@ -33,12 +34,20 @@ class Essai:
         self.grille: Grille3D = construire_grille(cfg, nx=nx, ny=ny, nz=nz)
         self.couches = construire_couches(cfg)
         self.facteur_couplage = facteur_couplage
+        # decalage_x (m, calibrable) : décalage bobine<->spot le long de x, cf.
+        # geometrie.yaml:coil.decalage_x. Surchargeable par programme (comme
+        # facteur_couplage) pour la calibration ; sinon valeur du YAML (défaut
+        # 0.0 tant qu'aucune mesure de position n'existe, cahier §2.1.4).
+        if decalage_x is None:
+            decalage_x = float(cfg.geometrie["coil"].get("decalage_x", 0.0))
+        self.decalage_x = decalage_x
 
         courant = float(self.spec["courant"])
         self.spots = self.spec["spots"]
         self._Q_spots = [
             source_spot(self.grille, cfg, self.couches, courant,
-                        float(s["centre_x"]), facteur_couplage=facteur_couplage)
+                        float(s["centre_x"]), facteur_couplage=facteur_couplage,
+                        decalage_x=self.decalage_x)
             for s in self.spots
         ]
         self._masques = [
@@ -46,6 +55,20 @@ class Essai:
             for s in self.spots
         ]
         self._Q_nul = np.zeros_like(self._Q_spots[0])
+        # nœuds de contrôle du thermostat (asservissement de source_fn à T),
+        # un par spot (centre_x, y=largeur/2, z=interface) — cf. source_fn.
+        # Union transmise au solveur pour que le jacobien creux couvre le
+        # couplage source<->T_controle (sinon les FD groupées par couleur de
+        # scipy ne l'évaluent jamais -> BDF rampe près de la consigne).
+        self._noeuds_controle: list[tuple[int, int, int]] = []
+        if self.spec.get("consigne_interface") is not None:
+            iy_ctrl = self.grille.indice_xy(0.0, self.grille.largeur / 2.0)[1]
+            noeuds = {
+                (self.grille.indice_xy(float(s["centre_x"]), self.grille.largeur / 2.0)[0],
+                 iy_ctrl, self.grille.iz_interface)
+                for s in self.spots
+            }
+            self._noeuds_controle = sorted(noeuds)
 
     # ------------------------------------------------------------------
     def _spot_actif(self, t: float) -> int | None:
@@ -93,6 +116,7 @@ class Essai:
             self.grille, self.cfg.materiau, self.cfg.ambiant, self.cfg.contact,
             masque_ceramique=self.masque_fn,
         )
+        kwargs.setdefault("noeuds_controle", self._noeuds_controle or None)
         sol = solveur.simuler(self.source_fn, (0.0, duree), t_eval=t_eval, **kwargs)
         return solveur, sol
 
