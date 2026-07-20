@@ -13,6 +13,7 @@ et rappelle l'outil avec des paramètres corrigés.
 from __future__ import annotations
 
 import subprocess
+import sys
 import time
 from pathlib import Path
 
@@ -23,7 +24,10 @@ from verifs import valider_parametres
 RACINE = Path(__file__).resolve().parents[1]
 ESSAIS = RACINE / "config" / "essais"
 RESULTATS = RACINE / "resultats"
-PYTHON = str(RACINE / ".venv" / "bin" / "python")
+# Interpréteur courant (celui qui exécute app.py) → indépendant de l'OS et de
+# l'emplacement du venv : .venv/bin/python sous Unix, .venv\Scripts\python.exe
+# sous Windows. Lancer app.py avec le python du venv suffit.
+PYTHON = sys.executable
 
 # Paramètres du modèle 2D calibrés (positions TC corrigées, 2026-07-20).
 # Voir resultats_calibration.log — entrée « POSITIONS CORRIGEES ».

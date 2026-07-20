@@ -39,8 +39,10 @@ schémas JSON) : passer à une API cloud ne changerait que la boucle dans `app.p
 
 ## Installation et lancement
 
+macOS / Linux :
+
 ```bash
-# 1. Dépendances Python
+# 1. Dépendances Python (dans le venv du projet)
 .venv/bin/pip install -r ai_framework/requirements.txt
 
 # 2. Ollama (serveur LLM local)
@@ -51,6 +53,24 @@ ollama pull qwen2.5          # modèle capable de tool-calling (~4,7 Go)
 # 3. Lancer l'assistant
 .venv/bin/python ai_framework/app.py        # http://127.0.0.1:7860
 ```
+
+Windows (PowerShell) — mêmes étapes, chemin du venv différent :
+
+```powershell
+# 1. Dépendances Python
+.venv\Scripts\pip install -r ai_framework\requirements.txt
+
+# 2. Ollama : installer depuis https://ollama.com/download, puis
+ollama serve
+ollama pull qwen2.5
+
+# 3. Lancer l'assistant (avec le python DU venv)
+.venv\Scripts\python ai_framework\app.py     # http://127.0.0.1:7860
+```
+
+`app.py` retrouve seul le bon interpréteur pour les sous-processus du solveur
+(`sys.executable`) : aucun chemin à adapter, à condition de le lancer avec le
+python du venv.
 
 Modèle configurable via `OLLAMA_MODEL` (ex. `llama3.1`, `mistral-nemo`). Les configs
 de session (`config/essais/_session_*.yaml`) sont éphémères et ignorées par git.
