@@ -18,15 +18,17 @@ spots:
   - {centre_x: 0.075875, t_debut: 761.0,  t_fin: 820.0}
   - {centre_x: 0.105875, t_debut: 1085.0, t_fin: 1169.0}
 thermocouples:
-  # HYPOTHÈSE À CONFIRMER AU CAHIER : TC1 en surface au spot 1 ; TC2-TC5 à
-  # l'interface, un par empreinte (ordre spatial supposé = ordre des spots).
-  # ⚠ L'affectation TC↔position VARIE PAR ESSAI (constat 2026-07-12 : voie du
-  # pic = TC1 en A-1, TC4 en A-2, TC2 en A-3, TC5 en B-1, TC3 en B-2).
-  # Tant que ce n'est pas tranché au cahier, utiliser les Séries A/B en
-  # validation QUALITATIVE (T max globale, formes) plutôt qu'en RMSE par voie.
-  TC1: {x: 0.015875, y: 0.020, z: surface}
-  TC2: {x: 0.015875, y: 0.020, z: interface}
-  TC3: {x: 0.045875, y: 0.020, z: interface}
-  TC4: {x: 0.075875, y: 0.020, z: interface}
-  TC5: {x: 0.105875, y: 0.020, z: interface}
+  # Positions CONFIRMÉES par l'utilisateur (2026-07-20) : les 5 TC sont TOUS à
+  # l'interface. Référentiel cahier (x=longueur, z=largeur) origine au MILIEU de
+  # l'échantillon 120×40 mm ; converti au repère modèle (origine coin) par
+  # x_m = x_cahier + 60 mm, y_m = z_cahier + 20 mm :
+  #   TC1(-60,0)  TC2(-30,-20)  TC3(0,-20)  TC4(30,-20)  TC5(60,-20)
+  # → TC2-TC5 au BORD de largeur (y=0, lobes chauds du profil « M ») ; TC1 au
+  # centre de largeur et au bord de longueur. (Remplace l'ancienne hypothèse
+  # TC1=surface / TC alignés sur les spots, qui était erronée.)
+  TC1: {x: 0.000, y: 0.020, z: interface}
+  TC2: {x: 0.030, y: 0.000, z: interface}
+  TC3: {x: 0.060, y: 0.000, z: interface}
+  TC4: {x: 0.090, y: 0.000, z: interface}
+  TC5: {x: 0.120, y: 0.000, z: interface}
 tc_valides: [TC1, TC2, TC3, TC4, TC5]
