@@ -12,6 +12,7 @@ et rappelle l'outil avec des paramètres corrigés.
 
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 import time
@@ -53,7 +54,9 @@ def config_essai(essai_reference: str, courant: float | None = None,
         return (f"❌ Essai de référence « {essai_reference} » introuvable. "
                 f"Références disponibles : {dispo}.")
 
-    with open(base) as f:
+    # encoding explicite : les YAML de référence contiennent des commentaires
+    # UTF-8 (accents, « », →) que Windows lirait en cp1252 par défaut → crash.
+    with open(base, encoding="utf-8") as f:
         spec = yaml.safe_load(f)
 
     modifs = {}
@@ -72,7 +75,9 @@ def config_essai(essai_reference: str, courant: float | None = None,
 
     nom = f"_session_{int(time.time() * 1000) % 10_000_000}"
     spec["nom"] = nom
-    with open(ESSAIS / f"{nom}.yaml", "w") as f:
+    # écriture en UTF-8 : le cœur relit ce fichier en encoding="utf-8"
+    # (src/jumeau/validation/chargement.py) — rester cohérent des deux côtés.
+    with open(ESSAIS / f"{nom}.yaml", "w", encoding="utf-8") as f:
         yaml.safe_dump(spec, f, allow_unicode=True, sort_keys=False)
 
     resume = ", ".join(f"{k}={v}" for k, v in modifs.items()) or "aucune (essai tel quel)"
@@ -91,7 +96,18 @@ def lancer_simulation(essai: str, nx: int = 31, ny: int = 11) -> str:
            "--facteur", str(FACTEUR_COUPLAGE), "--decalage-x", str(DECALAGE_X),
            "--h-haut", str(H_HAUT), "--h-bas-2d", str(H_BAS_2D),
            "--nx", str(nx), "--ny", str(ny), "--essais", essai]
-    proc = subprocess.run(cmd, cwd=RACINE, capture_output=True, text=True, timeout=600)
+    # UTF-8 explicite des deux côtés : le solveur imprime °C, « écart », des
+    # tableaux — sous Windows le défaut serait cp1252 (mojibake / UnicodeError).
+    # PYTHONUTF8/PYTHONIOENCODING forcent l'enfant à émettre de l'UTF-8 ;
+    # encoding="utf-8", errors="replace" garantissent un décodage parent sans crash.
+    env = {**os.environ, "PYTHONUTF8": "1", "PYTHONIOENCODING": "utf-8"}
+    try:
+        proc = subprocess.run(cmd, cwd=RACINE, capture_output=True, timeout=600,
+                              encoding="utf-8", errors="replace", env=env)
+    except subprocess.TimeoutExpired:
+        return (f"❌ La simulation de « {essai} » a dépassé le délai (600 s) avec "
+                f"nx={nx}, ny={ny}. Relance lancer_simulation avec une grille plus "
+                f"grossière (par ex. nx=21, ny=9) pour accélérer le calcul.")
 
     if proc.returncode != 0:
         console = (proc.stderr or proc.stdout)[-1500:]
