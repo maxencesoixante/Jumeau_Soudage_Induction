@@ -80,6 +80,21 @@ class Ambiant:
     h_convection: float = 15.0
     h_bas: float = 15.0
     stefan_boltzmann: float = 5.67e-8
+    # Perte effective face inférieure/ambiant du modèle 2D LUMPÉ dans
+    # l'épaisseur (solveur2d.SolveurThermique2D) — distincte de ``h_bas``
+    # (coefficient de convection de surface du modèle 3D résolu en z).
+    # Ici ``h_bas_2d`` absorbe, en un seul coefficient, tout ce que le 3D
+    # sépare en convection+rayonnement face inférieure ET conduction à
+    # travers le demi-stack inférieur (le modèle 2D n'a plus de résolution
+    # en z pour ces deux effets) : ne pas la confondre avec ``h_bas`` ni la
+    # réutiliser telle quelle sur le 3D. Défaut = point de départ hérité de
+    # la dernière calibration 3D de ``h_bas`` sur chauffe_250A_3TC
+    # (facteur_couplage=5.2189, decalage_x=0.015, h_contact=5.0 ->
+    # h_bas=50.919, cf. scripts/calibrer.py docstring) : un ordre de
+    # grandeur raisonnable pour démarrer une calibration 2D dédiée, PAS une
+    # valeur calibrée pour ce modèle réduit. Borne suggérée pour la
+    # calibration à venir : [2, 300] W/m².K (même enveloppe que le 3D).
+    h_bas_2d: float = 50.919
 
 
 @dataclass
@@ -93,6 +108,19 @@ class ContactCeramique:
 
     h_contact: float = 50.0
     T_puits: float = 20.0
+    # Conductance effective TOP du modèle 2D lumpé dans l'épaisseur
+    # (solveur2d.SolveurThermique2D), sous l'empreinte céramique/CFC active
+    # (même masque que h_contact en 3D) — remplace le rôle de h_contact,
+    # mais représente maintenant la conduction à travers TOUT le demi-stack
+    # supérieur (laminé sup + twill) vers le puits, plus la conductance de
+    # contact elle-même, puisque le 2D n'a plus de nœuds z pour résoudre
+    # cette conduction séparément. NOUVEAU paramètre (2026-07-20), destiné à
+    # être calibré indépendamment de h_contact. Défaut = point de départ
+    # hérité de la dernière calibration 3D de h_contact sur chauffe_250A_3TC
+    # (h_contact=5.0, cf. scripts/calibrer.py docstring), à recalibrer pour
+    # le modèle 2D. Borne suggérée : [1, 50] W/m².K (même enveloppe que
+    # h_contact en 3D).
+    h_haut: float = 5.0
 
 
 @dataclass
@@ -114,8 +142,10 @@ class Config:
         cer = mat_cfg.get("ceramique", {})
         return cls(
             materiau=Materiau.depuis_config(mat_cfg["cf_pekk"]),
-            ambiant=Ambiant(**{k: amb[k] for k in ("T_amb", "h_convection", "h_bas", "stefan_boltzmann") if k in amb}),
-            contact=ContactCeramique(**{k: cer[k] for k in ("h_contact", "T_puits") if k in cer}),
+            ambiant=Ambiant(**{k: amb[k] for k in
+                               ("T_amb", "h_convection", "h_bas", "stefan_boltzmann", "h_bas_2d")
+                               if k in amb}),
+            contact=ContactCeramique(**{k: cer[k] for k in ("h_contact", "T_puits", "h_haut") if k in cer}),
             twill=mat_cfg.get("twill_suscepteur", {}),
             geometrie=geo_cfg,
         )

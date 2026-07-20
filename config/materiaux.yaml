@@ -33,11 +33,30 @@ ceramique:
   # Conductance de contact laminé -> céramique -> concentrateur.
   # O'Shaughnessey 2014 : bobine + concentrateur refroidis à l'eau, fixés à 20 °C
   # => la céramique agit comme un puits thermique vers T_puits.
-  h_contact: 50.0            # W/m2.K, incertain (calibré)
+  h_contact: 50.0            # W/m2.K, incertain (calibré, modèle 3D)
   T_puits: 20.0              # °C
+  # Conductance TOP effective du modèle 2D lumpé dans l'épaisseur
+  # (jumeau.thermique.solveur2d.SolveurThermique2D), sous l'empreinte CFC
+  # active : remplace le rôle de h_contact mais absorbe aussi la conduction
+  # à travers le demi-stack supérieur (plus de résolution en z côté 2D).
+  # NOUVEAU (2026-07-20). Point de départ = dernière calibration 3D de
+  # h_contact sur chauffe_250A_3TC (5.0, cf. scripts/calibrer.py docstring),
+  # PAS une valeur calibrée pour le 2D — à recalibrer. Borne suggérée pour
+  # la calibration à venir : [1, 50] W/m2.K (même enveloppe que h_contact).
+  h_haut: 5.0                 # W/m2.K, incertain (point de départ, modèle 2D)
 
 ambiant:
   T_amb: 20.0                # °C
   h_convection: 15.0         # W/m2.K — faces libres (notebook 1D ; litt. 5-15)
-  h_bas: 15.0                # W/m2.K — face inférieure vers bâti/table, incertain
+  h_bas: 15.0                # W/m2.K — face inférieure vers bâti/table, incertain (modèle 3D)
   stefan_boltzmann: 5.67e-8
+  # Perte effective face inférieure/ambiant du modèle 2D lumpé dans
+  # l'épaisseur (jumeau.thermique.solveur2d.SolveurThermique2D) : absorbe en
+  # un seul coefficient la convection+rayonnement face inférieure ET la
+  # conduction à travers le demi-stack inférieur du modèle 3D (plus de
+  # résolution en z côté 2D) — distincte de h_bas, ne pas confondre.
+  # NOUVEAU (2026-07-20). Point de départ = dernière calibration 3D de h_bas
+  # sur chauffe_250A_3TC (50.919, cf. scripts/calibrer.py docstring), PAS
+  # une valeur calibrée pour le 2D — à recalibrer. Borne suggérée pour la
+  # calibration à venir : [2, 300] W/m2.K (même enveloppe que h_bas 3D).
+  h_bas_2d: 50.919            # W/m2.K, incertain (point de départ, modèle 2D)

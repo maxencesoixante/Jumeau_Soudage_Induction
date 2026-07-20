@@ -17,6 +17,7 @@ import numpy as np
 from .geometrie import construire_couches, construire_grille, masque_empreinte_cfc
 from .materiaux import Config, charger_yaml
 from .em.source_joule import source_spot
+from .thermique.solveur2d import SolveurThermique2D
 from .thermique.solveur3d import Grille3D, SolveurThermique3D
 
 
@@ -70,6 +71,19 @@ class Essai:
             }
             self._noeuds_controle = sorted(noeuds)
 
+        # --- modèle 2D (lumpé dans l'épaisseur, cf. thermique/solveur2d.py) :
+        # P_surf par spot = somme sur z du champ Q 3D déjà calculé ci-dessus
+        # (W/m³ -> W/m², cf. commentaire de conservation dans source_joule.py :
+        # le poids appliqué par couche garantit que Σ_z Q·dz redonne
+        # exactement la puissance surfacique déposée par cette couche).
+        self._P_spots_2d = [Q.sum(axis=2) * self.grille.dz for Q in self._Q_spots]
+        self._P_nul_2d = np.zeros_like(self._P_spots_2d[0])
+        # nœuds de contrôle 2D : mêmes (x, y) que le 3D, sans coordonnée z
+        # (la maille EST l'interface dans le modèle lumpé).
+        self._noeuds_controle_2d: list[tuple[int, int]] = sorted(
+            {(ix, iy) for ix, iy, _ in self._noeuds_controle}
+        )
+
     # ------------------------------------------------------------------
     def _spot_actif(self, t: float) -> int | None:
         for i, s in enumerate(self.spots):
@@ -101,6 +115,26 @@ class Essai:
             Q = Q / (1.0 + np.exp((T_ctrl - float(consigne)) / 2.0))
         return Q
 
+    def source_fn_2d(self, t: float, T: np.ndarray | None = None) -> np.ndarray:
+        """Source surfacique 2D (W/m², cf. thermique/solveur2d.py) au temps t.
+
+        Miroir de ``source_fn`` pour le modèle lumpé : même thermostat de
+        consigne, mais ``T`` est le champ (nx, ny) d'interface (pas besoin de
+        ``iz_interface``, la maille EST l'interface) et ``P`` est en W/m² (pas
+        W/m³ — la conversion volumique se fait dans ``SolveurThermique2D``).
+        """
+        i = self._spot_actif(t)
+        if i is None:
+            return self._P_nul_2d
+        P = self._P_spots_2d[i]
+        consigne = self.spec.get("consigne_interface")
+        if consigne is not None and T is not None:
+            ix, iy = self.grille.indice_xy(float(self.spots[i]["centre_x"]),
+                                           self.grille.largeur / 2.0)
+            T_ctrl = T[ix, iy]
+            P = P / (1.0 + np.exp((T_ctrl - float(consigne)) / 2.0))
+        return P
+
     def masque_fn(self, t: float) -> np.ndarray:
         i = self._spot_actif(t)
         if i is None:
@@ -109,23 +143,50 @@ class Essai:
         return self._masques[i]
 
     # ------------------------------------------------------------------
-    def simuler(self, dt_sortie: float = 1.0, **kwargs):
+    def simuler(self, dt_sortie: float = 1.0, modele: str = "3D", **kwargs):
+        """Simule l'essai. ``modele`` : "3D" (défaut, API historique inchangée,
+        résolution complète dans l'épaisseur) ou "2D" (lumpé à l'interface,
+        cf. ``thermique/solveur2d.py`` — ~10x plus rapide, TC surface/opposée
+        non représentables, cf. ``series_tc``)."""
         duree = float(self.spec.get("duree_totale", self.spec["duree_chauffe"]))
         t_eval = np.arange(0.0, duree + dt_sortie / 2, dt_sortie)
-        solveur = SolveurThermique3D(
-            self.grille, self.cfg.materiau, self.cfg.ambiant, self.cfg.contact,
-            masque_ceramique=self.masque_fn,
-        )
-        kwargs.setdefault("noeuds_controle", self._noeuds_controle or None)
-        sol = solveur.simuler(self.source_fn, (0.0, duree), t_eval=t_eval, **kwargs)
+        if modele == "3D":
+            solveur = SolveurThermique3D(
+                self.grille, self.cfg.materiau, self.cfg.ambiant, self.cfg.contact,
+                masque_ceramique=self.masque_fn,
+            )
+            kwargs.setdefault("noeuds_controle", self._noeuds_controle or None)
+            sol = solveur.simuler(self.source_fn, (0.0, duree), t_eval=t_eval, **kwargs)
+        elif modele == "2D":
+            solveur = SolveurThermique2D(
+                self.grille, self.cfg.materiau, self.cfg.ambiant, self.cfg.contact,
+                masque_ceramique=self.masque_fn,
+            )
+            kwargs.setdefault("noeuds_controle", self._noeuds_controle_2d or None)
+            sol = solveur.simuler(self.source_fn_2d, (0.0, duree), t_eval=t_eval, **kwargs)
+        else:
+            raise ValueError(f"modele={modele!r} inconnu (attendu '3D' ou '2D')")
         return solveur, sol
 
     # ------------------------------------------------------------------
-    def series_tc(self, solveur: SolveurThermique3D, sol) -> dict[str, np.ndarray]:
-        """Séries temporelles simulées aux positions des thermocouples."""
+    def series_tc(self, solveur, sol) -> dict[str, np.ndarray]:
+        """Séries temporelles simulées aux positions des thermocouples.
+
+        En mode 2D (``solveur`` est un ``SolveurThermique2D``), les TC
+        ``z: surface``/``z: opposee`` ne sont pas représentables (une seule
+        maille dans l'épaisseur) et sont silencieusement EXCLUS du résultat
+        (cf. docstring ``thermique/solveur2d.py``) — pour ``chauffe_250A_3TC``
+        seul TC2 (interface) reste exploitable en 2D.
+        """
         series = {}
+        est_2d = isinstance(solveur, SolveurThermique2D)
         for nom, pos in self.spec.get("thermocouples", {}).items():
-            series[nom] = solveur.serie_temporelle(sol, float(pos["x"]), float(pos["y"]), pos["z"])
+            if est_2d:
+                if pos["z"] != "interface":
+                    continue
+                series[nom] = solveur.serie_temporelle(sol, float(pos["x"]), float(pos["y"]))
+            else:
+                series[nom] = solveur.serie_temporelle(sol, float(pos["x"]), float(pos["y"]), pos["z"])
         return series
 
     @property
