@@ -36,6 +36,19 @@ fibre-fibre et l'incertitude sur σ — c'est le seul facteur d'échelle libre d
 la source (la fréquence est FIGÉE à sa valeur nominale : sans mesure de f,
 elle serait totalement corrélée au facteur d'échelle — leçon du test
 black-box sur l'identifiabilité f_I/r_I).
+
+Déficit de chauffe de TC1 — ``decalage_x`` écarté (2026-07-20) : TC1 (surface,
+dans ``lamine_sup``) chauffe 5–6× trop lentement que la mesure. Un balayage EM
+de ``decalage_x`` sur [0, 0.015] m (diagnostic jusqu'à 0.050 m, ``facteur_couplage``
+figé) montre que le rapport ``Q(TC1)/Q(TC2)`` culmine à ~0,12 vers 7 mm et reste
+5–50× sous 1 sur tout le domaine, alors que la cible mesurée est
+``taux_TC1/taux_TC2 ≈ 1,71``. Décaler la bobine déplace le zéro de dissipation
+du plan de symétrie du hairpin mais ne peut PAS inverser la hiérarchie de
+résistivité inter-couches (``lamine_sup`` ρ≈3,7 mΩ·m vs ``twill_suscepteur``
+ρ≈0,09 mΩ·m, ~40× plus conducteur). Le déficit TC1 est donc structurel
+(répartition de puissance entre couches / champ proche non capturé par la
+plaque mince), pas un problème de positionnement — ne pas retenter ``decalage_x``
+comme remède sans nouvelle donnée (cf. README, § Limites connues).
 """
 
 from __future__ import annotations
