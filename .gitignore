@@ -12,4 +12,5 @@ resultats_calibration.log
 resultats_validation.log
 resultats_validation_thetafinal.log
 resultats_validation_2d.log
+resultats_validation_2d_thermostat.log
 .pytest_cache/

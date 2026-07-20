@@ -20,6 +20,32 @@ from .em.source_joule import source_spot
 from .thermique.solveur2d import SolveurThermique2D
 from .thermique.solveur3d import Grille3D, SolveurThermique3D
 
+# Largeur (°C) de la transition du thermostat sigmoïde de coupure sur consigne
+# (cf. Essai.source_fn / source_fn_2d) : facteur = 1/(1+exp((T_ctrl-consigne)/LARGEUR)).
+# Nommée (plutôt qu'un "2" en dur) pour être documentée et testable. Diagnostic
+# de validation croisée du 2026-07-20 (essais 250 A serieA_A-1/serieB_B-2,
+# pics simulés dépassant la consigne de +60 à +120 °C) : réduire CETTE largeur
+# seule, de 2.0 à 0.05 °C (quasi-échelon), ne change les pics simulés que de
+# <1 °C, y compris avec la nouvelle définition de T_ctrl ci-dessous (cf.
+# rapport thermal-solver-engineer 2026-07-20) -> la largeur n'est PAS le
+# principal levier de dépassement ici. Conservée à 2.0 °C (valeur historique
+# validée en 1D, cf. docstring module) : assez raide pour une coupure nette
+# (transition ~±4-9 °C), assez douce pour ne pas ajouter de raideur numérique
+# BDF. Le vrai fix est la définition de T_ctrl (POIDS_POINT_THERMOSTAT ci-dessous).
+LARGEUR_THERMOSTAT_C: float = 2.0
+
+# Poids du nœud ponctuel (centre_x, largeur/2, interface) dans T_ctrl, le
+# complément (1 - POIDS) pondérant la moyenne de T sur toute la coupe
+# transverse en y du spot actif -- cf. docstring Essai.source_fn pour le
+# diagnostic complet. Choisi par balayage 0.3/0.5/0.6/0.7/0.8/0.85 sur les 3
+# essais de validation croisée (serieA_A-1, serieA_A-3, serieB_B-2, θ calibré
+# 2D du 2026-07-19) : 0.7 minimise l'écart de pic moyen |ΔT_max| sur les 11
+# TC d'interface (74,7 °C -> 14,6 °C, cf. rapport de vérification) sans
+# système biaisé dans un sens -> 0.6 et 0.8 sont tous deux moins bons (plus
+# proche de 0 = sous-chauffe généralisée façon "moyenne pure" ; plus proche de
+# 1 = re-dérive vers le dépassement du nœud ponctuel seul).
+POIDS_POINT_THERMOSTAT: float = 0.7
+
 
 class Essai:
     """Charge un YAML d'essai et construit source_fn / masque_fn / solveur."""
@@ -56,18 +82,42 @@ class Essai:
             for s in self.spots
         ]
         self._Q_nul = np.zeros_like(self._Q_spots[0])
-        # nœuds de contrôle du thermostat (asservissement de source_fn à T),
-        # un par spot (centre_x, y=largeur/2, z=interface) — cf. source_fn.
+        # nœuds de contrôle du thermostat (asservissement de source_fn à T) —
+        # un jeu de nœuds PAR SPOT : toute la colonne en y à l'abscisse du
+        # spot (centre_x, TOUT y, z=interface), plus l'ancien point unique
+        # (centre_x, largeur/2, interface). cf. source_fn pour la raison :
+        # ce point unique coïncide avec le plan de symétrie y=largeur/2 du
+        # hairpin, où la dissipation Joule a un zéro quasi exact (cf.
+        # identification/calibration.py, découverte agent EM 2026-07-18) ;
+        # T y monte donc presque uniquement par conduction latérale depuis
+        # les zones bien plus chauffées du même spot (jusqu'à ~60-80x plus de
+        # puissance locale à quelques mm en y, cf. rapport de diagnostic
+        # 2026-07-20) — la sonde ne "voit" le dépassement qu'avec un retard
+        # de diffusion, longtemps après que l'essentiel de l'excès d'énergie
+        # a déjà été déposé ailleurs dans l'empreinte, INDÉPENDAMMENT de la
+        # largeur de la sigmoïde (vérifié : resserrer la largeur seule, de 2
+        # à 0,05 °C, ne change les pics simulés que de <1 °C). ``T_ctrl``
+        # (cf. source_fn/source_fn_2d) mélange donc ce point ET la moyenne de
+        # TOUTE la coupe transverse du spot (poids ``POIDS_POINT_THERMOSTAT``)
+        # : le thermostat coupe dès qu'une fraction significative de la
+        # section chauffe, pas seulement quand le nœud malchanceux du plan de
+        # symétrie y arrive (trop tard) -> dépassement des pics fortement
+        # réduit sur les essais à forte source (250 A), cf. rapport de
+        # vérification (moyenne pure testée aussi : sur-corrige, sous-chauffe
+        # généralisée de 50-100 °C).
         # Union transmise au solveur pour que le jacobien creux couvre le
         # couplage source<->T_controle (sinon les FD groupées par couleur de
-        # scipy ne l'évaluent jamais -> BDF rampe près de la consigne).
+        # scipy ne l'évaluent jamais -> BDF rampe près de la consigne) ; TOUS
+        # les nœuds qui entrent dans T_ctrl doivent être déclarés comme
+        # colonnes de contrôle, pas seulement l'ancien point unique (vérifié :
+        # sans ça, BDF devient ~5-10x plus lent sans que la solution change,
+        # cf. rapport de vérification).
         self._noeuds_controle: list[tuple[int, int, int]] = []
         if self.spec.get("consigne_interface") is not None:
-            iy_ctrl = self.grille.indice_xy(0.0, self.grille.largeur / 2.0)[1]
             noeuds = {
-                (self.grille.indice_xy(float(s["centre_x"]), self.grille.largeur / 2.0)[0],
-                 iy_ctrl, self.grille.iz_interface)
+                (self.grille.indice_xy(float(s["centre_x"]), 0.0)[0], iy, self.grille.iz_interface)
                 for s in self.spots
+                for iy in range(self.grille.ny)
             }
             self._noeuds_controle = sorted(noeuds)
 
@@ -91,17 +141,59 @@ class Essai:
                 return i
         return None
 
+    def _T_ctrl(self, T: np.ndarray, spot: dict, deux_d: bool) -> float:
+        """Température de contrôle du thermostat pour le spot actif ``spot``.
+
+        Mélange (poids ``POIDS_POINT_THERMOSTAT``) le nœud ponctuel historique
+        (centre_x, largeur/2, interface) et la MOYENNE de T sur toute la coupe
+        transverse en y du spot actif (x=centre_x, tout y, z=interface en 3D
+        / T EST déjà le champ d'interface en 2D) :
+
+            T_ctrl = p·T_point + (1-p)·T_moyenne_section,  p = POIDS_POINT_THERMOSTAT
+
+        Pourquoi ni l'un ni l'autre seul : le nœud ponctuel coïncide avec le
+        plan de symétrie y=largeur/2 du hairpin, où la dissipation Joule a un
+        zéro quasi exact (cf. identification/calibration.py, découverte agent
+        EM 2026-07-18) ; il ne "voit" un dépassement de consigne QUE par
+        conduction latérale retardée depuis les zones bien plus chauffées du
+        même spot (jusqu'à ~60-80x plus de puissance locale à quelques mm en
+        y) — longtemps après que l'essentiel de l'excès d'énergie a déjà été
+        déposé ailleurs dans l'empreinte, INDÉPENDAMMENT de la largeur de la
+        sigmoïde (vérifié : resserrer ``LARGEUR_THERMOSTAT_C`` seule, de 2 à
+        0,05 °C, sur le SEUL nœud ponctuel change les pics simulés de <1 °C).
+        À l'inverse, asservir sur la moyenne (ou pire, le maximum) de la
+        section coupe la source dès qu'une petite zone très locale s'échauffe
+        et SOUS-chauffe massivement les autres essais (testé : moyenne pure
+        -50 à -85 °C, maximum pur -60 à -160 °C vs mesures). Le mélange à
+        ``POIDS_POINT_THERMOSTAT`` (calibré par balayage sur les 3 essais de
+        validation croisée, cf. constante) réduit le dépassement des essais
+        250 A de +60/+120 °C à des écarts de quelques °C à quelques dizaines
+        de °C, sans dégrader (au contraire, améliore) le bon accord de
+        serieA_A-3 — cf. rapport de vérification thermal-solver-engineer
+        2026-07-20.
+        """
+        ix = self.grille.indice_xy(float(spot["centre_x"]), 0.0)[0]
+        if deux_d:
+            iy_point = self.grille.indice_xy(0.0, self.grille.largeur / 2.0)[1]
+            T_point = T[ix, iy_point]
+            T_moyenne = T[ix, :].mean()
+        else:
+            iy_point = self.grille.indice_xy(0.0, self.grille.largeur / 2.0)[1]
+            T_point = T[ix, iy_point, self.grille.iz_interface]
+            T_moyenne = T[ix, :, self.grille.iz_interface].mean()
+        return POIDS_POINT_THERMOSTAT * T_point + (1.0 - POIDS_POINT_THERMOSTAT) * T_moyenne
+
     def source_fn(self, t: float, T: np.ndarray | None = None) -> np.ndarray:
         """Source volumique au temps t, éventuellement asservie à la température.
 
         Si l'essai déclare ``consigne_interface`` (°C), la source est modulée
-        par un thermostat lisse sur la température d'interface au centre du
-        spot actif : facteur = 1/(1+exp((T_ctrl−consigne)/2)). C'est le
-        comportement réel du procédé (« chauffe à I jusqu'à T_processing »,
-        coupure sur consigne — fiches Séries A/B, B-2 à 360 °C) : sans cet
-        asservissement, appliquer I pendant toute la fenêtre d'impulsion fait
-        diverger la température (validation du 2026-07-18 : ~1000 °C simulés
-        vs ~400 °C mesurés).
+        par un thermostat lisse : facteur = 1/(1+exp((T_ctrl−consigne)/LARGEUR)),
+        cf. ``LARGEUR_THERMOSTAT_C``. C'est le comportement réel du procédé
+        (« chauffe à I jusqu'à T_processing », coupure sur consigne — fiches
+        Séries A/B, B-2 à 360 °C) : sans cet asservissement, appliquer I
+        pendant toute la fenêtre d'impulsion fait diverger la température
+        (validation du 2026-07-18 : ~1000 °C simulés vs ~400 °C mesurés).
+        ``T_ctrl`` : cf. ``_T_ctrl``.
         """
         i = self._spot_actif(t)
         if i is None:
@@ -109,19 +201,18 @@ class Essai:
         Q = self._Q_spots[i]
         consigne = self.spec.get("consigne_interface")
         if consigne is not None and T is not None:
-            ix, iy = self.grille.indice_xy(float(self.spots[i]["centre_x"]),
-                                           self.grille.largeur / 2.0)
-            T_ctrl = T[ix, iy, self.grille.iz_interface]
-            Q = Q / (1.0 + np.exp((T_ctrl - float(consigne)) / 2.0))
+            T_ctrl = self._T_ctrl(T, self.spots[i], deux_d=False)
+            Q = Q / (1.0 + np.exp((T_ctrl - float(consigne)) / LARGEUR_THERMOSTAT_C))
         return Q
 
     def source_fn_2d(self, t: float, T: np.ndarray | None = None) -> np.ndarray:
         """Source surfacique 2D (W/m², cf. thermique/solveur2d.py) au temps t.
 
         Miroir de ``source_fn`` pour le modèle lumpé : même thermostat de
-        consigne, mais ``T`` est le champ (nx, ny) d'interface (pas besoin de
-        ``iz_interface``, la maille EST l'interface) et ``P`` est en W/m² (pas
-        W/m³ — la conversion volumique se fait dans ``SolveurThermique2D``).
+        consigne (même ``T_ctrl``, cf. ``_T_ctrl``), mais ``T`` est le champ
+        (nx, ny) d'interface (pas besoin de ``iz_interface``, la maille EST
+        l'interface) et ``P`` est en W/m² (pas W/m³ — la conversion volumique
+        se fait dans ``SolveurThermique2D``).
         """
         i = self._spot_actif(t)
         if i is None:
@@ -129,10 +220,8 @@ class Essai:
         P = self._P_spots_2d[i]
         consigne = self.spec.get("consigne_interface")
         if consigne is not None and T is not None:
-            ix, iy = self.grille.indice_xy(float(self.spots[i]["centre_x"]),
-                                           self.grille.largeur / 2.0)
-            T_ctrl = T[ix, iy]
-            P = P / (1.0 + np.exp((T_ctrl - float(consigne)) / 2.0))
+            T_ctrl = self._T_ctrl(T, self.spots[i], deux_d=True)
+            P = P / (1.0 + np.exp((T_ctrl - float(consigne)) / LARGEUR_THERMOSTAT_C))
         return P
 
     def masque_fn(self, t: float) -> np.ndarray:
