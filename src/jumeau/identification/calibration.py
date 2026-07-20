@@ -1,4 +1,4 @@
-"""Calibration LHS + NLSQ des entrées incertaines du modèle 3D.
+"""Calibration LHS + NLSQ des entrées incertaines des modèles 3D et 2D.
 
 Pipeline porté du notebook 1D (MAX_InductionNumerical) et de sa vérification
 black-box (Samanis et al. 2026 §2.3) :
@@ -6,19 +6,29 @@ black-box (Samanis et al. 2026 §2.3) :
 2. NLSQ (Gauss-Newton, scipy.least_squares) avec résidus pondérés par le
    bruit capteur σ = std(diff(mesure))/√2 (plancher 0,1 °C).
 
-Paramètres calibrés (defaut) — choisis pour rester identifiables (leçon
-black-box : ne PAS calibrer fréquence + facteur d'échelle ensemble) :
+Paramètres calibrés (4, communs aux deux modèles pour les 2 premiers) —
+choisis pour rester identifiables (leçon black-box : ne PAS calibrer
+fréquence + facteur d'échelle ensemble) :
 - ``facteur_couplage``  : échelle GLOBALE de la source Joule (blindage, contacts,
   σ et f incertains) ;
 - ``decalage_x``        : décalage bobine<->montage le long de x (incertitude de
   positionnement non mesurée, cf. geometrie.yaml:coil.decalage_x). Ajouté le
   2026-07-18 après la découverte par l'agent EM d'un zéro EXACT de dissipation
-  au plan de symétrie du hairpin, plan qui coïncide avec les TC de
-  chauffe_250A_3TC (spot centre_x=0,060 = centre du laminé = position des 3 TC) ;
-  un décalage de quelques mm déplace ce zéro et change fortement le taux de
-  chauffe local (5,6 -> 13,25 °C/s pour +10 mm à facteur fixé) ;
-- ``h_contact``         : conductance vers le puits céramique/concentrateur ;
-- ``h_bas``             : convection équivalente face inférieure.
+  au plan de symétrie du hairpin ;
+- 3D : ``h_contact`` (conductance vers le puits céramique/concentrateur) et
+  ``h_bas`` (convection équivalente face inférieure) ;
+- 2D (modèle lumpé dans l'épaisseur, ``thermique/solveur2d.py``, 2026-07-20) :
+  ``h_haut`` (``materiaux.ContactCeramique.h_haut`` — perte effective vers le
+  puits céramique/concentrateur, active seulement sous le masque CFC) et
+  ``h_bas_2d`` (``materiaux.Ambiant.h_bas_2d`` — perte effective face
+  opposée/ambiant, appliquée partout). Ce sont les analogues lumpés de
+  h_contact/h_bas : mêmes rôles physiques (haut = puits sous CFC, bas =
+  ambiant partout), donc a priori séparément identifiables par le même
+  argument spatial que 3D (où corr(h_contact, h_bas) = 0.067, cf. historique
+  ci-dessous) — un TC actuellement sous une empreinte CFC pressée voit h_haut
+  ET h_bas_2d, un TC hors empreinte (refroidissement, passe suivante) ne voit
+  QUE h_bas_2d : le masque CFC (suit le spot actif, cf. ``Essai.masque_fn``)
+  fournit le contraste nécessaire.
 
 SYMÉTRIE DE decalage_x (identifiabilité du signe) — pour chauffe_250A_3TC le
 spot est centré (x=0,060 m) sur un laminé de longueur 0,120 m avec conditions
@@ -31,58 +41,73 @@ essai est pair en decalage_x et le SIGNE n'est pas identifiable depuis ces
 données seules (vérifié numériquement : simulations à decalage_x=±0,005 et
 ±0,010 avec (facteur, h_contact, h_bas) figés donnent des séries TC1/2/3
 identiques à la précision numérique du solveur). Les bornes de calibration
-sont donc repliées sur [0, +borne_max] plutôt que [−borne_max, +borne_max] :
-calibrer sur l'intervalle signé produirait deux bassins d'attraction
-symétriques et un NLSQ local resterait piégé arbitrairement dans l'un des
-deux, ce qui est trompeur à rapporter comme une incertitude gaussienne unique.
-``decalage_x`` calibré ici doit donc être lu comme une AMPLITUDE de décalage,
-pas une direction ; la direction réelle resterait à trancher par une mesure
-indépendante (cartographie bobine/CFC/TC au montage) si elle devient utile
-(ex. essais avec spot non centré, où la symétrie ne tient plus).
+sont donc repliées sur [0, +borne_max] plutôt que [−borne_max, +borne_max].
+Pour les essais Séries A/B (4 spots au pas de 30 mm, TC un par spot), le
+même repli [0, +max] est conservé par défaut PAR COHÉRENCE avec le 3D et par
+prudence : bien que la symétrie stricte plan-par-plan ne tienne plus TC à TC
+(chaque TC ne voit qu'UN spot décalé, pas une paire image), l'ENSEMBLE des 4
+spots reste globalement symétrique en x autour du centre du laminé (spots à
+15,875/45,875/75,875/105,875 mm, symétriques 2 à 2 autour de 60,875 mm) et
+rien ne garantit a priori que le signe soit mieux résolu ; le borner à
+[0, +max] reste donc l'hypothèse par défaut, à assouplir seulement si un
+diagnostic ultérieur le justifie.
 
-IDENTIFIABILITÉ facteur_couplage <-> decalage_x — avertissement de l'agent EM :
-les deux paramètres remodèlent Q local près du TC (l'un à l'échelle globale,
-l'autre en déplaçant le zéro de dissipation) ; c'est la même famille de piège
-que f_I/r_I sur la plaque mince (deux paramètres qui redistribuent la même
-énergie déposée). Contrairement à f/facteur (dont la corrélation est
-EXACTE — un seul degré de liberté effectif), facteur_couplage et decalage_x ne
-sont PAS mathématiquement dégénérés : facteur_couplage change le NIVEAU de Q
-partout (y compris loin du zéro), decalage_x change surtout la FORME locale
-près du plan de symétrie ; avec 3 TC à des profondeurs différentes (surface,
-interface, face opposée) qui voient le champ décalé différemment, le
-problème a en principe assez d'information pour séparer les deux. Ce n'est
-qu'un espoir a priori : la matrice de corrélation post-fit (``_incertitudes``)
-DOIT être inspectée après calibration, et un |r| > 0.95 entre facteur_couplage
-et decalage_x doit être rapporté comme un signal de quasi-non-identifiabilité
-(auquel cas la recommandation est de figer decalage_x à sa valeur nominale
-CAO — 0 — ou à une valeur mesurée indépendamment, et de ne calibrer que
-facteur_couplage/h_contact/h_bas comme avant).
+IDENTIFIABILITÉ facteur_couplage <-> decalage_x — avertissement de l'agent EM,
+confirmé numériquement (calibration 3D sur chauffe_250A_3TC, 2026-07-19) :
+corr(facteur_couplage, decalage_x) = 0.985 > 0.95 ET decalage_x railé
+EXACTEMENT sur sa borne haute (0,015). Recommandation appliquée depuis : FIGER
+decalage_x (bord physique de l'enveloppe bobine/CFC, ou une valeur mesurée
+indépendamment) et ne calibrer que les 3 autres paramètres. La même
+vérification DOIT être refaite pour le modèle 2D (essai de calibration et
+grille source différents) — ne pas supposer que le résultat 3D se transpose
+tel quel ; la matrice de corrélation post-fit (``_incertitudes``) DOIT être
+inspectée après chaque calibration, et un |r| > 0.95 entre facteur_couplage
+et decalage_x rapporté comme un signal de quasi-non-identifiabilité.
 
-La calibration se fait sur UN essai (ex. chauffe_250A_3TC) ; la validation
-sur les autres essais se fait SANS recalibrage (scripts/valider.py).
+La calibration se fait sur UN essai ; la validation sur les autres essais se
+fait SANS recalibrage (scripts/valider.py).
+
+CHOIX DE L'ESSAI DE CALIBRATION 2D (2026-07-20) — en 2D, les TC ``z: surface``
+et ``z: opposee`` ne sont pas représentables (modèle lumpé à une maille dans
+l'épaisseur, cf. ``thermique/solveur2d.py`` et ``Essai.series_tc``) : sur
+chauffe_250A_3TC il ne reste que TC2 (interface), ce qui est sous-déterminé
+pour 4 paramètres. Les essais Séries A/B (serieA_A-1, serieA_A-3, serieB_B-2)
+ont jusqu'à 5 TC À L'INTERFACE à 4 positions x différentes (spots séquentiels
+au pas de 30 mm), ce qui apporte le contraste spatial nécessaire. Le
+Calibrateur FILTRE automatiquement ``tc_valides`` aux seuls TC ``z: interface``
+quand ``modele="2D"`` (les autres sont silencieusement exclus du résidu — un
+message est imprimé pour audit). Essai retenu par défaut pour la calibration
+2D : ``serieA_A-1`` (250 A, 5 TC dont 4 à l'interface après filtrage, consigne
+400 °C, 1420 s simulés) — cf. ``scripts/calibrer.py --modele 2D``.
 
 Note (post-mortem calibration bloquée) : chaque évaluation de résidu est une
-simulation 3D complète (~1-3 min sur la grille grossière par défaut). La phase
-NLSQ ne produisait auparavant AUCUNE sortie avant son tout dernier message,
-ce qui, combiné à ``max_nfev=60`` (jusqu'à 1-2 h sans un seul print), donnait
-l'impression d'un plantage alors que le calcul progressait normalement. Une
-simulation qui diverge réellement (bord de l'espace des paramètres,
-``solve_ivp`` en échec, température non finie) levait en outre une exception
-non rattrapée dans ``_residus`` pendant le NLSQ (seule la boucle LHS
-l'attrapait) : `least_squares` plante alors sans message exploitable. Les deux
-défauts sont corrigés ci-dessous : progression affichée par évaluation NLSQ, et
-un point divergent est désormais pénalisé par un résidu fini plutôt que de
-propager une exception.
+simulation complète (3D : ~1-3 min sur la grille grossière par défaut ; 2D :
+~2-20 s selon la durée simulée, ~63x plus rapide que le 3D sur la même grille
+de surface, cf. rapport de vérification du solveur 2D). La phase NLSQ ne
+produisait auparavant AUCUNE sortie avant son tout dernier message, ce qui,
+combiné à ``max_nfev`` élevé, donnait l'impression d'un plantage alors que le
+calcul progressait normalement. Une simulation qui diverge réellement (bord
+de l'espace des paramètres, ``solve_ivp`` en échec, température non finie)
+levait en outre une exception non rattrapée dans ``_residus`` pendant le
+NLSQ (seule la boucle LHS l'attrapait) : `least_squares` plante alors sans
+message exploitable. Les deux défauts sont corrigés ci-dessous : progression
+affichée par évaluation NLSQ, et un point divergent est désormais pénalisé
+par un résidu fini plutôt que de propager une exception.
 
 Note (extension à 4 paramètres, 2026-07-18) : ``decalage_x`` change la FORME
 du champ source (pas seulement son échelle comme ``facteur_couplage``), donc
-contrairement au schéma à 3 paramètres qui figeait un ``Essai`` de référence
-et ne faisait QUE mettre à l'échelle sa source pré-calculée (``facteur *
-essai.source_fn``), chaque évaluation de résidu reconstruit maintenant un
-``Essai`` complet (source EM recalculée avec le ``decalage_x`` courant). Le
-coût par évaluation augmente donc légèrement (un solve EM par couche et par
-nœud z retenu, au lieu d'un solve EM par couche partagé entre tous les
-theta) ; il reste dominé par l'intégration temporelle 3D.
+chaque évaluation de résidu reconstruit un ``Essai`` complet (source EM
+recalculée avec le ``decalage_x`` courant).
+
+Note (extension au modèle 2D, 2026-07-20) : ``_residus`` délègue maintenant
+la construction du solveur et l'intégration temporelle à ``Essai.simuler``
+(au lieu d'instancier ``SolveurThermique3D`` à la main) — un seul chemin de
+code pour les deux modèles, sélectionné par ``self.modele`` ("3D"/"2D"), qui
+reproduit exactement le comportement historique côté 3D (même ``t_eval``,
+mêmes valeurs par défaut de rtol/atol/max_step, mêmes nœuds de contrôle du
+thermostat). Côté 2D, les paramètres 3 et 4 de ``theta`` surchargent
+``cfg.contact.h_haut``/``cfg.ambiant.h_bas_2d`` au lieu de
+``cfg.contact.h_contact``/``cfg.ambiant.h_bas``.
 """
 
 from __future__ import annotations
@@ -114,39 +139,68 @@ class ResultatCalibration:
 
 
 class Calibrateur:
-    """Calibre [facteur_couplage, decalage_x, h_contact, h_bas] contre un essai mesuré."""
+    """Calibre [facteur_couplage, decalage_x, p3, p4] contre un essai mesuré.
 
-    NOMS = ("facteur_couplage", "decalage_x", "h_contact", "h_bas")
+    ``modele`` sélectionne la physique ET les deux derniers paramètres :
+    - "3D" (défaut, rétro-compatible) : p3=h_contact, p4=h_bas ;
+    - "2D" (modèle lumpé à l'interface) : p3=h_haut, p4=h_bas_2d ; les TC non
+      ``z: interface`` de l'essai sont automatiquement exclus du résidu (cf.
+      docstring module).
+    """
+
+    # noms des 4 paramètres calibrés, par modèle (les 2 premiers sont partagés)
+    NOMS_PAR_MODELE = {
+        "3D": ("facteur_couplage", "decalage_x", "h_contact", "h_bas"),
+        "2D": ("facteur_couplage", "decalage_x", "h_haut", "h_bas_2d"),
+    }
+    # bornes par défaut (basses, hautes), par modèle — h_haut/h_bas_2d suivent
+    # les enveloppes suggérées par materiaux.yaml (mêmes ordres de grandeur
+    # physiques que h_contact/h_bas 3D, cf. commentaires ceramique.h_haut et
+    # ambiant.h_bas_2d)
+    BORNES_PAR_MODELE = {
+        "3D": ((0.05, 0.0, 5.0, 2.0), (30.0, 0.015, 500.0, 300.0)),
+        "2D": ((0.05, 0.0, 1.0, 2.0), (30.0, 0.015, 50.0, 300.0)),
+    }
+    # attribut de classe historique (rétro-compat : code qui lisait
+    # Calibrateur.NOMS avant l'ajout du modèle 2D) — chaque INSTANCE expose
+    # aussi ``self.NOMS``, propre à son ``modele``, qui prime en pratique.
+    NOMS = NOMS_PAR_MODELE["3D"]
 
     # Pénalité (en unités de résidu pondéré, sans dimension) appliquée à un point
     # dont la simulation diverge ou échoue. Choisie nettement au-dessus du pire
-    # coût observé sur un point LHS raisonnable (~1.5-9e6 / ~900 résidus, soit un
-    # résidu quadratique moyen de l'ordre de quelques milliers -> résidu ~qq 10aines)
-    # pour que le point soit clairement rejeté par le solveur, sans être assez
-    # extrême pour dérégler l'échelle de confiance interne de `least_squares`.
+    # coût observé sur un point LHS raisonnable pour que le point soit
+    # clairement rejeté par le solveur, sans être assez extrême pour dérégler
+    # l'échelle de confiance interne de `least_squares`.
     PENALITE_RESIDU = 100.0
 
-    def __init__(self, cfg: Config, chemin_essai, bornes_basses=(0.05, 0.0, 5.0, 2.0),
-                 bornes_hautes=(30.0, 0.015, 500.0, 300.0), nx=31, ny=11, nz=13,
+    def __init__(self, cfg: Config, chemin_essai, modele: str = "3D",
+                 bornes_basses=None, bornes_hautes=None, nx=31, ny=11, nz=13,
                  recaler_debut=True):
+        if modele not in self.NOMS_PAR_MODELE:
+            raise ValueError(f"modele={modele!r} inconnu (attendu '3D' ou '2D')")
+        self.modele = modele
+        self.NOMS = self.NOMS_PAR_MODELE[modele]
+
         self.cfg = cfg
         self.chemin_essai = chemin_essai
         self.nx, self.ny, self.nz = nx, ny, nz
+        bornes_def = self.BORNES_PAR_MODELE[modele]
+        if bornes_basses is None:
+            bornes_basses = bornes_def[0]
+        if bornes_hautes is None:
+            bornes_hautes = bornes_def[1]
         self.bornes = (np.array(bornes_basses, float), np.array(bornes_hautes, float))
-        # ``decalage_x`` borné à [0, +max] et non [-max, +max] : le résidu de
-        # cet essai (spot + TC centrés en x=0,060 sur un domaine symétrique) est
-        # pair en decalage_x -> le signe n'est pas identifiable (voir docstring
-        # module). Calibrer sur l'intervalle signé créerait deux bassins
-        # d'attraction symétriques sans que le NLSQ local puisse choisir entre
-        # eux de façon reproductible.
+        # ``decalage_x`` borné à [0, +max] et non [-max, +max] : voir docstring
+        # module (signe non identifiable, hypothèse conservée par défaut aussi
+        # pour les essais Séries A/B utilisés en 2D).
         if self.bornes[0][1] < 0.0:
             raise ValueError(
-                "borne basse de decalage_x < 0 : le résidu de chauffe_250A_3TC "
-                "est pair en decalage_x (TC au plan de symétrie du hairpin), le "
-                "signe n'est pas identifiable — borner à [0, +max] (voir docstring)."
+                "borne basse de decalage_x < 0 : le signe de decalage_x n'est "
+                "pas garanti identifiable (voir docstring module) — borner à "
+                "[0, +max]."
             )
 
-        # grille grossière pour la calibration (chaque évaluation = 1 simulation 3D).
+        # grille grossière pour la calibration (chaque évaluation = 1 simulation).
         # Construit une première fois pour récupérer grille/spec/mesures ; theta
         # (y compris decalage_x, qui change la FORME du champ source) reconstruit
         # un Essai complet à chaque évaluation de résidu (cf. _residus).
@@ -162,7 +216,28 @@ class Calibrateur:
         self.df = df
         self.t_mes = df[tcol].values
 
-        self.tc_valides = list(self.essai.spec.get("tc_valides", []))
+        tc_valides = list(self.essai.spec.get("tc_valides", []))
+        self.tc_exclus_2d: list[str] = []
+        if modele == "2D":
+            # cf. Essai.series_tc : seuls les TC "z: interface" sont
+            # représentables par le modèle lumpé -> les exclure du résidu
+            # (sinon KeyError dans series[tc], rattrapé comme une divergence
+            # et pénalisant TOUT le vecteur de résidu, y compris les TC
+            # valides).
+            positions = self.essai.spec.get("thermocouples", {})
+            self.tc_exclus_2d = [tc for tc in tc_valides
+                                  if positions.get(tc, {}).get("z") != "interface"]
+            if self.tc_exclus_2d:
+                print(f"[Calibrateur 2D] TC exclus du résidu (non 'interface', "
+                      f"non représentables par le modèle lumpé) : {self.tc_exclus_2d}")
+            tc_valides = [tc for tc in tc_valides if tc not in self.tc_exclus_2d]
+        self.tc_valides = tc_valides
+        if not self.tc_valides:
+            raise ValueError(
+                f"aucun TC exploitable pour modele={modele!r} sur {chemin_essai} "
+                f"(tc_valides vide après filtrage) — choisir un autre essai."
+            )
+
         self.colonnes = {tc: next(c for c in df.columns if c.startswith(tc))
                          for tc in self.tc_valides}
         # pondération par bruit capteur (notebook 1D)
@@ -178,10 +253,14 @@ class Calibrateur:
 
     # ------------------------------------------------------------------
     def _residus(self, theta: np.ndarray) -> np.ndarray:
-        facteur, decalage_x, h_contact, h_bas = theta
+        facteur, decalage_x, p3, p4 = theta
         try:
-            self.cfg.contact.h_contact = float(h_contact)
-            self.cfg.ambiant.h_bas = float(h_bas)
+            if self.modele == "3D":
+                self.cfg.contact.h_contact = float(p3)
+                self.cfg.ambiant.h_bas = float(p4)
+            else:
+                self.cfg.contact.h_haut = float(p3)
+                self.cfg.ambiant.h_bas_2d = float(p4)
 
             # decalage_x change la FORME du champ source (pas seulement son
             # échelle) : on ne peut plus réutiliser un Essai figé et mettre sa
@@ -191,13 +270,7 @@ class Calibrateur:
                           facteur_couplage=float(facteur), decalage_x=float(decalage_x),
                           racine=self.racine)
 
-            from ..thermique.solveur3d import SolveurThermique3D
-            solveur = SolveurThermique3D(essai.grille, self.cfg.materiau,
-                                         self.cfg.ambiant, self.cfg.contact,
-                                         masque_ceramique=essai.masque_fn)
-            duree = float(essai.spec.get("duree_totale", essai.spec["duree_chauffe"]))
-            t_eval = np.arange(0.0, duree + 0.5, 1.0)
-            sol = solveur.simuler(essai.source_fn, (0.0, duree), t_eval=t_eval)
+            solveur, sol = essai.simuler(modele=self.modele)
             series = essai.series_tc(solveur, sol)
 
             res = []
@@ -296,9 +369,10 @@ class Calibrateur:
                 raise RuntimeError("Aucun point LHS n'a produit une simulation valide.")
 
         # --- NLSQ : chaque évaluation (résidu de base + différences finies du
-        # jacobien + essais de pas) est une simulation 3D complète. Sans retour
-        # visuel, l'absence de sortie pendant potentiellement 1-2h est
-        # indiscernable d'un plantage : on affiche donc la progression.
+        # jacobien + essais de pas) est une simulation complète. Sans retour
+        # visuel, l'absence de sortie pendant potentiellement plusieurs minutes
+        # à heures est indiscernable d'un plantage : on affiche donc la
+        # progression.
         nfev = [0]
 
         def residus_suivis(theta_libre):
@@ -313,9 +387,8 @@ class Calibrateur:
 
         if verbose:
             origine = "départ à chaud" if theta0 is not None else f"coût LHS={cout_min:.1f}"
-            print(f"NLSQ : démarrage à θ0={np.round(meilleur, 4).tolist()} "
-                  f"({origine}) — {max_nfev} évaluations max, "
-                  f"chaque simulation ~1-3 min.")
+            print(f"NLSQ [{self.modele}] : démarrage à θ0={np.round(meilleur, 4).tolist()} "
+                  f"({origine}) — {max_nfev} évaluations max.")
 
         res = least_squares(residus_suivis, meilleur, bounds=(lo, hi),
                             xtol=1e-4, ftol=1e-4, diff_step=0.05, max_nfev=max_nfev)

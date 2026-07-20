@@ -11,4 +11,5 @@ resultats/
 resultats_calibration.log
 resultats_validation.log
 resultats_validation_thetafinal.log
+resultats_validation_2d.log
 .pytest_cache/
