@@ -39,6 +39,7 @@ mesures thermocouples des essais (Séries A/B + essais de chauffe).
 | Fréquence FIGÉE à 388 kHz | relevé machine du 2026-07-17 (EASYHEAT à 250 A) ; elle reste corrélée au facteur d'échelle → seul le facteur est calibré (leçon black-box f_I/r_I) |
 | Bobine + CFC refroidis → puits 20 °C | O'Shaughnessey 2014 (COMSOL, refroidissement eau) |
 | Pertes diélectriques négligées | O'Shaughnessey 2014 §3.1.3 |
+| Pertes propres du CFC (Joule + hystérésis, Ferrotron 559H) non modélisées | négligeable : vérifié 2026-07-20 via la courbe de pertes constructeur (Fluxtrol *Ferrotron 559H* datasheet, µᵢ=16, ρ>15 kΩ·cm, Pv=4,1·f¹·¹·B²·⁵ W/cm³) — ≈0,6–1,4 W dissipés dans tout le bloc CFC à 250 A/388 kHz, contre ~50–260 W dans le twill ; 1 à 2 ordres de grandeur sous le déficit local requis à TC1 (cf. « Limites connues ») |
 
 ## Limites connues
 
@@ -64,6 +65,7 @@ mesures thermocouples des essais (Séries A/B + essais de chauffe).
   d'images ne capture pas la redistribution du flux par la semelle du CFC.
   **Test expérimental direct : la cartographie bord→centre proposée au cahier
   §2.1.4** (3–5 TC en ligne sur la largeur).
+- **TC1 (surface côté bobine) chauffe 5–6× trop lentement dans le modèle** (diagnostic thermal-solver-engineer, 2026-07-18/20 : 37,7 °C/s mesuré vs ~6,3 °C/s simulé, essai `chauffe_250A_3TC`). Écarté comme cause : condition limite thermique (h_contact=0 ne change quasiment rien, 6,38→6,42 °C/s) et diffusion (couper la source dans le laminé sup. fait chuter TC1 à 0,98 °C/s, τ_diffusion≈28,5 s ≫ 1 s) ; écarté comme explication (2026-07-20, chiffré ci-dessus) : auto-échauffement du CFC (Ferrotron 559H), 1–2 ordres de grandeur trop faible même dans l'hypothèse la plus généreuse (bande 2 mm côté céramique, toute l'empreinte CFC). **Mécanisme manquant non identifié** — aucune mesure de la température du CFC lui-même n'existe dans les essais actuels (TC1-3 sont tous sur le laminé, TC4/TC5 débranchés) pour trancher entre un déficit physique réel (mécanisme EM/thermique encore non modélisé) et un artefact de positionnement (`decalage_x`, le hairpin a un zéro de dissipation exact sur son plan de symétrie tout près de TC1). Mesure discriminante proposée : thermocouple ou caméra IR sur la face active du CFC pendant un essai de chauffe.
 
 ## Utilisation
 
@@ -93,4 +95,5 @@ TC2 = interface (tissu PW), TC3 = face opposée (README essais_chauffe).
 - Grouve 2020 — propriétés C/PEKK, µr=1, tenseur σ, h=10 W/m²K.
 - Lin 1993 — différences finies 2D, courants dans les fibres, plaque mince.
 - Duhovic 2012 — skin depth, ≥2 éléments dans la peau, convection.
+- Fluxtrol Inc. — *Ferrotron 559H* datasheet (rev. 06/02/15, fluxtrol.com) — propriétés matériau constructeur (µᵢ=16, ρ>15 kΩ·cm, courbe de pertes Pv=4,1·f¹·¹·B²·⁵) utilisée le 2026-07-20 pour chiffrer l'auto-échauffement du CFC (négligeable, cf. tableau des hypothèses).
 - Samanis et al. 2026 — méthode des lignes 1D, identification, test black-box.

@@ -14,6 +14,26 @@ inférieur du CFC avec un courant η·I, η = (µr−1)/(µr+1) ≈ 0,88. Cette
 approximation de demi-espace perméable intensifie le champ sous l'empreinte —
 elle capture l'effet de concentration au premier ordre, pas les effets de
 bord exacts du bloc fini (hypothèse assumée, cf. README).
+
+Auto-échauffement du CFC (Joule + hystérésis dans le Ferrotron 559H lui-même,
+PAS modélisé ici) : vérifié 2026-07-20 et écarté. Le champ à l'intérieur d'un
+demi-espace perméable adjacent au fil réel s'obtient par le même calcul
+d'images que ci-dessus, mais avec un courant effectif image_int = 2·µr/(µr+1)·I
+PLACÉ À LA POSITION RÉELLE de la bobine (pas au miroir), le champ résultant
+étant alors évalué avec le champ_segments habituel (dérivation par
+continuité de B_n/H_t à l'interface, cohérente par construction avec le
+η=(µr−1)/(µr+1) ci-dessus — les deux proviennent de la même résolution des
+conditions de raccord). Avec la courbe de pertes constructeur (Fluxtrol
+*Ferrotron 559H* datasheet : µᵢ=16, ρ>15 kΩ·cm — "dielectric rather than
+metallic composite" —, Pv=4,1·f¹·¹·B²·⁵ W/cm³, f en kHz, B crête en T), le
+champ B dans le volume du CFC à 250 A/388 kHz reste très en-deçà de la
+saturation (≈3–28 mT crête pour Bsat=0,9 T) et la puissance totale intégrée
+sur tout le bloc (20,8 cm³) n'est que ≈0,6–1,4 W — 1 à 2 ordres de grandeur
+sous ce qu'il faudrait pour expliquer le déficit de pente observé au
+thermocouple TC1 (cf. README, § Limites connues). Conclusion : mécanisme
+réel mais négligeable à cette échelle ; ne pas le réintroduire comme
+explication du déficit TC1 sans nouvelle mesure (température du CFC lui-même,
+absente des essais actuels).
 """
 
 from __future__ import annotations
