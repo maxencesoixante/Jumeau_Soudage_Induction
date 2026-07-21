@@ -1,0 +1,106 @@
+=======================================================================
+TEST : LA POSITION DE LECTURE DU THERMOSTAT EXPLIQUE-T-ELLE LE
+DEPASSEMENT DE PIC ?  --  RESULTAT NEGATIF (hypothese refutee)
+=======================================================================
+Date        : 2026-07-21
+theta*      : --facteur 4.0975 --decalage-x 0 --h-haut 11.323
+              --h-bas-2d 51.636 --h-bord-x0 250   (commit 57e7157, FIGE)
+Maillage    : 61x21x15 (defaut scripts/valider.py depuis 93b5733)
+Essais      : serieA_A-1, serieA_A-3, serieB_B-2 (chauffe_250A_3TC exclu,
+              decision utilisateur)
+Prototype   : scratchpad/test_position_ctrl.py -- monkeypatch de
+              Essai._T_ctrl UNIQUEMENT. Aucun fichier du depot modifie.
+
+-----------------------------------------------------------------------
+1. HYPOTHESE TESTEE
+-----------------------------------------------------------------------
+Le modele asservit la coupure de source sur un melange domine par le
+CENTRE de largeur (POIDS_POINT_THERMOSTAT=0.7 sur le noeud y=W/2, 0.3 sur
+la moyenne de section, cf. procede.py). Or :
+  - TC2..TC5 sont a y=0, sur le lobe chaud de bord ;
+  - TOUS les pics MESURES plafonnent a la consigne de l'essai
+    (A-1 : 398-399 pour une consigne de 400 ; B-2 : 353-366 pour 360) ;
+  - le modele, lui, laisse les TC depasser de +40 a +60 C.
+Hypothese : la regulation reelle coupait sur un capteur de BORD, donc le
+modele asservit au mauvais endroit, ce qui autorise mecaniquement les
+lobes a depasser. Si c'est vrai, deplacer T_ctrl vers y=0 doit plafonner
+les pics sans casser le reste.
+
+Remarque de validite : la sparsite du jacobien reste correcte sans
+intervention, car _noeuds_controle declare deja TOUS les iy des colonnes
+bracket de centre_x -- y=0 et le max de section sont donc deja couverts
+par le motif (pas de rejeu de la regression BDF du 2026-07-20). Verifie
+avant lancement.
+
+-----------------------------------------------------------------------
+2. RESULTATS  (|delta_T_max| moyen, C -- plus bas = mieux)
+-----------------------------------------------------------------------
+  Variante de T_ctrl              A-1      A-3      B-2
+  ---------------------------------------------------------------
+  REFERENCE (melange centre)      46.0     31.0     12.3
+  melange_bord (0.7 bord/0.3 moy) 92.8     90.6    106.5
+  bord_y0 (bord seul)            106.9    101.3    122.1
+  max_section (max de la coupe)  107.2    102.7    ~122
+
+  RMSE moyen (C) :
+  REFERENCE                       39.2     32.7     68.0
+  melange_bord                    41.1     37.4     67.8
+  bord_y0                         44.4     39.3     70.0
+  max_section                     44.5     39.5     ~70
+
+Detail des pics, variante bord_y0 (delta_T_max = sim - mes, C) :
+  A-1 : TC1 -105.3  TC2  -86.7  TC3 -128.3  TC4 -135.1  TC5 -78.9
+  A-3 : TC1 -117.5  TC2 -124.1  TC3  -96.7  TC4 -117.2  TC5 -51.0
+  B-2 : TC1  -92.2  TC2 -122.3  TC3 -130.4  TC4 -143.4
+
+-----------------------------------------------------------------------
+3. VERDICT : HYPOTHESE REFUTEE
+-----------------------------------------------------------------------
+Asservir au bord ne plafonne pas les lobes, ca AFFAME toute la plaque :
+le depassement de +40/+60 C se retourne en un deficit de -40 a -143 C, et
+|delta_T_max| est 2 a 10x PIRE que la reference sur les 3 essais. Meme
+famille de resultat que le "max pur" deja rejete le 2026-07-20 -- mais
+cette fois reproduit avec le pipeline CORRIGE (93b5733) et le theta*
+RECALIBRE (57e7157), ce qui leve l'objection "le test datait d'avant les
+correctifs". Le placement du controle n'est PAS la cause.
+
+-----------------------------------------------------------------------
+4. CE QUE LE RESULTAT NEGATIF APPREND (plus utile que la refutation)
+-----------------------------------------------------------------------
+(a) max_section et bord_y0 donnent des resultats identiques a ~1 C pres :
+    le MAXIMUM de la coupe transverse EST le noeud de bord. Le modele
+    place donc son point le plus chaud exactement la ou sont TC2..TC5 --
+    la geometrie des capteurs est coherente avec la physique du modele.
+
+(b) Contradiction quantitative avec l'experience : dans la REALITE, la
+    regulation coupe sur un capteur de bord a 400 C ET tous les autres
+    capteurs de bord atteignent aussi ~400 C. Dans le MODELE, couper sur
+    le bord a 400 C laisse les autres a 250-320 C.
+    => le modele a un CONTRASTE SPATIAL TROP FORT. Et pas seulement en
+    largeur : les TC penalises sont a des x varies, donc le deficit porte
+    aussi sur la LONGUEUR. La section du spot actif atteint la consigne
+    et coupe la source avant que le reste de la plaque ait encaisse son
+    energie.
+
+(c) Coherent avec la decomposition par phase (debut de session) : pics
+    trop hauts, plateau trop froid, biais global NEGATIF (-3 a -55 C)
+    malgre des pics trop hauts.
+
+(d) Corrobore le levier EM identifie par le diagnostic du profil M
+    (resultats_diagnostic_profil_M_em.log) : si les lobes deposent trop
+    de puissance localement, ils atteignent la consigne trop vite quel
+    que soit l'endroit ou on mesure. Le CHAMP DE REACTION neglige
+    supprime le courant le plus fortement la ou il est le plus intense
+    (donc au bord) : il agit precisement sur ce rapport local/global.
+
+-----------------------------------------------------------------------
+5. SUITE RECOMMANDEE
+-----------------------------------------------------------------------
+Le chantier EM (champ de reaction, ou redistribution de flux par CFC
+fini) redevient la piste principale. Il change la FORME de la source, pas
+seulement son echelle -> theta* sera entierement a refaire derriere.
+Reserve a garder en tete (cf. rapport EM section 2) : le maillage de
+validation 61x21 SOUS-estime d'environ 14 % la dissipation convergee au
+noeud de bord -- un raffinement en y AUGMENTERAIT le pic simule, donc le
+deficit reel est legerement PIRE que ce que montrent les tableaux
+ci-dessus.

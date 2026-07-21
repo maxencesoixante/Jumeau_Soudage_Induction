@@ -1,0 +1,269 @@
+Diagnostic EM — le profil en « M » (lobes chauds au bord y=0/40 mm) est-il
+physique ou un artefact du modèle de source ?
+==============================================================================
+Date : 2026-07-21. θ* FIGÉ, PAS de recalibration (facteur=4.0975, decalage_x=0,
+h_haut=11.323, h_bas_2d=51.636, h_bord_x0=250 — passé tel quel, jamais
+modifié). Aucun fichier src/jumeau/ modifié. Scripts de diagnostic dans
+/private/tmp/claude-501/.../scratchpad/ (diag_em_profil.py, conv_ny.py,
+profil_full.py, diffusion_1d.py, kplan_sweep.py, check_divJ.py) — prototypes,
+pas committés.
+
+RÉSUMÉ EXÉCUTIF
+---------------
+Le profil en « M » EST une conséquence mathématiquement correcte de la
+formulation plaque-mince (ψ=0 au bord), PAS un bug de condition limite : j'ai
+vérifié numériquement que Jy=0 exactement sur tout le bord y=0/40mm et Jx=0
+exactement sur tout le bord x=0/120mm (aucun courant ne traverse le chant,
+∇·J ~ 1e-7 partout). L'hypothèse prioritaire du brief (« BC mal posée qui
+laisse le courant fuir au bord ») est donc ÉCARTÉE, avec preuve numérique.
+
+Le mécanisme réel : le champ Bz créé par la bobine hairpin est QUASI-UNIFORME
+sur toute la largeur de l'échantillon (40 mm), parce que les brins de la
+bobine ET le CFC (55 mm, mesuré CAO, confirmé § README) DÉBORDENT des deux
+côtés de l'échantillon de 40 mm (brins de y=-7,5 à y=+47,5 mm). Avec un Bz
+quasi indépendant de y, la seule façon pour les boucles de courant de Foucault
+de se refermer (ψ=0 imposé aux deux bords réels de la plaque) est de longer
+les deux bords sur toute la largeur — exactement le régime classique du
+« transverse-flux edge effect » documenté dans la littérature industrielle
+du chauffage par induction (bandes plus étroites que l'inducteur). Ce n'est
+donc PAS un artefact de discrétisation ; c'est un effet réel et attendu de
+cette géométrie inducteur/CFC/échantillon (déjà noté qualitativement au
+README, § « Profil en M prédit », confirmé et chiffré ici).
+
+CEPENDANT : l'amplitude brute du contraste Q(bord)/Q(centre) (parfois >10⁴)
+est un artefact de comparaison avec un ZÉRO EXACT de symétrie (voir §2), pas
+une preuve d'amplitude physique. Le champ de réaction (blindage, négligé par
+construction, cf. AGENTS.md) est précisément le plus fort là où le courant
+induit est le plus fort — donc l'endroit où son omission surestime le plus la
+densité de courant est EXACTEMENT le bord. Le contraste réel est donc
+probablement inférieur à ce que calcule le modèle actuel, sans qu'on puisse
+le chiffrer sans implémenter le champ de réaction (hors mandat EM seul, à
+signaler à calibration-uq-specialist si on veut le faire).
+
+Traduit en température (diffusion latérale sur la durée d'une impulsion,
+k_plan=3 W/m·K), le contraste énorme au niveau de Q est TRÈS fortement
+amorti : le rapport T(bord)/T(centre) tombe de plusieurs milliers (à t→0) à
+~2,3-4,6 en fin d'impulsion unique (79-80 s), et cette valeur DIMINUE encore
+si k_plan est plus grand — ce qui recoupe et EXPLIQUE quantitativement la
+piste déjà trouvée par l'agent thermique (« k_plan~12 W/m·K aplatit les
+pics ») : c'est le même mécanisme (lissage latéral du profil M), pas une
+coïncidence numérique. Donc : le profil M est réel, contribue vraisemblable-
+ment au sur-échauffement local à TC2-5 (situés PILE sur le bord, la zone de
+Q maximal), mais N'EST PAS LA CAUSE STRUCTURANTE DOMINANTE une fois diffusé
+— son empreinte thermique après diffusion (facteur ~2-5x) est du même ordre
+que ce qui est déjà documenté et partiellement compensé ailleurs (mélange
+POIDS_POINT_THERMOSTAT du thermostat, procede.py).
+
+
+1. CE QUE FAIT RÉELLEMENT LE CODE (lu, pas supposé)
+----------------------------------------------------
+- geometrie.yaml : bobine hairpin orientation="y" — les DEUX brins longs
+  (longueur_jambe=55 mm) courent PARALLÈLES à la largeur y de l'échantillon
+  (pas à la longueur x), séparés de entraxe_jambes=19 mm le long de x. Centrés
+  sur centre_y=largeur/2=20 mm, les brins vont donc de y=-7,5 mm à y=+47,5 mm
+  — ils DÉBORDENT des deux côtés du plan y=[0,40] mm de l'échantillon. Le CFC
+  (cfc.longueur=55 mm, même orientation confirmée § README ligne 45-47) fait
+  de même. C'est un fait CAO mesuré, pas une hypothèse EM.
+- foucault.py : ψ=0 imposé sur TOUT le pourtour du domaine (les 4 bords du
+  rectangle 120×40 mm, qui EST la vraie plaque physique de l'échantillon,
+  cf. geometrie.construire_grille : grille.y va de 0 à laminate.largeur=
+  0,040 m). C'est donc le bord RÉEL de l'échantillon, pas une troncature
+  arbitraire du domaine de calcul.
+- Vérifié numériquement (check_divJ.py, spot centre_x=45,875 mm, twill,
+  grille 61×21×15) :
+    max|∇·J| (nœuds intérieurs)      = 7,45e-08   (bruit machine)
+    max|Jy| sur y=0 (tout x)          = 0.0        (exactement, structurel)
+    max|Jy| sur y=largeur (tout x)    = 0.0
+    max|Jx| sur x=0 (tout y)          = 0.0
+    max|Jx| sur x=longueur (tout y)   = 0.0
+  → AUCUNE fuite de courant à travers un bord, dans les 4 cas. L'hypothèse
+  prioritaire du brief (BC mal posée → accumulation artificielle) est
+  ÉCARTÉE avec preuve directe.
+
+
+2. LE PROFIL Q(y) BRUT : QUANTIFICATION ET NATURE DU « ZÉRO » CENTRAL
+----------------------------------------------------------------------
+Couche twill (dominante, ρ≈40x plus conductrice que le laminé), spot 2
+(centre_x=45,875 mm, courant 250 A, grille 61×21×15, x fixé au centre du
+spot) :
+
+  y (mm)     0      2      4      6      8     10    ...   20 (centre)
+  q (MW/m3) 392   334    237    165    112    72.5   ...  0,022
+
+Le centre (y=largeur/2=20 mm) est un ZÉRO QUASI EXACT par symétrie : la
+bobine est symétrique en y autour de centre_y=20 mm, donc Bz(x,·) est
+quasi-symétrique, ψ y a un extremum, et Jx=∂ψ/∂y y est structurellement nul.
+Le rapport q(bord)/q(centre) « explose » (79x à 17 600x selon le maillage,
+cf. tableau ci-dessous) SURTOUT parce que le DÉNOMINATEUR tend vers un vrai
+zéro mathématique, pas parce que le bord diverge :
+
+  grille (calibration/validation)   dy (mm)   P(bord, W/m2)  P(centre)   ratio
+  31×11×13 (calibration)             4,00      5,37e5         6,74e3      80
+  61×21×15 (validation, défaut)      2,00      6,44e5         3,65e1     17 629
+
+→ Le ratio n'est PAS une métrique fiable (dominé par le bruit de
+discrétisation du zéro de symétrie, qui varie de façon erratique avec le
+maillage — 6,7 kW/m2 à 4 mm de maille, 0,04 kW/m2 à 2 mm). Ne pas
+recalibrer/juger sur ce ratio.
+
+Étude de convergence en maillage (conv_ny.py, nx=61 fixé, ny de 11 à 321,
+valeurs INTERPOLÉES à y fixe pour comparer indépendamment de dy) :
+
+  ny    dy(mm)   q(y=0, MW/m3)  q(y=1mm)  q(y=4mm)  q(centre)
+  11    4,000     332,6          309,8     241,3      0,0216
+  21    2,000     392,1          363,1     237,1      0,0217
+  41    1,000     425,4          392,6     236,1      0,0218
+  81    0,500     443,1          392,2     235,8      0,0218
+  161   0,250     452,1          392,1     235,8      0,0218
+  321   0,125     456,7          392,0     235,7      0,0218
+
+→ q(y=1mm), q(y=4mm) et q(centre) CONVERGENT (variation <0,3 % entre ny=81
+et 321) : ce sont des valeurs physiques bien résolues, pas des artefacts. La
+valeur EXACTEMENT au nœud de bord (y=0) converge plus lentement (premier
+ordre, cohérent avec la différence finie décentrée de np.gradient au bord)
+mais VERS UNE VALEUR FINIE (≈4,6e8, extrapolation Richardson des incréments
+qui diminuent géométriquement ~×0,5 à chaque doublement de ny) — PAS de
+divergence. Conclusion : le profil M est une solution mathématiquement bien
+posée et convergente du problème ψ=0 tel qu'énoncé ; ce n'est pas un artefact
+de maillage. Note pratique : le maillage de VALIDATION actuel (61×21, dy=2mm)
+SOUS-estime la valeur convergée au nœud de bord d'environ 14 % (392 vs 457) —
+un futur raffinement du maillage en y AUGMENTERAIT donc légèrement (pas
+diminuerait) le pic simulé à TC2-5, à garder en tête si une étude de
+convergence 2D/3D en (x,y) est refaite.
+
+Comparaison avec la solution analytique 1D (Bz uniforme en y, un seul mode) :
+ρ·ψ''(y) = ω·Bz, ψ(0)=ψ(W)=0 → ψ(y)=ω·Bz/(2ρ)·y(y−W), Jx(y)∝(2y−W),
+q(y)∝(2y−W)². Prédiction : q(0)/q(4mm)=(40/32)²=1,56 (mesuré 456,7/235,7=
+1,94) ; q(0)/q(1mm)=(40/38)²=1,11 (mesuré 456,7/392,0=1,16). Accord qualitatif
+correct (écart dû à la variation réelle de Bz en x et à la longueur finie des
+brins) — confirme que le mécanisme est bien celui identifié : plaque isolée
+sous excitation quasi uniforme en y.
+
+
+3. TRADUCTION EN TEMPÉRATURE : LE PROFIL SURVIT-IL À LA DIFFUSION ?
+----------------------------------------------------------------------
+Estimation de portée (diffusion_1d.py) : diffusion latérale 1D en y SEULE
+(BC Neumann/adiabatique aux deux bords, PAS de pertes haut/bas ni de coupure
+thermostat — sert à isoler le mécanisme de lissage latéral, PAS à prédire un
+ΔT absolu réaliste), source = P(x=centre_x spot, y) déposée sur toute
+l'épaisseur, α=k_plan/(ρ·cp)=1,5625e-6 m2/s (k_plan=3 W/m·K, cf.
+materiaux.yaml).
+
+Évolution temporelle du ratio T(bord)/T(centre), spot 2 (courant=250 A,
+facteur=4,0975 figé) :
+
+  t (s)     T(bord) °C   T(centre) °C   ratio
+   0,5         23,3          0,06        414
+   1,0         45,5          0,18        258
+   2,0         87,4          0,60        145
+   5,0        200,2          3,46         58
+  10,0        362,0         14,0          26
+  20,0        631,2         58,9          11
+  40,0       1060,0        231,8        4,6
+  80,0       1744,1        743,0        2,35
+
+(Valeurs absolues IRRÉALISTES — pas de thermostat ni de pertes verticales,
+c'est un scénario « source pleine puissance sans coupure » volontairement
+poussé à 80 s pour voir l'ASYMPTOTE du lissage. Le vrai procédé coupe la
+source bien avant, cf. §4.) → Le ratio Q brut de plusieurs milliers s'écrase
+en QUELQUES SECONDES à QUELQUES DIZAINES DE SECONDES à un facteur T à un
+chiffre, puis continue de baisser vers ~2,3 sur la durée de l'impulsion.
+Le lissage latéral (k_plan=3 W/m·K, α~1,6e-6 m2/s) est un mécanisme réel et
+efficace à l'échelle de temps d'une impulsion (longueur de diffusion en 80 s
+≈ 22 mm, plus de la moitié demi-largeur 20 mm).
+
+Lien avec le levier k_plan déjà identifié par l'agent thermique (balayage à
+t=80 s, mêmes conditions) :
+
+  k_plan (W/m·K)   T(bord) °C   T(centre) °C   ratio bord/centre
+    1,5              2119,9        463,6            4,57
+    3,0 (nominal)    1744,2        743,0            2,35
+    6,0              1481,0        957,9            1,55
+    9,0              1386,1       1036,7            1,34
+   12,0              1338,4       1076,3            1,24
+   20,0              1281,1       1123,9            1,14
+
+→ Ceci EXPLIQUE quantitativement pourquoi augmenter k_plan à ~12 W/m·K (déjà
+trouvé par balayage empirique côté thermique, non défendable comme
+conductivité de laminé homogénéisé) aplatit les pics : c'est EXACTEMENT le
+mécanisme de lissage du profil M par conduction latérale, pas un effet
+indépendant. Cela recoupe et corrobore les deux diagnostics (EM et
+thermique) au lieu de les contredire — mais ne rend pas k_plan=12 plus
+défendable physiquement pour autant (cf. limite déjà notée par l'agent
+thermique).
+
+
+4. VERDICT ET PISTES
+----------------------
+Verdict : le profil en « M » est un effet PHYSIQUE RÉEL de la géométrie
+mesurée (bobine + CFC de 55 mm débordant un échantillon de 40 mm de large →
+régime classique de « transverse-flux edge effect »), correctement résolu
+par la formulation ψ=0 (BC vérifiée saine, pas de fuite de courant). Son
+amplitude BRUTE au niveau de Q est probablement SURESTIMÉE par l'omission
+volontaire du champ de réaction (le blindage négligé s'oppose le plus
+fortement précisément là où le courant induit — donc l'erreur d'omission —
+est le plus grand, c'est-à-dire au bord). Diffusé sur la durée d'une
+impulsion, le contraste résiduel en température tombe à un facteur ~2-5x
+(k_plan nominal), physiquement plausible (cohérent avec les ordres de
+grandeur rapportés dans la littérature du chauffage par induction à flux
+transverse pour l'effet de bord). Ce n'est donc PAS un bug de bord de plaque
+à corriger dans foucault.py, mais un phénomène réel dont l'amplitude reste
+incertaine dans le détail (champ de réaction non modélisé).
+
+Contribution probable au résidu documenté : TC2-5 sont exactement placés sur
+la ligne y=0 = maximum local de Q ; ils sont donc structurellement les plus
+exposés à un dépassement local avant que le thermostat (asservi à un mélange
+70/30 point-symétrique/moyenne-de-section, cf. procede.py POIDS_POINT_
+THERMOSTAT) ne coupe. TC1, lui, est exactement sur le zéro de symétrie
+(y=largeur/2) : il ne peut chauffer QUE par diffusion depuis les zones
+voisines beaucoup plus chaudes (bords + spot voisin en x) — un mécanisme
+différent, à retard, cohérent avec le fait que TC1 est le pire des 5 sur
+A-1 (+60 °C) : son signal dépend d'un TRANSPORT de chaleur depuis le bord,
+pas d'un dépôt local, donc de la forme exacte du profil M ET de k_plan
+simultanément.
+
+Recommandations (effet chiffré à θ* figé où possible, PAS implémentées) :
+  a) NE PAS toucher à la BC ψ=0 (elle est correcte) ni tenter de
+     « symétriser » ou plafonner artificiellement Q(y) sans justification
+     physique — ce serait masquer un effet réel avec un correctif ad hoc.
+  b) Le levier physiquement défendable pour réduire le contraste (sans
+     changer k_plan à une valeur non physique) est de modéliser — même de
+     façon approchée — le champ de réaction (blindage), puisqu'il agit
+     spécifiquement là où il manque le plus : au bord. Effet estimé : réduit
+     surtout l'AMPLITUDE du pic de bord (le plus incertain), moins le
+     centre. Nécessite coordination avec calibration-uq-specialist car cela
+     change la FORME du profil, pas seulement une échelle globale (double
+     comptage potentiel avec facteur_couplage à surveiller, cf. AGENTS.md).
+     Non chiffré ici (hors mandat : implémentation non triviale, plusieurs
+     jours de travail EM dédié).
+  c) Un modèle plus fin du CFC fini (pas juste demi-espace image) capturerait
+     probablement une REDISTRIBUTION du flux qui adoucit le profil sous
+     l'empreinte (déjà noté § README « le modèle d'images ne capture pas la
+     redistribution du flux par la semelle du CFC ») — même remarque, non
+     chiffrable sans implémentation FEM/BEM du CFC.
+  d) Si une étude de convergence de maillage (x,y) est refaite sur le modèle
+     3D/2D complet : s'attendre à ce qu'affiner ny AUGMENTE légèrement (pas
+     diminue) le pic Q au nœud exactement au bord (+14 % entre ny=21 et
+     ny=321 sur le nœud lui-même, cf. §2) — donc AUGMENTE potentiellement
+     (de peu) le dépassement simulé à TC2-5, ce qui va dans le sens opposé
+     d'un « fix » par raffinement de maillage seul.
+  e) Aucune recalibration effectuée ni recommandée dans l'immédiat : le
+     mécanisme quantifié ici (contraste résiduel ~2-5x en température) est
+     du même ordre que ce que gère déjà partiellement le mélange
+     POIDS_POINT_THERMOSTAT — pas de gain évident à attendre d'un simple
+     ajustement de θ* sans toucher à la physique EM (b)/(c) ci-dessus.
+
+
+ANNEXES — SCRIPTS ET FICHIERS DE RÉFÉRENCE
+--------------------------------------------
+- Prototypes (non committés, scratchpad) :
+  diag_em_profil.py, conv_ny.py, profil_full.py, diffusion_1d.py,
+  kplan_sweep.py, check_divJ.py — reproductibles avec .venv/bin/python.
+- Code lu (non modifié) : src/jumeau/em/champ_coil.py, foucault.py,
+  source_joule.py ; src/jumeau/geometrie.py ; src/jumeau/procede.py ;
+  config/geometrie.yaml ; config/materiaux.yaml.
+- Référence croisée README.md : § « Profil en M prédit » (déjà noté
+  qualitativement, ici quantifié) ; § « TC1 chauffe 5-6x trop lentement »
+  (mécanisme distinct, pas retouché ici) ; procede.py commentaires
+  POIDS_POINT_THERMOSTAT (2026-07-18, découverte du zéro de symétrie déjà
+  documentée, confirmée et quantifiée ici).
