@@ -48,10 +48,20 @@ mesures thermocouples des essais (Séries A/B + essais de chauffe).
   entraxe ~19 mm, brins le long du grand côté du CFC — à raffiner si la cote
   exacte de la CAO SolidWorks est extraite. **Orientation CFC confirmée**
   (2026-07-17) : 55 mm parallèle à la largeur y des échantillons.
-- Les **positions plan (x, y) des TC des Séries A/B** sont une hypothèse
-  documentée dans `config/essais/*.yaml` (TC1 surface / TC2–5 interface est
-  confirmé par le notebook du vault ; la répartition sur les 4 empreintes
-  reste à confirmer au cahier).
+- Les **positions des TC des Séries A/B** ont été confirmées par l'utilisateur
+  (2026-07-20) : les 5 TC sont TOUS à l'interface (repère cahier origine-milieu
+  converti au repère modèle origine-coin) — TC1 au bord de longueur / centre de
+  largeur (x=0, y=20 mm), TC2–TC5 au bord de largeur (y=0). Remplace l'ancienne
+  hypothèse « TC1 surface / TC alignés sur les spots ».
+- **Puits de bord `h_bord_x0` (montage bridé x=0)** : le modèle 2D lumpé
+  surchauffait TC1 (+185 à +273 °C au pic) car la chaleur du spot 1 (~16 mm du
+  bord x=0) restait piégée contre le chant quasi-adiabatique. Un puits conductif
+  additionnel au chant x=0 SEUL (`Ambiant.h_bord_x0`, représentant le
+  bridage/appui du montage, asymétrie confirmée par l'utilisateur) calibré à
+  **250 W/m²·K** (balayage sur A-1, validation A-3/B-2) ramène le pic TC1 dans
+  ±25–70 °C sans dégrader les autres TC. **Résidu non résolu** : TC4 reste
+  surestimé de +74 à +110 °C sur les 3 essais, mécanisme distinct (indépendant
+  de x=0) à investiguer.
 - Le **découpage temporel des 4 passes** (t_debut/t_fin par spot) est un
   découpage uniforme par défaut — à ajuster en lisant les vagues de chauffe
   sur les courbes TC mesurées.

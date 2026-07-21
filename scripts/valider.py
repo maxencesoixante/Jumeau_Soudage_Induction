@@ -99,6 +99,8 @@ def principale():
     ap.add_argument("--h-bas", type=float, default=None, help="(modèle 3D)")
     ap.add_argument("--h-haut", type=float, default=None, help="(modèle 2D)")
     ap.add_argument("--h-bas-2d", type=float, default=None, help="(modèle 2D)")
+    ap.add_argument("--h-bord-x0", type=float, default=None,
+                    help="(modèle 2D) puits de bord additionnel au chant x=0 (montage), W/m².K")
     ap.add_argument("--nx", type=int, default=31)
     ap.add_argument("--ny", type=int, default=11)
     ap.add_argument("--nz", type=int, default=13)
@@ -113,6 +115,8 @@ def principale():
         cfg.contact.h_haut = args.h_haut
     if args.h_bas_2d is not None:
         cfg.ambiant.h_bas_2d = args.h_bas_2d
+    if args.h_bord_x0 is not None:
+        cfg.ambiant.h_bord_x0 = args.h_bord_x0
 
     for nom in args.essais:
         chemin = RACINE / "config" / "essais" / f"{nom}.yaml"

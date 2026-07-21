@@ -60,3 +60,12 @@ ambiant:
   # une valeur calibrée pour le 2D — à recalibrer. Borne suggérée pour la
   # calibration à venir : [2, 300] W/m2.K (même enveloppe que h_bas 3D).
   h_bas_2d: 50.919            # W/m2.K, incertain (point de départ, modèle 2D)
+  # Puits de chaleur additionnel au chant x=0 SEUL du modèle 2D lumpé
+  # (jumeau.thermique.solveur2d) : représente le bridage/appui conductif du
+  # montage sur le bord x=0 (asymétrie confirmée par l'utilisateur 2026-07-20 :
+  # x=0 en appui, pas x=L). Sans lui, la chaleur du spot 1 (~16 mm du bord)
+  # reste piégée contre le chant quasi-adiabatique et TC1 surchauffe (+185 à
+  # +273 °C au pic). Contrairement à h_bas_2d ci-dessus, cette valeur EST
+  # calibrée pour le 2D (balayage sur A-1, validation A-3/B-2, 2026-07-20 ;
+  # plage défendable [225, 275]). 0.0 = comportement historique (pas de puits).
+  h_bord_x0: 250.0           # W/m2.K, calibré (modèle 2D, montage bridé x=0)

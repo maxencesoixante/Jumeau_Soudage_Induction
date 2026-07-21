@@ -36,6 +36,7 @@ FACTEUR_COUPLAGE = 4.3139
 DECALAGE_X = 0.0
 H_HAUT = 2.4269
 H_BAS_2D = 66.662
+H_BORD_X0 = 250.0  # puits de bord (montage bridé x=0), calibré 2026-07-20
 
 # Collecteur des images produites pendant un tour de conversation. app.py le vide
 # au début de chaque message utilisateur puis affiche ce qui s'y trouve.
@@ -95,6 +96,7 @@ def lancer_simulation(essai: str, nx: int = 31, ny: int = 11) -> str:
     cmd = [PYTHON, "-u", "scripts/valider.py", "--modele", "2D",
            "--facteur", str(FACTEUR_COUPLAGE), "--decalage-x", str(DECALAGE_X),
            "--h-haut", str(H_HAUT), "--h-bas-2d", str(H_BAS_2D),
+           "--h-bord-x0", str(H_BORD_X0),
            "--nx", str(nx), "--ny", str(ny), "--essais", essai]
     # UTF-8 explicite des deux côtés : le solveur imprime °C, « écart », des
     # tableaux — sous Windows le défaut serait cp1252 (mojibake / UnicodeError).

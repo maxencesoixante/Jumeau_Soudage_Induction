@@ -132,10 +132,14 @@ class SolveurThermique2D:
         for i, voisin in ((0, 1), (-1, -2)):
             T_edge = T[i, :]
             TedgeK = T_edge + KELVIN
+            # Puits conductif du montage sur le chant x=0 SEUL (bridage/appui,
+            # cf. Ambiant.h_bord_x0) : 0.0 par défaut -> chant inchangé.
+            extra_x0 = amb.h_bord_x0 * (amb.T_amb - T_edge) if i == 0 else 0.0
             dT[i, :] += (2.0 / g.dx) * (
                 kx * (T[voisin, :] - T_edge) / g.dx
                 + amb.h_convection * (amb.T_amb - T_edge)
                 + mat.emissivite * amb.stefan_boltzmann * (Ta_K**4 - TedgeK**4)
+                + extra_x0
             )
         # axe y
         dT[:, 1:-1] += ky * (T[:, :-2] - 2.0 * T[:, 1:-1] + T[:, 2:]) / g.dy**2

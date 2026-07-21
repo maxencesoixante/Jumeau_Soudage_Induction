@@ -95,6 +95,19 @@ class Ambiant:
     # valeur calibrée pour ce modèle réduit. Borne suggérée pour la
     # calibration à venir : [2, 300] W/m².K (même enveloppe que le 3D).
     h_bas_2d: float = 50.919
+    # Puits de chaleur ADDITIONNEL au chant x=0 SEUL du modèle 2D lumpé
+    # (solveur2d.SolveurThermique2D), en plus de la convection/rayonnement de
+    # chant déjà présente. Représente le bridage/appui conductif du montage
+    # sur le bord x=0 (confirmé asymétrique par l'utilisateur 2026-07-20 : le
+    # bord x=0 est en appui, pas x=L) — que le modèle lumpé, réduit au plan de
+    # l'interface, ne peut pas capturer autrement. Sans lui, la chaleur du
+    # spot 1 (à ~16 mm du bord) reste piégée contre le chant quasi-adiabatique
+    # et TC1 (centre de largeur, x=0) surchauffe de +185 à +273 °C au pic.
+    # Défaut 0.0 = comportement historique STRICTEMENT inchangé. Actif
+    # uniquement sur x=0 (appliquer sur les 4 chants dégrade TC2-5 à y=0 ;
+    # cf. prototype thermal-solver-engineer 2026-07-20). Borne de calibration
+    # suggérée : [150, 300] W/m².K.
+    h_bord_x0: float = 0.0
 
 
 @dataclass
@@ -143,7 +156,8 @@ class Config:
         return cls(
             materiau=Materiau.depuis_config(mat_cfg["cf_pekk"]),
             ambiant=Ambiant(**{k: amb[k] for k in
-                               ("T_amb", "h_convection", "h_bas", "stefan_boltzmann", "h_bas_2d")
+                               ("T_amb", "h_convection", "h_bas", "stefan_boltzmann",
+                                "h_bas_2d", "h_bord_x0")
                                if k in amb}),
             contact=ContactCeramique(**{k: cer[k] for k in ("h_contact", "T_puits", "h_haut") if k in cer}),
             twill=mat_cfg.get("twill_suscepteur", {}),
