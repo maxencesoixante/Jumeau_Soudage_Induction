@@ -1,0 +1,36 @@
+
+=== chauffe_250A_3TC [2D] ===
+  (TC exclus, non 'interface' -> non représentables en 2D : ['TC1', 'TC3'])
+     rmse  T_max_sim  T_max_mes  delta_T_max  taux_sim  taux_mes
+TC                                                              
+TC2  71.9      248.4      397.7       -149.3       6.3      22.1
+RMSE moyen : 71.9 °C ; écart T_max moyen : 149.3 °C
+
+=== serieA_A-1 [2D] ===
+     rmse  T_max_sim  T_max_mes  delta_T_max  taux_sim  taux_mes
+TC                                                              
+TC1  55.5      466.1      398.0         68.1      20.6      19.0
+TC2  43.3      391.5      344.9         46.6       9.5      16.1
+TC3  36.7      424.2      383.5         40.7      11.1      10.4
+TC4  33.7      423.1      380.8         42.3      11.1       0.6
+TC5  29.9      446.5      399.3         47.2       0.4       0.6
+RMSE moyen : 39.8 °C ; écart T_max moyen : 49.0 °C
+
+=== serieA_A-3 [2D] ===
+     rmse  T_max_sim  T_max_mes  delta_T_max  taux_sim  taux_mes
+TC                                                              
+TC1  43.0      383.3      399.6        -16.4      11.3      13.4
+TC2  38.3      359.3      399.6        -40.3       5.9       6.9
+TC3  31.5      403.7      367.5         36.1       7.1       0.4
+TC4  31.9      404.2      379.2         25.0       7.1       0.4
+TC5  30.3      425.9      391.3         34.6       0.5       0.4
+RMSE moyen : 35.0 °C ; écart T_max moyen : 30.5 °C
+
+=== serieB_B-2 [2D] ===
+     rmse  T_max_sim  T_max_mes  delta_T_max  taux_sim  taux_mes
+TC                                                              
+TC1  76.2      396.5      362.4         34.1      20.6      18.9
+TC2  71.0      337.7      353.4        -15.7       9.5      13.0
+TC3  66.6      351.6      366.0        -14.4      11.1       9.8
+TC4  67.3      364.4      361.3          3.1      11.1       0.6
+RMSE moyen : 70.3 °C ; écart T_max moyen : 16.8 °C

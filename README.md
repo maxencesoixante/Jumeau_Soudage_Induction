@@ -59,9 +59,48 @@ mesures thermocouples des essais (Séries A/B + essais de chauffe).
   additionnel au chant x=0 SEUL (`Ambiant.h_bord_x0`, représentant le
   bridage/appui du montage, asymétrie confirmée par l'utilisateur) calibré à
   **250 W/m²·K** (balayage sur A-1, validation A-3/B-2) ramène le pic TC1 dans
-  ±25–70 °C sans dégrader les autres TC. **Résidu non résolu** : TC4 reste
-  surestimé de +74 à +110 °C sur les 3 essais, mécanisme distinct (indépendant
-  de x=0) à investiguer.
+  ±25–70 °C sans dégrader les autres TC.
+- **Le résidu TC4 documenté auparavant (+74 à +110 °C) était très majoritairement
+  un artefact de discrétisation, pas un déficit physique** (étude de convergence
+  maillage 2026-07-21, `resultats_convergence_maillage.log`). Décomposition
+  chiffrée sur la grille de calibration 31×11 (A-1/A-3/B-2) :
+  - **Snapping de la LECTURE des TC** (`Grille3D.indice_xy`, nœud le plus
+    proche) : TC4 (x=90 mm) tombait pile à mi-distance entre deux nœuds à
+    dx=4 mm → lecture décalée de 2 mm sur un profil pointu. Isolé sans
+    resimuler (lecture nœud-le-plus-proche vs bilinéaire sur le même champ) :
+    **-77,4 °C (A-1), -60,4 °C (A-3), -61,9 °C (B-2)** sur `delta_T_max` TC4 à
+    lui seul — la quasi-totalité du résidu. Corrigé : `serie_temporelle` des
+    deux solveurs interpole désormais bilinéairement en (x, y) (`bracket_lineaire`,
+    `thermique/solveur3d.py`).
+  - **Snapping du NŒUD DE CONTRÔLE du thermostat** (`Essai._T_ctrl`, ancien
+    nœud le plus proche de `centre_x`) : effet quasi nul sur TC4 lui-même
+    (<0,3 °C) mais **important sur TC5** (A-1 : -56,2 °C sur `delta_T_max`,
+    81,4→25,1 °C — l'instant de coupure de la dernière passe dépendait du
+    maillage). Corrigé : `Essai._T_ctrl` interpole désormais linéairement en x
+    entre les deux nœuds encadrant `centre_x` (`Essai.interp_ctrl=True` par
+    défaut ; `False` conservé pour ablation/comparaison) — la sparsité du
+    jacobien (`_noeuds_controle`/`_noeuds_controle_2d`) déclare bien les DEUX
+    colonnes désormais couplées, pour ne pas réintroduire la régression BDF du
+    2026-07-20.
+  - **`h_bord_x0` n'explique PAS le résidu TC4** : `delta_T_max` TC4 est
+    identique à ±1 °C près avec `h_bord_x0=250` et `h_bord_x0=0`, à tous les
+    maillages testés (31×11 à 121×41) — c'est un puits strictement local au
+    chant x=0 (loin de TC4, x=90 mm), sa calibration n'est PAS contaminée par
+    le résidu TC4.
+  - **Résidu restant après les deux corrections** (discrétisation thermique
+    nx,ny vraie + quadrature EM nz, cf. ci-dessous) : `delta_T_max` TC4 va de
+    +32,7 °C (31×11) à +50,5 °C (121×41) sur A-1 (dérive encore de quelques
+    dizaines de °C, ordre de convergence non propre sur ce pic — cf. rapport) ;
+    RMSE TC4, lui, est convergé à <1,5 °C près dès 31×11. **`nz` (nombre de
+    nœuds dans l'épaisseur) a un effet négligeable en 2D** (<1,5 °C sur
+    `chauffe_250A_3TC`, <0,3 °C sur A-1, nz de 9 à 41) : `SolveurThermique2D`
+    lui-même l'ignore, mais `Essai` l'utilise pour échantillonner la
+    profondeur de la source EM (`procede.py`, `P_surf = Σ_z Q·dz`) — effet réel
+    mais mineur.
+  - **Maillage par défaut retenu pour `scripts/valider.py` : 61×21×15** (dx=dy=
+    2 mm, ~2-4 min/essai) — meilleur compromis coût/résiduel identifié ; 31×11
+    reste la grille de CALIBRATION (`scripts/calibrer.py`, volontaire, non
+    modifiée par cette étude — θ* n'a PAS été recalibré).
 - Le **découpage temporel des 4 passes** (t_debut/t_fin par spot) est un
   découpage uniforme par défaut — à ajuster en lisant les vagues de chauffe
   sur les courbes TC mesurées.

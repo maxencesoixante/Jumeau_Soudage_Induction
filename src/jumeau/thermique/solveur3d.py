@@ -65,6 +65,32 @@ class Grille3D:
         return int(np.argmin(np.abs(self.x - x))), int(np.argmin(np.abs(self.y - y)))
 
 
+def bracket_lineaire(axe: np.ndarray, position: float) -> tuple[int, float]:
+    """Indice du nœud inférieur encadrant ``position`` sur un axe régulier
+    croissant, et poids de fraction ``w`` (0 = sur le nœud inférieur, 1 = sur
+    le supérieur) pour une interpolation linéaire ``(1-w)*champ[i] + w*champ[i+1]``.
+    ``position`` hors domaine est clampée (comportement nœud-le-plus-proche
+    au-delà des bords, comme avant).
+
+    Motivation (cf. rapport de vérification mesh-convergence 2026-07-21) :
+    ``Grille3D.indice_xy`` (nœud le plus proche, ``argmin``) peut décaler la
+    position LUE de jusqu'à dx/2 sur un profil pointu (ex. TC4 à x=90 mm tombe
+    pile entre deux nœuds à la grille de calibration 31×11, dx=4 mm -> lecture
+    décalée de 2 mm) ; cette erreur de positionnement discret n'est PAS une
+    erreur de discrétisation du solveur (elle ne décroît pas monotone avec le
+    maillage — elle peut même s'annuler par coïncidence à certains nx, cf.
+    rapport) et fausse toute étude de convergence si elle n'est pas isolée par
+    une lecture interpolée. Utilisée par ``SolveurThermique{2D,3D}.serie_temporelle``
+    (lecture des TC) et par ``jumeau.procede.Essai._T_ctrl`` (nœud de contrôle
+    du thermostat)."""
+    n = len(axe)
+    dx = axe[1] - axe[0]
+    i = int(np.floor((position - axe[0]) / dx))
+    i = int(np.clip(i, 0, n - 2))
+    w = float(np.clip((position - axe[i]) / dx, 0.0, 1.0))
+    return i, w
+
+
 class SolveurThermique3D:
     """Intègre ∂T/∂t sur la grille avec une source volumique Q(t, x, y, z).
 
@@ -249,8 +275,18 @@ class SolveurThermique3D:
         return sol.y[:, i].reshape(g.nx, g.ny, g.nz)
 
     def serie_temporelle(self, sol, x: float, y: float, z: str | float) -> np.ndarray:
-        """Température au nœud le plus proche de (x, y, z) pour tous les pas."""
+        """Température interpolée BILINÉAIREMENT en (x, y) pour tous les pas
+        (nœud z le plus proche de ``z`` : ``indice_z`` accepte des plans
+        catégoriels 'surface'/'interface'/'opposee', pas des positions
+        continues -- non interpolé, cf. ``bracket_lineaire``). Avant
+        2026-07-21 : nœud (x, y) le plus proche (``indice_xy``), qui pouvait
+        décaler la lecture de jusqu'à dx/2 -- cf. docstring ``bracket_lineaire``."""
         g = self.g
-        ix, iy = g.indice_xy(x, y)
         iz = g.indice_z(z)
-        return sol.y.reshape(g.nx, g.ny, g.nz, -1)[ix, iy, iz, :]
+        ix, wx = bracket_lineaire(g.x, x)
+        iy, wy = bracket_lineaire(g.y, y)
+        champ = sol.y.reshape(g.nx, g.ny, g.nz, -1)[:, :, iz, :]
+        return ((1.0 - wx) * (1.0 - wy) * champ[ix, iy]
+                + wx * (1.0 - wy) * champ[ix + 1, iy]
+                + (1.0 - wx) * wy * champ[ix, iy + 1]
+                + wx * wy * champ[ix + 1, iy + 1])

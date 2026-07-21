@@ -75,7 +75,7 @@ from scipy import sparse
 from scipy.integrate import solve_ivp
 
 from ..materiaux import Ambiant, ContactCeramique, Materiau
-from .solveur3d import KELVIN, Grille3D
+from .solveur3d import KELVIN, Grille3D, bracket_lineaire
 
 
 class SolveurThermique2D:
@@ -255,7 +255,9 @@ class SolveurThermique2D:
         return sol.y[:, i].reshape(g.nx, g.ny)
 
     def serie_temporelle(self, sol, x: float, y: float, z: str | float | None = None) -> np.ndarray:
-        """Température au nœud le plus proche de (x, y) pour tous les pas.
+        """Température interpolée BILINÉAIREMENT en (x, y) pour tous les pas
+        (cf. ``solveur3d.bracket_lineaire`` — avant 2026-07-21 : nœud le plus
+        proche, ``indice_xy``, qui pouvait décaler la lecture de jusqu'à dx/2).
 
         ``z`` est accepté (et ignoré s'il vaut ``"interface"``) uniquement
         pour partager la même signature d'appel que le 3D depuis
@@ -270,5 +272,10 @@ class SolveurThermique2D:
                 "maille dans l'épaisseur = l'interface) — cf. docstring module."
             )
         g = self.g
-        ix, iy = g.indice_xy(x, y)
-        return sol.y.reshape(g.nx, g.ny, -1)[ix, iy, :]
+        ix, wx = bracket_lineaire(g.x, x)
+        iy, wy = bracket_lineaire(g.y, y)
+        champ = sol.y.reshape(g.nx, g.ny, -1)
+        return ((1.0 - wx) * (1.0 - wy) * champ[ix, iy]
+                + wx * (1.0 - wy) * champ[ix + 1, iy]
+                + (1.0 - wx) * wy * champ[ix, iy + 1]
+                + wx * wy * champ[ix + 1, iy + 1])

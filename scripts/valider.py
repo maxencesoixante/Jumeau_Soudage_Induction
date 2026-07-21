@@ -3,13 +3,18 @@
 
 Usage (modèle 3D, défaut) :
     python scripts/valider.py [--facteur F] [--h-contact H] [--h-bas H]
-        [--essais chauffe_250A_3TC serieA_A-1 ...] [--nx 31 --ny 11 --nz 13]
+        [--essais chauffe_250A_3TC serieA_A-1 ...] [--nx 61 --ny 21 --nz 15]
 
 Usage (modèle 2D lumpé à l'interface, cf. thermique/solveur2d.py) :
     python scripts/valider.py --modele 2D --facteur F --decalage-x DX \\
         --h-haut H_HAUT --h-bas-2d H_BAS_2D --essais serieA_A-1 ...
 
 Calibrer d'abord (scripts/calibrer.py) puis valider ici SANS recalibrage.
+
+Maillage par défaut (nx=61, ny=21, nz=15, dx=dy=2 mm) : cf. étude de
+convergence 2026-07-21 (resultats_convergence_maillage.log, racine du dépôt)
+-- scripts/calibrer.py garde délibérément 31x11x13 (grille de CALIBRATION,
+non modifiée par cette étude, cf. rapport § verdict theta*).
 """
 
 from __future__ import annotations
@@ -101,9 +106,21 @@ def principale():
     ap.add_argument("--h-bas-2d", type=float, default=None, help="(modèle 2D)")
     ap.add_argument("--h-bord-x0", type=float, default=None,
                     help="(modèle 2D) puits de bord additionnel au chant x=0 (montage), W/m².K")
-    ap.add_argument("--nx", type=int, default=31)
-    ap.add_argument("--ny", type=int, default=11)
-    ap.add_argument("--nz", type=int, default=13)
+    ap.add_argument("--nx", type=int, default=61,
+                    help="défaut 61 (dx=2 mm, cf. étude de convergence maillage "
+                         "2026-07-21, rapport resultats_convergence_maillage.log) "
+                         "-- 31 était la grille de CALIBRATION, volontairement "
+                         "grossière ; le RMSE (métrique de calibration) y est déjà "
+                         "convergé à <1 °C près, mais delta_T_max (pic) dérive "
+                         "encore de 10-20 °C entre 31x11 et 121x41 selon le TC. "
+                         "61x21 est le meilleur compromis coût/résiduel de "
+                         "discrétisation identifié (~2-4 min/essai, cf. rapport).")
+    ap.add_argument("--ny", type=int, default=21)
+    ap.add_argument("--nz", type=int, default=15,
+                    help="défaut 15 (= défaut Essai/construire_grille) ; nz n'a "
+                         "qu'un effet négligeable (<1.5 °C) sur le modèle 2D via la "
+                         "quadrature de profondeur de la source EM (procede.py, "
+                         "Q.sum(axis=2)*dz) -- cf. rapport de convergence.")
     args = ap.parse_args()
 
     cfg = Config.charger(RACINE / "config")

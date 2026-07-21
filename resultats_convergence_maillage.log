@@ -1,0 +1,368 @@
+Étude de convergence maillage — modèle 2D lumpé (thermique/solveur2d.py)
+=========================================================================
+Date : 2026-07-21. θ* FIGÉ dans toute l'étude (aucune recalibration) :
+  facteur_couplage=4.3139, decalage_x=0.0, h_haut=2.4269, h_bas_2d=66.662,
+  h_bord_x0=250.0 (sauf ablation explicite, section 5).
+Commit de départ : 513bfb3 (arbre de travail modifié par cette étude, non
+committé). pytest avant modification : 26 passed in 117.54s (0:01:57).
+
+RÉSUMÉ EXÉCUTIF
+---------------
+Le résidu documenté « TC4 surestimé de +74 à +110 °C » (README, commit
+513bfb3) n'était QUE POUR ~15-25 % un déficit physique de discrétisation :
+le reste (~60-80 °C sur TC4) était un artefact de lecture par NŒUD LE PLUS
+PROCHE des thermocouples (Grille3D.indice_xy) — TC4 (x=90 mm) tombait pile
+à mi-distance entre deux nœuds sur la grille de calibration 31×11 (dx=4 mm).
+Un second artefact, distinct, affecte surtout TC5 (nœud de contrôle du
+thermostat lui aussi accroché au maillage). Les deux ont été corrigés dans
+le code (bilinéaire en (x,y) pour la lecture des TC, et pour le nœud de
+contrôle du thermostat). `h_bord_x0` (puits de bord calibré à 250 W/m².K)
+n'a AUCUN rapport avec le résidu TC4 (vérifié, section 5). `nz` (nombre de
+nœuds dans l'épaisseur) a un effet réel mais mineur (<1.5 °C) sur le modèle
+2D, via la quadrature de profondeur de la source EM (pas via le solveur
+thermique 2D lui-même, qui l'ignore).
+
+Maillage par défaut recommandé pour scripts/valider.py : 61×21×15 (dx=dy=
+2 mm), ~2-4 min/essai. scripts/calibrer.py reste à 31×11×13 (grille de
+calibration, volontairement grossière, NON modifiée par cette étude).
+
+
+1. NZ : EFFET SUR LE PIPELINE 2D (isolé, nx=31 ny=11 figés)
+-------------------------------------------------------------
+SolveurThermique2D.serie_temporelle/_rhs n'utilisent JAMAIS g.nz (confirmé
+par lecture du code ET par le commentaire de tests/test_thermique2d.py).
+MAIS Essai.__init__ (procede.py) construit P_surf_2D = Σ_z Q_3D · dz en
+sommant sur les nœuds z de la grille THERMIQUE (source_joule.py:
+source_spot, poids = epaisseur_couche/(len(iz)*dz)) : Bz/ψ/q sont
+échantillonnés à CHAQUE nœud z retenu dans chaque couche conductrice, donc
+c'est une quadrature dont la finesse dépend de nz. Effet mesuré (source
+Joule → thermique complet, essai chauffe_250A_3TC, nx=31 ny=11, seul TC2
+valide en 2D) :
+
+  nz    T_max_sim(TC2)   delta_T_max   rmse
+   9        242.51          -155.2     73.56
+  13        241.87          -155.8     73.77
+  15        241.70          -156.0     73.84
+  21        241.23          -156.5     73.98
+  31        241.96          -155.7     73.77
+  41        241.69          -156.0     73.86
+
+Spread total T_max_sim sur nz=9..41 : 1.3 °C (0.5 % relatif). Confirmé sur
+un essai complet (serieA_A-1, nx=31 ny=11, nz=13 vs 31) : écart max sur les
+5 TC < 0.3 °C. -> nz a un effet réel mais NÉGLIGEABLE devant les autres
+contributeurs (2 à 3 ordres de grandeur plus petit). nz=15 (défaut
+Essai/construire_grille) retenu et figé pour la suite de l'étude.
+
+
+2. ATTRIBUTION DES 4 CONTRIBUTEURS DE SENSIBILITÉ AU MAILLAGE
+----------------------------------------------------------------
+Isolé à la grille de calibration 31×11×15, sans recalibrer θ* :
+(1) discrétisation thermique nx,ny vraie ; (2) snapping de la LECTURE des TC
+(indice_xy, nœud le plus proche) ; (3) snapping du NŒUD DE CONTRÔLE du
+thermostat (Essai._T_ctrl, ix = indice_xy(centre_x,0)) ; (4) quadrature EM
+nz (section 1, négligeable).
+
+Vérification géométrique préalable (pourquoi TC4 est le pire cas à 31×11) :
+  grille   dx (mm)   TC4 (x=90mm) offset au nœud   spot1 (x=15.875mm) offset
+  31×11      4.000            2.000 mm (pire cas)            0.125 mm
+  49×17      2.500            0.000 mm (exact)                0.875 mm
+  61×21      2.000            0.000 mm (exact)                0.125 mm
+  91×31      1.333            0.667 mm (pire cas)             0.542 mm
+  121×41     1.000            0.000 mm (exact)                0.125 mm
+-> le "saut" 31×11 -> 49×17 rapporté dans la découverte initiale de mission
+tient en partie à ce que TC4 change de statut (pire cas -> exact) entre ces
+deux grilles précises, PAS à une convergence progressive : preuve que la
+lecture nœud-le-plus-proche contaminait toute comparaison de maillage.
+Aucun centre_x de spot ne tombe jamais exactement sur un nœud (offset
+0.1-1.9 mm sur toute la séquence) -> le nœud de contrôle du thermostat est
+TOUJOURS décalé, quel que soit le maillage.
+
+Isolation (2) et (3), SANS resimuler pour (2) : à sol figé, lecture nœud le
+plus proche vs bilinéaire ; (3) : resimulé avec Essai.interp_ctrl=False
+(nœud le plus proche, comportement historique) vs True (nouveau défaut,
+interpolé). Table (delta_T_max, °C, 31×11×15) :
+
+essai        TC   legacy(nearest+snap)  isolé(2)_TCsnap  isolé(3)_thermostat  combiné(2)+(3)
+serieA_A-1   TC1        71.0                 0.0               -2.9              -2.9
+             TC2       111.5               -63.9               -2.6             -65.9
+             TC3        38.8                 0.0                0.6               0.6
+             TC4       110.1               -77.4               -0.1             -77.4
+             TC5        81.4                 0.0              -56.2             -56.2
+serieA_A-3   TC1       -15.2                 0.0               -0.5              -0.5
+             TC2         9.3               -46.1               -0.6             -46.9
+             TC3        35.9                 0.0                0.1               0.1
+             TC4        77.6               -60.4                0.0             -60.4
+             TC5        54.4                 0.0              -27.2             -27.2
+serieB_B-2   TC1        23.4                 0.0                0.0               0.0
+             TC2        -9.4                -5.2                0.0              -3.2
+             TC3       -26.7                 0.0                0.7               0.7
+             TC4        73.7               -61.9               -0.2             -62.2
+(colonnes 0.0 exactes : TC snap et centre_y = largeur/2 tombent pile sur un
+nœud pour cette grille/ce TC, cf. table géométrique ci-dessus — TC1,TC3
+snap = 0 car x=0 mm/60 mm sont toujours des nœuds exacts.)
+
+Verdict : (2) le snapping de LECTURE explique -60 à -78 °C sur TC4 (soit
+~85-95% du résidu documenté +74/+110°C) et -46/-64°C sur TC2. (3) le
+snapping du THERMOSTAT a un effet quasi nul sur TC4 lui-même mais explique
+la QUASI-TOTALITÉ de la surchauffe de TC5 sur A-1/A-3 (-56, -27 °C — la
+dernière passe se coupait à un instant différent selon le maillage).
+Cohérence interne demandée : à un maillage où TC4 tombe pile sur un nœud
+(49×17, 61×21, 121×41), l'écart lecture-nœud vs bilinéaire est EXACTEMENT
+0.00°C (vérifié) ; aux maillages "pire cas" (31×11 : -77.4°C ; 91×31 :
+-23.2°C), l'écart décroît proportionnellement à dx/2 (rapport observé
+77.4/23.2=3.34 pour un rapport de dx 4/1.333=3.0) -> confirme que la
+correction suit bien un mécanisme géométrique de dx, pas un artefact
+numérique.
+
+
+3. CORRECTIFS APPLIQUÉS (conditionnés par l'attribution ci-dessus)
+----------------------------------------------------------------------
+- `bracket_lineaire(axe, position)` (thermique/solveur3d.py, nouvelle
+  fonction) : indice inférieur + poids d'interpolation linéaire.
+- `SolveurThermique{2D,3D}.serie_temporelle` : interpolation BILINÉAIRE en
+  (x, y) au lieu du nœud le plus proche (z reste catégoriel/snappé --
+  'surface'/'interface'/'opposee' ne sont pas des positions continues).
+  Signature INCHANGÉE (les tests test_thermique2d.py passent tels quels :
+  positions de test sur grille (9,5)/(25,11) tombent exactement sur des
+  nœuds -> bilinéaire = nœud le plus proche, aucune régression numérique).
+- `Essai._T_ctrl`/`Essai._colonnes_ctrl` (procede.py) : nœud de contrôle du
+  thermostat interpolé linéairement en x entre les deux nœuds encadrant
+  `centre_x` (nouveau paramètre `Essai(..., interp_ctrl: bool = True)`,
+  `False` reproduit EXACTEMENT l'ancien comportement, conservé pour
+  ablation/tests futurs). `_noeuds_controle`/`_noeuds_controle_2d`
+  déclarent maintenant les DEUX colonnes x couplées (piège signalé par
+  l'orchestrateur : sans ça, régression BDF déjà rencontrée le 2026-07-20).
+- Aucun changement de theta*, aucun changement des sorties du modèle 3D
+  au-delà de la même correction serie_temporelle (bilinéaire).
+
+
+4. BALAYAGE nx×ny PRINCIPAL (pipeline CORRIGÉ, nz=15, θ* figé)
+-------------------------------------------------------------------
+Essais : serieA_A-1, serieA_A-3, serieB_B-2, chauffe_250A_3TC (TC2 seul).
+Grilles : (31,11) (49,17) (61,21) (91,31) (121,41) -- dx=dy dans tous les
+cas (rapport longueur/largeur = 120/40 = 3 respecté).
+
+4.1 Coût mesuré (secondes, un run = un essai complet, machine de dev) :
+essai               31x11   49x17   61x21   91x31   121x41
+chauffe_250A_3TC      3.2     8.8     8.2    16.3     21.8
+serieA_A-1           32.8    89.0   269.8   584.2  1432.9
+serieA_A-3           41.0   111.7   163.3   466.9    807.6
+serieB_B-2           31.8    78.8   149.8   380.6    674.8
+Le coût NE suit PAS une loi de puissance propre en nb de nœuds (le solveur
+est un BDF non linéaire avec thermostat -- le nb de pas accepté dépend de la
+dynamique, pas seulement de la taille du jacobien). Aucun run n'a dépassé
+~24 min (A-1, le plus long) -> tout le budget ~45 min/essai a été respecté ;
+121×41 a donc été lancé pour les 4 essais (contrairement à la prudence
+initiale, l'extrapolation depuis 91×31 était pessimiste).
+
+4.2 delta_T_max (°C, pipeline corrigé) :
+essai              TC    31    49    61    91   121
+chauffe_250A_3TC   TC2  -156.0 -150.4 -149.3 -148.0 -147.6
+serieA_A-1         TC1    68.1   67.2   68.1   68.9   69.4
+                   TC2    45.7   43.3   46.6   46.8   46.0
+                   TC3    39.4   41.8   40.7   46.6   48.4
+                   TC4    32.7   43.7   42.3   49.0   50.5
+                   TC5    25.1   43.1   47.2   48.9   48.7
+serieA_A-3         TC1   -15.7  -18.5  -16.4  -16.0  -15.8
+                   TC2   -37.6  -46.2  -40.3  -41.8  -39.4
+                   TC3    36.0   38.4   36.1   41.7   42.3
+                   TC4    17.2   26.9   25.0   29.9   31.3
+                   TC5    27.2   35.3   34.6   36.4   37.4
+serieB_B-2         TC1    23.4   32.0   34.1   35.3   35.0
+                   TC2   -12.6  -17.2  -15.7   -9.2  -11.0
+                   TC3   -26.0  -19.5  -14.4   -6.3   -4.8
+                   TC4    11.5   -4.1    3.1    3.6    7.6
+
+4.3 rmse (°C, pipeline corrigé) :
+essai              TC    31    49    61    91   121
+chauffe_250A_3TC   TC2   73.8  72.3  71.9  71.6  71.5
+serieA_A-1         TC1   55.2  55.6  55.5  55.6  55.6
+                   TC2   43.5  42.9  43.3  43.3  43.3
+                   TC3   36.4  36.6  36.7  37.1  37.2
+                   TC4   32.8  33.5  33.7  34.0  34.2
+                   TC5   29.5  29.9  29.9  30.0  30.0
+serieA_A-3         TC1   42.9  43.0  43.0  43.0  43.0
+                   TC2   38.3  38.3  38.3  38.4  38.4
+                   TC3   31.9  31.6  31.5  31.5  31.5
+                   TC4   32.0  31.9  31.9  31.8  31.8
+                   TC5   30.1  30.3  30.3  30.4  30.4
+serieB_B-2         TC1   76.0  76.1  76.2  76.2  76.2
+                   TC2   70.4  70.8  71.0  71.1  71.1
+                   TC3   66.8  66.6  66.6  66.5  66.6
+                   TC4   66.7  67.1  67.3  67.5  67.6
+
+Lecture : RMSE (métrique agrégée, seule utilisée pour la calibration) est
+DÉJÀ CONVERGÉE à 31×11 (dérive totale <1.5 °C sur toute la séquence, tous
+essais/TC confondus). delta_T_max (le pic instantané, métrique locale et
+sensible à la dynamique du thermostat) dérive encore de 5 à 24 °C entre
+31×11 et 121×41 selon le TC/essai, SANS toujours converger proprement
+(cf. section 4.4) -- la discrétisation thermique nx,ny vraie (contributeur
+(1), une fois (2)(3)(4) retirés) reste le principal facteur résiduel sur ce
+pic, mais son amplitude est 3 à 15x plus faible que le résidu pré-correctif.
+
+Métrique `taux` (pente au 1er passage à 75°C) : EXCLUE de cette analyse
+(non comparable entre maillages, le passage saute d'une impulsion à
+l'autre selon le découpage temporel discret des spots) -- conformément à la
+consigne de mission.
+
+4.4 Ordre observé / Richardson-GCI (Roache, r=2 EXACT sur le triplet
+31×11 -> 61×21 -> 121×41, Fs=1.25) :
+
+  RMSE (15 combinaisons essai×TC testées) : ordre observé propre pour 12/15
+  (p dans [0.9 ; 4.4]) et GCI < 2.2 % dans tous ces cas (max 2.14 %, TC4
+  A-1), extrapolation Richardson stable -- la métrique de calibration est
+  bien dans le régime asymptotique dès 31×11 pour la grande majorité des TC.
+
+  delta_T_max (15 combinaisons) : ordre observé PROPRE (0.3<=p<=6, ratio
+  (f1-f2)/(f2-f3) positif) pour SEULEMENT 5/15 (chauffe TC2 p=1.91 ;
+  A-1 TC5 p=3.82 ; A-3 TC4 p=0.32 ; A-3 TC5 p=1.40 ; B-2 TC1 p=3.64) -- les
+  10 autres (A-1 TC1/TC2/TC3/TC4, A-3 TC1/TC2/TC3, B-2 TC2/TC3/TC4) montrent
+  soit un ratio négatif (convergence non monotone sur ce sous-ensemble de 3
+  points), soit un p hors fourchette raisonnable. PAS de GCI forcé sur ces
+  10 cas. Même parmi les 5 nominalement "propres", A-3 TC4 (p=0.32, le plus
+  bas de la série) donne un GCI extrapolé de 101 % -- symptomatique d'un
+  ordre trop faible pour que Richardson soit fiable : signalé et ÉCARTÉ de
+  toute conclusion quantitative, plutôt que dissimulé. Les 4 GCI restants
+  exploitables sont tous < 6 % (chauffe TC2 : 0.54 % ; A-1 TC5 : 0.30 % ;
+  A-3 TC5 : 5.68 % ; B-2 TC1 : 0.27 %).
+  Interprétation : delta_T_max est un maximum instantané d'une trajectoire
+  pilotée par un thermostat non linéaire (sigmoïde) -- il n'a pas la
+  régularité d'une intégrale (RMSE) et la théorie de Richardson (bâtie pour
+  des solutions lisses) ne s'y applique pas proprement à ces tailles de
+  grille. Ordre de grandeur retenu, sans prétention GCI : résidu de
+  discrétisation sur delta_T_max de l'ordre de 5-20 °C au maillage
+  recommandé (61×21), contre >60-110 °C avant correction du snapping.
+
+
+5. VERDICT CHIFFRÉ h_bord_x0 vs résidu TC4 (ablation 250 vs 0, pipeline
+   corrigé, triplet 31×11/61×21/121×41)
+------------------------------------------------------------------------
+delta_T_max (°C) :
+essai        TC    nx     h_bord_x0=0   h_bord_x0=250   écart (250-0)
+serieA_A-1   TC1    31        268.5           68.1          -200.4
+             TC1    61        268.8           68.1          -200.8
+             TC1   121        269.4           69.4          -200.0
+             TC2    31         39.7           45.7            +6.0
+             TC2    61         39.4           46.6            +7.2
+             TC2   121         41.1           46.0            +4.9
+             TC3    31         37.4           39.4            +2.0
+             TC3    61         38.8           40.7            +1.9
+             TC3   121         46.9           48.4            +1.5
+             TC4    31         32.7           32.7            +0.0
+             TC4    61         42.1           42.3            +0.2
+             TC4   121         50.4           50.5            +0.1
+             TC5    31         25.2           25.1            -0.1
+             TC5    61         47.5           47.2            -0.3
+             TC5   121         48.7           48.7            +0.1
+serieB_B-2   TC1    31        202.1           23.4          -178.7
+             TC1    61        209.8           34.1          -175.7
+             TC1   121        212.7           35.0          -177.7
+             TC2    31          1.3          -12.6           -14.0
+             TC2    61         -5.5          -15.7           -10.2
+             TC2   121          0.5          -11.0           -11.5
+             TC3    31        -26.9          -26.0            +1.0
+             TC3    61        -17.3          -14.4            +2.9
+             TC3   121         -7.2           -4.8            +2.4
+             TC4    31         11.3           11.5            +0.2
+             TC4    61          2.7            3.1            +0.4
+             TC4   121          7.3            7.6            +0.2
+
+Verdict : h_bord_x0 est un puits STRICTEMENT LOCAL au chant x=0. Il change
+TC1 de ~+175 à +200 °C (indispensable, cf. README) et TC2 (proche du chant,
+x=30 mm) de 5 à 14 °C, mais TC4 (x=90 mm, loin du chant) et TC5 (x=120 mm)
+sont INCHANGÉS à <0.4 °C près, À TOUS LES MAILLAGES testés. h_bord_x0=250 EST
+donc justifié pour TC1, mais NE contribue PAS et n'a PAS été (mal) calibré
+pour compenser le résidu TC4 -- ce résidu est entièrement attribuable au
+snapping (section 2) + à la discrétisation résiduelle nx,ny (section 4.4).
+
+
+6. NOUVELLE LIGNE DE BASE (maillage recommandé 61×21×15, pipeline corrigé)
+--------------------------------------------------------------------------
+scripts/valider.py --modele 2D --facteur 4.3139 --decalage-x 0 --h-haut
+2.4269 --h-bas-2d 66.662 --h-bord-x0 250 (défauts nx/ny/nz désormais 61/21/15) :
+
+=== chauffe_250A_3TC [2D] ===
+  (TC exclus, non 'interface' -> non représentables en 2D : ['TC1', 'TC3'])
+     rmse  T_max_sim  T_max_mes  delta_T_max  taux_sim  taux_mes
+TC2  71.9      248.4      397.7       -149.3       6.3      22.1
+RMSE moyen : 71.9 °C ; écart T_max moyen : 149.3 °C
+
+=== serieA_A-1 [2D] ===
+     rmse  T_max_sim  T_max_mes  delta_T_max  taux_sim  taux_mes
+TC1  55.5      466.1      398.0         68.1      20.6      19.0
+TC2  43.3      391.5      344.9         46.6       9.5      16.1
+TC3  36.7      424.2      383.5         40.7      11.1      10.4
+TC4  33.7      423.1      380.8         42.3      11.1       0.6
+TC5  29.9      446.5      399.3         47.2       0.4       0.6
+RMSE moyen : 39.8 °C ; écart T_max moyen : 49.0 °C
+
+=== serieA_A-3 [2D] ===
+     rmse  T_max_sim  T_max_mes  delta_T_max  taux_sim  taux_mes
+TC1  43.0      383.3      399.6        -16.4      11.3      13.4
+TC2  38.3      359.3      399.6        -40.3       5.9       6.9
+TC3  31.5      403.7      367.5         36.1       7.1       0.4
+TC4  31.9      404.2      379.2         25.0       7.1       0.4
+TC5  30.3      425.9      391.3         34.6       0.5       0.4
+RMSE moyen : 35.0 °C ; écart T_max moyen : 30.5 °C
+
+=== serieB_B-2 [2D] ===
+     rmse  T_max_sim  T_max_mes  delta_T_max  taux_sim  taux_mes
+TC1  76.2      396.5      362.4         34.1      20.6      18.9
+TC2  71.0      337.7      353.4        -15.7       9.5      13.0
+TC3  66.6      351.6      366.0        -14.4      11.1       9.8
+TC4  67.3      364.4      361.3          3.1      11.1       0.6
+RMSE moyen : 70.3 °C ; écart T_max moyen : 16.8 °C
+
+(rappel : `taux_sim`/`taux_mes` non comparables entre maillages, non utilisés
+comme critère -- présents dans la table par cohérence de format uniquement.)
+
+C'est le nouveau point de départ de l'étape (2) (correctifs physiques
+éventuels), à comparer désormais à CE tableau et non aux anciens chiffres
+31×11 pré-correctifs.
+
+
+7. TESTS
+--------
+.venv/bin/python -m pytest -q :
+  AVANT toute modification (référence) : 26 passed in 117.54s (0:01:57).
+  APRÈS tous les correctifs de ce rapport (bracket_lineaire, serie_temporelle
+  bilinéaire, Essai.interp_ctrl, defaults scripts/valider.py) :
+  26 passed in 126.65s (0:02:06). Aucune régression, aucun test modifié.
+
+
+8. FICHIERS MODIFIÉS (arbre de travail, PAS commité)
+-----------------------------------------------------
+- src/jumeau/thermique/solveur3d.py : + bracket_lineaire ; serie_temporelle
+  (SolveurThermique3D) bilinéaire en (x,y).
+- src/jumeau/thermique/solveur2d.py : serie_temporelle (SolveurThermique2D)
+  bilinéaire en (x,y) (import bracket_lineaire).
+- src/jumeau/procede.py : Essai(..., interp_ctrl: bool = True) ; nouvelle
+  méthode _colonnes_ctrl ; _T_ctrl interpolé en x ; _noeuds_controle /
+  _noeuds_controle_2d déclarent les deux colonnes bracket (sparsité
+  jacobien).
+- scripts/valider.py : défauts --nx/--ny/--nz 61/21/15 (au lieu de
+  31/11/13) ; docstring/aide mis à jour. AUCUN autre script touché
+  (calibrer.py, simuler_essai.py, figure_empreinte.py, figure_fusion.py,
+  ai_framework/outils.py gardent leurs propres défauts, cf. § 9).
+- README.md : § Limites connues, paragraphe h_bord_x0/TC4 réécrit avec
+  l'attribution chiffrée ci-dessus.
+- resultats_convergence_maillage.log (ce fichier, nouveau).
+- resultats_validation_2d_maillage61x21.log (nouveau, sortie brute de
+  scripts/valider.py au maillage recommandé, section 6 ci-dessus).
+
+
+9. INCOHÉRENCES DE MAILLAGE SIGNALÉES (NON MODIFIÉES, décision volontaire)
+----------------------------------------------------------------------------
+- scripts/calibrer.py : défauts --nx 31 --ny 11 --nz 13 (grille de
+  CALIBRATION, volontairement grossière) -- laissé tel quel (θ* n'est PAS
+  recalibré par cette étude).
+- scripts/simuler_essai.py, scripts/figure_empreinte.py : défauts 49/17/
+  13-15 (= défauts Essai/construire_grille, mais figure_empreinte.py a
+  nz=13 au lieu de 15 -- incohérence mineure préexistante, non corrigée,
+  hors périmètre de cette étude).
+- scripts/figure_fusion.py : défauts 31/11/13 (identiques à l'ancien
+  valider.py) -- non aligné sur le nouveau défaut 61/21/15, non modifié
+  (pas d'essai de convergence dédié à ce script dans le périmètre confié).
+- ai_framework/outils.py::lancer_simulation : nx=31, ny=11 câblés en dur,
+  indépendants de tout CLI -- non modifié (couche IA hors périmètre,
+  jamais testée live, cf. mémoire agent).

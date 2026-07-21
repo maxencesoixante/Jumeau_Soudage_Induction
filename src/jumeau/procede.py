@@ -18,7 +18,7 @@ from .geometrie import construire_couches, construire_grille, masque_empreinte_c
 from .materiaux import Config, charger_yaml
 from .em.source_joule import source_spot
 from .thermique.solveur2d import SolveurThermique2D
-from .thermique.solveur3d import Grille3D, SolveurThermique3D
+from .thermique.solveur3d import Grille3D, SolveurThermique3D, bracket_lineaire
 
 # Largeur (°C) de la transition du thermostat sigmoïde de coupure sur consigne
 # (cf. Essai.source_fn / source_fn_2d) : facteur = 1/(1+exp((T_ctrl-consigne)/LARGEUR)).
@@ -54,7 +54,8 @@ class Essai:
                  nx: int = 49, ny: int = 17, nz: int = 15,
                  facteur_couplage: float = 1.0,
                  decalage_x: float | None = None,
-                 racine: str | Path | None = None):
+                 racine: str | Path | None = None,
+                 interp_ctrl: bool = True):
         self.cfg = cfg
         self.spec = charger_yaml(chemin_essai)
         self.racine = Path(racine) if racine else Path(chemin_essai).resolve().parents[2]
@@ -68,6 +69,18 @@ class Essai:
         if decalage_x is None:
             decalage_x = float(cfg.geometrie["coil"].get("decalage_x", 0.0))
         self.decalage_x = decalage_x
+        # Nœud de contrôle du thermostat interpolé le long de x (défaut) au
+        # lieu du nœud le plus proche de centre_x (``interp_ctrl=False``,
+        # comportement historique < 2026-07-21) : centre_x (position réelle du
+        # spot) ne tombe QUASIMENT JAMAIS sur un nœud de grille (cf.
+        # ``_colonnes_ctrl``/rapport de vérification mesh-convergence), donc
+        # l'instant de coupure du thermostat (T_ctrl atteint la consigne)
+        # dépendait du maillage par un simple effet de positionnement discret,
+        # indépendant de la véritable erreur de discrétisation -- contaminait
+        # toute étude de convergence ET la calibration (les nœuds de contrôle
+        # snappés à centre_x ont directement influencé θ*). ``interp_ctrl=False``
+        # conservé pour comparaison/ablation (cf. tests, rapport de vérification).
+        self.interp_ctrl = bool(interp_ctrl)
 
         courant = float(self.spec["courant"])
         self.spots = self.spec["spots"]
@@ -114,11 +127,12 @@ class Essai:
         # cf. rapport de vérification).
         self._noeuds_controle: list[tuple[int, int, int]] = []
         if self.spec.get("consigne_interface") is not None:
-            noeuds = {
-                (self.grille.indice_xy(float(s["centre_x"]), 0.0)[0], iy, self.grille.iz_interface)
-                for s in self.spots
-                for iy in range(self.grille.ny)
-            }
+            noeuds = set()
+            for s in self.spots:
+                ix0, ix1, _ = self._colonnes_ctrl(float(s["centre_x"]))
+                for ix in {ix0, ix1}:
+                    for iy in range(self.grille.ny):
+                        noeuds.add((ix, iy, self.grille.iz_interface))
             self._noeuds_controle = sorted(noeuds)
 
         # --- modèle 2D (lumpé dans l'épaisseur, cf. thermique/solveur2d.py) :
@@ -140,6 +154,19 @@ class Essai:
             if float(s["t_debut"]) <= t < float(s["t_fin"]):
                 return i
         return None
+
+    def _colonnes_ctrl(self, centre_x: float) -> tuple[int, int, float]:
+        """Colonne(s) x du nœud de contrôle du thermostat pour un spot centré
+        en ``centre_x`` (m, position CONTINUE, cf. YAML d'essai) : bracket
+        ``(ix0, ix1)`` + poids linéaire ``wx`` vers ``ix1`` si
+        ``self.interp_ctrl`` (défaut), sinon nœud le plus proche seul
+        (``ix0 == ix1``, ``wx = 0`` -- comportement historique < 2026-07-21,
+        conservé pour ablation/comparaison, cf. ``_T_ctrl``)."""
+        if not self.interp_ctrl:
+            ix0 = self.grille.indice_xy(centre_x, 0.0)[0]
+            return ix0, ix0, 0.0
+        ix0, wx = bracket_lineaire(self.grille.x, centre_x)
+        return ix0, ix0 + 1, wx
 
     def _T_ctrl(self, T: np.ndarray, spot: dict, deux_d: bool) -> float:
         """Température de contrôle du thermostat pour le spot actif ``spot``.
@@ -172,15 +199,16 @@ class Essai:
         serieA_A-3 — cf. rapport de vérification thermal-solver-engineer
         2026-07-20.
         """
-        ix = self.grille.indice_xy(float(spot["centre_x"]), 0.0)[0]
+        ix0, ix1, wx = self._colonnes_ctrl(float(spot["centre_x"]))
+        iy_point = self.grille.indice_xy(0.0, self.grille.largeur / 2.0)[1]
         if deux_d:
-            iy_point = self.grille.indice_xy(0.0, self.grille.largeur / 2.0)[1]
-            T_point = T[ix, iy_point]
-            T_moyenne = T[ix, :].mean()
+            T_point = (1.0 - wx) * T[ix0, iy_point] + wx * T[ix1, iy_point]
+            T_moyenne = (1.0 - wx) * T[ix0, :].mean() + wx * T[ix1, :].mean()
         else:
-            iy_point = self.grille.indice_xy(0.0, self.grille.largeur / 2.0)[1]
-            T_point = T[ix, iy_point, self.grille.iz_interface]
-            T_moyenne = T[ix, :, self.grille.iz_interface].mean()
+            T_point = ((1.0 - wx) * T[ix0, iy_point, self.grille.iz_interface]
+                       + wx * T[ix1, iy_point, self.grille.iz_interface])
+            T_moyenne = ((1.0 - wx) * T[ix0, :, self.grille.iz_interface].mean()
+                         + wx * T[ix1, :, self.grille.iz_interface].mean())
         return POIDS_POINT_THERMOSTAT * T_point + (1.0 - POIDS_POINT_THERMOSTAT) * T_moyenne
 
     def source_fn(self, t: float, T: np.ndarray | None = None) -> np.ndarray:
