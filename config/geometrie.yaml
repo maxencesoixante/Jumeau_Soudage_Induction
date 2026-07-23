@@ -12,13 +12,19 @@ laminate:
 coil:
   # Bobine hairpin (épingle) Ambrell — d'après la CAO du montage
   # (positionnement_CFC+coil.png, échelle = CFC 55 mm) : deux tubes de cuivre
-  # carrés ~9,5 mm (3/8 po) traversant le CFC le long de son grand côté.
+  # carrés de 6 mm de côté traversant le CFC le long de son grand côté
+  # (CONFIRMÉ user 2026-07-23 ; l'ancienne valeur ~9,5 mm / 3/8 po était fausse).
   type: hairpin
   longueur_jambe: 0.055      # m — brins parallèles au grand côté du CFC (55 mm)
-  entraxe_jambes: 0.019      # m — centre à centre (~tube 9,5 + gap ~9,5 mm), mesuré CAO
-  rayon_tube: 0.00476        # m — demi-hauteur du tube carré 9,5 mm (filament équivalent)
-  # Hauteur de l'axe du conducteur au-dessus de la surface du laminé :
-  # gap céramique 2 mm + demi-tube
+  entraxe_jambes: 0.01235    # m — centre à centre = tube 6 mm + gap 6,35 mm
+                             # (CONFIRMÉ user 2026-07-23 ; ancienne valeur 0.019
+                             # supposait à tort un tube 9,5 mm)
+  rayon_tube: 0.003          # m — demi-côté du tube carré 6 mm (filament équivalent ;
+                             # n'entre que dans plan_miroir_cfc = hauteur + rayon_tube)
+  # Hauteur de l'axe du conducteur au-dessus de la surface du laminé.
+  # CONFIRMÉ correct (user 2026-07-23) ; NB : la décomposition « gap céramique
+  # 2 mm + demi-tube » ne tient plus avec le tube 6 mm (donnerait 5 mm) — à
+  # réconcilier (gap réel ~3,8 mm ? mesure autrement ?), mais la valeur tient.
   hauteur: 0.0068            # m
   # CONFIRMÉ (2026-07-17) : le grand côté 55 mm du CFC est parallèle à la
   # LARGEUR des échantillons (axe y) => brins du hairpin le long de y.

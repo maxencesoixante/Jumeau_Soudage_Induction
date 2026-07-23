@@ -43,11 +43,14 @@ mesures thermocouples des essais (Séries A/B + essais de chauffe).
 
 ## Limites connues
 
-- Les **dimensions de la bobine hairpin** sont mesurées sur la CAO du montage
-  (`positionnement_CFC+coil.png`, échelle = CFC 55 mm) : tubes carrés ~9,5 mm,
-  entraxe ~19 mm, brins le long du grand côté du CFC — à raffiner si la cote
-  exacte de la CAO SolidWorks est extraite. **Orientation CFC confirmée**
-  (2026-07-17) : 55 mm parallèle à la largeur y des échantillons.
+- Les **dimensions de la bobine hairpin** : tubes carrés de **6 mm de côté**,
+  **gap 6,35 mm** entre brins (entraxe centre-à-centre **12,35 mm**), brins le
+  long du grand côté du CFC. **Orientation CFC confirmée** (2026-07-17) : 55 mm
+  parallèle à la largeur y des échantillons. **CORRECTION 2026-07-23** : la
+  valeur antérieure (tubes ~9,5 mm, entraxe ~19 mm) était fausse ; la corriger a
+  résolu l'essentiel du dépassement de pic A-1 (|ΔT_max| 46→15 °C à `k_plan=3`
+  physique — cf. `resultats_geometrie_corrigee_recalibration.log`) : ce
+  « déficit structurel » était en grande partie un artefact de cette entrée.
 - Les **positions des TC des Séries A/B** ont été confirmées par l'utilisateur
   (2026-07-20) : les 5 TC sont TOUS à l'interface (repère cahier origine-milieu
   converti au repère modèle origine-coin) — TC1 au bord de longueur / centre de

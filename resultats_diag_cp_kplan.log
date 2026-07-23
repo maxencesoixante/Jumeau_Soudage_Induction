@@ -1,0 +1,305 @@
+Diagnostic croisé cp(T) × k_plan sur le déficit structurel — rapport
+==============================================================================
+Date : 2026-07-23. Suite au constat "déficit structurel : pics A-1 +40/+60 °C,
+non paramétrique" ([[etat-jumeau-2026-07-21]]) et après fermeture des pistes
+champ de réaction / blindage inter-couches (resultats_diag_blindage_intercouche.log).
+
+MANDAT : diagnostic de sensibilité à θ* FIGÉ (commit 57e7157 : facteur=4.0975,
+decalage_x=0, h_haut=11.323, h_bas_2d=51.636, h_bord_x0=250). AUCUNE
+recalibration. Modèle 2D. Patch en mémoire uniquement (aucun fichier src/
+modifié). Reproductible : scratchpad/diag_cp_kplan.py.
+
+HYPOTHÈSE TESTÉE : le dépassement de pic UNIFORME de A-1 (+40/+60 °C sur les 5
+TC, pics mesurés 380-400 °C vs simulés 420-458 °C) est structurel — aucun jeu
+des 3 paramètres ne le corrige sans casser la montée. Deux tampons physiques
+manquants candidats : (1) cp haute température sous-estimé (cp_apparent retombe
+à cp_base=1200 J/kg·K constant au-dessus de ~360 °C, pile là où se jouent les
+pics) ; (2) conduction dans le plan k_plan=3,0 W/m·K (marquée "incertain" au
+YAML) trop basse → plaque trop "locale", contraste spatial trop fort.
+
+
+RÉSUMÉ EXÉCUTIF
+---------------
+cp haute-T : RÉFUTÉ comme levier structurel. Monter cp abaisse le pic de A-1 à
+  peine (|dTmax| 39,6→35,0) mais DÉGRADE le RMSE (38,7→45,0) et empire le pic de
+  B-2 : simple compromis paramétrique défavorable, pas la physique manquante.
+
+k_plan : LEVIER STRUCTUREL CONFIRMÉ, robuste en maillage. Le passer de 3,0 à
+  9,0 W/m·K améliore À LA FOIS RMSE ET pic sur A-1 (39,2→30,4 et 46,0→21,9 à
+  61×21 — dépassement divisé par deux), et baisse le RMSE sur les 3 essais.
+  Améliorer les deux métriques ensemble = ce que facteur_couplage (simple
+  échelle) ne sait PAS faire → manque de MODÈLE, pas de calage. Confirme "la
+  mesure est plus uniforme que le modèle".
+
+
+1. AXE cp HAUTE TEMPÉRATURE (k_plan=3,0, 31×11×13)
+----------------------------------------------------
+cp(T) = 1200 + slope·max(0, T−Tg) + pic latent inchangé, Tg=159 °C.
+(RMSE / |dTmax| moyen, °C)
+
+  slope  cp@400    A-1            A-3            B-2
+  0,0    1200      38,7 / 39,6    32,8 / 27,6    67,6 / 10,8
+  1,0    1441      41,7 / 38,1    32,9 / 25,8    68,3 / 13,6
+  2,0    1682      45,0 / 35,0    33,1 / 23,7    69,1 / 14,5
+
+Le pic baisse marginalement, le RMSE monte partout, B-2 empire. VERDICT :
+réfuté. (Note : cela ne dit PAS que cp=1200 est correct — seulement qu'un cp
+plus élevé ne corrige pas le déficit structurel ; il ralentit la montée plus
+qu'il n'aide le pic.)
+
+
+2. AXE k_plan — 31×11×13 vs 61×21×15 (confirmation maillage)
+-------------------------------------------------------------
+(RMSE / |dTmax| moyen, °C ; base k=3,0 reproduit la réf 61×21 À LA DÉCIMALE)
+
+  essai   k_plan   31×11×13        61×21×15
+  A-1     3,0      38,7 / 39,6     39,2 / 46,0   <- = référence
+  A-1     6,0      31,6 / 33,3     31,8 / 36,0
+  A-1     9,0      30,4 / 21,7     30,4 / 21,9
+  A-3     3,0      32,8 / 27,6     32,7 / 31,0
+  A-3     6,0      28,5 / 25,0     28,4 / 26,5
+  A-3     9,0      28,6 / 27,4     28,5 / 26,9
+  B-2     3,0      67,6 / 10,8     68,0 / 12,3
+  B-2     6,0      63,2 / 19,9     63,4 / 15,6
+  B-2     9,0      61,6 / 20,7     61,8 / 15,7
+
+L'EFFET de k_plan est lui-même convergé en maillage (A-1 k=9 : 30,4/21,7 vs
+30,4/21,9). Bilan 3,0→9,0 : A-1 RMSE −9, pic ÷2 ; A-3 RMSE −4, pic plat ; B-2
+RMSE −6, pic +3,4 (moins pénalisant qu'annoncé par le 31×11 qui donnait +9,9).
+RMSE baisse sur les 3 essais.
+
+
+3. RÉSERVES
+-------------
+- B-2 : le pic |dTmax| se dégrade (12,3→15,7). B-2 a une géométrie/TC
+  différente (TC5 exclu). À surveiller lors de la recalibration.
+- MAGNITUDE : k=9 est haut pour un quasi-iso CF/PEKK. À NE PAS caler sur le
+  fit. Étape suivante = fixer k_plan par homogénéisation/littérature. Déjà à
+  k=6 le gain est net (A-1 31,8/36,0). L'écart entre le k_plan homogénéisé
+  (~3-5 attendu) et le k "optimal data" (~9) est un signal en soi : soit grade
+  de fibre plus conducteur, soit un mécanisme d'étalement in-plane que le
+  modèle 2D lumpé ne capture pas (twill, conduction 3D through-thickness
+  collapsée).
+- INTERACTION h_bord_x0=250 : calibré à k_plan=3,0 pour casser l'accumulation
+  de bord ; à k plus élevé cette accumulation baisse d'elle-même → h_bord_x0
+  possiblement partiellement redondant. À ré-examiner au refit.
+
+
+4. SUITE (mise à jour §5-§6 ci-dessous : le levier n'est PAS k_plan)
+--------------------------------------------------------------------
+1. Fixer k_plan physiquement défendable (homogénéisation quasi-iso CF/PEKK).
+2. Recalibrer θ* avec ce k_plan (ré-examiner h_bord_x0).
+3. Validation croisée sur les 3 essais.
+Aucun commit à ce stade.
+
+
+5. HOMOGÉNÉISATION k_plan — 3,0 EST DÉJÀ CORRECT
+--------------------------------------------------
+Le repo n'a aucune propriété de constituant. Homogénéisation quasi-iso
+[45/-45/0/90]3s à partir de valeurs littérature :
+  fibre PAN standard (AS4, grade Solvay APC) k_axial ≈ 7 W/m·K
+  matrice PEKK k_m ≈ 0,25 W/m·K ; Vf ≈ 0,59
+  → pli UD long. k1 = Vf·k_f + (1−Vf)·k_m ≈ 4,2 ; UD transverse k2 ≈ 0,7
+  → quasi-iso in-plane (k1+k2)/2 ≈ 2,5 W/m·K
+Hypothèses généreuses (Vf=0,60, fibre T700 k~9,5) plafonnent à ~3,2 W/m·K.
+Pour k_plan=6 il faudrait k_f≈19 ; pour 9, k_f≈30 (fibre pitch, PAS de l'APC PAN).
+
+CONCLUSION : k_plan=3,0 EST la valeur physique. La donnée qui veut 6-9 réclame
+2-3× plus de lissage que la conduction dans le plan ne peut en fournir. Monter
+k_plan serait caler sur le fit → REFUSÉ. Le levier numérique de la §2 est réel
+mais n'est PHYSIQUEMENT PAS de la conduction dans le plan.
+
+
+6. D'OÙ VIENT LE SUR-CONTRASTE ? — 2D LUMPÉ vs 3D (test contrôlé)
+------------------------------------------------------------------
+Deux hypothèses : (a) source EM trop piquée ; (b) artefact du 2D lumpé (qui
+écrase la conduction through-thickness). Test contrôlé, ADIABATIQUE (toutes
+pertes = 0, isole la conduction), même source figée = même énergie (295,2 W),
+impulsion 20 s, spot 2, 31×11×13, k_plan/k_z/ρcp nominaux. Reproductible :
+scratchpad/diag_2d_vs_3d.py.
+
+  interface, spot 2          3D résolu    2D lumpé
+  T_max (°C)                   710,6        472,8
+  contraste ΔT/T_moy            6,93         6,01
+  ratio largeur bord/centre     6,73         4,74
+  profil T(y) bord→centre→bord  711→123→711  473→116→473
+
+VERDICT : hypothèse (b) RÉFUTÉE. Le 3D est PLUS chaud et PLUS contrasté à
+l'interface, pas moins — le 2D lumpé (T uniforme dans l'épaisseur = tampon
+vertical maximal) LISSE déjà (rabaisse le pic 711→473 et adoucit les lobes).
+Passer en 3D AGGRAVERAIT le sur-contraste. Le lumping n'est donc pas le
+coupable ; le 2D lumpé est même la représentation la plus favorable.
+
+PAR ÉLIMINATION (à ce stade) : le sur-contraste semblait venir de la SOURCE EM.
+MAIS les §7-§8 ci-dessous RÉFUTENT aussi la piste source. Aucun commit.
+
+
+7. LA POSITION EN y DU TC N'EXPLIQUE PAS LE DÉPASSEMENT (réfuté)
+-----------------------------------------------------------------
+Hypothèse : le lobe M est si raide (adiabatique 20 s : 711→594→382 de y=0 à
+4 à 8 mm) que TC2-5 posés pile à y=0 liraient le pic. Test : A-1 2D complet,
+θ* figé, k=3, T_max simulé aux x de TC2-5 pour y=0..5 mm
+(scratchpad/diag_tc_yposition.py) :
+
+  TC     y=0   y=1   y=2   y=3   y=4   y=5
+  TC2    390   392   395   392   389   386
+  TC3    424   428   431   430   429   424
+  TC5    442   449   456   465   475   487
+
+→ ±5-10 °C sur 0-5 mm (TC2-4), PAS 60-120 °C. Le lobe M raide est DÉJÀ LISSÉ
+par la diffusion latérale au moment où T_max est atteint (essai 1400 s) : le
+profil transverse est plat à la lecture. La position TC n'explique pas le
+dépassement. RÉFUTÉ.
+
+
+8. LA CONCENTRATION EN x DE LA SOURCE N'EST PAS LE PROBLÈME (réfuté)
+---------------------------------------------------------------------
+Dernière piste source : source trop concentrée en x (le long de la soudure),
+qu'un CFC fini (levier (c) de resultats_diagnostic_profil_M_em.log, jamais
+testé) étalerait. Proxy : convoluer la source 2D par une gaussienne en x
+(énergie conservée), k=3, vs l'effet cible de k_plan=9
+(scratchpad/diag_source_spread.py, A-1/A-3, 61×21×15) :
+
+  config              A-1 RMSE/|dTmax|   A-3
+  baseline (k=3)       39.2 / 46.0        32.7 / 31.0
+  k_plan=9 (cible)     30.4 / 21.9        28.5 / 26.9
+  source σx=5mm        39.3 / 45.6        32.2 / 39.5
+  source σx=10mm       40.4 / 70.1        31.4 / 39.4
+  source σx=15mm       41.4 / 85.2        30.9 / 48.6
+
+→ Étaler la source NE reproduit PAS k_plan=9 ; ça EMPIRE le dépassement
+(A-1 46→70→85). La concentration en x n'est pas le problème, le CFC fini
+n'est pas le levier. RÉFUTÉ.
+
+
+9. RECADRAGE : PROBLÈME DE RETRAIT DE CHALEUR, PAS DE SOURCE
+-------------------------------------------------------------
+Bilan des négatifs de la session : k_plan n'agit PAS comme un lissage de
+source (étaler la source x/y n'aide pas/nuit ; profil déjà plat à la lecture ;
+2D-lumping et cp réfutés). Ce que k_plan fait réellement : DRAINER la chaleur
+accumulée hors de la zone du spot vers le reste (plus froid) de la plaque, sur
+les 1400 s de l'essai. C'est un problème de RETRAIT DE CHALEUR DANS LE TEMPS,
+pas de forme de source ni de dépôt EM. La source EM n'est donc pas le coupable.
+
+Le mécanisme physique manquant est côté PUITS/RETRAIT de chaleur (conductance
+de contact vers l'outillage CFC/céramique au spot, puits de bride), même
+famille que h_bord_x0 (qui a physiquement corrigé TC1). Suite proposée : tester
+la sensibilité côté puits (h_haut/contact au spot, puits d'outillage), PAS la
+source. Aucun commit.
+
+
+10. h_haut (CONTACT AU SPOT) RÉFUTÉ — mais tranche le mécanisme
+----------------------------------------------------------------
+Sweep h_haut à θ* figé (scratchpad/diag_hhaut.py, A-1/A-3, 61×21×15) :
+
+  config                A-1 RMSE/|dTmax|   A-3
+  baseline (h=11.3,k=3)  39.2 / 46.0        32.7 / 31.0
+  k_plan=9 (cible)       30.4 / 21.9        28.5 / 26.9
+  h_haut=50              40.3 / 45.9        34.8 / 26.4
+  h_haut=150             43.9 / 27.8        41.3 / 58.6
+  h_haut=400             53.4 / 78.8        58.6 / 156.2
+
+h_haut NE reproduit PAS k_plan=9 : à h=150 le pic A-1 baisse (46→28) mais le
+RMSE se dégrade (39→44) et A-3 EXPLOSE (|dTmax| 31→59) ; à 400, catastrophe.
+h_haut est une PERTE vers un ambiant à T constante → retire trop d'énergie
+nette. RÉFUTÉ.
+
+DISCRIMINANT CLÉ : k_plan améliore les DEUX métriques sur TOUS les essais parce
+qu'il REDISTRIBUE (énergie nette conservée) ; h_haut RETIRE → casse tout. Le
+mécanisme physique manquant REDISTRIBUE/TAMPONNE, il ne retire pas.
+
+11. PISTE DOMINANTE — MASSE THERMIQUE DU CFC (à implémenter/tester)
+--------------------------------------------------------------------
+Candidat cohérent avec le discriminant ET la géométrie (bloc CFC Ferrotron
+55×31,5×12 mm posé sur le spot via céramique) : le CFC est une MASSE THERMIQUE
+finie qui ABSORBE la chaleur du spot pendant l'impulsion (tamponne le pic) puis
+la relâche. Le modèle le représente en h_haut·(T_amb−T), puits à T CONSTANTE
+qui ne se réchauffe jamais → ne tamponne jamais. Un tampon (T_cfc qui monte)
+baisserait le pic SANS retirer d'énergie nette = la signature « améliore les
+deux » de k_plan, mais PHYSIQUE. Ordre de grandeur : C_cfc ≈ ρ·V·cp ≈ 5400·
+2.08e-5·600 ≈ 67 J/K ; sur une impulsion de ~15-18 kJ, absorber quelques kJ
+fait monter le CFC de plusieurs dizaines de °C → tampon significatif. À
+prototyper (capacité localisée couplée au contact, θ* figé) avant tout src/.
+
+
+12. MASSE THERMIQUE CFC RÉFUTÉE aux paramètres physiques
+---------------------------------------------------------
+Prototype couplé (état T_cfc évolutif, scratchpad/proto_cfc_masse.py, A-1,
+31×11×13, θ* figé). Remplace le puits à T constante par
+C_cfc·dT_cfc/dt = ∫h_haut·(T_surf−T_cfc)dA − G·(T_cfc−T_amb).
+
+  config                          RMSE/|dTmax|   T_cfc_max
+  baseline (puits const, k=3)      38.7 / 39.6     —
+  k_plan=9 (cible)                 30.4 / 21.7     —
+  masse h=11.3 C=67 G=0.06         38.7 / 39.6     45°C   <- IDENTIQUE baseline
+  masse h=150  C=67 G=0.06         35.5 / 29.6    177°C
+  masse h=150  C=67 G=1.0          41.8 / 24.0     72°C
+  masse h=400  C=67 G=0.5          42.3 / 60.3    141°C
+
+VERDICT : au couplage PHYSIQUE (h_haut=11.3, via céramique isolante), effet
+STRICTEMENT NUL (identique à la baseline, le CFC monte à 45°C mais absorbe une
+puissance négligeable). Le tampon n'aide (35.5/29.6) qu'à un couplage ~15× trop
+fort (h=150 à travers un isolant, non physique) et n'égale jamais k_plan=9. La
+masse finie bat bien le puits à T constante à h=150 (mécanisme d'auto-
+limitation réel), mais sans pertinence faute de couplage physique. RÉFUTÉ.
+
+
+13. CONCLUSION EXHAUSTIVE (2026-07-23)
+---------------------------------------
+Réfutés cette session, chacun proprement, sur le déficit de pic A-1 (+40/+60):
+  cp haute-T · k_plan physique · 2D-lumping · position-y TC · source EM (x,y) ·
+  puits de contact h_haut · masse thermique CFC.
++ réfutés antérieurement : Foucault BC, thermostat (position/fenêtre),
+  decalage_x, champ de réaction, blindage inter-couches.
+
+Le SEUL levier qui améliore les deux métriques sur tous les essais est monter
+k_plan (étalement latéral), sans justification physique dans le composite seul
+(homogénéisation → 3.0). Il REDISTRIBUE (n'ôte pas d'énergie nette) : le
+mécanisme manquant est un CHEMIN D'ÉTALEMENT/REDISTRIBUTION de chaleur non
+modélisé. Candidat restant le plus probable : le MONTAGE MÉTALLIQUE (support/
+anvil sous l'échantillon, en BON contact sous pression — contrairement à la
+céramique isolante du haut), qui conduirait latéralement bien plus que le
+composite et redistribuerait (signature k_plan, mais physique). Dépend des
+données labo (matériau/masse/contact du support, refroidissement) — à
+caractériser avant de modéliser. Aucun commit.
+
+
+14. MONTAGE CARACTÉRISÉ (user, 2026-07-23) → HYPOTHÈSE MÉTAL RÉFUTÉE,
+    ET LE BLOC CÉRAMIQUE N'ÉTALE PAS NON PLUS
+----------------------------------------------------------------------
+Réponses user : support inférieur = GROS BLOC de CÉRAMIQUE (pas de métal),
+contact plein surface ; céramique 120×40×2 mm en haut (gap de couplage,
+matériau inconnu) ; bobine refroidie EAU ; support/CFC refroidissent à l'air ;
+brackets de positionnement en alu mais TROP LOIN pour compter. Donc pas
+d'enclume métallique conductrice → hypothèse "montage métallique" RÉFUTÉE.
+
+Nouveau candidat : le bloc céramique inférieur (contact plein) comme chemin
+d'étalement LATÉRAL. Prototype 2 champs couplés [T_sample, T_céramique]
+(scratchpad/proto_ceramique_bloc.py), couche lumpée e=20mm (borne SUP de
+l'étalement), θ* figé, A-1 31×11 :
+
+  config                     RMSE/|dTmax|   T_cer_max
+  baseline (puits const,k=3)  38.7 / 39.6    —
+  k_plan=9 (cible)            30.4 / 21.7    —
+  céramique k=2  e=20mm       40.1 / 37.8   119°C
+  céramique k=10 e=20mm       39.3 / 38.7   118°C
+  céramique k=30 e=20mm       38.8 / 39.4   107°C
+
+VERDICT : même k=30 (alumine, généreux) reste collé à la baseline. RÉFUTÉ.
+
+INSIGHT PROFOND : pour qu'un chemin EXTERNE redistribue la chaleur de
+l'échantillon, l'aller-retour traverse DEUX FOIS la conductance de contact
+(h_bas), ce qui étrangle la redistribution. Général → AUCUN chemin externe
+(céramique haut/bas, CFC) ne peut substituer la conduction IN-PLANE de
+l'échantillon. Seul k_plan redistribue efficacement (pas d'interface à
+traverser), et il est physiquement ~3.
+
+CONCLUSION EXHAUSTIVE FINALE : la donnée réclame une diffusivité in-plane
+effective ~3× l'homogénéisée ; ni composite (k~3), ni ρcp, ni outillage
+(découplé par les contacts), ni source ne peuvent la fournir. Le dépassement
++40/+60 de A-1 est une LIMITE ROBUSTE ET CARACTÉRISÉE du modèle plaque-mince +
+conduction lumpée. Deux issues : (a) k_plan EFFECTIF (~6-9) assumé et documenté
+comme diffusivité effective lumpant un étalement non caractérisé, puis refit ;
+(b) accepter la limite et la documenter (README/mémoire/slides). Note annexe :
+la justification physique de h_bord_x0 (appui bridé x=0) est fragilisée — le
+user ne reconnaît pas d'appui spécifique à ce coin ; à rouvrir. Aucun commit.

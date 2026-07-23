@@ -1,0 +1,92 @@
+Correction de géométrie bobine + recalibration — rapport
+==============================================================================
+Date : 2026-07-23. Fait suite à resultats_diag_cp_kplan.log (§1-§14, chaîne
+exhaustive de diagnostics sur le "déficit de pic A-1 +40/+60 °C").
+
+DÉCLENCHEUR : le user a signalé (2026-07-23) que les tubes de la bobine hairpin
+sont des sections CARRÉES de 6 mm de côté, avec un GAP de 6,35 mm entre les deux
+brins — PAS les tubes ~9,5 mm supposés dans config/geometrie.yaml.
+
+
+RÉSUMÉ EXÉCUTIF
+---------------
+Le "déficit de pic A-1 +40/+60 °C", qui a motivé toute l'investigation
+structurelle et la décision (abandonnée) d'un k_plan effectif, est EN GRANDE
+PARTIE UN ARTEFACT DE GÉOMÉTRIE. L'entraxe des brins était faux de 35 %
+(0,019 m supposé ~tube 9,5 + gap 9,5 ; réel = tube 6 + gap 6,35 = 0,01235 m).
+Corriger la géométrie et recalibrer résout le pic A-1 (|ΔT_max| 46→15 °C) à
+k_plan=3 PHYSIQUE — plus besoin de l'astuce "k_plan effectif". Le nouveau θ*
+est aussi plus physique (h_haut 11,3→26,4, plus proche d'une conductance de
+contact réelle). Résidu : B-2 régresse (sous-chauffe TC2-4), révélant un
+déficit de contraste EN LONGUEUR (x) distinct, amplifié à basse consigne.
+
+
+1. CORRECTION DE GÉOMÉTRIE (config/geometrie.yaml)
+----------------------------------------------------
+  entraxe_jambes : 0.019  -> 0.01235 m  (tube 6 mm + gap 6,35 mm, centre-centre)
+  rayon_tube     : 0.00476 -> 0.003 m   (demi-côté du carré 6 mm)
+  hauteur        : 0.0068 m INCHANGÉE (confirmée user ; NB la décomposition
+                   "gap 2 mm + demi-tube" ne tient plus, donnerait 5 mm — à
+                   réconcilier, valeur gardée sur confirmation)
+Impact : rayon_tube n'entre que dans plan_miroir_cfc (mineur). entraxe est LE
+paramètre EM dominant (position des 2 filaments) : le réduire de 35 % change
+significativement la distribution de source Q.
+
+
+2. RECALIBRATION OFFICIELLE (géométrie corrigée, k_plan=3.0 physique)
+----------------------------------------------------------------------
+Calibration A-1, modèle 2D, grille 31×11×13, decalage_x figé 0, h_bord_x0=250
+(inchangés). scripts : scratchpad/recalibrer_final.py.
+
+  θ* = facteur_couplage 7.4172 ± 0.071
+       h_haut           26.367 ± 1.42
+       h_bas_2d         41.905 ± 0.52
+       (decalage_x figé 0 ; coût 5.117e6, succès, nfev 29)
+  Incertitudes petites -> bien identifié. h_haut=26 ~ conductance de contact
+  réaliste (vs ancien 11.3, artificiellement bas).
+
+
+3. VALIDATION CROISÉE 61×21×15
+--------------------------------
+  essai         ancienne géom (θ* 4.10)   corrigée k=3 (θ* 7.42)
+  A-1 (calib)    39.2 / 46.0               36.8 / 14.9     pic ÷3
+  A-3 (aveugle)  32.7 / 31.0               32.0 / 28.4     mieux
+  B-2 (aveugle)  68.0 / 12.3               66.2 / 34.8     pic régresse
+  (RMSE / |ΔT_max| moyen, °C)
+
+RMSE meilleur partout ; pic A-1 spectaculairement corrigé À k_plan=3 PHYSIQUE.
+
+
+4. RÉSIDU B-2 — DÉFICIT DE CONTRASTE EN LONGUEUR (x)
+-----------------------------------------------------
+B-2 a la MÊME géométrie que A-1 (mêmes spots/TC) ; seule différence : consigne
+360 °C (vs 400) + TC5 défaillant exclu. Détail 61×21 :
+
+  TC   sim    mes    Δ       taux_sim/mes
+  TC1  376.4  362.4  +14.0   18.3/18.9   (près du spot 1)
+  TC2  323.0  353.4  -30.4    7.9/13.0
+  TC3  313.0  366.0  -53.0    8.4/9.8    (pire ; x=60 mm = mi-distance spots 2-3)
+  TC4  319.6  361.3  -41.7    8.3/0.6
+
+Pattern : sous-chauffe maximale à TC3 (le point le plus LOIN de tout centre de
+spot). Le modèle ne propage pas assez la chaleur le long de x vers les
+mi-distances inter-spots. A-1 (consigne 400) est OK car chaque spot dépose plus
+-> plus d'étalement en x ; B-2 (consigne 360) coupe plus tôt -> TC3 sous-atteint.
+Le déficit de contraste EN LONGUEUR (déjà noté mémoire 2026-07-21) est amplifié
+à basse consigne. Monter k_plan ne le corrige pas (k=6 laissait B-2 ~34,6, cf.
+sweep). Note : TC4 taux_mes=0,6 (comme A-1) = artefact de métrique, pas
+forcément donnée douteuse. NOUVEAU THREAD distinct (rétention inter-spots /
+pertes entre impulsions / thermostat), non traité ici.
+
+
+5. IMPLICATION MÉTHODOLOGIQUE
+------------------------------
+Une bonne partie de la chaîne de diagnostics resultats_diag_cp_kplan.log
+poursuivait un artefact de géométrie. AUCUN correctif erroné n'a été commité
+(tout était en θ* figé/diagnostic — la discipline "diagnostic avant fix" a
+payé). Les réfutations restent valides comme raisonnement, mais leurs CHIFFRES
+sont sur l'ancienne géométrie. Le vrai correctif était une donnée d'entrée
+(entraxe), pas un mécanisme physique manquant.
+
+θ* de référence à utiliser désormais (géométrie corrigée) :
+  --facteur 7.4172 --decalage-x 0 --h-haut 26.367 --h-bas-2d 41.905 --h-bord-x0 250
