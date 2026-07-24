@@ -2,7 +2,8 @@
 
 **Objet** : trame de présentation (slides) de l'état d'avancement du jumeau numérique et
 de la suite du travail.
-**Date de l'état des lieux** : 2026-07-21 (commit `e4eb640`).
+**Date de l'état des lieux** : 2026-07-24 (branche `fix-coil-tube-geometry`, commit `b28239e`)
+— **révisé après la correction de géométrie de bobine du 2026-07-23** (cf. slide 13).
 **Dépôt** : `~/PycharmProjects/Jumeau_Soudage_Induction` — 34 tests `pytest` verts (3 min).
 
 > **Comment lire ce document** : une section `## Slide N` = une diapositive. Les puces
@@ -48,7 +49,9 @@ d'interpoler entre eux et d'extrapoler aux configurations non essayées.
 - Coupons **CF/PEKK `[45/-45/0/90]₃ₛ`, 120 × 40 × 3,36 mm**, recouvrement plein.
 - **Pli twill (sergé) suscepteur à l'interface** de soudure — siège principal des courants
   de Foucault.
-- **Bobine hairpin + concentrateur de flux (CFC) Fluxtrol Ferrotron 559H** (µr ≈ 16),
+- **Bobine hairpin** : deux brins de **section carrée 6 mm**, séparés d'un **gap de
+  6,35 mm** → **entraxe centre-à-centre 12,35 mm** (relevé 2026-07-23 ; cf. slide 13).
+- **Concentrateur de flux (CFC) Fluxtrol Ferrotron 559H** (µr ≈ 16),
   55 × 31,5 × 12 mm, **grand côté 55 mm parallèle à la largeur** de l'échantillon.
 - Générateur **Ambrell EASYHEAT 4,2 kW — 388 kHz relevé machine**, 200 / 250 A.
 - Gap bobine–laminé **2 mm** (céramique d'espacement), pression pneumatique.
@@ -120,8 +123,8 @@ travail : chaque hypothèse écartée l'est avec un chiffre.
 
 **Pourquoi ce passage au 2D** : les 5 thermocouples des Séries A/B sont **tous à
 l'interface** (confirmé 2026-07-20). Résoudre l'épaisseur ne sert alors qu'à alimenter un
-écart structurel non corrigeable (cf. slide 13), au prix d'un facteur 10 sur le temps de
-calcul.
+écart non corrigeable — le déficit de chauffe en surface (cf. slide 14) — au prix d'un
+facteur 10 sur le temps de calcul.
 
 *À dire* : ce n'est pas un abandon du 3D — le 3D reste dans le dépôt et sert aux cartes ;
 c'est un choix de modèle adapté à la mesure disponible.
@@ -176,9 +179,9 @@ noire » (Samanis 2026 §2.3).
 
 | Paramètre | Valeur | Écart-type | Rôle |
 |---|---|---|---|
-| `facteur_couplage` | **4,0975** | ± 0,031 | échelle de la source Joule (blindage, contacts, σ) |
-| `h_haut` | **11,32** W/m²·K | ± 1,42 | perte vers le puits céramique/CFC |
-| `h_bas_2d` | **51,64** W/m²·K | ± 0,67 | perte vers la face opposée / bâti |
+| `facteur_couplage` | **7,4172** | ± 0,071 | échelle de la source Joule (blindage, contacts, σ) |
+| `h_haut` | **26,37** W/m²·K | ± 1,42 | perte vers le puits céramique/CFC |
+| `h_bas_2d` | **41,91** W/m²·K | ± 0,52 | perte vers la face opposée / bâti |
 | `decalage_x` | 0 (**figé**) | — | position bobine ↔ montage, non mesurée |
 | `h_bord_x0` | 250 W/m²·K (figé) | — | puits au chant bridé x = 0 |
 
@@ -186,6 +189,10 @@ noire » (Samanis 2026 §2.3).
   du jumeau 1D est évité).
 - `decalage_x` a dû être **figé** : corrélation 0,985 avec `facteur_couplage` sur le fit
   joint, et railing sur sa borne — cas d'école de non-identifiabilité, documenté.
+- ⚠ **Ce θ\* date du 2026-07-23** : il remplace le jeu antérieur (4,0975 / 11,32 / 51,64),
+  obtenu avec une **géométrie de bobine fausse** (slide 13). Le nouveau `h_haut` de
+  26 W/m²·K est en outre **plus plausible physiquement** qu'un 11 W/m²·K
+  artificiellement bas pour une conductance de contact.
 
 *À dire* : la discipline appliquée est « on calibre sur UN essai, on valide sur les autres
 sans y retoucher ».
@@ -197,19 +204,22 @@ sans y retoucher ».
 **θ\* calibré sur A-1 uniquement**, appliqué tel quel aux essais aveugles. Maillage de
 validation 61 × 21 (dx = dy = 2 mm).
 
-| Essai | Conditions | RMSE moyen | Écart de pic moyen |
-|---|---|---|---|
-| **A-1** (calibration) | 250 A, coupure 400 °C | 39,2 °C | 46,0 °C |
-| **A-3** (aveugle) | **200 A**, coupure 400 °C | **32,7 °C** | 31,0 °C |
-| **B-2** (aveugle) | 250 A, coupure 360 °C | 68,0 °C | **12,3 °C** |
+| Essai | Conditions | RMSE moyen | Écart de pic moyen | *(avant correction géométrie)* |
+|---|---|---|---|---|
+| **A-1** (calibration) | 250 A, coupure 400 °C | **36,8 °C** | **14,9 °C** | *39,2 / 46,0* |
+| **A-3** (aveugle) | **200 A**, coupure 400 °C | **32,0 °C** | 28,4 °C | *32,7 / 31,0* |
+| **B-2** (aveugle) | 250 A, coupure 360 °C | 66,2 °C | 34,8 °C | *68,0 / 12,3* |
 
 *Figure* : `resultats/serieA_A-1_courbes_validation.png` (5 TC, 4 impulsions) — la plus
 lisible ; `serieA_A-3_courbes_validation.png` en variante pour l'essai aveugle à 200 A.
 
-- **Le modèle transfère à 200 A sans retouche** — l'essai aveugle à courant différent est
-  le mieux prédit en RMSE. La loi en I² et l'asservissement tiennent.
-- **Ce qui reste** : un dépassement de pic homogène de +40 à +60 °C sur A-1, et un plateau
-  trop froid. Structurel, pas paramétrique (cf. slide 12).
+- **Le modèle transfère à 200 A sans retouche** — l'essai aveugle à courant différent
+  reste le mieux prédit en RMSE. La loi en I² et l'asservissement tiennent.
+- **Le RMSE s'améliore sur les trois essais** et le dépassement de pic sur A-1 est
+  **divisé par trois** (46 → 15 °C) après la correction de géométrie de bobine (slide 13).
+- **Ce qui reste** : B-2 (basse consigne, 360 °C) sous-chauffe les capteurs
+  inter-empreintes de 30 à 55 °C — le pic y régresse (12 → 35 °C). Limite assumée,
+  diagnostiquée et non corrigeable sans casser A-1 (slide 13).
 
 **Comment lire la figure (3 observations à commenter à l'oral)**
 
@@ -217,15 +227,12 @@ lisible ; `serieA_A-3_courbes_validation.png` en variante pour l'essai aveugle �
    à son tour, dans le bon ordre et au bon instant, au passage de l'empreinte devant lui
    (TC1 → TC2/TC3 → TC4 → TC5). C'est le résultat le plus solide de la figure : le modèle
    « sait où est la tête ».
-2. **Les pics simulés dépassent** systématiquement les pics mesurés de 40 à 60 °C.
+2. **Les pics sont désormais recalés à ±15 °C sur A-1** (ils dépassaient de 40 à 60 °C
+   avant la correction de géométrie) ; l'écart de pic résiduel se concentre sur B-2.
 3. **Le refroidissement simulé est trop rapide** : entre les passes, les courbes simulées
    retombent vers 20–40 °C alors que les mesures se stabilisent à 80–120 °C. C'est la
    signature « plateau trop froid » — le modèle évacue trop d'énergie entre les impulsions
    (ou n'en a pas assez déposé loin du spot actif).
-
-*À dire* : ne pas survendre. Un RMSE de 30–70 °C sur une fenêtre de mise en œuvre de
-35 °C signifie que le modèle **ordonne** et **explique** correctement, mais ne pilote pas
-encore.
 
 *À dire* : ne pas survendre. Un RMSE de 30–70 °C sur une fenêtre de mise en œuvre de
 35 °C signifie que le modèle **ordonne** et **explique** correctement, mais ne pilote pas
@@ -254,39 +261,60 @@ robuste.
 
 ---
 
-## Slide 12 — Ce que trois enquêtes ont **éliminé** (résultats négatifs)
+## Slide 12 — Ce que les enquêtes ont **éliminé** (résultats négatifs)
 
 Chaque piste a été testée à θ\* figé, chiffrée, et archivée dans le dépôt.
 
 | Hypothèse testée | Verdict | Chiffre clé |
 |---|---|---|
 | Artefacts de **maillage** (lecture TC, nœud de contrôle) | **Confirmée et corrigée** | −77 °C sur le résidu TC4 ; −56 °C sur TC5 |
+| **Géométrie de bobine** (entraxe des brins) | **Confirmée et corrigée** | entraxe faux de 35 % ; pic A-1 46 → 15 °C |
 | **Auto-échauffement du CFC** | Écartée | 0,6–1,4 W, soit 1–2 ordres de grandeur trop faible |
 | **Position de lecture du thermostat** | Écartée | contrôler au bord fait chuter l'écart de +46 à −107 °C |
 | **Décalage de position bobine** `decalage_x` | Écartée pour TC1 | Q(TC1)/Q(TC2) ≤ 0,12 vs 1,71 requis |
 | **Champ de réaction EM** (blindage auto-cohérent) | Implémenté, puis **écarté** | effet réel ~0,2–0,6 %, pas les ~100 % espérés |
+| **`k_plan`, `cp`, masse d'outillage, bloc céramique** (déficit de pic A-1) | Toutes écartées | aucune ne reproduit le pic sans dégrader le reste |
 
 *À dire* : la moitié du travail des dernières semaines est constituée de résultats
 négatifs **documentés**. C'est ce qui empêche de tourner en rond et ce qui fait le contenu
-d'un chapitre de mémoire honnête.
+d'un chapitre de mémoire honnête. Les deux lignes « confirmée et corrigée » montrent aussi
+que **les écarts ne sont pas tous physiques** : deux des plus gros étaient des artefacts
+(numérique, puis donnée d'entrée).
 
 ---
 
-## Slide 13 — Le diagnostic central : un contraste spatial trop fort
+## Slide 13 — Le « déficit structurel » était une **donnée d'entrée fausse**
 
-- **Dans la réalité** : la régulation coupe sur un capteur de bord à 400 °C, et **tous les
-  autres capteurs de bord atteignent aussi ~400 °C**.
-- **Dans le modèle** : couper au bord à 400 °C laisse les autres capteurs à **250–320 °C**.
-- Conclusion : le modèle **concentre trop la puissance** — en largeur (lobes) *et* en
-  longueur (les TC pénalisés sont à des x variés). La section active atteint la consigne et
-  coupe la source avant que le reste de la plaque ait encaissé son énergie.
-- Signature cohérente sur les trois essais : **pics trop hauts, plateau trop froid, biais
-  global négatif** — directement visible sur les courbes de la slide 10 (les pointillés
-  simulés dépassent au pic puis retombent bien en dessous des mesures entre les passes).
+**Le diagnostic présenté jusqu'ici (« le modèle concentre trop la puissance ») s'est
+révélé faux dans sa cause.** Il a été poursuivi pendant des semaines comme un manque de
+physique, avant d'être attribué à une entrée géométrique erronée.
 
-*À dire* : c'est LE point ouvert. Il ne se règle pas par calibration (aucune combinaison
-des 3 paramètres n'abaisse les pics sans casser la trajectoire) : c'est la **forme** de la
-source qui est en cause, pas son échelle.
+| | Supposé (config initiale) | Réel (relevé 2026-07-23) |
+|---|---|---|
+| Section des brins | tube rond ⌀ ~9,5 mm | **carré 6 mm** |
+| Entraxe centre-à-centre | 19 mm | **12,35 mm** (−35 %) |
+
+- L'entraxe est **le** paramètre EM dominant (il fixe la position des deux filaments de
+  courant, donc la forme de `Bz` puis de la source Joule).
+- Corriger la géométrie et recalibrer : **écart de pic A-1 46 → 15 °C**, RMSE meilleur sur
+  les trois essais, et ce **à `k_plan = 3`, la valeur PHYSIQUE** — l'astuce d'un
+  « `k_plan` effectif » envisagée pour forcer l'accord devient inutile.
+- Toute une chaîne de diagnostics (`cp`, `k_plan`, source EM, puits d'outillage, blindage
+  inter-couches, bloc céramique) poursuivait donc un artefact. **Aucun correctif erroné
+  n'a été commité** : tout avait été testé à θ\* figé, en mode diagnostic.
+
+**Ce qui reste ouvert : le régime basse consigne (B-2).** À consigne 360 °C, les capteurs
+inter-empreintes restent 30 à 55 °C trop froids. Cause diagnostiquée : le modèle coupe la
+chauffe quand **le centre de l'empreinte** atteint la consigne, alors que le procédé réel
+coupait sur un thermocouple d'interface plus froid → impulsions réelles plus longues, donc
+plus d'étalement en longueur. Trois correctifs ont été prototypés, recalibrés, validés en
+croisé et **tous réfutés** (décaler la position de contrôle casse A-1 ; une marge de
+consigne échange A-1 contre B-2 ; la force de contact est neutralisée par le thermostat).
+
+*À dire* : la leçon méthodologique vaut le résultat. Un écart persistant de 40 à 60 °C a
+été attribué à la physique manquante pendant des semaines ; c'était une cote. **Avant de
+chercher un mécanisme, vérifier les entrées** — et la discipline « diagnostic à θ\* figé
+avant tout correctif » a évité de graver l'erreur dans le code.
 
 ---
 
@@ -334,11 +362,15 @@ scientifique — la valeur est dans l'accessibilité de l'outil.
   retouche** sur deux essais aveugles, dont un à courant différent.
 - Deux figures directement comparables à la littérature (Lionetto Fig. 4 et Fig. 5).
 - Étude de convergence de maillage ayant **corrigé deux artefacts numériques réels**.
-- Cinq pistes physiques testées et tranchées, dont trois par résultat négatif chiffré.
+- **Correction d'une géométrie de bobine fausse de 35 %** : le principal écart résiduel
+  (pic A-1) est tombé de 46 à 15 °C, à paramètres physiques (`k_plan = 3`).
+- Sept pistes physiques testées et tranchées, dont cinq par résultat négatif chiffré.
 
 **Limites assumées**
 
-- Contraste spatial trop fort → pics +40/+60 °C, plateau trop froid.
+- Régime **basse consigne** (B-2) : capteurs inter-empreintes 30–55 °C trop froids,
+  écart de pic 35 °C — diagnostiqué, trois correctifs réfutés.
+- Plateau inter-passes trop froid.
 - Surface (TC1) non prédictible : mécanisme non identifié.
 - Pas de mécanique (pression, squeeze-out) ni de cinétique de cristallisation.
 - Propriétés matériaux **indépendantes de la température**.
@@ -355,11 +387,17 @@ Trois manips discriminantes, par ordre de rapport valeur/effort :
    décrite au cahier §2.1.4.*
 2. **Température du CFC** (thermocouple ou caméra IR sur sa face active pendant une
    chauffe). ⟶ seule mesure capable d'attaquer le déficit TC1.
-3. **Position relative bobine / CFC / thermocouples** (relevé métrologique). ⟶ lève
-   l'incertitude qui a forcé à figer `decalage_x`.
+3. **Relevé métrologique complet de la tête** (cotes de bobine, position relative bobine /
+   CFC / thermocouples, hauteur bobine–laminé). ⟶ lève l'incertitude qui a forcé à figer
+   `decalage_x`, **et prévient la répétition de l'épisode de la slide 13** : une cote fausse
+   de 35 % a coûté des semaines de diagnostic. La cote `hauteur = 6,8 mm` reste d'ailleurs
+   à réconcilier avec les tubes de 6 mm.
+4. **Point de coupure réel du thermostat** (quel capteur pilotait l'arrêt de chauffe, et à
+   quelle position). ⟶ tranche le résidu B-2 de la slide 13.
 
 *À dire* : la priorité n'est plus de coder, elle est de mesurer. Le modèle est arrivé au
-point où il pose des questions expérimentales précises.
+point où il pose des questions expérimentales précises — et la dernière en date était une
+question de **métrologie**, pas de physique.
 
 ---
 
@@ -368,9 +406,10 @@ point où il pose des questions expérimentales précises.
 Par ordre de priorité, avec l'incertitude assumée :
 
 1. **Modèle de CFC fini** (redistribution du flux par la semelle polaire) — remplacer
-   l'approximation par courants images. *C'est le levier principal identifié : il change la
-   forme de la source, pas son échelle.* Nécessite un refit complet de θ\* derrière.
-   ⚠ Effort : plusieurs jours de travail EM dédié (FEM/BEM ou modèle de semelle).
+   l'approximation par courants images. *Il change la forme de la source, pas son échelle.*
+   Nécessite un refit complet de θ\* derrière. ⚠ Effort : plusieurs jours de travail EM
+   dédié (FEM/BEM ou modèle de semelle). **Priorité revue à la baisse** depuis la slide 13 :
+   la géométrie corrigée a absorbé l'essentiel de l'écart que ce levier devait expliquer.
 2. **Forme du blindage inter-couches** — l'écran actuel `e^(−2t/δ)` (onde plane) est-il
    adapté à une nappe de courant plane ? Le calcul rigoureux nappe-à-nappe suggère un
    blindage plus faible, ce qui redistribuerait la puissance entre couches — piste possible
@@ -381,7 +420,9 @@ Par ordre de priorité, avec l'incertitude assumée :
 4. **Cinétique de cristallisation** (Ozawa) — complèterait la Fig. 5 avec le degré de
    cristallinité, et donnerait un critère de qualité de joint au refroidissement.
 
-*À dire* : le point 1 est celui qui, s'il fonctionne, résout le diagnostic de la slide 13.
+*À dire* : depuis la correction de géométrie, aucun de ces quatre points n'est un
+« correctif attendu » — ce sont des raffinements. Le résidu ouvert (B-2, basse consigne)
+relève d'abord d'une **mesure** (point 4 de la slide 17), pas d'un modèle plus fin.
 
 ---
 
@@ -405,13 +446,16 @@ sur 3 essais         + manips discriminantes      ↓
 
 ## Slide 20 — Ce que je retiens
 
-1. Le jumeau **reproduit les niveaux de température à 30–70 °C près** sur trois essais, dont
-   deux aveugles, avec **trois paramètres calibrés une seule fois**.
+1. Le jumeau **reproduit les niveaux de température à 30–65 °C près** sur trois essais, dont
+   deux aveugles, avec **trois paramètres calibrés une seule fois** — et les **pics à
+   ±15 °C** sur l'essai de calibration.
 2. Il fait une **prédiction falsifiable** — le profil en « M » — qu'une manip simple peut
    trancher.
-3. Les écarts restants ont été **localisés** (forme de la source, pas échelle) et cinq
-   causes candidates ont été **éliminées avec des chiffres**.
-4. La suite est autant **expérimentale** que numérique.
+3. Le principal écart résiduel s'est révélé être une **cote fausse**, pas une physique
+   manquante : vérifier les entrées avant d'inventer un mécanisme.
+4. Les écarts restants ont été **localisés** (régime basse consigne) et sept causes
+   candidates ont été **tranchées avec des chiffres**.
+5. La suite est autant **expérimentale** que numérique.
 
 ---
 
@@ -419,18 +463,30 @@ sur 3 essais         + manips discriminantes      ↓
 
 ## Annexe A — Détail de la validation par thermocouple
 
-**serieA_A-1** (calibration, 250 A) — `resultats_validation_2d_postcalib.log`
+Géométrie corrigée, θ\* de référence, grille 61 × 21 —
+`resultats_validation_reference_figures.log` (2026-07-24).
+
+**serieA_A-1** (calibration, 250 A)
 
 | TC | RMSE (°C) | T_max sim | T_max mes | Δ pic |
 |---|---|---|---|---|
-| TC1 | 50,2 | 458,2 | 398,0 | +60,3 |
-| TC2 | 44,0 | 390,1 | 344,9 | +45,3 |
-| TC3 | 39,1 | 424,3 | 383,5 | +40,8 |
-| TC4 | 34,1 | 421,9 | 380,8 | +41,1 |
-| TC5 | 28,8 | 441,8 | 399,3 | +42,5 |
+| TC1 | 48,9 | 435,9 | 398,0 | **+37,9** |
+| TC2 | 37,3 | 341,2 | 344,9 | −3,7 |
+| TC3 | 36,4 | 386,8 | 383,5 | +3,3 |
+| TC4 | 32,5 | 385,0 | 380,8 | +4,2 |
+| TC5 | 28,9 | 425,0 | 399,3 | +25,7 |
 
-**serieA_A-3** (aveugle, 200 A) : RMSE 27,6–40,2 ; Δ pic −38,6 à +35,6.
-**serieB_B-2** (aveugle, consigne 360 °C) : RMSE 65,4–72,7 ; Δ pic −19,1 à +13,4.
+→ **TC2 à TC4 sont désormais recalés à moins de 5 °C au pic** ; l'écart résiduel se
+concentre sur TC1 (bord bridé x = 0, cf. `h_bord_x0`) et TC5 (dernière empreinte).
+
+**serieA_A-3** (aveugle, 200 A) : RMSE 27,4–39,2 ; Δ pic −70,7 à +21,3 (le résidu se
+déplace sur TC2, sous-chauffé).
+**serieB_B-2** (aveugle, consigne 360 °C) : RMSE 63,3–71,4 ; Δ pic −53,0 à +14,0 — la
+sous-chauffe croît vers les points inter-empreintes (pire à TC3, x = 60 mm), signature du
+résidu de la slide 13.
+
+*Pour mémoire, avant la correction de géométrie* (A-1) : RMSE 28,8–50,2 ; Δ pic +40,8 à
++60,3 — tous les TC dépassaient, de façon homogène.
 
 ## Annexe B — Positions des thermocouples (corrigées le 2026-07-20)
 
@@ -446,8 +502,9 @@ au coin) :
 | TC4 | 90 | 0 | bord de largeur |
 | TC5 | 120 | 0 | bord de largeur |
 
-⚠ **TC2–TC5 sont exactement sur les lobes chauds** du profil en « M » — d'où la sensibilité
-du diagnostic de la slide 13 à cette géométrie.
+⚠ **TC2–TC5 sont exactement sur les lobes chauds** du profil en « M » — les métriques de
+pic sont donc très sensibles à la forme prédite de l'empreinte, ce qui explique l'ampleur
+de l'effet de la correction de géométrie (slide 13).
 
 ## Annexe C — Étude de convergence de maillage (2026-07-21)
 
@@ -472,7 +529,8 @@ du diagnostic de la slide 13 à cette géométrie.
   mauvaise couche de référence).
 - Effet net mesurable **en sens inverse** : activer le champ de réaction désactive l'écran
   ad hoc `e^(−2t/δ)`, plus fort (−11,8 % sur le twill), d'où **+11 % de puissance déposée**
-  au total → aggrave le dépassement de pic (A-1 : 46,0 → 54,7 °C).
+  au total → aggrave le dépassement de pic (A-1 : 46,0 → 54,7 °C, *chiffres établis avant
+  la correction de géométrie de la slide 13 ; le sens de l'effet est inchangé*).
 - Livré derrière le flag `--champ-reaction` (défaut désactivé, chemin historique bit-à-bit
   inchangé) pour archivage et ablation.
 
@@ -483,21 +541,31 @@ du diagnostic de la slide 13 à cette géométrie.
 python scripts/calibrer.py --modele 2D --essai serieA_A-1 --n-lhs 25 --figer-decalage-x 0
 
 # Validation croisée au θ* de référence (grille 61x21, sans recalibrage)
-python scripts/valider.py --modele 2D --facteur 4.0975 --decalage-x 0 \
-    --h-haut 11.323 --h-bas-2d 51.636
+python scripts/valider.py --modele 2D --facteur 7.4172 --decalage-x 0 \
+    --h-haut 26.367 --h-bas-2d 41.905 --h-bord-x0 250
 
 # Figures de présentation
-python scripts/figure_empreinte.py config/essais/serieA_A-1.yaml --facteur 4.0975 \
+python scripts/figure_empreinte.py config/essais/serieA_A-1.yaml --facteur 7.4172 \
     --tmax-couleur 480 --suffixe _plafonne
-python scripts/figure_fusion.py config/essais/chauffe_250A_3TC.yaml --facteur 4.0975
+python scripts/figure_fusion.py config/essais/chauffe_250A_3TC.yaml --facteur 7.4172
 
 pytest    # 34 tests, ~3 min
 ```
 
-Journaux de référence à la racine du dépôt : `resultats_calibration_2d_postmaillage.log`,
-`resultats_validation_2d_postcalib.log`, `resultats_convergence_maillage.log`,
-`resultats_diagnostic_profil_M_em.log`, `resultats_champ_reaction_em.log`,
+⚠ Le θ\* ci-dessus suppose la **géométrie corrigée** (`config/geometrie.yaml` :
+`entraxe_jambes: 0.01235`, `rayon_tube: 0.003`). Avec l'ancienne géométrie, il ne
+reproduit rien.
+
+Journaux de référence à la racine du dépôt :
+`resultats_geometrie_corrigee_recalibration.log` (**correction de géométrie + θ\* courant**),
+`resultats_validation_reference_figures.log` (validation au θ\* courant, figures associées),
+`resultats_diag_b2_longueur.log` (résidu B-2 et les trois correctifs réfutés),
+`resultats_convergence_maillage.log`, `resultats_diagnostic_profil_M_em.log`,
+`resultats_champ_reaction_em.log`, `resultats_diag_cp_kplan.log`,
 `resultats_test_position_thermostat.log`.
+*Les journaux antérieurs au 2026-07-23 (`resultats_calibration_2d_postmaillage.log`,
+`resultats_validation_2d_postcalib.log`, et la chaîne de diagnostics) sont établis sur
+l'**ancienne géométrie** : leurs raisonnements restent valides, leurs chiffres non.*
 
 ## Annexe F — Bibliographie mobilisée
 
@@ -522,11 +590,11 @@ Journaux de référence à la racine du dépôt : `resultats_calibration_2d_post
 Les slides 8, 11, 12 sont les plus « scientifiques » — à garder si l'auditoire est
 technique.
 
-**État des figures au 2026-07-22** : les trois figures de validation
+**État des figures au 2026-07-24** : les trois figures de validation
 (`serieA_A-1`, `serieA_A-3`, `serieB_B-2` — courbes et cartes d'interface) **ont été
-régénérées au θ\* de référence** et reproduisent exactement les chiffres du journal
-`resultats_validation_2d_postcalib.log` (39,2/46,0 — 32,7/31,0 — 68,0/12,3). Elles sont
-donc utilisables telles quelles.
+régénérées à la géométrie corrigée et au θ\* de référence** ; elles reproduisent exactement
+les chiffres du journal `resultats_validation_reference_figures.log`
+(36,8/14,9 — 32,0/28,4 — 66,2/34,8). Elles sont donc utilisables telles quelles.
 
 ⚠ Les fichiers `resultats/*.png` sont **écrasés à chaque exécution** de `valider.py` : si
 un run de diagnostic est lancé d'ici la présentation, relancer la commande de validation
