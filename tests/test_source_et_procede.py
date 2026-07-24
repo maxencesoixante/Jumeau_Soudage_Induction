@@ -120,9 +120,16 @@ def test_essai_decalage_x_defaut_et_surcharge(cfg):
 def test_essai_decalage_x_augmente_taux_chauffe_tc2(cfg):
     """Reproduit la découverte du 2026-07-18 : TC2 est au centre de symétrie
     du hairpin (zéro de dissipation exact) pour l'essai chauffe_250A_3TC ; un
-    décalage bobine de +10 mm sort du zéro et accélère nettement la chauffe
-    locale (grille 31x11x13, facteur_couplage=3.85 — cf. resultats_validation.log,
-    taux_sim TC2 = 5.7 °C/s pour decalage_x=0)."""
+    décalage bobine de +10 mm sort du zéro et accélère la chauffe locale
+    (grille 31x11x13, facteur_couplage=3.85).
+
+    VALEURS MISES À JOUR 2026-07-23 (correction de géométrie bobine : entraxe
+    0.019 -> 0.01235 m, cf. resultats_geometrie_corrigee_recalibration.log) :
+    taux_sim TC2 = 4.03 °C/s à decalage_x=0, 5.73 à +10 mm. Les brins plus
+    rapprochés affaiblissent l'effet du décalage (×1.4 au lieu de ×2.3 sous
+    l'ancienne géométrie) — le zéro de symétrie se place différemment. L'effet
+    reste QUALITATIVEMENT le même (le décalage augmente le taux) ; decalage_x
+    est de toute façon figé à 0 dans le θ* de référence."""
     from jumeau.validation.confrontation import taux_de_chauffe
 
     chemin = RACINE / "config" / "essais" / "chauffe_250A_3TC.yaml"
@@ -140,6 +147,6 @@ def test_essai_decalage_x_augmente_taux_chauffe_tc2(cfg):
     taux0 = taux_de_chauffe(sol0.t, essai0.series_tc(solveur0, sol0)["TC2"])
     taux_d = taux_de_chauffe(sol_d.t, essai_decale.series_tc(solveur_d, sol_d)["TC2"])
 
-    assert taux0 == pytest.approx(5.7, abs=0.3)
-    assert taux_d == pytest.approx(13.2, abs=0.5)
-    assert taux_d > 2.0 * taux0
+    assert taux0 == pytest.approx(4.03, abs=0.3)
+    assert taux_d == pytest.approx(5.73, abs=0.5)
+    assert taux_d > taux0          # le décalage augmente le taux (×1.4, cf. docstring)

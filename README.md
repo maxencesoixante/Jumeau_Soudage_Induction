@@ -43,11 +43,14 @@ mesures thermocouples des essais (Séries A/B + essais de chauffe).
 
 ## Limites connues
 
-- Les **dimensions de la bobine hairpin** sont mesurées sur la CAO du montage
-  (`positionnement_CFC+coil.png`, échelle = CFC 55 mm) : tubes carrés ~9,5 mm,
-  entraxe ~19 mm, brins le long du grand côté du CFC — à raffiner si la cote
-  exacte de la CAO SolidWorks est extraite. **Orientation CFC confirmée**
-  (2026-07-17) : 55 mm parallèle à la largeur y des échantillons.
+- Les **dimensions de la bobine hairpin** : tubes carrés de **6 mm de côté**,
+  **gap 6,35 mm** entre brins (entraxe centre-à-centre **12,35 mm**), brins le
+  long du grand côté du CFC. **Orientation CFC confirmée** (2026-07-17) : 55 mm
+  parallèle à la largeur y des échantillons. **CORRECTION 2026-07-23** : la
+  valeur antérieure (tubes ~9,5 mm, entraxe ~19 mm) était fausse ; la corriger a
+  résolu l'essentiel du dépassement de pic A-1 (|ΔT_max| 46→15 °C à `k_plan=3`
+  physique — cf. `resultats_geometrie_corrigee_recalibration.log`) : ce
+  « déficit structurel » était en grande partie un artefact de cette entrée.
 - Les **positions des TC des Séries A/B** ont été confirmées par l'utilisateur
   (2026-07-20) : les 5 TC sont TOUS à l'interface (repère cahier origine-milieu
   converti au repère modèle origine-coin) — TC1 au bord de longueur / centre de
@@ -60,6 +63,18 @@ mesures thermocouples des essais (Séries A/B + essais de chauffe).
   bridage/appui du montage, asymétrie confirmée par l'utilisateur) calibré à
   **250 W/m²·K** (balayage sur A-1, validation A-3/B-2) ramène le pic TC1 dans
   ±25–70 °C sans dégrader les autres TC.
+- **Résidu B-2 (sous-étalement en x à basse consigne)** : après la correction de
+  géométrie, B-2 (consigne 360 °C vs 400 pour A-1, même géométrie) sous-chauffe
+  les TC inter-spots TC2-4 de 30–55 °C (|ΔT_max| ~35). À basse consigne, les
+  impulsions coupent tôt (le centre du spot atteint la consigne vite) → la
+  chaleur s'étale moins en x → les TC à ~15 mm restent froids ; le vrai process
+  coupait quand le TC lui-même atteignait la consigne (impulsions plus longues).
+  Trois correctifs prototypés + recalibrés + validés croisés ont été **réfutés**
+  (`resultats_diag_b2_longueur.log`) : décalage de la position de contrôle
+  (casse A-1), marge de consigne `consigne+Δ` (échange A-1 contre B-2, sens
+  opposés — total constant), et `h_haut`/force 25 N (neutralisé par le
+  thermostat). **Limite structurelle connue** du modèle 2D lumpé au régime
+  basse-consigne / impulsions courtes ; non corrigeable sans casser A-1.
 - **Le résidu TC4 documenté auparavant (+74 à +110 °C) était très majoritairement
   un artefact de discrétisation, pas un déficit physique** (étude de convergence
   maillage 2026-07-21, `resultats_convergence_maillage.log`). Décomposition

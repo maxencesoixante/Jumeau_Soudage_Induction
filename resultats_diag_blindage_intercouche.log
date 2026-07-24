@@ -1,0 +1,163 @@
+Diagnostic du blindage inter-couches (piste §5) — rapport
+==============================================================================
+Date : 2026-07-23. Suite de resultats_champ_reaction_em.log (§5, piste laissée
+ouverte). MANDAT : diagnostic SEUL — aucune modification du modèle, aucune
+recalibration, aucun commit. θ* figé (commit 57e7157) : facteur=4.0975,
+decalage_x=0, h_haut=11.323, h_bas_2d=51.636, h_bord_x0=250.
+
+Reproductible : scratchpad/diag_blindage_intercouche.py (lecture seule du
+modèle — importe et appelle les fonctions existantes de src/jumeau/em/, n'en
+modifie aucune). Spot 2 (centre_x=0.045875), 250 A, f=388 kHz.
+
+Deux questions à trancher (cf. §5 du rapport précédent) :
+  Q1. attenuation_blindage (e^(-2t/δ), onde plane à incidence normale) a-t-elle
+      la bonne forme/magnitude vs le couplage nappe-à-nappe rigoureux ?
+  Q2. Le "+13 %" du twill (§3 du rapport précédent) est-il physique ou un bug
+      de convention de phase dans _resoudre_champ_reaction ?
+
+
+RÉSUMÉ EXÉCUTIF
+---------------
+Q2 — TRANCHÉE : NI bug, NI augmentation physique. Le "+13 %" était une LECTURE
+     du tableau §3 (1.1303 = 0.9964/0.8815 = modèle rigoureux ÷ modèle ad hoc
+     ACTUEL), c.-à-d. l'effet de RETIRER l'écran ad hoc, PAS un gain de la
+     réaction. Le couplage inter-couches rigoureux lui-même RÉDUIT la puissance
+     du twill de 0,36 % (coupl/raw=0,9964), jamais ne l'augmente. La convention
+     de phase du code est VÉRIFIÉE CORRECTE : sur un test 2-nappes/1-mode fermé,
+     |ψ| du code colle à la solution analytique (I+jM)ψ=−diag(α)Bz0 à 0,04 %.
+
+Q1 — TRANCHÉE : OUI, attenuation_blindage est fortement MAL FORMÉE. Elle
+     sur-écrante le blindage inter-couches d'un facteur ~30-50× :
+
+       couche            écran ad hoc   blindage rigoureux   sur-estimation
+       twill_suscepteur    0,8815         0,9964 (−0,36 %)    ×33 trop fort
+       lamine_inf          0,8197         0,9963 (−0,37 %)    ×49 trop fort
+       lamine_sup          1,0000         0,9967 (−0,33 %)    (n'écrante rien
+                                                               alors qu'il y a
+                                                               une petite auto-
+                                                               réaction réelle)
+
+     La physique rigoureuse dit en substance : il n'y a QUASIMENT PAS de
+     blindage inter-couches (~0,4 % par couche). L'écran ad hoc actuel
+     (−11,8 %/−18,0 %) est une atténuation fictive d'un ordre de grandeur.
+
+CONSÉQUENCE POUR LA SUITE : la piste §5 est CONFIRMÉE sur le plan physique
+(l'écran ad hoc est mal formé), mais elle NE PEUT PAS corriger le déficit TC1
+(structurel, lamine_sup non écranté — cf. cadrage établi). L'adopter =
+défendabilité de modèle, au prix d'une recalibration de facteur_couplage à la
+baisse, et probablement AU DÉTRIMENT du fit (plus de puissance au twill/laminé
+inf déjà chauds). Recommandation détaillée en §4.
+
+
+1. ÉTAPE A — DÉCOMPOSITION DE PUISSANCE PAR COUCHE (spot 2, 61x21x15)
+----------------------------------------------------------------------
+Puissances au plan médian z_mid de chaque couche (q.sum(), unités arbitraires
+cohérentes ; seuls les RATIOS importent) :
+
+  couche              P_raw       self/raw   coupl/raw   att(ad hoc)
+  twill_suscepteur    4,3389e10   0,9982     0,9964      0,8815
+  lamine_sup          1,3719e09   0,9999     0,9967      1,0000
+  lamine_inf          8,3002e08   0,9998     0,9963      0,8197
+
+  self/raw  = réaction PROPRE (auto-inductance d'une nappe ISOLÉE) : ~0,2 % de
+              réduction, correct signe, correspond à |1/(1+jS')| du §0.
+  coupl/raw = blindage inter-couches RIGOUREUX (3 nappes couplées, nappe-à-
+              nappe). ~0,4 % de réduction. C'est EXACTEMENT le "ratio_couche
+              pure" 0,9964/0,9967/0,9963 déjà cité au §3 du rapport précédent.
+  att       = écran ad hoc actuel. Sur-écrante massivement (cf. résumé Q1).
+
+Élucidation du "1,1303" du tableau §3 : 0,9964 (coupl/raw) ÷ 0,8815 (att) =
+1,1303. Le tableau comparait le modèle rigoureux au modèle AD HOC ACTUEL, pas
+au brut. Le +13 % vient donc à 100 % du RETRAIT de l'écran ad hoc, 0 % d'un
+gain de la réaction. Cohérence numérique complète, aucun bug.
+
+
+2. ÉTAPE B — VÉRITÉ-TERRAIN ANALYTIQUE 2 NAPPES / 1 MODE
+----------------------------------------------------------
+Système fermé dérivé à la main (mode de Fourier k unique, 2 nappes planes) :
+
+    (I + j·M) ψ = −diag(α) · Bz0
+    α_i = ω/(ρ_i k²)        M_ij = (µ0 ω σ_i t_j / 2k)·e^(−k·|Δz_ij|)
+
+(Le point fixe de _resoudre_champ_reaction, tracé en représentation modale,
+converge EXACTEMENT vers ce système : ψ_i^new = −α_i[Bz0_i + Σ_j j·C_ij ψ_j]
+avec α_i C_ij = M_ij — donc le code EST cette forme fermée, le facteur 1j et
+resoudre_psi_complexe compris.)
+
+Nappes-test : #0 "twill" (ρ=9,09e-5, t=0,28 mm), #1 "laminé" (ρ=3,66e-3,
+t=3,08 mm), séparation 1,5 mm, mode fondamental Dirichlet sin·sin, grille fine
+121×121 (FD≈continu).
+
+  k = 111,07 rad/m   M00=S'_0=0,0425   M11=S'_1=0,0116   |1/(1+jS'_0)|=0,9991
+
+  grandeur                nappe0(twill)    nappe1(lam)
+  |ψ| code (couplé)       2,171863e6       5,394155e4
+  |ψ| analytique          2,171025e6       5,392079e4
+  écart relatif             0,04 %           0,04 %
+
+  ratio couplé/isolé (effet du VOISIN seul) :
+    code          0,9994    0,9982
+    analytique    0,9992    0,9975
+
+VERDICT B : le voisin RÉDUIT (screening, signe correct), et le code reproduit
+la forme fermée à 0,04 %. => la convention de phase (facteur j / ψ_true=jψ_code)
+est CORRECTE, le "+13 %" n'est pas un artefact numérique. Implémentation
+champ_reaction fiable.
+
+
+3. ÉTAPE C — ROBUSTESSE
+-------------------------
+Convergence maillage du ratio coupl/raw (stable à 4 décimales) :
+  31x11x13   twill=0,9963  lamine_sup=0,9965  lamine_inf=0,9961
+  61x21x15   twill=0,9964  lamine_sup=0,9967  lamine_inf=0,9963
+  121x41x15  twill=0,9965  lamine_sup=0,9967  lamine_inf=0,9963
+
+Cas limite basse fréquence (blindage → 0 quand ω → 0, attendu ∝ω²) :
+  ω×1       twill=0,996421  lamine_sup=0,996707  lamine_inf=0,996291
+  ω×1e-3    twill=1,000000  lamine_sup=1,000000  lamine_inf=1,000000
+  ω×1e-8    twill=1,000000  lamine_sup=1,000000  lamine_inf=1,000000
+
+Le verdict ne dépend d'aucun artefact de maillage ni de fréquence.
+
+
+4. RECOMMANDATION
+-------------------
+(a) L'écran ad hoc attenuation_blindage est PHYSIQUEMENT MAL FONDÉ pour ce
+    problème de nappes de courant planes : la forme e^(-2t/δ) (transmission
+    d'onde plane à incidence normale à travers un écran d'épaisseur t) utilise
+    le mauvais paramètre (t/δ) là où le blindage réel est piloté par l'échelle
+    in-plane (S'=µ0σtω/2k). Elle sur-écrante d'un facteur ~30-50×. C'est un
+    défaut de MODÈLE réel et documenté ici.
+
+(b) MAIS le correctif rigoureux (couplage nappe-à-nappe ≈ "pas de blindage
+    inter-couches", att≈1 partout) :
+      - NE PEUT PAS aider TC1 (lamine_sup, couche du haut, inchangée — le
+        déficit TC1 est structurel, cf. README §Limites et cadrage) ;
+      - REND MÊME la répartition légèrement plus défavorable (plus de puissance
+        rendue au twill/lamine_inf déjà chauds → aggrave l'overshoot de pic à
+        θ* figé, cohérent avec §4 du rapport précédent) ;
+      - impose une recalibration de facteur_couplage À LA BAISSE (~10-15 %)
+        pour absorber le surplus net ; le RMSE reviendrait alors près de la
+        baseline sans améliorer le profil spatial.
+
+(c) SIMPLIFICATION à signaler : puisque le blindage rigoureux ≈ 0,4 % (≈ rien),
+    inutile de porter toute la machinerie champ_reaction (solveur complexe,
+    point fixe) en production pour "corriger" attenuation_blindage. Le contenu
+    physique se résume à : SUPPRIMER l'écran ad hoc (mettre att≈1) et
+    RECALIBRER facteur_couplage. La machinerie champ_reaction reste utile comme
+    JUSTIFICATION rigoureuse de ce choix (elle prouve que att≈1), pas comme
+    code de calcul permanent.
+
+(d) DÉCISION proposée : une mission de recalibration dédiée n'est justifiée QUE
+    si l'on priorise la défendabilité physique (remplacer un écran fictif par
+    att≈1 justifié) sur les métriques de fit. Elle ne résout aucun déficit
+    ouvert et dégrade probablement légèrement le fit avant refit. À NE PAS
+    lancer comme correctif de TC1. À considérer comme nettoyage de modèle
+    (chapitre de mémoire : "pourquoi facteur_couplage absorbe un écran ad hoc
+    surestimé") le moment venu.
+
+
+5. NON-RÉGRESSION
+-------------------
+Aucun fichier src/ modifié (diagnostic en lecture seule). pytest : voir sortie
+en fin de session — doit rester 34 passed. Aucun commit.

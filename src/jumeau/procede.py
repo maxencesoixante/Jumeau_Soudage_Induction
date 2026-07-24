@@ -55,7 +55,8 @@ class Essai:
                  facteur_couplage: float = 1.0,
                  decalage_x: float | None = None,
                  racine: str | Path | None = None,
-                 interp_ctrl: bool = True):
+                 interp_ctrl: bool = True,
+                 champ_reaction: bool = False):
         self.cfg = cfg
         self.spec = charger_yaml(chemin_essai)
         self.racine = Path(racine) if racine else Path(chemin_essai).resolve().parents[2]
@@ -81,13 +82,26 @@ class Essai:
         # snappés à centre_x ont directement influencé θ*). ``interp_ctrl=False``
         # conservé pour comparaison/ablation (cf. tests, rapport de vérification).
         self.interp_ctrl = bool(interp_ctrl)
+        # champ_reaction (défaut False = comportement historique inchangé) :
+        # active la résolution auto-cohérente complexe du champ de réaction EM
+        # (Bz_total = Bz_bobine + Bz_induit[psi], couplage inter-couches) au
+        # lieu de l'atténuation ad hoc attenuation_blindage — cf. docstring
+        # jumeau.em.source_joule et rapport resultats_champ_reaction_em.log.
+        # NE PAS activer sans recalibrer facteur_couplage : contre-intuitivement
+        # ce chemin AUGMENTE (pas ne réduit) la puissance déposée nette de
+        # ~11 % au spot 2 (le retrait de l'écran ad hoc, plus gros que la
+        # réaction physique elle-même, domine le bilan, cf. rapport) — testé
+        # sur les 3 essais de validation, AGGRAVE le dépassement de pic sur
+        # 2/3 d'entre eux à θ* figé. Désactivé par défaut ; non recommandé
+        # comme comportement par défaut (cf. rapport, §6).
+        self.champ_reaction = bool(champ_reaction)
 
         courant = float(self.spec["courant"])
         self.spots = self.spec["spots"]
         self._Q_spots = [
             source_spot(self.grille, cfg, self.couches, courant,
                         float(s["centre_x"]), facteur_couplage=facteur_couplage,
-                        decalage_x=self.decalage_x)
+                        decalage_x=self.decalage_x, champ_reaction=self.champ_reaction)
             for s in self.spots
         ]
         self._masques = [

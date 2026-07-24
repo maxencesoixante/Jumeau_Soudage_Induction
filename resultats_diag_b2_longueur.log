@@ -1,0 +1,139 @@
+Diagnostic du résidu longueur B-2 (sous-chauffe TC2-4) — rapport
+==============================================================================
+Date : 2026-07-23. Fait suite à resultats_geometrie_corrigee_recalibration.log
+(la correction de géométrie a résolu le pic A-1 mais découvert une régression
+B-2). Géométrie CORRIGÉE, θ* = facteur 7.4172, h_haut 26.367, h_bas_2d 41.905,
+decalage_x 0, h_bord_x0 250. Modèle 2D. Aucun fichier src/ modifié
+(scratchpad/diag_b2.py, diag_b2_consigne.py).
+
+
+CONTEXTE
+--------
+B-2 a la MÊME géométrie que A-1 (mêmes spots x=16/46/76/106 mm, mêmes TC
+x=0/30/60/90/120) ; seule différence : consigne 360 °C (vs 400) et TC5 exclu.
+Avec le θ* corrigé, B-2 sous-chauffe TC2-4 :
+
+  TC   mesuré   sim(consigne 360)   Δ
+  TC1  362      369                +7
+  TC2  353      315               -38
+  TC3  366      311               -55   (pire ; x=60 = mi-distance spots 2-3)
+  TC4  361      312               -49
+
+Pire déficit à TC3, le point le plus loin de tout centre de spot.
+
+
+VERDICT : PAS UN MANQUE D'ÉTALEMENT — UNE COUPURE THERMOSTAT TROP PRÉCOCE
+--------------------------------------------------------------------------
+Test décisif (diag_b2.py) : rejouer B-2 en DURÉE PLEINE (consigne=9999 => la
+source ne coupe jamais, tourne toute la fenêtre d'impulsion) :
+
+  TC   mesuré   consigne 360   durée pleine
+  TC1  362      369            369
+  TC2  353      315            528
+  TC3  366      311            562
+  TC4  361      312            403
+
+En durée pleine, TC2-4 montent à 528-562 °C : la chaleur ATTEINT bien les
+positions inter-spots si on laisse le temps. Le modèle SAIT étaler ; le
+problème est que le thermostat COUPE TROP TÔT à la consigne 360. La vérité
+(~360) est ENTRE consigne-coupé (sous) et durée-pleine (sur).
+
+Profil T(x, y=0) pendant le spot 2 (consigne 360) :
+  x(mm):  0   12   24   36   48   60   72   84   96
+  T:     71  126  221  465  633  311   94   34   23
+Le dépôt est TRÈS localisé au centre du spot (633 °C à x=48) et chute à ~310
+en ±12 mm. Les TC à ~15 mm du spot ratent ce pic localisé.
+
+POURQUOI A-1 MARCHE ET PAS B-2 : même géométrie, mais consigne 400 vs 360. À
+400, le centre du spot met plus longtemps à atteindre la consigne → impulsions
+plus longues → les TC inter-spots rattrapent (~345-360). À 360, coupe rapide →
+ils restent froids. Le résidu B-2 est un ARTEFACT DU CRITÈRE DE COUPURE à basse
+consigne, pas un manque physique d'étalement.
+
+
+CAUSE PROBABLE
+--------------
+Le modèle coupe quand le NŒUD DE CONTRÔLE (centre du spot, le plus chaud,
+mélange point-symétrie + moyenne de section, cf. procede.py POIDS_POINT_
+THERMOSTAT) atteint la consigne. Or dans la réalité, l'opérateur/générateur
+coupait vraisemblablement quand un THERMOCOUPLE D'INTERFACE (à ~15 mm du spot,
+donc plus froid) atteignait la consigne → impulsions plus longues, centres de
+spots dépassant (M-lobe non mesuré). Cohérent : les pics MESURÉS plafonnent
+tous à ~360 (= la référence de coupure réelle) ; les centres de spots dépassent
+(invisibles, aucun TC dessus). C'est un problème de MODÈLE DE CONTRÔLE, pas de
+physique thermique. NB : changer le thermostat avait été « réfuté » avant, mais
+(a) sur l'ANCIENNE géométrie et (b) pour des variantes différentes (bord/max) ;
+couper sur une référence type-TC DÉCALÉE de ~15 mm du centre n'avait pas été
+testé.
+
+
+TEST DE LA PISTE (proxy)
+------------------------
+Couper sur une référence ~15 mm plus froide = laisser tourner l'impulsion plus
+longtemps = élever la consigne EFFECTIVE du contrôle-au-centre. Balayage
+consigne B-2 (diag_b2_consigne.py) :
+
+  consigne eff.   TC1  TC2  TC3  TC4   RMSE  |dTmax|
+  360 (nominal)   369  315  311  312   65.9   37.1
+  400            369  371  356  382   69.8   13.7   <- rejoint le mesuré
+  440            369  396  406  394   72.0   30.5
+  480            369  404  426  395   73.8   37.7
+  (mesuré : 362 / 353 / 366 / 361)
+
+VERDICT : PISTE CONFIRMÉE. À consigne effective 400 (= +40 °C vs 360), TC2-4
+rejoignent le mesuré et |dTmax| chute 37→14 (= niveau A-1, 14.9). Le +40 °C est
+exactement l'écart centre-du-spot vs TC-à-15 mm : le modèle coupe sur le centre
+(trop chaud) donc ~40 °C trop tôt par rapport à la vraie référence type-TC. Le
+résidu B-2 est un ARTEFACT DU MODÈLE DE CONTRÔLE, pas un déficit de physique
+thermique. TC1 reste 369 (plafonné par h_bord_x0), comme prévu. Le RMSE monte
+avec la consigne (compromis pic/RMSE classique) — le pic est le vrai enjeu B-2.
+
+CORRECTIF POSSIBLE (identifié) : changer la référence de coupure du thermostat
+du CENTRE du spot vers un point décalé de ~15 mm (comme un vrai TC d'interface).
+
+
+CORRECTIFS TENTÉS ET RÉFUTÉS (2026-07-23) — B-2 N'EST PAS CORRIGEABLE PROPREMENT
+================================================================================
+Trois correctifs prototypés (scratchpad, θ* recalibré sur A-1 à chaque fois,
+validation croisée 61×21). Référence θ* actuel (Δ=0) : A-1 36.8/14.9,
+A-3 32.0/28.4, B-2 66.2/34.8.
+
+(1) DÉCALAGE DE POSITION du contrôle (+15 mm vers +x, proto_ctrl_decale.py) :
+    A-1 38.2/54.5, A-3 35.9/77.1, B-2 71.0/54.2. CASSE TOUT (même A-1, l'essai
+    de calibration ; facteur s'effondre 7.42→4.62). Cause : le point à +15 mm est
+    DEVANT la soudure, dominé par le spot SUIVANT/la diffusion, pas par le spot
+    courant → le point de contrôle n'atteint jamais proprement la consigne (le
+    modèle sous-chauffe justement ces positions) → coupure erratique. RÉFUTÉ.
+
+(2) MARGE DE CONSIGNE (couper le centre à consigne+Δ, proto_consigne_marge.py) :
+    Δ=40 → A-1 39.6/36.6, A-3 34.2/30.9, B-2 69.6/11.6. CORRIGE B-2 (34.8→11.6)
+    mais CASSE A-1 (14.9→36.6). A-1 et B-2 veulent des Δ OPPOSÉS (A-1 meilleur à
+    Δ=0, B-2 à Δ=40). Le total des |ΔT_max| est ~constant (78 vs 79) : Δ
+    REDISTRIBUE l'erreur entre essais, ne l'améliore pas. RÉFUTÉ (pas de Δ
+    universel).
+
+(3) FORCE/CONTACT (h_haut plus bas pour B-2 à 25 N vs A-1 70 N, diag_b2_force.py) :
+    balayage h_haut 26→2 : |ΔT_max| B-2 reste 37→40 (inchangé), TC détail
+    inchangé. Cause : sous thermostat, la T du spot est capée à la consigne quel
+    que soit h_haut (h bas → atteint la consigne plus vite → coupe plus tôt, net
+    identique). h_haut ne pilote pas les TC. RÉFUTÉ.
+
+
+CONCLUSION FINALE B-2 — LIMITE STRUCTURELLE ROBUSTE
+====================================================
+A-1 se cale à contrôle-au-centre (offset centre-vs-TC ≈ 0), B-2 exige un offset
+≈ 40, AVEC LA MÊME GÉOMÉTRIE. La seule différence est la CONSIGNE (400 vs 360) :
+à basse consigne, les impulsions coupent tôt → la chaleur s'étale moins en x →
+les TC inter-spots restent froids. Le vrai process coupait quand LE TC atteignait
+la consigne (impulsions plus longues), mais le modèle NE PEUT PAS reproduire ce
+contrôle car il sous-chauffe justement ces positions (le point de contrôle décalé
+n'atteint jamais la consigne — d'où l'échec de (1)). Aucun correctif de contrôle
+ne lève ce résidu sans casser A-1 ; k_plan (k=6) ne le corrige pas non plus.
+
+C'est une LIMITE CONNUE : le modèle 2D lumpé sous-étale la chaleur en x au régime
+BASSE CONSIGNE / IMPULSIONS COURTES. Ampleur : B-2 |ΔT_max| ~35 (TC2-4 sous de
+30-55 °C). ARRÊT sur B-2 (2026-07-23, décision user). Pistes non retenues
+(coûteuses / hors périmètre) : contrôle sur TC réel avec un modèle de source
+moins contrasté en x ; caractérisation directe de la loi de coupure du
+générateur (fixe-durée vs asservi, et sur quel capteur).
+
