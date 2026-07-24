@@ -63,6 +63,18 @@ mesures thermocouples des essais (Séries A/B + essais de chauffe).
   bridage/appui du montage, asymétrie confirmée par l'utilisateur) calibré à
   **250 W/m²·K** (balayage sur A-1, validation A-3/B-2) ramène le pic TC1 dans
   ±25–70 °C sans dégrader les autres TC.
+- **Résidu B-2 (sous-étalement en x à basse consigne)** : après la correction de
+  géométrie, B-2 (consigne 360 °C vs 400 pour A-1, même géométrie) sous-chauffe
+  les TC inter-spots TC2-4 de 30–55 °C (|ΔT_max| ~35). À basse consigne, les
+  impulsions coupent tôt (le centre du spot atteint la consigne vite) → la
+  chaleur s'étale moins en x → les TC à ~15 mm restent froids ; le vrai process
+  coupait quand le TC lui-même atteignait la consigne (impulsions plus longues).
+  Trois correctifs prototypés + recalibrés + validés croisés ont été **réfutés**
+  (`resultats_diag_b2_longueur.log`) : décalage de la position de contrôle
+  (casse A-1), marge de consigne `consigne+Δ` (échange A-1 contre B-2, sens
+  opposés — total constant), et `h_haut`/force 25 N (neutralisé par le
+  thermostat). **Limite structurelle connue** du modèle 2D lumpé au régime
+  basse-consigne / impulsions courtes ; non corrigeable sans casser A-1.
 - **Le résidu TC4 documenté auparavant (+74 à +110 °C) était très majoritairement
   un artefact de discrétisation, pas un déficit physique** (étude de convergence
   maillage 2026-07-21, `resultats_convergence_maillage.log`). Décomposition
