@@ -1,0 +1,95 @@
+Cote `coil.hauteur` et plan image du CFC — diagnostic
+==============================================================================
+Date : 2026-07-24. Fait suite à resultats_geometrie_corrigee_recalibration.log
+(« À NOTER (1) : la décomposition gap 2 mm + demi-tube ne tient plus »).
+ÉTAT : DIAGNOSTIC SEUL. Aucune modification de config/geometrie.yaml, aucune
+recalibration. Décision user en fin de document.
+
+
+1. LA COTE 6,8 mm N'A JAMAIS ÉTÉ UNE MESURE
+---------------------------------------------
+Le fichier de config d'origine (commit 55068a6, 2026-07-17) l'écrit noir sur
+blanc :
+
+    # Hauteur de l'axe du conducteur au-dessus de la surface du laminé :
+    # gap céramique 2 mm + demi-tube
+    hauteur: 0.0068            # m
+    rayon_tube: 0.00476        # m — demi-hauteur du tube carré 9,5 mm
+
+  2 mm + 4,76 mm = 6,76 mm -> arrondi 0.0068.
+
+`hauteur` est donc une valeur DÉRIVÉE du tube de 9,5 mm, c'est-à-dire de la
+MÊME donnée fausse que l'entraxe corrigé le 2026-07-23. La « confirmation user »
+du 2026-07-23 portait sur un nombre dont l'origine n'avait pas été retracée.
+
+Avec le tube réel de 6 mm, la même décomposition donne :
+  2 mm (céramique) + 3 mm (demi-tube) = 5,0 mm.
+
+
+2. SENSIBILITÉ EM À `hauteur` (scratchpad/sens_hauteur.py)
+------------------------------------------------------------
+Calcul EM pur (source_spot), grille 121x41x15, spot 2 (x=45,9 mm), I=250 A,
+géométrie corrigée par ailleurs. Aucune resimulation thermique.
+
+  h (mm)   P_tot (W)   P/P_6.8   q_max/q_moy   FWHM_x (mm)
+     3.8       61.5      1.658        16.33         29.0
+     5.0       49.8      1.342        15.52         32.0
+     6.8       37.1      1.000        14.36         34.0
+     8.0       30.9      0.833        13.66         36.0
+     9.8       23.7      0.639        12.73         40.0
+
+Lecture : P/P_6.8 est absorbé par un recalibrage de facteur_couplage (7,42 ->
+~5,5 pour h=5,0). q_max/q_moy et FWHM_x sont la FORME, que le recalibrage
+n'absorbe pas : +8 % de piquage et -6 % de largeur en x pour 6,8 -> 5,0.
+
+=> Levier RÉEL mais de SECOND ORDRE, sans commune mesure avec l'entraxe
+   (qui, lui, avait changé le pic de 46 à 15 °C).
+
+
+3. POINT PLUS LOURD DÉCOUVERT AU PASSAGE : LE PLAN IMAGE DU CFC
+-----------------------------------------------------------------
+geometrie.py:88 `plan_miroir_cfc` renvoie `hauteur + rayon_tube`, docstring
+« face inférieure du bloc, ~sommet du tube ». Or le commentaire de config dit
+que les tubes TRAVERSENT le CFC le long de son grand côté. Si le brin est logé
+DANS le bloc, la face inférieure du CFC est au niveau du BAS du tube — 6 mm
+plus bas que ce que le code suppose.
+
+Sensibilité (scratchpad/sens_miroir.py, hauteur figée à 6,8 mm) :
+
+  plan image                   z (mm)   P_tot (W)   P/P_actuel   FWHM_x (mm)
+  sommet du tube (h+r, ACTUEL)    9.8       37.1        1.000          34.0
+  axe du tube    (h)              6.8       54.8        1.477          32.0
+  bas du tube    (h-r)            3.8      104.0        2.802          22.0
+  1 mm sous le tube               2.8      146.1        3.934          18.0
+
+La FORME change massivement (-35 % de FWHM en x entre sommet et bas du tube) :
+un recalibrage ne peut pas l'absorber. Et si le tube est réellement DANS le
+bloc perméable, c'est l'hypothèse même du demi-espace + courants images qui
+est en défaut, pas seulement la position du plan.
+
+ATTENTION : les variantes sous le bas du tube sont des DIAGNOSTICS, pas des
+configurations physiquement cohérentes du modèle d'images (qui exige le
+conducteur hors du demi-espace perméable).
+
+
+4. DÉCISIONS (user, 2026-07-24)
+---------------------------------
+(a) HAUTEUR : lecture retenue = le brin repose sur la céramique de 2 mm, donc
+    axe à h = 5,0 mm. 6,8 mm est écarté comme séquelle du tube de 9,5 mm.
+    NON APPLIQUÉ à ce jour : changer la cote impose une recalibration complète
+    (θ* courant 7,4172/26,367/41,905 est calibré à h=6,8) — à faire d'un bloc.
+
+(b) PLAN IMAGE : question laissée OUVERTE, pause demandée. Rien n'est modifié.
+    À trancher sur la CAO (positionnement_CFC+coil.png, vault) : le CFC est-il
+    percé et traversé par les brins, ou posé au-dessus d'eux ?
+
+
+5. PROCHAINE ÉTAPE QUAND LE THREAD REPREND
+--------------------------------------------
+1. Trancher (b) sur la CAO — c'est le plus gros levier des deux, inutile de
+   recalibrer avant.
+2. Appliquer (a) et, le cas échéant, (b) ENSEMBLE dans geometrie.yaml.
+3. Recalibrer sur A-1 (31x11, decalage_x figé 0, h_bord_x0=250) puis valider
+   en croisé 61x21 sur A-1/A-3/B-2, comme pour la correction d'entraxe.
+4. Ne PAS mettre à jour les docs avant que le nouveau θ* soit validé — leçon
+   du 2026-07-24 (docs/mesures_a_realiser.md avait diffusé une prémisse morte).
