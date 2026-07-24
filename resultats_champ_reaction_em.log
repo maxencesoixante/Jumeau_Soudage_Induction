@@ -1,0 +1,342 @@
+Implémentation du champ de réaction EM (blindage auto-cohérent) — rapport
+==============================================================================
+Date : 2026-07-21. Suite du diagnostic profil-M (resultats_diagnostic_profil_M_em.log,
+2026-07-21) et du test réfuté position-thermostat (resultats_test_position_thermostat.log).
+θ* FIGÉ tout du long (commit 57e7157) : facteur=4.0975, decalage_x=0, h_haut=11.323,
+h_bas_2d=51.636, h_bord_x0=250, maillage validation 61x21x15 (défaut scripts/valider.py).
+AUCUNE recalibration effectuée. Aucun fichier thermique/ ni identification/ modifié.
+
+RÉSUMÉ EXÉCUTIF
+---------------
+Le champ de réaction a été implémenté (auto-cohérent, complexe, couplage
+inter-couches inclus), vérifié (cas limite basse fréquence, conservation de
+puissance, convergence de point fixe, convergence de maillage), et testé sur
+les 3 essais à θ* figé. Verdict : LE CORRECTIF NE VA PAS DANS LE BON SENS.
+
+La réaction physique elle-même est bien réelle mais PETITE (~0,2-0,6 % de
+réduction de puissance par couche, pas les ~2,6 (ordre unité) suggérés par
+l'estimation grossière du brief — facteur π manquant + mauvaise couche de
+référence, cf. §1). Le VRAI effet mesurable en activant ``champ_reaction=True``
+vient d'ailleurs : ce chemin désactive nécessairement ``attenuation_blindage``
+(l'écran ad hoc e^(−2t/δ) déjà en place pour le blindage inter-couches, sous
+peine de double compte) — et cet écran ad hoc est BEAUCOUP plus fort
+(−11,8 % sur le twill, −18,0 % sur le laminé inférieur, à θ* actuel) que la
+réaction physique rigoureuse qui le remplace. Le bilan NET à θ* figé est donc
+une AUGMENTATION de puissance déposée (+~11 % en tout, ratio de puissance
+totale au spot 2 = 1,108, stable en maillage), PAS une réduction. Sur les 3
+essais, cela AGGRAVE le dépassement de pic déjà documenté sur 2/3 essais
+(A-1 : |ΔT_max| 46,0 -> 54,7 °C ; B-2 : 12,3 -> 20,8 °C) et ne l'améliore que
+marginalement sur le 3e, où le modèle était déjà en dessous de la mesure
+(A-3 : 31,0 -> 30,5 °C). Le RMSE moyen ne bouge quasiment pas (±0,5-0,8 °C sur
+les 3 essais) car le profil temporel global (montée + plateau) est peu
+sensible à ce changement d'échelle de puissance de quelques %.
+
+CONCLUSION : le champ de réaction, correctement implémenté, N'EST PAS le
+levier qui explique le résidu de 40-60 °C documenté. Le correctif est livré
+derrière un flag (``champ_reaction``, défaut ``False`` = comportement
+historique inchangé) pour archivage/ablation, mais je NE RECOMMANDE PAS de
+l'activer par défaut ni de le prendre comme base d'un refit — voir §5 pour
+ce que je recommande d'examiner à la place.
+
+
+0. ÉTAPE 0 — CHIFFRAGE DE L'ORDRE DE GRANDEUR ATTENDU (avant implémentation)
+-----------------------------------------------------------------------------
+Le paramètre adimensionné pertinent pour le blindage d'une nappe de courant
+plane finie n'est PAS µ0·σ·e·ω·L (estimation du brief, par analogie
+dimensionnelle L <-> 1/k) mais, dérivé directement de l'équation de Faraday
+en présence du champ induit (cf. §2) :
+
+    S' = µ0·σ·t·ω / (2k)     (k = norme du vecteur d'onde 2D du mode considéré)
+
+évalué au mode fondamental Dirichlet le plus sensible (k1 = π/W, W = 40 mm =
+largeur échantillon — PAS le nombre L du brief, 1/k1 est la bonne longueur,
+avec un facteur π en moins que l'estimation brute) :
+
+  couche             σ (S/m)   t (mm)   σ·t (S)   S'(k1)   |1/(1+jS')|
+  twill_suscepteur   1,10e4    0,280    3,08      0,060    0,9982
+  lamine_sup         273,5     3,08     0,842     0,016    0,9999
+  lamine_inf         273,5     3,36     0,919     0,018    0,9998
+
+(f = 388 kHz — relevé machine réel, PAS les 300 kHz cités en exemple dans
+AGENTS.md — ω = 2,438e6 rad/s). Réduction de PUISSANCE attendue au mode
+fondamental (∝|1/(1+jS')|²) : 0,03-0,4 %, PAS l'effet O(1) suggéré par
+l'estimation grossière (S≈2,6 dans le brief, qui utilisait σ0=2,2e4 S/m —
+la conductivité FIBRE d'un pli UD du laminé, pas σ_eff=273,5 S/m réellement
+utilisée pour la couche homogénéisée — ET l'épaisseur totale du laminé au
+lieu de celle du twill, ET un facteur L au lieu de 1/k).
+
+Verdict étape 0 : l'effet DIRECT (auto-inductance de chaque couche) est trop
+faible pour expliquer 40-60 °C sur les pics. J'ai néanmoins CONTINUÉ
+l'implémentation, comme demandé, parce que (a) la mission demandait
+explicitement de traiter le couplage inter-couches, dont l'ordre de grandeur
+n'était pas évident a priori sans un calcul complet (pas juste 1 mode), et
+(b) une vérification numérique complète (tous modes, champ Bz réel de la
+bobine, pas l'approximation 1D) pouvait en principe donner un résultat
+sensiblement différent de l'estimation 1 mode — ce qui s'est effectivement
+produit, mais pour une raison inattendue (cf. §3, l'effet dominant n'est pas
+la réaction elle-même mais le retrait de l'écran ad hoc préexistant).
+
+
+1. FORMULATION RETENUE ET POURQUOI
+-----------------------------------
+Bz_total = Bz_bobine + Bz_induit[ψ] rend le problème intégro-différentiel.
+``Bz_induit`` est calculé de façon EXACTE (pas une approximation de demi-
+espace infini) via la relation magnétostatique locale en k, dérivée à la
+main (potentiel vecteur A ~ exp(−|k|·|z|), saut standard [∂A/∂z]=−µ0·K) :
+
+    Bz_induit(k) = (µ0·|k| / 2) · Ψ(k) · exp(−|k|·|Δz|),   Ψ = ψ_vrai·épaisseur
+
+valable pour toute nappe de courant PLANE À SUPPORT COMPACT (ψ=0 hors
+plaque, déjà garanti par la BC de resoudre_psi) — implémentée par TF/TF⁻¹
+avec zero-padding (``foucault.bz_induit_nappe``/``noyau_reaction_k``).
+
+Formulation complexe — PIÈGE DE CONVENTION DE PHASE (important, a coûté du
+temps de debug) : le code historique résout un problème RÉEL
+« ρyy·ψxx+ρxx·ψyy = ω·Bz » en exploitant que, sans réaction, ψ est en
+QUADRATURE stricte avec Bz réel — la variable ``psi`` retournée par
+``resoudre_psi`` n'est donc PAS le ψ physique complexe mais une
+représentation réelle telle que ψ_vrai = j·ψ_code (les deux ont le même
+module, d'où q=ρ·ψ_code² = ρ·|ψ_vrai|² correct SANS réaction). En ajoutant le
+terme de réaction, il faut réinjecter ce facteur j : Bz_induit doit être
+calculé à partir de ψ_vrai = j·ψ_code, PAS de ψ_code directement — omettre ce
+facteur j (première tentative, cf. historique de session) fait converger
+l'itération vers un pur affaiblissement RÉEL (aucune composante imaginaire),
+ce qui reproduit un résultat de la bonne magnitude par coïncidence partielle
+mais avec le mauvais mécanisme physique (vérifié faux par comparaison à la
+solution analytique 1-mode, écart ~40x). Avec le facteur j correctement
+replacé (``foucault.resoudre_psi_complexe`` + le ``1j·`` explicite dans
+``source_joule._resoudre_champ_reaction``), le résultat numérique sur un
+mode de Fourier propre isolé colle à l'estimation analytique du §0 à mieux
+que 10 % (limité par la résolution de grille/le noyau tronqué), cf. tests.
+
+Couplage inter-couches : traité par UNE NAPPE ÉQUIVALENTE PAR COUCHE (3
+nappes : twill, laminé sup, laminé inf, chacune à son z_mid), PAS une par
+nœud z de dépôt échantillonné (le point 1 de l'échantillonnage nœud-par-nœud,
+cf. docstring source_joule.py, reste utilisé pour la PROFONDEUR du dépôt,
+inchangé). Une première tentative avec une nappe par nœud (~11-15 nappes,
+séparations de l'ordre de 0,3-0,7 mm) s'est révélée NUMÉRIQUEMENT INSTABLE :
+le noyau bz_induit_nappe (∝|k|·exp(−|k|·|Δz|)) ne décroît pas à haute
+fréquence spatiale quand |Δz| est trop petit devant 1/k (proche du
+repliement de Nyquist de la grille), et amplifie le bruit de discrétisation
+au lieu de le dissiper — signature : un ratio de puissance déposée >1 pour
+un phénomène de blindage qui doit TOUJOURS réduire |ψ| sur un mode isolé
+(vérifié faux, cf. tests/test_champ_reaction.py::test_reaction_pure_...).
+Une nappe unique par couche (séparations de 1,5-3+ mm, physiquement
+défendable puisque chaque couche est UN seul conducteur à ρ uniforme, la
+subdivision en nœuds z n'étant qu'une résolution de dépôt) est numériquement
+saine, vérifiée en maillage (§4) et c'est ce qui est livré.
+
+Convergence : itération de point fixe (Picard, 3 nappes couplées), critère
+explicite max(|Δψ|)/max(|ψ|) < 1e-6, ``RuntimeError`` explicite si non atteint
+en 50 itérations. En pratique converge en 5-8 itérations (S' max ~0,06,
+donc rayon spectral de l'itération très favorable). Testé : budget d'1 seule
+itération lève bien l'erreur (tests/test_champ_reaction.py::
+test_convergence_explicite_point_fixe).
+
+
+2. VÉRIFICATIONS PHYSIQUES EXIGÉES
+-------------------------------------
+a) Cas limite basse fréquence -> retrouve la solution actuelle : VÉRIFIÉ,
+   avec une subtilité. ``attenuation_blindage`` (le chemin HISTORIQUE, pas
+   seulement le nouveau) décroît en √ω (via δ∝1/√ω), donc BEAUCOUP plus
+   lentement que la réaction elle-même (∝ω², cf. §0). À f réduite d'un
+   facteur 1000 seulement, l'écart entre les deux chemins reste ~0,4 % (pas
+   négligeable) — PAS un bug, c'est l'écran ad hoc historique qui met du
+   temps à s'annuler lui aussi. En réduisant f d'un facteur 1e8, l'écart
+   tombe à 1,3e-5 (cf. resultats numériques dans tests/test_champ_reaction.py
+   ::test_convergence_basse_frequence). Les deux chemins convergent bien vers
+   la MÊME limite non-écrantée.
+b) Conservation de puissance : structurellement inchangée par rapport au
+   mécanisme déjà vérifié à <0,4 % (poids = épaisseur/(n_nœuds·dz) identique
+   dans les deux chemins ; le champ de réaction n'introduit qu'un facteur
+   d'échelle scalaire par couche, ``ratio_couche``, appliqué à TOUS les
+   nœuds — ne modifie pas la pondération de dépôt). Vérifié : puissance
+   totale déposée finie, du même ordre de grandeur (facteur 1,1, pas un
+   changement de plusieurs ordres), cf. test_conservation_puissance_champ_reaction.
+c) Convergence de l'itération auto-cohérente : critère explicite + test
+   d'échec contrôlé, cf. §1 fin.
+d) Convergence en maillage : le RATIO de puissance totale (avec/sans
+   réaction) est stable entre 31x11, 61x21 et 121x41 (1,1079 à 61x21 ET à
+   121x41, à 4 décimales près) — CONTRAIREMENT à la valeur brute au nœud de
+   bord (qui, elle, dérive lentement de ~14 % entre 61x21 et son
+   extrapolation convergée, cf. rapport diagnostic antérieur). Le ratio au
+   nœud de bord/interface (spot 2, twill) : 1,1303 à 61x21 et 1,1304 à
+   121x41 — également stable. Le correctif ne dépend donc pas d'un artefact
+   de maillage particulier.
+
+
+3. CE QUI DOMINE RÉELLEMENT LE RÉSULTAT (le point le plus important)
+-----------------------------------------------------------------------
+Deux effets distincts, à ne pas confondre :
+
+  (1) Réaction physique pure (auto-inductance de chaque couche isolée,
+      cf. §0/§1) : PETITE, RÉDUCTRICE — de l'ordre de 0,2 à 0,6 % de
+      puissance à f et σ nominales (mesurée directement sur une nappe
+      isolée sans écran ad hoc, cf. test_reaction_pure_reduit_...).
+
+  (2) Désactivation de ``attenuation_blindage`` (nécessaire pour ne pas
+      doubler le blindage inter-couches, cf. AGENTS.md) : GROSSE,
+      AUGMENTATRICE — l'écran ad hoc retire aujourd'hui 11,8 % de puissance
+      au twill (écranté par le laminé sup au-dessus) et 18,0 % au laminé
+      inférieur (écranté par laminé sup + twill), à ω nominale :
+
+        attenuation_blindage(twill)      = 0,8815  (−11,8 %)
+        attenuation_blindage(lamine_sup) = 1,0000  (rien au-dessus)
+        attenuation_blindage(lamine_inf) = 0,8197  (−18,0 %)
+
+Le bilan NET (2)+(1) au spot 2 (250 A, grille 61x21x15, θ* figé — calcul
+direct sur la sortie de ``source_spot``, pas une estimation) :
+
+  couche              att (ad hoc)   P0 (sans, mW)   P1 (avec réaction, mW)   ratio
+  twill_suscepteur      0,8815        42838,8          48421,3               1,1303
+  lamine_sup            1,0000        17309,0          17252,0               0,9967
+  lamine_inf            0,8197         8970,1          10902,1               1,2154
+  TOTAL (tous nœuds z, toutes couches)  69117,9          76575,4               1,1079
+
+(rappel : ratio_couche, la réaction PURE sans écran, cf. §0/tableau ci-dessus,
+vaut 0,9964/0,9967/0,9963 pour twill/lamine_sup/lamine_inf respectivement —
+c'est bien PETIT et RÉDUCTEUR comme attendu ; c'est la comparaison à l'écran
+ad hoc RETIRÉ (colonne « att ») qui bascule le signe du bilan net pour twill
+et lamine_inf, PAS la réaction en elle-même. lamine_sup, qui n'avait pas
+d'écran ad hoc au-dessus d'elle [att=1], reste bien légèrement RÉDUITE
+(0,9967) — cohérence interne du mécanisme.)
+
+Autrement dit : (2) domine (2) >> (1) d'un facteur ~20-30, et l'effet net
+observable en activant ``champ_reaction=True`` est essentiellement « et si
+l'écran ad hoc de blindage inter-couches était très surestimé ? », pas « et
+si on ajoutait un petit terme de blindage manquant ? ». C'est l'INVERSE du
+scénario envisagé dans le diagnostic antérieur (qui spéculait que le champ
+de réaction réduirait préférentiellement le pic de bord).
+
+Ceci soulève une question distincte, PAS résolue ici et hors mandat de cette
+mission (implémenter, pas recalibrer) : ``attenuation_blindage`` (formule
+e^(−2t/δ), transmission d'onde plane à INCIDENCE NORMALE à travers un écran
+d'épaisseur t) a-t-elle même la bonne forme fonctionnelle pour ce problème de
+nappe de courant PLANE (in-plane), qui est géométriquement très différent
+d'une onde plane traversant un écran perpendiculairement ? Le calcul
+magnétostatique rigoureux fait ici (nappe à nappe, même géométrie que le
+problème réel) suggère que l'écran ad hoc pourrait surestimer le blindage
+inter-couches d'un ordre de grandeur. Ce point mérite d'être signalé à
+calibration-uq-specialist (cf. §5) mais N'A PAS été retenu comme correctif
+ici — il changerait le modèle bien au-delà du mandat EM seul (θ* figé).
+
+
+4. EFFET SUR LES 3 ESSAIS À θ* FIGÉ (scripts/valider.py --modele 2D, 61x21x15)
+---------------------------------------------------------------------------------
+Commandes (reproductibles) :
+  .venv/bin/python scripts/valider.py --modele 2D --facteur 4.0975 --decalage-x 0 \
+    --h-haut 11.323 --h-bas-2d 51.636 --h-bord-x0 250 --essais serieA_A-1 serieA_A-3 serieB_B-2
+    (baseline, cf. resultats_champ_reaction_baseline_reprod.log — REPRODUIT EXACTEMENT
+    la ligne de base documentée : 39,2/46,0 ; 32,7/31,0 ; 68,0/12,3 — non-régression OK)
+  ... --champ-reaction (cf. resultats_champ_reaction_active.log)
+
+  essai         RMSE moyen (°C)          |ΔT_max| moyen (°C)
+                sans      avec    Δ      sans      avec     Δ
+  serieA_A-1    39,2      39,7   +0,5    46,0      54,7    +8,7   (AGGRAVE)
+  serieA_A-3    32,7      32,4   −0,3    31,0      30,5    −0,5   (marginal, mieux)
+  serieB_B-2    68,0      68,8   +0,8    12,3      20,8    +8,5   (AGGRAVE)
+
+Détail TC par TC (A-1, cas le plus parlant) : le modèle surchauffait déjà
+tous les TC de +40 à +60 °C (baseline) ; avec champ_reaction=True, TC1 passe
+de +60,3 à +80,0 °C, TC2 de +45,3 à +52,2 °C, etc. — TOUS les écarts
+augmentent en magnitude (le signe de l'erreur ne change pas, seule
+l'ampleur empire). Sur A-3, où le modèle SOUS-chauffait TC1/TC2 (délicat
+-23/-39 °C) tout en SURchauffant TC3-5 (+25 à +36 °C), le surplus de
+puissance réduit un peu l'écart sur TC1/TC2 mais l'aggrave sur TC3-5 — d'où
+un |ΔT_max| moyen quasi inchangé (effet de compensation, pas d'amélioration
+réelle du profil spatial).
+
+Verdict quantifié : le champ de réaction, correctement implémenté et
+vérifié, N'AMÉLIORE PAS l'accord aux 3 essais à θ* figé — il l'aggrave sur
+2/3 essais et le laisse quasi inchangé sur le 3e. Il ne s'agit PAS d'un
+problème de recalibration masquant un bénéfice réel : le mécanisme dominant
+(retrait de l'écran ad hoc, §3) va dans le sens opposé à ce qui était espéré.
+
+
+5. CE QUI CHANGE POUR LA CALIBRATION À VENIR (à l'attention de
+   calibration-uq-specialist)
+-----------------------------------------------------------------------------
+- ``facteur_couplage`` (docstring foucault.py/README) absorbe aujourd'hui un
+  mélange d'AU MOINS trois choses : le champ de réaction négligé (petit,
+  ~0,2-0,6 %, cf. §0/§3), l'incertitude sur σ, ET (si l'on découvre que
+  ``attenuation_blindage`` est mal calibrée en forme, cf. §3 fin) une partie
+  de la correction pour un écran ad hoc potentiellement surestimé. Activer
+  ``champ_reaction=True`` sans recalibrer change le sens physique de
+  ``facteur_couplage`` : une partie de ce qu'il absorbait aujourd'hui
+  (l'écran ad hoc) disparaît du modèle NUMÉRATEUR, donc un refit de
+  ``facteur_couplage`` avec ``champ_reaction=True`` convergerait
+  probablement vers une valeur PLUS BASSE qu'aujourd'hui (~10-15 % de moins,
+  pour compenser le surplus net observé en §4).
+- Ceci N'A PAS été fait ici (NE RECALIBRE RIEN, cf. brief) : les chiffres du
+  §4 sont donc à lire comme « effet du changement de source SEUL », pas
+  comme un verdict sur ce que donnerait un refit complet. Un refit ferait
+  presque certainement remonter le RMSE moyen à un niveau proche de la
+  baseline (puisque le RMSE, dominé par la MONTÉE en température, est
+  largement une fonction du produit facteur_couplage×Q, et Q a juste changé
+  d'échelle de +11 % en moyenne) — mais ne changerait vraisemblablement PAS
+  la conclusion qualitative du §4 : le champ de réaction, à magnitude fixée
+  au niveau physique correct (§0), N'A PAS le pouvoir de reformer
+  différentiellement le profil bord/centre pour réduire spécifiquement le
+  dépassement à TC2-5 (contrairement à l'espoir du diagnostic antérieur) —
+  parce que son amplitude propre est trop petite pour ça (§0), et l'essentiel
+  de ce qui bouge est un effet d'échelle global que ``facteur_couplage``
+  peut de toute façon absorber par construction.
+- Piste distincte à signaler (PAS implémentée, PAS recommandée dans l'immédiat,
+  hors mandat EM) : la forme fonctionnelle de ``attenuation_blindage``
+  (e^(−2t/δ), transmission d'onde plane à incidence normale) est-elle
+  adaptée à ce problème de nappe de courant PLANE ? Le calcul magnétostatique
+  rigoureux (nappe-à-nappe, §3) suggère un blindage inter-couches
+  significativement plus faible que l'écran ad hoc actuel. Creuser cette
+  piste (remplacer l'écran ad hoc par le couplage nappe-à-nappe rigoureux
+  MAIS SANS bypasser ``facteur_couplage`` ni figer θ*, donc avec
+  recalibration complète) pourrait changer la répartition de puissance entre
+  couches (potentiellement pertinent pour le déficit TC1 documenté
+  ailleurs, README § Limites connues) — mais c'est un changement de modèle
+  plus large que ce que ce brief autorisait (« ne recalibre rien »), à
+  traiter dans une mission dédiée si jugé prioritaire.
+- Aucun paramètre EM n'est devenu redondant au sens strict (le flag est
+  optionnel, défaut désactivé) — mais SI ``champ_reaction=True`` devait
+  devenir le défaut un jour, ``facteur_couplage`` perdrait une (petite)
+  partie de son rôle actuel de couverture du blindage négligé, cf. ci-dessus.
+
+
+6. RECOMMANDATION
+--------------------
+NE PAS activer ``champ_reaction=True`` par défaut. Le comportement
+historique (``champ_reaction=False``) reste le défaut de
+``Essai``/``source_spot``/``scripts/valider.py`` — chemin bit-à-bit
+inchangé, non-régression vérifiée (cf. §7). Le flag est conservé pour
+archivage/ablation et pour une éventuelle étude future sur la forme de
+``attenuation_blindage`` (§5) si cette piste est un jour priorisée.
+
+
+7. FICHIERS MODIFIÉS / AJOUTÉS
+---------------------------------
+- src/jumeau/em/foucault.py : ajout ``resoudre_psi_complexe``,
+  ``densite_joule_complexe``, ``noyau_reaction_k``, ``bz_induit_nappe`` —
+  ``resoudre_psi``/``densite_joule`` (chemin historique) INCHANGÉS.
+- src/jumeau/em/source_joule.py : ajout paramètre ``champ_reaction: bool =
+  False`` à ``source_spot`` + fonction privée ``_resoudre_champ_reaction``
+  (Picard, 3 nappes). Chemin ``champ_reaction=False`` structurellement
+  identique au code d'avant (même boucle, ``attenuation_blindage`` inchangée).
+- src/jumeau/procede.py : ``Essai.__init__`` accepte ``champ_reaction: bool
+  = False`` (même motif que ``interp_ctrl``), propagé à ``source_spot``.
+- scripts/valider.py : flag CLI ``--champ-reaction``.
+- tests/test_champ_reaction.py (NOUVEAU, 8 tests) : opérateur non local vs
+  formule analytique, décroissance en distance, signe/magnitude de la
+  réaction pure sur un mode propre, cas limite basse fréquence, conservation
+  de puissance + décomposition des deux effets (§3), convergence explicite
+  du point fixe (succès ET échec contrôlé), convergence de maillage du
+  ratio.
+- resultats_champ_reaction_baseline_reprod.log / resultats_champ_reaction_active.log :
+  sorties brutes de scripts/valider.py (baseline reproduite à l'identique de
+  la référence ; run avec --champ-reaction), utilisées pour le tableau §4.
+
+AUCUN fichier thermique/ ni identification/ modifié. Aucun commit, aucun push.
+
+
+8. TESTS
+-----------
+.venv/bin/python -m pytest -q  ->  34 passed in 191 s (0:03:11)
+  (26 tests historiques, tous verts — non-régression confirmée — + 8 nouveaux
+  tests dédiés au champ de réaction, cf. §7.)

@@ -115,6 +115,10 @@ def principale():
                          "encore de 10-20 °C entre 31x11 et 121x41 selon le TC. "
                          "61x21 est le meilleur compromis coût/résiduel de "
                          "discrétisation identifié (~2-4 min/essai, cf. rapport).")
+    ap.add_argument("--champ-reaction", action="store_true",
+                    help="active le champ de reaction EM auto-coherent complexe "
+                         "(jumeau.em.source_joule.source_spot, defaut False = "
+                         "chemin historique inchange) -- cf. resultats_champ_reaction_em.log")
     ap.add_argument("--ny", type=int, default=21)
     ap.add_argument("--nz", type=int, default=15,
                     help="défaut 15 (= défaut Essai/construire_grille) ; nz n'a "
@@ -140,7 +144,7 @@ def principale():
         print(f"\n=== {nom} [{args.modele}] ===")
         essai = Essai(cfg, chemin, nx=args.nx, ny=args.ny, nz=args.nz,
                       facteur_couplage=args.facteur, decalage_x=args.decalage_x,
-                      racine=RACINE)
+                      racine=RACINE, champ_reaction=args.champ_reaction)
         solveur, sol = essai.simuler(modele=args.modele)
         series = essai.series_tc(solveur, sol)
         df = recaler_a_la_chauffe(charger_mesures(essai.fichier_mesures))
