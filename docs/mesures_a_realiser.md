@@ -22,11 +22,18 @@ imputable à une cote : il tient à la forme trop concentrée de la source (prof
 
 Deux écarts restent ouverts. D'abord le **régime à basse consigne** : sur l'essai B-2
 (coupure à 360 °C au lieu de 400), le modèle sous-chauffe de 30 à 55 °C les capteurs situés
-entre deux empreintes. La cause est identifiée — le modèle coupe la chauffe quand le centre
-de l'empreinte atteint la consigne, alors que le procédé réel coupait vraisemblablement sur
-un thermocouple d'interface plus froid, donc plus tard. Trois correctifs ont été essayés et
-réfutés ; c'est désormais une question de mesure (relevé 5 ci-dessous). Ensuite le
-**thermocouple de surface**, qui chauffe 5 à 6 fois trop lentement, sans mécanisme identifié.
+entre deux empreintes. **La cause est désormais confirmée par le cahier de laboratoire
+(relevé 5 ci-dessous)** : le procédé coupait quand le thermocouple d'interface le plus chaud
+atteignait la consigne, alors que le modèle coupe quand le centre de l'empreinte l'atteint —
+donc trop tôt. Un correctif physiquement fondé (loi « capteurs ») est en cours de test et de
+recalibration. Ensuite le **thermocouple de surface**, qui chauffe 5 à 6 fois trop lentement,
+sans mécanisme identifié (exp 8, à réaliser).
+
+> **Mise à jour du 27 juillet 2026 (réponses utilisateur).** Trois relevés sont tranchés :
+> épaisseur du twill = **0,20 mm** (relevé 3, correction préparée) ; chants latéraux **à l'air
+> libre** → `h_bord_x0` est un paramètre **effectif**, pas physique (relevé 4) ; point de
+> coupure du thermostat = **max des TC d'interface** (relevé 5, via le cahier). Détail dans
+> chaque fiche ci-dessous.
 
 L'épisode de la bobine oriente aussi la priorité : la mesure qui a le plus rapporté n'était
 pas une propriété matériau mais une **cote**. Les relevés de niveau 1 passent donc en tête.
@@ -65,6 +72,14 @@ pied à coulisse contre plusieurs semaines de diagnostic sur une cote fausse.
 
 **Temps estimé.** 15 minutes.
 
+**Réponse (utilisateur, 2026-07-27) :** « Je ne comprends pas ce qu'il faut relever, précise la question. »
+
+> → **Précision.** Il ne reste qu'à mesurer **de combien le centre de la bobine est décalé le
+> long de x** (les 120 mm) par rapport à la position visée du spot : la bobine est-elle pile
+> au-dessus du point d'indexation, ou décalée de quelques mm ? C'est le paramètre `decalage_x`,
+> figé à 0 faute de mesure. **Peu critique** : s'il n'est pas mesurable facilement, on le laisse
+> figé. (Les cotes de section/entraxe/hauteur de la bobine, elles, sont déjà résolues.)
+
 ### Relevé 2. Fréquence du générateur à 200 A
 
 **Objectif.** Relever la fréquence de travail de l'EASYHEAT à 200 A.
@@ -79,6 +94,8 @@ celle de 250 A.
 courant.
 
 **Temps estimé.** Une lecture pendant un essai.
+
+**Réponse (utilisateur, 2026-07-27) :** _(en attente)_
 
 ### Relevé 3. Épaisseur réelle du pli twill
 
@@ -95,6 +112,15 @@ répartition de puissance entre couches, au cœur du déficit de surface.
 
 **Temps estimé.** 10 minutes.
 
+**Réponse (utilisateur, 2026-07-27) :** « Le pli de twill a une épaisseur de 0,20 mm. »
+
+> → **✔ FAIT — donnée acquise.** Le modèle utilise `twill_suscepteur.epaisseur = 0,28 mm`
+> (marqué « à confirmer »). Valeur mesurée : **0,20 mm**. Correction préparée dans
+> `config/materiaux.yaml` (commentaire), **à appliquer à la prochaine recalibration** :
+> l'épaisseur du twill change la répartition de puissance entre couches, donc impose un refit
+> de θ\*. Non appliquée immédiatement pour ne pas confondre avec l'expérience « thermostat
+> capteurs » en cours.
+
 ### Relevé 4. Condition aux bords de l'échantillon
 
 **Objectif.** Documenter ce qui touche les quatre chants de l'échantillon pendant un essai.
@@ -109,6 +135,20 @@ chant x = 0), aujourd'hui fragilisée.
 n'est qu'un paramètre effectif, auquel cas le rapport doit le présenter comme tel.
 
 **Temps estimé.** Une photo par essai.
+
+**Réponse (utilisateur, 2026-07-27) :** « Les bords de l'échantillon sont à l'air libre pour
+les faces latérales. La face inférieure (de l'assemblage soudé) est en contact avec le bloc
+céramique du dessous. La face supérieure est en contact avec la céramique d'espacement, au
+dessus de laquelle se trouve le CFC. »
+
+> → **✔ RÉSOUT la question `h_bord_x0`.** Les quatre chants latéraux sont **à l'air libre**
+> (aucune bride, aucun appui, aucun puits au chant x=0). Les seuls échanges verticaux sont la
+> face inférieure (bloc céramique → `h_bas`) et la face supérieure (céramique d'espacement →
+> CFC → `h_haut`). **Conclusion : `h_bord_x0 = 250` n'a AUCUNE base physique** — c'est un
+> paramètre EFFECTIF qui compense autre chose (vraisemblablement le bord trop chaud du profil
+> en « M » côté x=0), pas une condition réelle du montage. À requalifier comme tel dans les
+> docs, et **candidat au retrait** lors de la prochaine recalibration (le tester à 0 ou le
+> remplacer par une convection latérale faible et uniforme sur les quatre chants).
 
 ### Relevé 5. Point de coupure réel du thermostat
 
@@ -129,6 +169,18 @@ sous-chauffe de 30 à 55 °C entre empreintes). Trois correctifs numériques ont
 et réfutés faute de savoir où le procédé coupait réellement : la donnée manque, pas le code.
 
 **Temps estimé.** Une relecture de configuration, quelques minutes.
+
+**Réponse (utilisateur, 2026-07-27) :** « Regarde le cahier de laboratoire. »
+
+> → **✔ RÉSOLU par le cahier de laboratoire.** Étape 6 de la procédure : « chauffe à 250 A
+> **jusqu'à T = Tprocessing** », et la fiche B-1 formule la cible comme « **T max interface
+> (TC fiables 1/3/5)** … jamais dépassé ~372 °C ». La coupure se faisait donc **quand le
+> thermocouple d'interface le plus chaud atteignait la consigne**, pas quand le centre du spot
+> l'atteignait. C'est cohérent avec les données B-2 (chaque impulsion coupée par le TC le plus
+> proche, alternant devant/derrière — cf. analyse). **Le modèle, lui, coupe au centre du
+> spot** → il coupe trop tôt → sous-chauffe les points inter-empreintes. Le correctif
+> physiquement fondé (« loi capteurs » : couper sur le max de T aux positions TC réelles) est
+> en cours de test + recalibration (`resultats_diag_b2_thermostat_capteurs.log`, à venir).
 
 ---
 
@@ -155,6 +207,28 @@ homogénéisée) et marquée « incertain ».
 sur l'étalement latéral que le modèle peut produire.
 
 **Temps estimé.** Un essai de chauffe instrumenté en ligne.
+
+**Réponse (utilisateur, 2026-07-27) :** « Expérience intéressante. Faut-il atteindre la Tfusion
+du PEKK ? J'aimerais réutiliser mes échantillons. Quels ampérages sont intéressants pour
+calibrer, et quel temps de maintien ? Idée : réaliser l'essai **sans le système de pression**
+et mettre une **caméra thermique au-dessus** de l'échantillon. Motivation : le modèle ne tient
+compte ni de la pression ni de la céramique d'espacement. »
+
+> → **Précisions.**
+> - **Pas besoin d'atteindre Tf.** La diffusivité latérale se lit sur un simple gradient ;
+>   reste bien sous 337 °C (pic ~150-250 °C) → **tu réutilises tes échantillons**.
+> - **Ampérages** : les mêmes que la calibration, **250 A et 200 A** (conditions A-1/A-3), pour
+>   rester comparable au modèle. Un courant plus bas aide à rester sous Tf.
+> - **Temps de maintien** : quelques secondes à ~30 s suffisent ; c'est la **longueur de
+>   décroissance latérale** pendant le transitoire qui porte l'information, pas un long plateau.
+> - **Caméra sans pression** : bonne idée, mais ⚠️ **la caméra de dessus ne voit PAS
+>   l'interface** — le CFC et la céramique la masquent, elle ne lirait que la surface du laminé
+>   supérieur (M atténué par la diffusion dans l'épaisseur). Utile quand même (champ de surface,
+>   et parfaite pour l'exp 8, face du CFC), mais l'interface exige des TC noyés.
+> - Le modèle ignore effectivement la **mécanique** de pression (son effet de contact est
+>   absorbé dans `h_haut`) et traite la **céramique d'espacement** comme la condition limite
+>   `h_haut` (pas comme un solide résolu) : retirer la pression pour ce test est donc sans
+>   conséquence sur la comparaison.
 
 ### Expérience 7. Cartographie bord vers centre (le profil en « M ») — PRIORITAIRE
 
@@ -191,6 +265,16 @@ point de courant nul) — un effet de lecture, pas de physique.
 
 **Temps estimé.** Un essai (se combine avec l'expérience 6, même ligne de TC).
 
+**Réponse (utilisateur, 2026-07-27) :** « Même réponse qu'à la question précédente. » (caméra
+thermique de dessus, sans pression, échantillons réutilisés)
+
+> → **Précision — point critique pour CETTE expérience.** Contrairement à l'exp 6, la cible
+> ici est le profil **à l'interface** (le « M »), et la caméra de dessus **ne le voit pas**
+> (masqué par le CFC/céramique ; la surface ne montre qu'un M très atténué). Il faut donc des
+> **TC noyés à l'interface** aux 5 positions y = 0/10/20/30/40 mm, pas la caméra. La caméra
+> reste un bon complément (surface + face CFC), mais ne remplace pas les TC d'interface pour
+> falsifier la cible chiffrée ci-dessus.
+
 ### Expérience 8. Température de la face active du concentrateur
 
 **Objectif.** Mesurer la température du concentrateur pendant une chauffe.
@@ -205,6 +289,14 @@ mesure la température du concentrateur lui-même.
 caméra est déjà disponible au laboratoire.
 
 **Temps estimé.** Un essai avec la caméra.
+
+**Réponse (utilisateur, 2026-07-27) :** « Je vais réaliser l'expérience demain ou cet
+après-midi. »
+
+> → Parfait. La caméra vue de dessus (ton idée pour les exp 6/7) est **idéale ici** : la face
+> active du CFC est directement visible. Vise une acquisition pendant une chauffe simple spot ;
+> compare la montée du CFC à celle de TC1 (surface) — c'est la seule mesure qui attaque le
+> déficit de chauffe en surface.
 
 ---
 
@@ -226,6 +318,14 @@ valeur homogénéisée de 3 W/m·K reste, elle, non vérifiée expérimentalemen
 **Temps estimé.** Préparation d'échantillon plus appareil dédié. L'expérience 6 en est le
 substitut rapide sur le banc du laboratoire.
 
+**Réponse (utilisateur, 2026-07-27) :** « J'ai pas compris cette expérience. »
+
+> → **Précision.** C'est une mesure d'**appareil de labo** (hot-disk ou flash laser), pas sur
+> le banc de soudage : on dépose une impulsion de chaleur sur un petit **échantillon de
+> matière** et on chronomètre sa vitesse d'étalement → on en déduit la conductivité thermique
+> dans le plan `k_plan`. L'**expérience 6** (spot + TC en ligne sur le banc) en est le
+> substitut « maison ». Non prioritaire : sers-toi de l'exp 6 si tu veux vérifier `k_plan`.
+
 ### Mesure 10. Conductivité électrique en fonction de la température σ(T)
 
 **Objectif.** Mesurer la dépendance en température de la conductivité électrique du laminé et
@@ -241,23 +341,34 @@ cette prise en compte.
 
 **Temps estimé.** Mesure plus difficile, à réserver si les niveaux 1 et 2 ne suffisent pas.
 
+**Réponse (utilisateur, 2026-07-27) :** « J'ai pas compris cette expérience non plus. »
+
+> → **Précision.** Mesure **4 pointes** (van der Pauw) sur un échantillon de laminé/twill que
+> l'on chauffe progressivement : on lit la résistance électrique à chaque température, ce qui
+> donne σ(T), la variation de la conductivité électrique avec la température. Le modèle prend
+> aujourd'hui σ **constante** ; en réalité elle change avec T, ce qui explique en partie qu'un
+> facteur d'échelle unique ne colle pas à la fois à la montée, au pic et à la descente. Mesure
+> la plus lourde des dix, à réserver si les niveaux 1-2 ne suffisent pas.
+
 ---
 
 ## Recommandation
 
-Par ordre de priorité pour l'avancement du modèle :
+Les relevés 3, 4 et 5 sont tranchés (réponses du 27 juillet). Reste, par ordre de priorité :
 
 1. **L'expérience 7** (cartographie bord→centre) : c'est désormais LA mesure clé. La
    géométrie EM étant entièrement cadrée, l'écart de pic résiduel vient de la forme de la
-   source (profil en « M »), dont l'amplitude ne se calibre qu'avec cette cartographie. Un
-   seul essai de chauffe instrumenté d'une ligne de 5 TC, contre une cible chiffrée
-   (2,46× de contraste bord/centre). L'expérience 6 s'y ajoute sans coût sur le même montage.
-2. **Le relevé 5** (point de coupure du thermostat) : aucune manipulation, une relecture de
-   configuration, et c'est la seule information qui tranche le résidu à basse consigne.
-3. **Les relevés 1 et 2**, triviaux, qui lèvent deux paramètres figés — l'épisode de
-   juillet a montré ce que rapporte un quart d'heure de métrologie.
+   source (profil en « M »), dont l'amplitude ne se calibre qu'avec cette cartographie —
+   **par des TC noyés à l'interface** (la caméra de dessus ne voit pas l'interface). Un seul
+   essai de chauffe, ligne de 5 TC, contre la cible chiffrée (2,46× de contraste bord/centre).
+2. **L'expérience 8** (face du CFC, caméra thermique) : à réaliser prochainement ; seule
+   mesure qui attaque le déficit de chauffe en surface (TC1).
+3. **Le relevé 1** (position longitudinale de la bobine), trivial, qui lève le dernier
+   paramètre de géométrie figé (`decalage_x`) — si mesurable facilement.
 
-Ces actions représentent un temps de banc minimal pour le gain le plus élevé.
+Côté modèle, trois corrections découlent des réponses : loi thermostat « capteurs »
+(relevé 5, en test), épaisseur twill 0,20 mm (relevé 3) et requalification de `h_bord_x0`
+(relevé 4) — à intégrer ensemble à la prochaine recalibration.
 
 ---
 
@@ -267,9 +378,9 @@ Ces actions représentent un temps de banc minimal pour le gain le plus élevé.
 |---|---|---|---|---|
 | 1 | Position longitudinale de la tête | 1 | `decalage_x` (cotes de bobine ✔ toutes faites) | 15 min |
 | 2 | Fréquence générateur à 200 A | 1 | fréquence EM de A-3 | 1 lecture |
-| 3 | Épaisseur du pli twill | 1 | épaisseur/conductivité twill | 10 min |
-| 4 | Condition aux bords de l'échantillon | 1 | justification `h_bord_x0` | 1 photo |
-| 5 | **Point de coupure du thermostat** | 1 | nœud de contrôle — **résidu B-2** | relecture |
+| 3 | Épaisseur du pli twill ✔ | 1 | **0,20 mm mesuré** (corr. préparée) | fait |
+| 4 | Condition aux bords ✔ | 1 | **chants libres → `h_bord_x0` effectif** | fait |
+| 5 | Point de coupure du thermostat ✔ | 1 | **max des TC d'interface** (cahier) — résidu B-2 | fait |
 | 6 | Cartographie latérale (diffusivité) | 2 | `k_plan` (vérification, non prioritaire) | 1 essai |
 | 7 | **Cartographie bord vers centre** | 2 | **profil en « M » — levier forme, PRIORITAIRE** | 1 essai |
 | 8 | Température face active du CFC | 2 | déficit de surface TC1 | 1 essai |

@@ -24,7 +24,12 @@ cf_pekk:
 # conductrices fermées dans les deux directions => siège principal des courants
 # de Foucault (hypothèse Série A, cahier de labo).
 twill_suscepteur:
-  epaisseur: 0.00028         # m — ~2 CPT (tissé), à confirmer
+  # CORRECTION PRÉPARÉE (user 2026-07-27) : épaisseur MESURÉE = 0,20 mm (0.0002 m),
+  # pas 0,28. À APPLIQUER à la prochaine recalibration (change la répartition de
+  # puissance entre couches -> refit θ*). Valeur active laissée à 0.00028 pour
+  # l'instant afin de ne pas confondre avec l'expérience thermostat 'capteurs' en
+  # cours ; passer à 0.0002 en même temps que le refit.
+  epaisseur: 0.00028         # m — ~2 CPT (tissé) ; MESURÉ 0.0002 (à appliquer, cf. ci-dessus)
   sigma_plan: 1.1e+4         # S/m — isotrope plan (ordre sigma_0/2, tissé équilibré), incertain
   facteur_couplage: 1.0      # facteur d'efficacité calibré (blindage, contacts fibre-fibre)
 
@@ -61,11 +66,14 @@ ambiant:
   # calibration à venir : [2, 300] W/m2.K (même enveloppe que h_bas 3D).
   h_bas_2d: 50.919            # W/m2.K, incertain (point de départ, modèle 2D)
   # Puits de chaleur additionnel au chant x=0 SEUL du modèle 2D lumpé
-  # (jumeau.thermique.solveur2d) : représente le bridage/appui conductif du
-  # montage sur le bord x=0 (asymétrie confirmée par l'utilisateur 2026-07-20 :
-  # x=0 en appui, pas x=L). Sans lui, la chaleur du spot 1 (~16 mm du bord)
-  # reste piégée contre le chant quasi-adiabatique et TC1 surchauffe (+185 à
-  # +273 °C au pic). Contrairement à h_bas_2d ci-dessus, cette valeur EST
-  # calibrée pour le 2D (balayage sur A-1, validation A-3/B-2, 2026-07-20 ;
-  # plage défendable [225, 275]). 0.0 = comportement historique (pas de puits).
-  h_bord_x0: 250.0           # W/m2.K, calibré (modèle 2D, montage bridé x=0)
+  # (jumeau.thermique.solveur2d). Introduit comme "bridage/appui du montage sur
+  # x=0" (calibré sur A-1, 250 W/m2.K), mais REQUALIFIÉ le 2026-07-27 :
+  # l'utilisateur confirme que les QUATRE chants latéraux sont À L'AIR LIBRE
+  # (aucune bride ni appui). => h_bord_x0 n'a AUCUNE base physique : c'est un
+  # PARAMÈTRE EFFECTIF qui compense autre chose (vraisemblablement le bord trop
+  # chaud du profil en "M" côté x=0). CANDIDAT AU RETRAIT à la prochaine
+  # recalibration : tester h_bord_x0=0, ou le remplacer par une convection
+  # latérale FAIBLE et UNIFORME sur les quatre chants (physique, symétrique).
+  # Valeur active laissée à 250 pour l'instant (ne pas confondre avec
+  # l'expérience thermostat 'capteurs' en cours). 0.0 = pas de puits.
+  h_bord_x0: 250.0           # W/m2.K — EFFECTIF (pas physique, cf. ci-dessus), à retravailler
