@@ -134,6 +134,7 @@ Rapports/slides/mesures régénérés au θ\* corrigé. Diagnostic de la cote `h
 | Loi thermostat « capteurs » | cahier de labo + données B-2 | flag prêt (défaut off) |
 | Épaisseur twill 0,28 → **0,20 mm** | mesure user | préparée (commentaire config) |
 | Retrait/révision `h_bord_x0` | chants libres (user) | requalifié effectif, à retravailler |
+| Fréquence A-3 (200 A) 388 → **383 kHz** | relevé user | préparée (fréquence par essai à ajouter) |
 
 Ces trois se recalibrent **ensemble**, idéalement après la cartographie bord→centre (elles
 sont couplées au profil en M).

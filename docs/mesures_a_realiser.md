@@ -80,29 +80,12 @@ pied à coulisse contre plusieurs semaines de diagnostic sur une cote fausse.
 > figé à 0 faute de mesure. **Peu critique** : s'il n'est pas mesurable facilement, on le laisse
 > figé. (Les cotes de section/entraxe/hauteur de la bobine, elles, sont déjà résolues.)
 
-### Relevé 2. Fréquence du générateur à 200 A
-
-**Objectif.** Relever la fréquence de travail de l'EASYHEAT à 200 A.
-
-**Méthode.** Lire l'afficheur du générateur pendant un essai à 200 A (type A-3). La fréquence
-à 250 A vaut 388 kHz (relevé du 17 juillet). Le cahier note qu'elle varie avec l'ampérage.
-
-**Paramètre du modèle résolu.** La fréquence EM de l'essai A-3, aujourd'hui supposée égale à
-celle de 250 A.
-
-**Gain attendu.** Entrée EM correcte pour l'essai aveugle à 200 A, celui qui teste la loi en
-courant.
-
-**Temps estimé.** Une lecture pendant un essai.
-
-**Réponse (utilisateur, 2026-07-27) :** _(en attente)_
-
-> **Relevés 3, 4 et 5 — RÉSOLUS (27 juillet 2026), archivés dans
-> [`releves_resolus.md`](releves_resolus.md).** En bref : twill mesuré **0,20 mm** (corr.
-> préparée) ; chants **à l'air libre** → `h_bord_x0` est un paramètre effectif, pas physique ;
-> thermostat coupait sur le **max des TC d'interface** (cahier de labo) → loi « capteurs »
-> implémentée derrière un flag. Les trois corrections s'intégreront à la prochaine
-> recalibration.
+> **Relevés 2, 3, 4 et 5 — RÉSOLUS (27 juillet 2026), archivés dans
+> [`releves_resolus.md`](releves_resolus.md).** En bref : fréquence à 200 A = **383 kHz**
+> (corr. A-3 préparée) ; twill mesuré **0,20 mm** (corr. préparée) ; chants **à l'air libre** →
+> `h_bord_x0` est un paramètre effectif, pas physique ; thermostat coupait sur le **max des TC
+> d'interface** (cahier de labo) → loi « capteurs » implémentée derrière un flag. Ces
+> corrections s'intégreront à la prochaine recalibration.
 
 ---
 
@@ -324,7 +307,7 @@ Côté modèle, trois corrections découlent des réponses : loi thermostat « c
 | # | Mesure | Niveau | Paramètre résolu | Temps |
 |---|---|---|---|---|
 | 1 | Position longitudinale de la tête | 1 | `decalage_x` (cotes de bobine ✔ toutes faites) | 15 min |
-| 2 | Fréquence générateur à 200 A | 1 | fréquence EM de A-3 | 1 lecture |
+| 2 | Fréquence générateur à 200 A ✔ | 1 | **383 kHz** (corr. A-3 préparée) | fait |
 | 3 | Épaisseur du pli twill ✔ | 1 | **0,20 mm mesuré** (corr. préparée) | fait |
 | 4 | Condition aux bords ✔ | 1 | **chants libres → `h_bord_x0` effectif** | fait |
 | 5 | Point de coupure du thermostat ✔ | 1 | **max des TC d'interface** (cahier) — résidu B-2 | fait |

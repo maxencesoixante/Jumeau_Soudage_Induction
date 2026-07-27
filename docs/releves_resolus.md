@@ -7,6 +7,22 @@
 
 ---
 
+## Relevé 2 — Fréquence du générateur à 200 A ✔ (2026-07-27)
+
+**Question.** Fréquence de travail de l'EASYHEAT à 200 A (le modèle suppose 388 kHz, valeur
+250 A, pour tous les essais — dont A-3 à 200 A).
+
+**Réponse utilisateur.** « La fréquence à 200 A est de **383 kHz**. » (vs 388 kHz à 250 A)
+
+**Conséquence modèle.** L'essai A-3 (200 A) devrait utiliser **383 kHz** au lieu de 388.
+Effet faible (skin depth ∝ 1/√f → ~0,7 % ; le champ Bz est quasi inchangé), mais réel. La
+fréquence est aujourd'hui GLOBALE (`config/geometrie.yaml : generateur.frequence: 388e3`) ;
+appliquer 383 kHz à A-3 seul demande une **fréquence par essai** (petit ajout : champ
+optionnel `frequence` dans le YAML d'essai, lu par `Essai`/`source_spot`). Correction préparée,
+à intégrer à la prochaine recalibration (mineure).
+
+---
+
 ## Relevé 3 — Épaisseur réelle du pli twill ✔ (2026-07-27)
 
 **Question.** Épaisseur du pli twill suscepteur (config : `twill_suscepteur.epaisseur = 0,28 mm`,
