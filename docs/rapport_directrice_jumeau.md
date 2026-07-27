@@ -16,15 +16,18 @@ son concentrateur de flux. Ensuite les courants de Foucault induits dans le lami
 pli suscepteur. Enfin le transfert thermique transitoire avec fusion du PEKK. Trois
 paramètres physiques mal connus sont calibrés sur un seul essai, puis le modèle est validé
 en aveugle sur les autres, y compris à un courant différent (200 A au lieu de 250 A). Le
-jumeau reproduit les niveaux de température à 30 à 65 °C près en moyenne, recale les pics de
-l'essai de calibration à ±15 °C, et capture la séquence spatio-temporelle du procédé.
+jumeau reproduit les niveaux de température à 30 à 65 °C près en moyenne et capture la
+séquence spatio-temporelle du procédé.
 
 Un épisode de juillet 2026 mérite d'être signalé d'emblée, car il oriente la suite du
-travail. L'écart le plus tenace du modèle, un dépassement de pic de 40 à 60 °C présenté
-jusqu'ici comme un déficit de physique, s'est révélé provenir d'une **cote fausse** : la
-configuration supposait un entraxe de brins de bobine de 19 mm là où le montage en mesure
-12,35 mm. La cote corrigée, l'écart tombe des deux tiers sans qu'aucun paramètre effectif
-n'ait été introduit. La section 9 en tire la leçon de méthode.
+travail. L'écart le plus tenace du modèle, un dépassement de pic présenté jusqu'ici comme un
+déficit de physique, s'est révélé provenir de **cotes de bobine fausses**, non de mécanismes
+manquants : d'abord l'entraxe des brins (19 mm supposés contre 12,35 mm réels), puis leur
+hauteur au-dessus du laminé (6,8 contre 5,0 mm), toutes deux dérivées d'un diamètre de tube
+erroné plutôt que mesurées. Une fois la géométrie électromagnétique rendue correcte — cotes
+et plan image du concentrateur vérifiés sur la CAO — l'écart résiduel ne se recale plus par
+un simple facteur d'échelle : il tient à la **forme** de la source, trop concentrée. La
+section 9 en tire la leçon de méthode et situe ce résidu.
 
 Le document précise chaque hypothèse simplificatrice avec sa source bibliographique, ce que
 le modèle simule et ce qu'il laisse de côté (bobine, concentrateur, céramique, laminé,
@@ -71,7 +74,7 @@ hérité et instrumenté par plusieurs générations de travaux (O'Shaughnessey,
 
 | Élément | Rôle physique | Dimensions / propriétés |
 |---|---|---|
-| **Bobine hairpin (épingle)** | Génère le champ magnétique alternatif | Deux brins de cuivre parallèles, **section carrée de 6 mm**, **gap de 6,35 mm** entre brins, soit un **entraxe centre-à-centre de 12,35 mm** (relevé 2026-07-23) ; générateur Ambrell EASYHEAT 4,2 kW ; 388 kHz (relevé machine), 200 à 250 A |
+| **Bobine hairpin (épingle)** | Génère le champ magnétique alternatif | Deux brins de cuivre parallèles, **section carrée de 6 mm**, **gap de 6,35 mm** entre brins, soit un **entraxe centre-à-centre de 12,35 mm** ; axe des brins à **5,0 mm** au-dessus du laminé (céramique 2 mm + demi-tube 3 mm) ; générateur Ambrell EASYHEAT 4,2 kW ; 388 kHz (relevé machine), 200 à 250 A |
 | **Concentrateur de flux (CFC)** | Canalise le flux magnétique vers l'échantillon | Fluxtrol Ferrotron 559H, µr ≈ 16 ; 55 × 31,5 × 12 mm ; grand côté (55 mm) parallèle à la largeur de l'échantillon |
 | **Céramique d'espacement** | Fixe le gap bobine–laminé ; transparente au champ | Pamitherm, 2 mm ; sert aussi de chemin de pression |
 | **Laminé supérieur** | Adhérent à souder ; porte le suscepteur | CF/PEKK `[45/-45/0/90]₃ₛ`, 120 × 40 × 3,36 mm |
@@ -416,15 +419,16 @@ noire » (Samanis et al., 2026).
 
 | Paramètre | Valeur | Écart-type |
 |---|---|---|
-| `facteur_couplage` | 7,42 | ± 0,07 |
-| `h_haut` | 26,4 W/m²·K | ± 1,4 |
-| `h_bas_2d` | 41,9 W/m²·K | ± 0,5 |
+| `facteur_couplage` | 6,01 | ± 0,07 |
+| `h_haut` | 30,1 W/m²·K | ± 1,3 |
+| `h_bas_2d` | 37,4 W/m²·K | ± 0,5 |
 
-Ce jeu de valeurs date du 2026-07-23. Il remplace un jeu antérieur (4,10 / 11,3 / 51,6)
-obtenu avec une géométrie de bobine erronée (section 9). Le nouveau `h_haut` de
-26 W/m²·K correspond en outre à une conductance de contact réaliste, là où la valeur
-antérieure de 11 W/m²·K était artificiellement basse : la recalibration a rendu le modèle
-non seulement plus juste, mais plus physique.
+Ce jeu de valeurs date du 2026-07-27. Il succède à deux recalibrations liées aux corrections
+de géométrie de bobine (entraxe puis hauteur, section 9) et remplace les jeux antérieurs
+(7,42 / 26,4 / 41,9 à hauteur 6,8 mm ; 4,10 / 11,3 / 51,6 en géométrie encore antérieure).
+Le `h_haut` de 30 W/m²·K correspond à une conductance de contact réaliste, là où la valeur
+la plus ancienne de 11 W/m²·K était artificiellement basse : les recalibrations successives
+ont rendu le modèle plus juste et plus physique à mesure que la géométrie se corrigeait.
 
 **Identifiabilité vérifiée.** Les corrélations entre paramètres restent toutes inférieures ou
 égales à 0,57, sans paramètres redondants : les données déterminent chaque paramètre de façon
@@ -441,11 +445,11 @@ offre une garantie méthodologique forte.
 **Validation croisée.** θ\* calibré sur A-1 uniquement, appliqué tel quel aux essais aveugles
 (maillage de validation 61 × 21, dx = dy = 2 mm) :
 
-| Essai | Conditions | RMSE moyen | Écart de pic moyen | *(avant correction de géométrie)* |
+| Essai | Conditions | RMSE moyen | Écart de pic moyen | *(hauteur 6,8 mm, obsolète)* |
 |---|---|---|---|---|
-| **A-1** (calibration) | 250 A, coupure 400 °C | 37 °C | 15 °C | *39 / 46* |
-| **A-3** (aveugle) | 200 A, coupure 400 °C | 32 °C | 28 °C | *33 / 31* |
-| **B-2** (aveugle) | 250 A, coupure 360 °C | 66 °C | 35 °C | *68 / 12* |
+| **A-1** (calibration) | 250 A, coupure 400 °C | 36 °C | 26 °C | *37 / 15* |
+| **A-3** (aveugle) | 200 A, coupure 400 °C | 32 °C | 41 °C | *32 / 28* |
+| **B-2** (aveugle) | 250 A, coupure 360 °C | 65 °C | 45 °C | *66 / 35* |
 
 Quatre enseignements se dégagent.
 
@@ -453,10 +457,15 @@ Le modèle transfère à un courant différent sans retouche. L'essai aveugle à
 obtient le meilleur RMSE, donc la loi en `I²` et l'asservissement sur consigne tiennent hors
 du point de calibration. Ce résultat pèse le plus lourd pour la validité externe du modèle.
 
-La correction de géométrie de bobine (section 9) améliore le RMSE sur les trois essais et
-divise par trois l'écart de pic sur l'essai de calibration, à valeurs physiques des
-propriétés (aucun paramètre effectif n'a été introduit pour y parvenir). Elle dégrade en
-revanche l'écart de pic sur B-2, l'essai à basse consigne, qui devient le résidu ouvert.
+Les corrections de géométrie de bobine (section 9) ont convergé vers une leçon nette. La
+première, l'entraxe des brins, améliorait le RMSE et divisait par trois l'écart de pic. La
+seconde, la hauteur des brins ramenée à sa valeur physique de 5,0 mm, améliore encore
+légèrement le RMSE mais **dégrade** l'écart de pic sur les trois essais. Cette régression
+n'est pas un argument pour revenir à une cote fausse : elle établit qu'une fois la géométrie
+électromagnétique correcte, le modèle concentre trop sa source, si bien que la calibration
+doit en réduire l'amplitude pour tenir le RMSE, ce qui fait sous-chauffer les points
+intérieurs. L'écart résiduel n'est donc plus une affaire d'échelle ni de cote, mais de forme.
+Aucun paramètre effectif n'a été introduit à aucune étape.
 
 La séquence spatio-temporelle sort correcte. Sur les courbes de validation, chaque
 thermocouple devient le plus chaud à son tour, au bon moment, au passage de l'empreinte devant
@@ -471,10 +480,10 @@ modèle.
 
 Sur cette seconde figure, tracée au jeu de paramètres de référence sans aucun ajustement
 propre à l'essai de chauffe, la courbe simulée sous-estime le pic d'interface au point de
-mesure (environ 260 °C simulés contre 395 °C mesurés) et ne franchit donc pas la fusion. Ce
+mesure (environ 292 °C simulés contre 395 °C mesurés) et ne franchit donc pas la fusion. Ce
 n'est pas un déficit d'énergie global : le thermocouple d'interface de cet essai est au centre
 de la largeur, exactement dans le creux du profil en « M ». Au même instant, le modèle prédit
-639 °C sur les bords et 260 °C au centre, tandis que la mesure au centre (395 °C, qui a fondu)
+708 °C sur les bords et 292 °C au centre, tandis que la mesure au centre (395 °C, qui a fondu)
 tombe entre les deux. Cette donnée ponctuelle indique que le creux central du profil en « M »
 est trop prononcé — la même conclusion que la réserve du point 9(a), ici étayée par une mesure.
 La figure antérieure « fondait » parce que son facteur d'échelle avait été calé sur le pic de
@@ -505,7 +514,7 @@ recommandation COMPAAM de réduire le concentrateur pour limiter les effets de b
 le falsifierait directement : la cartographie bord→centre proposée au cahier de laboratoire
 (une ligne de 3 à 5 thermocouples sur la largeur). Un premier point la met déjà en défaut : le
 thermocouple d'interface de l'essai de chauffe se trouve au centre de la largeur et y mesure
-395 °C, alors que le modèle y prédit 260 °C (creux) contre 639 °C sur les bords. Le centre réel
+395 °C, alors que le modèle y prédit 292 °C (creux) contre 708 °C sur les bords. Le centre réel
 est donc nettement plus chaud que le creux prédit : l'amplitude du profil en « M » est
 vraisemblablement surestimée, ce qui reste à confirmer par la cartographie complète.
 
@@ -524,6 +533,18 @@ poursuivait donc un artefact d'entrée. Aucun correctif erroné n'a été inscri
 toutes ces pistes avaient été testées à paramètres calibrés figés, en mode diagnostic. La
 leçon vaut le résultat : vérifier les cotes d'entrée avant de postuler un mécanisme
 manquant, et ne rien graver dans le modèle tant qu'une hypothèse n'est pas tranchée.
+
+La même leçon s'est vérifiée une seconde fois sur la hauteur des brins au-dessus du laminé.
+La valeur employée, 6,8 mm, n'avait jamais été mesurée : elle se déduisait du diamètre de
+tube erroné (2 mm de céramique plus un demi-tube de 4,76 mm). La cote physique, lue sur la
+photo du montage, est 5,0 mm (2 mm plus un demi-tube de 3 mm). L'appliquer et recalibrer
+améliore légèrement le RMSE mais dégrade l'écart de pic — signe, cette fois, non d'une
+nouvelle erreur mais du fait que la source du modèle est trop concentrée une fois la
+géométrie juste. La position du concentrateur au-dessus des brins, dont dépend le traitement
+électromagnétique par courants images, a par ailleurs été vérifiée sur la CAO et confirmée :
+elle reste inchangée. La géométrie électromagnétique est donc désormais entièrement cadrée,
+et l'écart résiduel pointe sans ambiguïté vers la forme de la source — le profil en « M » du
+point (a) et le contraste spatial trop marqué qui en découle.
 
 **(b bis) Le résidu ouvert : le régime à basse consigne.** L'essai B-2 partage la géométrie
 d'A-1 ; seule sa consigne de coupure diffère (360 °C au lieu de 400). Le modèle y sous-chauffe
@@ -642,11 +663,11 @@ la mesure que par le code.
    froid. Le cahier de laboratoire la décrit déjà.
 2. **Température du concentrateur.** Un thermocouple ou une caméra infrarouge sur sa face
    active pendant une chauffe. Seule mesure capable d'attaquer le déficit de surface (TC1).
-3. **Relevé métrologique complet de la tête.** Cotes de la bobine, position relative bobine /
-   concentrateur / thermocouples, hauteur bobine–laminé. Ce relevé lève l'incertitude qui a
-   forcé à figer le paramètre `decalage_x`, et il prévient la répétition de l'épisode décrit
-   en section 9(b) : une cote fausse de 35 % a coûté plusieurs semaines de diagnostic. La
-   hauteur bobine–laminé de 6,8 mm reste d'ailleurs à réconcilier avec des brins de 6 mm.
+3. **Relevé métrologique complet de la tête.** Position relative bobine / concentrateur /
+   thermocouples, en particulier le décalage longitudinal `decalage_x`, aujourd'hui figé
+   faute de mesure. Les cotes de section, d'entraxe et de hauteur des brins ont, elles, déjà
+   été corrigées à partir de la CAO et de la photo du montage (section 9) ; un relevé au pied
+   à coulisse les confirmerait et refermerait définitivement le sujet géométrie.
 4. **Point de coupure réel du thermostat.** Quel capteur pilotait l'arrêt de chauffe, et à
    quelle position. Cette information tranche le résidu à basse consigne, section 9(b bis).
 
@@ -795,25 +816,27 @@ pytest                       # 34 tests, environ 3 min
 python scripts/calibrer.py --modele 2D --essai serieA_A-1 --n-lhs 25 --figer-decalage-x 0
 
 # Validation croisée (paramètres calibrés, sans recalibrage)
-python scripts/valider.py --modele 2D --facteur 7.4172 --decalage-x 0 \
-    --h-haut 26.367 --h-bas-2d 41.905 --h-bord-x0 250
+python scripts/valider.py --modele 2D --facteur 6.0123 --decalage-x 0 \
+    --h-haut 30.087 --h-bas-2d 37.424 --h-bord-x0 250
 
 # Figures type Lionetto (modèle 2D, cohérent avec la validation)
 python scripts/figure_empreinte.py config/essais/serieA_A-1.yaml --modele 2D \
-    --facteur 7.4172 --decalage-x 0 --h-haut 26.367 --h-bas-2d 41.905 --h-bord-x0 250 \
+    --facteur 6.0123 --decalage-x 0 --h-haut 30.087 --h-bas-2d 37.424 --h-bord-x0 250 \
     --tmax-couleur 480 --suffixe _plafonne          # Fig. 4 (empreinte)
 python scripts/figure_fusion.py config/essais/chauffe_250A_3TC.yaml --modele 2D \
-    --facteur 7.4172 --decalage-x 0 --h-haut 26.367 --h-bas-2d 41.905 --h-bord-x0 250  # Fig. 5
+    --facteur 6.0123 --decalage-x 0 --h-haut 30.087 --h-bas-2d 37.424 --h-bord-x0 250  # Fig. 5
 ```
 
-Ces paramètres supposent la géométrie corrigée du 2026-07-23 (`config/geometrie.yaml` :
-`entraxe_jambes: 0.01235`, `rayon_tube: 0.003`). Les journaux antérieurs à cette date, et
-les valeurs de paramètres qu'ils contiennent, se rapportent à l'ancienne géométrie :
-leurs raisonnements restent valides, leurs chiffres non.
+Ces paramètres supposent la géométrie corrigée (`config/geometrie.yaml` :
+`entraxe_jambes: 0.01235`, `rayon_tube: 0.003`, `hauteur: 0.005`). Les journaux antérieurs
+aux corrections de géométrie, et les valeurs de paramètres qu'ils contiennent, se rapportent
+à une géométrie antérieure : leurs raisonnements restent valides, leurs chiffres non.
 
 Chaque exécution se journalise à la racine du dépôt (`resultats_*.log`), et les figures
 s'écrivent dans `resultats/`. Journaux de référence pour l'état courant :
-`resultats_geometrie_corrigee_recalibration.log` (correction de cote et recalibration),
+`resultats_hauteur_5mm_recalibration.log` (correction de hauteur et recalibration courante),
+`resultats_geometrie_corrigee_recalibration.log` (correction d'entraxe, étape précédente),
+`resultats_diag_hauteur_bobine.log` (diagnostic hauteur + plan image du CFC vérifié sur CAO),
 `resultats_validation_reference_figures.log` (validation au jeu de paramètres courant) et
 `resultats_diag_b2_longueur.log` (résidu à basse consigne et correctifs réfutés).
 

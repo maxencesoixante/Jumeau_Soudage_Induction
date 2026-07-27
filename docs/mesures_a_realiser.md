@@ -15,8 +15,10 @@
 > a été ajouté (n° 5, point de coupure du thermostat) et la numérotation décalée en
 > conséquence.
 
-Le jumeau reproduit aujourd'hui les niveaux de température à 30 à 65 °C près, recale les pics
-de l'essai de calibration à ±15 °C, et capture la séquence spatio-temporelle du procédé.
+Le jumeau reproduit aujourd'hui les niveaux de température à 30 à 65 °C près et capture la
+séquence spatio-temporelle du procédé. Après correction complète de la géométrie de bobine
+(entraxe, hauteur, plan image du CFC vérifié sur CAO), l'écart de pic résiduel n'est plus
+imputable à une cote : il tient à la forme trop concentrée de la source (profil en « M »).
 
 Deux écarts restent ouverts. D'abord le **régime à basse consigne** : sur l'essai B-2
 (coupure à 360 °C au lieu de 400), le modèle sous-chauffe de 30 à 55 °C les capteurs situés
@@ -39,24 +41,23 @@ attendu. Elles sont classées par rapport valeur/effort décroissant.
 
 ### Relevé 1. Métrologie des positions bobine / CFC / thermocouples
 
-> ✔ **Partiellement fait le 23 juillet 2026, avec un gain majeur.** Les cotes de section des
-> brins (carré de 6 mm, gap de 6,35 mm, entraxe 12,35 mm) ont été relevées et corrigées dans
-> le modèle : à elles seules, elles ont divisé par trois l'écart de pic sur l'essai de
-> calibration et amélioré le RMSE des trois essais. **Le reste du relevé garde toute sa
-> valeur.**
+> ✔ **En grande partie fait (23–27 juillet 2026), avec un gain majeur.** Les cotes de bobine
+> ont été corrigées à partir de la CAO et de la photo de montage : section des brins (carré
+> 6 mm), gap (6,35 mm), entraxe (12,35 mm), **hauteur au-dessus du laminé (5,0 mm** = céramique
+> 2 mm + demi-tube 3 mm, l'ancienne valeur 6,8 mm étant dérivée d'un tube erroné), et
+> **position du concentrateur au-dessus des brins** (plan image du CFC, vérifié). L'entraxe a
+> divisé par trois l'écart de pic ; la hauteur a été appliquée pour la justesse physique.
+> **Ne reste à relever que la POSITION longitudinale de la tête.**
 
-**Objectif.** Mesurer les positions relatives de la bobine, du concentrateur et des
-thermocouples sur le montage, et compléter les cotes de la bobine hairpin.
+**Objectif.** Mesurer la position longitudinale de la bobine par rapport au montage (les
+cotes propres de la bobine sont désormais fixées, cf. encadré).
 
-**Méthode.** Un pied à coulisse sur le montage pour les distances relatives. Les cotes de la
-bobine (section des brins, entraxe des jambes, longueur utile, hauteur au-dessus du laminé)
-se lisent sur la CAO SolidWorks du montage.
+**Méthode.** Un pied à coulisse sur le montage pour la distance bobine ↔ repère des
+thermocouples. Confirmerait au passage les cotes déjà lues en CAO.
 
-**Reste à relever.** (a) La position longitudinale de la bobine par rapport au montage, qui
-détermine `decalage_x`, aujourd'hui figé faute de mesure. (b) La **hauteur bobine–laminé** :
-la valeur de 6,8 mm utilisée est confirmée, mais sa décomposition (gap de 2 mm plus un
-demi-brin) donnerait 5 mm avec des brins de 6 mm — l'incohérence reste à lever. (c) La
-longueur utile des brins.
+**Reste à relever.** La position longitudinale de la bobine par rapport au montage, qui
+détermine `decalage_x`, aujourd'hui figé faute de mesure. C'est le dernier point de géométrie
+ouvert.
 
 **Gain attendu.** Lève un paramètre figé de la calibration et fiabilise la source EM. Le
 précédent du 23 juillet montre le rapport valeur/effort de ce relevé : quinze minutes de
@@ -247,7 +248,7 @@ Ces trois actions représentent un temps de banc minimal pour le gain le plus é
 
 | # | Mesure | Niveau | Paramètre résolu | Temps |
 |---|---|---|---|---|
-| 1 | Métrologie positions bobine/CFC/TC | 1 | `decalage_x`, hauteur bobine (cotes de section ✔ faites) | 15 min |
+| 1 | Position longitudinale de la tête | 1 | `decalage_x` (cotes de bobine ✔ toutes faites) | 15 min |
 | 2 | Fréquence générateur à 200 A | 1 | fréquence EM de A-3 | 1 lecture |
 | 3 | Épaisseur du pli twill | 1 | épaisseur/conductivité twill | 10 min |
 | 4 | Condition aux bords de l'échantillon | 1 | justification `h_bord_x0` | 1 photo |
