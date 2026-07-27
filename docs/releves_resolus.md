@@ -1,9 +1,14 @@
-**Projet** : jumeau numérique du soudage par induction CF/PEKK &nbsp;·&nbsp; **Objet** : relevés et questions RÉSOLUS (archive) &nbsp;·&nbsp; **Créé** : 27 juillet 2026
+**Projet** : jumeau numérique du soudage par induction CF/PEKK &nbsp;·&nbsp; **Objet** : mesures — réponses, précisions et RÉSULTATS (archive des avancées) &nbsp;·&nbsp; **Créé** : 27 juillet 2026
 
-> Ce document archive les relevés de `mesures_a_realiser.md` une fois tranchés, pour garder
-> la trace de la donnée et de sa conséquence sur le modèle sans alourdir la liste des mesures
-> encore à faire. Les corrections de modèle qui en découlent sont préparées en config
-> (`config/materiaux.yaml`) et détaillées dans les journaux `resultats_*.log` cités.
+> Archive de tout ce qui a été **tranché ou mesuré** (pour ne garder dans
+> `mesures_a_realiser.md` que ce qui reste à faire). Trois parties : (A) relevés résolus,
+> (B) précisions sur les expériences, (C) résultats des manips déjà réalisées. Les corrections
+> de modèle qui en découlent sont préparées en config et détaillées dans les journaux
+> `resultats_*.log` cités.
+
+---
+
+# A. Relevés résolus (réponses terrain)
 
 ---
 
@@ -76,3 +81,59 @@ positions TC réelles) **implémenté derrière le flag `--thermostat-capteurs`*
 commit `b50bd76`) : recale les pics (B-2 |ΔT_max| 45 → 23 après recalibration) mais dégrade le
 RMSE (+5-6 °C), couplé au profil en « M ». Non adopté par défaut en attendant la cartographie
 bord→centre (exp 7). Détail : `resultats_diag_b2_thermostat_capteurs.log`.
+
+---
+
+# B. Précisions sur les expériences (clarifications utilisateur)
+
+**Relevé 1 — ce qu'il reste à mesurer.** Le décalage en x du centre de la bobine par rapport au
+spot visé (`decalage_x`, figé à 0). Les cotes propres de la bobine (section, entraxe, hauteur,
+plan image) sont déjà résolues. Peu critique.
+
+**Exp 6 — protocole caméra (diffusivité).** Deux points de physique : (1) la caméra lit la
+**surface**, pas l'interface — OK pour la *longueur de décroissance* latérale (propriété
+matériau identique en surface), mais comparer à la surface du modèle 3D, pas à l'interface ;
+(2) **retirer la céramique d'espacement ≠ se rapprocher du modèle** — le modèle la représente
+comme le gap bobine-laminé de 2 mm (EM) ET la CL `h_haut` ; la retirer change les deux (source
+EM plus forte, `h_haut` différent). Mode opératoire : spot unique 250/200 A sous Tf, décroissance
+en **x au-delà de l'empreinte du CFC** (la largeur y est masquée par le CFC → TC noyés).
+
+**Exp 7 — la caméra ne voit pas l'interface.** La cible est le profil **à l'interface** (le
+« M ») ; la caméra de dessus est masquée par le CFC/céramique et ne montre qu'un M atténué en
+surface. Il faut des **TC noyés à l'interface** aux 5 positions. La caméra reste un complément
+(surface, face CFC).
+
+**Mesure 9 (`k_plan` direct).** Appareil de labo (hot-disk/flash laser) sur un échantillon de
+matière : impulsion de chaleur → vitesse d'étalement → `k_plan`. L'exp 6 en est le substitut
+« maison ».
+
+**Mesure 10 (σ(T)).** Mesure 4 pointes en montée en température → variation de la conductivité
+électrique avec T (le modèle prend σ constante). La plus lourde des dix.
+
+---
+
+# C. Résultats des manips réalisées
+
+## Exp 6/7 — Cartographie bord→centre, 1re série (2026-07-27)
+
+Données : `data/exp6_diffusivite_2026-07-27/` (README = analyse complète). Manips étiquetées
+« exp 6 » mais qui réalisent la cartographie en largeur (exp 7) : 5 TC en largeur au spot 3,
+**200 A puis 250 A**, céramique + pression **retirées**.
+
+**Résultat (reproduit sur 2 courants).** Profil ΔT au pic (200 A / 250 A) :
+
+| y (mm) | 0* | 10 | 20 (centre) | 30 | 40 |
+|---|---|---|---|---|---|
+| 200 A | 52 | 116 | **78** | 124 | 146 |
+| 250 A | 49 | 139 | **96** | 146 | 178 |
+
+*TC1 (y=0) défaillant dans les deux essais.
+
+- **Vallée centrale du M CONFIRMÉE** : le centre (y=20) est un creux (min local, plus froid que
+  ses voisins) et le plus lent à monter (4-5 vs 9-19 °C/s) — même forme aux deux courants.
+- **Le modèle SUR-CONTRASTE** : chant/centre mesuré **1,88 (200 A) / 1,85 (250 A)** vs **2,46
+  prédit** — même sens que le point du chauffe (395 mesuré vs 292 prédit).
+- **PAS de falsification quantitative de l'amplitude** : géométrie non standard (céramique +
+  pression retirées → gap ≈ 0, source EM ≠ modèle), TC1 mort, profil asymétrique (spot non
+  centré), vidéo 200 A illisible (MP4 non finalisé). → **reprise propre** prévue le 2026-07-28
+  (checklist dans `mesures_a_realiser.md`, exp 7).
