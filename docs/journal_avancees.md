@@ -111,23 +111,30 @@ Rapports/slides/mesures régénérés au θ\* corrigé. Diagnostic de la cote `h
 - Figures Lionetto portées sur le modèle 2D ; docs et archive réorganisés.
 - **Fréquence à 200 A = 383 kHz** (relevé user ; correction A-3 préparée). Paquets de lecture
   vidéo ajoutés (`imageio`, `opencv`) pour dépouiller les manips caméra.
-- **Cartographie bord→centre, REPRODUITE à 200 et 250 A** (données user,
-  `data/exp7_bord-centre_2026-07-27_sans-ceramique/`) : **la vallée centrale du M est confirmée** (le centre
-  est un creux, le plus lent à monter, même forme aux deux courants) et le modèle
-  **sur-contraste** (chant/centre mesuré ~1,85 vs 2,46 prédit). Non quantitatif sur l'amplitude
-  (géométrie non standard — céramique retirée ; TC1 défaillant) → reprise propre à faire.
+- **Cartographie bord→centre, 3 courants (150/200/250 A) SANS céramique** (données user,
+  `data/exp7_bord-centre_2026-07-27_sans-ceramique/`) : **vallée centrale du M confirmée** (le
+  centre est un creux, le plus lent à monter, même forme aux 3 courants). Contraste mesuré
+  ~1,35-1,88 vs 2,46 prédit — mais géométrie non standard (céramique retirée).
+
+### 28 juillet — Le profil en « M » est validé (avec céramique)
+- **Reprise AVEC céramique (200 A, géométrie standard)** : contraste chant/centre mesuré **2,17
+  ≈ 2,43 modèle**, forme quasi superposée (`data/exp7_bord-centre_2026-07-28_avec-ceramique/`).
+  **Le modèle a raison sur l'amplitude du M** — le « sur-contraste » de la série sans céramique
+  était un artefact du gap 0. → **Le levier « adoucir le M » n'est plus justifié.** (Restes :
+  TC1 mort, absolus non confrontés, essai unique.)
 
 ---
 
 ## 3. Résidus ouverts (par priorité)
 
-1. **Amplitude du profil en « M » (forme de la source).** Le modèle sur-concentre la source
-   aux chants. **Cartographie bord→centre reproduite à 200 et 250 A (27 juillet) : vallée
-   centrale CONFIRMÉE et modèle qui SUR-CONTRASTE** (chant/centre mesuré ~1,85 vs 2,46 prédit ;
-   `data/exp7_bord-centre_2026-07-27_sans-ceramique/`), même sens que le point chauffe (395 vs 292). Solide sur
-   la FORME ; l'amplitude absolue reste à caler par une **reprise propre** (exp 7 standard :
-   céramique en place, 5 TC interface valides, symétrique). Levier physique : courants de retour
-   3D / contact du twill tissé. Réf. `resultats_diag_forme_source.log`.
+1. **Amplitude du profil en « M » — LARGEMENT RÉSOLU (28 juillet).** La cartographie
+   bord→centre a d'abord semblé montrer un modèle qui sur-contraste (série SANS céramique,
+   contraste ~1,85 vs 2,46). Mais la **reprise AVEC céramique** (géométrie standard,
+   `data/exp7_bord-centre_2026-07-28_avec-ceramique/`) donne un contraste mesuré **2,17 ≈ 2,43
+   modèle**, forme normalisée quasi superposée : **le modèle a raison sur l'amplitude du M**. Le
+   « sur-contraste » venait du retrait de la céramique (gap 0), pas du modèle. → **Le levier
+   « adoucir le M » (courants de retour 3D / contact twill) n'est plus justifié.** Restes :
+   TC1 (un chant) mort, absolus non confrontés (chauffe courte), essai unique → à confirmer.
 2. **Vitesse de chauffe ~2× trop lente** (taux simulés vs mesurés). Domine le RMSE ; non
    encore diagnostiqué à fond. Couplé au M.
 3. **Régime basse consigne (B-2).** Cause confirmée (le modèle coupe au centre du spot, le

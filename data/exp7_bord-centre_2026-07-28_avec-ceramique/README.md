@@ -45,8 +45,32 @@ _(déroulé, observations, aléas…)_
 
 ## Fichiers déposés
 
-- ______
+- `200a v2 ceram.txt` — 200 A, céramique en place, 5 TC en largeur au spot 3.
+- `analyse_200A_ceramique.png` — courbes + comparaison de forme mesuré/modèle.
 
-## Résultat (rempli par l'analyse)
+## Résultat (analyse Claude, 2026-07-28)
 
-_(profil en largeur, contraste bord/centre mesuré vs 2,46, verdict sur l'amplitude du M)_
+**En bref : avec la géométrie standard, le modèle a RAISON sur l'amplitude du profil en « M ».**
+
+Profil ΔT au pic (TC1 encore mort — voir plus bas) :
+
+| y (mm) | 0 | 10 | 20 (centre) | 30 | 40 | contraste chant/centre |
+|---|---|---|---|---|---|---|
+| **mesuré** | (TC1 mort) | 141 | **89** | 119 | 192 | **2,17** |
+| **modèle 200 A** | 444 | 252 | **183** | 252 | 444 | **2,43** |
+
+- **Le contraste mesuré (2,17) est PROCHE du modèle (2,43)** ; la *forme normalisée* se superpose
+  presque sur y = 10/20/30/40 (cf. `analyse_200A_ceramique.png`, panneau droit).
+- **Révision majeure** : le « sur-contraste » observé dans la série SANS céramique
+  (1,35-1,88 vs 2,46) venait surtout du **retrait de la céramique** (gap ≈ 0 → source aplatie),
+  PAS d'un défaut du modèle. Avec la céramique = géométrie du modèle, le M est bien reproduit.
+  → **Le levier « adoucir le M » n'est donc plus justifié** ; l'amplitude du M est ~correcte.
+
+**Réserves.**
+- **TC1 (y=0, un chant) toujours mort** (reste à l'ambiant) → le point d'extrémité y=0 manque ;
+  le contraste s'appuie sur TC5 (y=40), fiable. Symétrie non vérifiable.
+- **Absolus non confrontés** : la chauffe manuelle s'est arrêtée tôt (pic mesuré ~15-25 s,
+  TC5 ~219 °C ; le modèle vise ~46 s / plus chaud) → seule la FORME (contraste) est comparée,
+  pas l'amplitude en °C.
+- Léger reste d'asymétrie (côté y=10 un peu plus chaud que y=30) + essai unique → à confirmer,
+  idéalement avec TC1 réparé et une chauffe plus longue/standardisée.
