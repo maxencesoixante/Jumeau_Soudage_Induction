@@ -21,3 +21,6 @@ resultats_validation_2d_newpos.log
 ai_framework/.env
 config/essais/_session_*.yaml
 resultats_validation_2d_newpos.log
+
+# vidéos brutes caméra thermique (volumineuses ; garder hors dépôt)
+data/**/*.mp4
