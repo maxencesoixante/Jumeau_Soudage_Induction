@@ -97,90 +97,12 @@ courant.
 
 **Réponse (utilisateur, 2026-07-27) :** _(en attente)_
 
-### Relevé 3. Épaisseur réelle du pli twill
-
-**Objectif.** Mesurer l'épaisseur du pli twill suscepteur.
-
-**Méthode.** Un micromètre sur un pli twill seul, ou une mesure sur une coupe polie d'un
-échantillon soudé.
-
-**Paramètre du modèle résolu.** L'épaisseur du twill (0,28 mm, marquée « à confirmer ») et,
-par cohérence, sa conductivité.
-
-**Gain attendu.** Le twill porte l'essentiel de la chaleur. Fiabiliser son épaisseur affine la
-répartition de puissance entre couches, au cœur du déficit de surface.
-
-**Temps estimé.** 10 minutes.
-
-**Réponse (utilisateur, 2026-07-27) :** « Le pli de twill a une épaisseur de 0,20 mm. »
-
-> → **✔ FAIT — donnée acquise.** Le modèle utilise `twill_suscepteur.epaisseur = 0,28 mm`
-> (marqué « à confirmer »). Valeur mesurée : **0,20 mm**. Correction préparée dans
-> `config/materiaux.yaml` (commentaire), **à appliquer à la prochaine recalibration** :
-> l'épaisseur du twill change la répartition de puissance entre couches, donc impose un refit
-> de θ\*. Non appliquée immédiatement pour ne pas confondre avec l'expérience « thermostat
-> capteurs » en cours.
-
-### Relevé 4. Condition aux bords de l'échantillon
-
-**Objectif.** Documenter ce qui touche les quatre chants de l'échantillon pendant un essai.
-
-**Méthode.** Photographier et décrire l'appui, la bride ou l'absence de contact sur chaque
-chant.
-
-**Paramètre du modèle résolu.** La justification du paramètre `h_bord_x0` (puits de chaleur au
-chant x = 0), aujourd'hui fragilisée.
-
-**Gain attendu.** Tranche si `h_bord_x0 = 250` correspond à une condition physique réelle ou
-n'est qu'un paramètre effectif, auquel cas le rapport doit le présenter comme tel.
-
-**Temps estimé.** Une photo par essai.
-
-**Réponse (utilisateur, 2026-07-27) :** « Les bords de l'échantillon sont à l'air libre pour
-les faces latérales. La face inférieure (de l'assemblage soudé) est en contact avec le bloc
-céramique du dessous. La face supérieure est en contact avec la céramique d'espacement, au
-dessus de laquelle se trouve le CFC. »
-
-> → **✔ RÉSOUT la question `h_bord_x0`.** Les quatre chants latéraux sont **à l'air libre**
-> (aucune bride, aucun appui, aucun puits au chant x=0). Les seuls échanges verticaux sont la
-> face inférieure (bloc céramique → `h_bas`) et la face supérieure (céramique d'espacement →
-> CFC → `h_haut`). **Conclusion : `h_bord_x0 = 250` n'a AUCUNE base physique** — c'est un
-> paramètre EFFECTIF qui compense autre chose (vraisemblablement le bord trop chaud du profil
-> en « M » côté x=0), pas une condition réelle du montage. À requalifier comme tel dans les
-> docs, et **candidat au retrait** lors de la prochaine recalibration (le tester à 0 ou le
-> remplacer par une convection latérale faible et uniforme sur les quatre chants).
-
-### Relevé 5. Point de coupure réel du thermostat
-
-**Objectif.** Établir sur quel signal la chauffe était coupée pendant les essais des séries
-A et B : quel thermocouple ou quelle voie pilotait la régulation, et à quelle position sur
-l'échantillon.
-
-**Méthode.** Relire la configuration LabVIEW ou le cahier de laboratoire de la campagne, et
-identifier la voie de consigne. Aucune manipulation de banc n'est nécessaire.
-
-**Paramètre du modèle résolu.** Le nœud de contrôle du thermostat simulé. Le modèle coupe
-aujourd'hui quand le **centre de l'empreinte** atteint la consigne ; s'il s'agissait en
-réalité d'un thermocouple d'interface situé à une quinzaine de millimètres, les impulsions
-réelles étaient plus longues.
-
-**Gain attendu.** C'est la mesure qui tranche le résidu ouvert à basse consigne (essai B-2,
-sous-chauffe de 30 à 55 °C entre empreintes). Trois correctifs numériques ont été prototypés
-et réfutés faute de savoir où le procédé coupait réellement : la donnée manque, pas le code.
-
-**Temps estimé.** Une relecture de configuration, quelques minutes.
-
-**Réponse (utilisateur, 2026-07-27) :** « Regarde le cahier de laboratoire. »
-
-> → **✔ RÉSOLU par le cahier de laboratoire.** Étape 6 de la procédure : « chauffe à 250 A
-> **jusqu'à T = Tprocessing** », et la fiche B-1 formule la cible comme « **T max interface
-> (TC fiables 1/3/5)** … jamais dépassé ~372 °C ». La coupure se faisait donc **quand le
-> thermocouple d'interface le plus chaud atteignait la consigne**, pas quand le centre du spot
-> l'atteignait. C'est cohérent avec les données B-2 (chaque impulsion coupée par le TC le plus
-> proche, alternant devant/derrière — cf. analyse). **Le modèle, lui, coupe au centre du
-> spot** → il coupe trop tôt → sous-chauffe les points inter-empreintes. Le correctif
-> physiquement fondé (« loi capteurs » : couper sur le max de T aux positions TC réelles) est
-> en cours de test + recalibration (`resultats_diag_b2_thermostat_capteurs.log`, à venir).
+> **Relevés 3, 4 et 5 — RÉSOLUS (27 juillet 2026), archivés dans
+> [`releves_resolus.md`](releves_resolus.md).** En bref : twill mesuré **0,20 mm** (corr.
+> préparée) ; chants **à l'air libre** → `h_bord_x0` est un paramètre effectif, pas physique ;
+> thermostat coupait sur le **max des TC d'interface** (cahier de labo) → loi « capteurs »
+> implémentée derrière un flag. Les trois corrections s'intégreront à la prochaine
+> recalibration.
 
 ---
 
