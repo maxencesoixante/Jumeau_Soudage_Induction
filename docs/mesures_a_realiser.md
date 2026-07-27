@@ -218,6 +218,26 @@ thermique de dessus, sans pression, échantillons réutilisés)
 > non finalisé). **REPRISE PROPRE À FAIRE** : géométrie STANDARD (céramique en place), 5 TC
 > valides à l'interface, montage symétrique, enregistrement caméra finalisé (ou CSV radiométrique).
 
+> 📋 **REPRISE PROPRE — PRÉVUE LE 2026-07-28 (checklist).** Objectif : caler l'AMPLITUDE du M
+> (falsification quantitative contre la cible 717/382/292 à 250 A). Corriger les 4 réserves de
+> la 1re série :
+>
+> 1. **Céramique d'espacement EN PLACE** (+ pression nominale) → géométrie standard, gap 2 mm =
+>    celle du modèle. C'est LE point : sans ça, la source EM diffère et les absolus ne se
+>    comparent pas à la cible.
+> 2. **5 TC valides à l'INTERFACE**, y = 0/10/20/30/40 mm, x = 60 mm (spot 3 ou spot centré).
+>    **Remplacer TC1** (défaillant sur les deux essais). Vérifier chaque voie avant l'essai
+>    (toutes doivent lire l'ambiant proprement, sans saut).
+> 3. **Montage bien CENTRÉ en largeur** (le profil montait vers y=40 → spot/CFC décalé). Viser
+>    TC1↔TC5 symétriques à l'ambiant.
+> 4. **Courant 250 A** (comparable à la cible), rester si possible dans une plage exploitable ;
+>    noter la fréquence (383 kHz à 200 A, 388 à 250 A).
+> 5. **Caméra** (optionnelle) : bien **finaliser l'enregistrement** (la vidéo 200 A était
+>    tronquée, atome `moov` manquant) ou exporter un **CSV radiométrique** (ligne/points ROI).
+> 6. Déposer les fichiers dans un dossier `data/exp7_bord_centre_2026-07-28/` (+ remplir un
+>    README avec courant, géométrie, positions TC, repère spatial). → analyse + confrontation à
+>    la cible à la réception.
+
 ### Expérience 8. Température de la face active du concentrateur
 
 **Objectif.** Mesurer la température du concentrateur pendant une chauffe.
@@ -297,13 +317,13 @@ cette prise en compte.
 
 ## Recommandation
 
-Les relevés 3, 4 et 5 sont tranchés (réponses du 27 juillet). Reste, par ordre de priorité :
+Les relevés 2, 3, 4 et 5 sont tranchés (réponses du 27 juillet). Reste, par ordre de priorité :
 
-1. **L'expérience 7** (cartographie bord→centre) : c'est désormais LA mesure clé. La
-   géométrie EM étant entièrement cadrée, l'écart de pic résiduel vient de la forme de la
-   source (profil en « M »), dont l'amplitude ne se calibre qu'avec cette cartographie —
-   **par des TC noyés à l'interface** (la caméra de dessus ne voit pas l'interface). Un seul
-   essai de chauffe, ligne de 5 TC, contre la cible chiffrée (2,46× de contraste bord/centre).
+1. **L'expérience 7 — REPRISE PROPRE prévue le 2026-07-28.** La 1re série (200/250 A) a
+   confirmé la vallée du M et montré que le modèle sur-contraste (chant/centre ~1,85 vs 2,46),
+   mais SANS céramique → amplitude non falsifiable. La reprise avec **céramique en place, 5 TC
+   interface valides, montage symétrique** (checklist dans la fiche exp 7) doit caler
+   l'amplitude contre la cible 717/382/292. **C'est la mesure clé** du levier « forme ».
 2. **L'expérience 8** (face du CFC, caméra thermique) : à réaliser prochainement ; seule
    mesure qui attaque le déficit de chauffe en surface (TC1).
 3. **Le relevé 1** (position longitudinale de la bobine), trivial, qui lève le dernier
