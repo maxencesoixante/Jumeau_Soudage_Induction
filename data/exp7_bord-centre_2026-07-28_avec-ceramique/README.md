@@ -15,17 +15,20 @@ l'**amplitude** du profil en « M » (falsification quantitative contre la cible
 - [ ] **5 TC valides à l'INTERFACE**, y = 0/10/20/30/40 mm, x = 60 mm. **TC1 remplacé** ;
       chaque voie vérifiée avant l'essai (toutes à l'ambiant, sans saut).
 - [ ] **Montage CENTRÉ en largeur** (viser TC1↔TC5 symétriques à l'ambiant).
-- [ ] **250 A** (comparable à la cible) ; fréquence notée (388 kHz).
+- [ ] **200 A** ; fréquence **383 kHz**.
 - [ ] **Caméra** (optionnelle) : enregistrement **bien finalisé**, ou export **CSV radiométrique**.
 
-## Cible du modèle (250 A, au pic) — à confronter
+## Cible du modèle **à 200 A** (spot centré, θ\* de référence, au pic ≈ 46 s) — à confronter
 
 | y (mm) | 0 | 10 | 20 (centre) | 30 | 40 |
 |---|---|---|---|---|---|
-| T_pic prédite (°C) | 717 | 382 | **292** | 382 | 717 |
+| T_pic prédite (°C) | 468 | 276 | **207** | 276 | 468 |
 
-Contraste bord/centre prédit = **2,46×**. (1re série, sans céramique : 1,35-1,88 → modèle
-sur-contraste ; à confirmer quantitativement ici.)
+**Contraste bord/centre prédit = 2,26×** (à 250 A ce serait 2,46 ; cible 717/382/292).
+La 1re série sans céramique donnait un contraste 1,35-1,88 (modèle sur-contraste) mais en
+géométrie non standard → cette série AVEC céramique doit le trancher quantitativement.
+NB : cible calculée avec la fréquence globale du modèle (388 kHz) ; l'écart à 383 kHz est
+négligeable (~1 % sur la profondeur de peau).
 
 ## Description de l'essai (à remplir)
 
