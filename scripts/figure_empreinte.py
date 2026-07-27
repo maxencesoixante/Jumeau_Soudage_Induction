@@ -36,14 +36,23 @@ from jumeau.procede import Essai
 def principale():
     ap = argparse.ArgumentParser()
     ap.add_argument("essai", nargs="?", default="config/essais/serieA_A-1.yaml")
+    ap.add_argument("--modele", choices=["2D", "3D"], default="2D",
+                    help="2D lumpé à l'interface (défaut, cohérent avec la "
+                         "validation/calibration) ou 3D avec gradient d'épaisseur")
     ap.add_argument("--facteur", type=float, default=1.0)
-    ap.add_argument("--h-contact", type=float, default=None)
-    ap.add_argument("--h-bas", type=float, default=None)
+    ap.add_argument("--decalage-x", type=float, default=0.0,
+                    help="décalage bobine<->montage le long de x (m), calibré")
+    ap.add_argument("--h-contact", type=float, default=None, help="(modèle 3D)")
+    ap.add_argument("--h-bas", type=float, default=None, help="(modèle 3D)")
+    ap.add_argument("--h-haut", type=float, default=None, help="(modèle 2D)")
+    ap.add_argument("--h-bas-2d", type=float, default=None, help="(modèle 2D)")
+    ap.add_argument("--h-bord-x0", type=float, default=None,
+                    help="(modèle 2D) puits de bord au chant x=0, W/m².K")
     ap.add_argument("--temps", type=float, nargs="+", default=None,
                     help="instants des panneaux (défaut : fin de chaque impulsion)")
-    ap.add_argument("--nx", type=int, default=49)
-    ap.add_argument("--ny", type=int, default=17)
-    ap.add_argument("--nz", type=int, default=13)
+    ap.add_argument("--nx", type=int, default=61)
+    ap.add_argument("--ny", type=int, default=21)
+    ap.add_argument("--nz", type=int, default=15)
     ap.add_argument("--tmax-couleur", type=float, default=None,
                     help="borne haute de l'échelle de couleur (défaut : max global)")
     ap.add_argument("--depuis-cache", action="store_true",
@@ -57,9 +66,16 @@ def principale():
         cfg.contact.h_contact = args.h_contact
     if args.h_bas is not None:
         cfg.ambiant.h_bas = args.h_bas
+    if args.h_haut is not None:
+        cfg.contact.h_haut = args.h_haut
+    if args.h_bas_2d is not None:
+        cfg.ambiant.h_bas_2d = args.h_bas_2d
+    if args.h_bord_x0 is not None:
+        cfg.ambiant.h_bord_x0 = args.h_bord_x0
 
     essai = Essai(cfg, args.essai, nx=args.nx, ny=args.ny, nz=args.nz,
-                  facteur_couplage=args.facteur, racine=RACINE)
+                  facteur_couplage=args.facteur, decalage_x=args.decalage_x,
+                  racine=RACINE)
     nom = essai.spec["nom"]
     dossier = RACINE / args.sortie
     dossier.mkdir(exist_ok=True)
@@ -71,11 +87,14 @@ def principale():
         d = np.load(cache)
         t_sol, carte = d["t"], d["carte"]
     else:
-        print(f"Simulation {nom} — grille {args.nx}×{args.ny}×{args.nz}, "
+        print(f"Simulation {nom} [{args.modele}] — grille {args.nx}×{args.ny}×{args.nz}, "
               f"facteur={args.facteur}, consigne={essai.spec.get('consigne_interface')}")
-        solveur, sol = essai.simuler()
-        Y4 = sol.y.reshape(g.nx, g.ny, g.nz, -1)
-        carte = Y4[:, :, g.iz_interface, :]
+        solveur, sol = essai.simuler(modele=args.modele)
+        if args.modele == "2D":
+            carte = sol.y.reshape(g.nx, g.ny, -1)
+        else:
+            Y4 = sol.y.reshape(g.nx, g.ny, g.nz, -1)
+            carte = Y4[:, :, g.iz_interface, :]
         t_sol = sol.t
         np.savez_compressed(cache, t=t_sol, carte=carte, x=g.x, y=g.y)
         print(f"Cartes d'interface mises en cache : {cache}")

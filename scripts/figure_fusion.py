@@ -58,16 +58,27 @@ def fenetre_fondue(t: np.ndarray, Xm: np.ndarray, seuil: float = 0.99):
 def principale():
     ap = argparse.ArgumentParser()
     ap.add_argument("essai", nargs="?", default="config/essais/chauffe_250A_3TC.yaml")
+    ap.add_argument("--modele", choices=["2D", "3D"], default="2D",
+                    help="2D lumpé à l'interface (défaut, cohérent avec la "
+                         "validation) ou 3D avec gradient d'épaisseur ; en 2D la "
+                         "courbe de surface n'a pas de sens (une maille en z) et "
+                         "n'est pas tracée")
     ap.add_argument("--facteur", type=float, default=1.0)
-    ap.add_argument("--h-contact", type=float, default=None)
-    ap.add_argument("--h-bas", type=float, default=None)
+    ap.add_argument("--decalage-x", type=float, default=0.0,
+                    help="décalage bobine<->montage le long de x (m), calibré")
+    ap.add_argument("--h-contact", type=float, default=None, help="(modèle 3D)")
+    ap.add_argument("--h-bas", type=float, default=None, help="(modèle 3D)")
+    ap.add_argument("--h-haut", type=float, default=None, help="(modèle 2D)")
+    ap.add_argument("--h-bas-2d", type=float, default=None, help="(modèle 2D)")
+    ap.add_argument("--h-bord-x0", type=float, default=None,
+                    help="(modèle 2D) puits de bord au chant x=0, W/m².K")
     ap.add_argument("--x", type=float, default=None, help="x du point de contrôle (m)")
     ap.add_argument("--y", type=float, default=None, help="y du point de contrôle (m)")
     ap.add_argument("--tc-interface", default="TC2", help="voie mesurée à l'interface")
-    ap.add_argument("--tc-surface", default="TC1", help="voie mesurée en surface")
-    ap.add_argument("--nx", type=int, default=31)
-    ap.add_argument("--ny", type=int, default=11)
-    ap.add_argument("--nz", type=int, default=13)
+    ap.add_argument("--tc-surface", default="TC1", help="voie mesurée en surface (modèle 3D)")
+    ap.add_argument("--nx", type=int, default=61)
+    ap.add_argument("--ny", type=int, default=21)
+    ap.add_argument("--nz", type=int, default=15)
     ap.add_argument("--sortie", default="resultats")
     args = ap.parse_args()
 
@@ -76,21 +87,31 @@ def principale():
         cfg.contact.h_contact = args.h_contact
     if args.h_bas is not None:
         cfg.ambiant.h_bas = args.h_bas
+    if args.h_haut is not None:
+        cfg.contact.h_haut = args.h_haut
+    if args.h_bas_2d is not None:
+        cfg.ambiant.h_bas_2d = args.h_bas_2d
+    if args.h_bord_x0 is not None:
+        cfg.ambiant.h_bord_x0 = args.h_bord_x0
     mat = cfg.materiau
 
     essai = Essai(cfg, args.essai, nx=args.nx, ny=args.ny, nz=args.nz,
-                  facteur_couplage=args.facteur, racine=RACINE)
+                  facteur_couplage=args.facteur, decalage_x=args.decalage_x,
+                  racine=RACINE)
     nom = essai.spec["nom"]
     # point de contrôle : par défaut la position du TC interface de l'essai
     tc_pos = essai.spec.get("thermocouples", {}).get(args.tc_interface, {})
     x_pt = args.x if args.x is not None else float(tc_pos.get("x", 0.060))
     y_pt = args.y if args.y is not None else float(tc_pos.get("y", 0.020))
 
-    print(f"Simulation {nom} — point de contrôle ({x_pt * 1e3:.1f}, {y_pt * 1e3:.1f}) mm, "
-          f"facteur={args.facteur}")
-    solveur, sol = essai.simuler()
+    print(f"Simulation {nom} [{args.modele}] — point de contrôle "
+          f"({x_pt * 1e3:.1f}, {y_pt * 1e3:.1f}) mm, facteur={args.facteur}")
+    solveur, sol = essai.simuler(modele=args.modele)
     T_interface = solveur.serie_temporelle(sol, x_pt, y_pt, "interface")
-    T_surface = solveur.serie_temporelle(sol, x_pt, y_pt, "surface")
+    # la surface (gradient d'épaisseur) n'existe qu'en 3D ; en 2D lumpé, une
+    # seule maille en z = l'interface, la courbe de surface n'a pas de sens.
+    T_surface = (solveur.serie_temporelle(sol, x_pt, y_pt, "surface")
+                 if args.modele == "3D" else None)
 
     Xm_sim = mat.degre_de_fusion(T_interface)
     fen_sim = fenetre_fondue(sol.t, Xm_sim)
@@ -119,7 +140,8 @@ def principale():
                             facecolors="none", edgecolors=coul,
                             label=f"Mesure {etiquette} ({tc})")
     ax1.plot(sol.t, T_interface, "k-", lw=2, label="Simulation — interface")
-    ax1.plot(sol.t, T_surface, "k-.", lw=1.6, label="Simulation — surface (côté bobine)")
+    if T_surface is not None:
+        ax1.plot(sol.t, T_surface, "k-.", lw=1.6, label="Simulation — surface (côté bobine)")
     ax1.axhline(mat.T_fusion, color="tab:blue", ls=":", lw=1.2)
     ax1.text(0.99, mat.T_fusion + 6, f"Tf = {mat.T_fusion:.0f} °C", color="tab:blue",
              fontsize=9, ha="right", transform=ax1.get_yaxis_transform())

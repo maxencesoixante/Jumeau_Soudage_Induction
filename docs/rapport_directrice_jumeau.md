@@ -466,7 +466,19 @@ Deux figures se comparent à la littérature. La première reproduit en semi-sta
 de Lionetto et al. (2017) : les cartes de température à l'interface à la fin de chaque
 empreinte. La seconde reprend leur Figure 5 : température et degré de fusion à l'interface,
 avec un « temps à l'état fondu » mesuré de 19 s, proche des environ 19 s que Lionetto et al.
-rapportent à 300 A et 2 mm/s.
+rapportent à 300 A et 2 mm/s. Ce temps de 19 s est déduit de la mesure, donc indépendant du
+modèle.
+
+Sur cette seconde figure, tracée au jeu de paramètres de référence sans aucun ajustement
+propre à l'essai de chauffe, la courbe simulée sous-estime le pic d'interface au point de
+mesure (environ 260 °C simulés contre 395 °C mesurés) et ne franchit donc pas la fusion. Ce
+n'est pas un déficit d'énergie global : le thermocouple d'interface de cet essai est au centre
+de la largeur, exactement dans le creux du profil en « M ». Au même instant, le modèle prédit
+639 °C sur les bords et 260 °C au centre, tandis que la mesure au centre (395 °C, qui a fondu)
+tombe entre les deux. Cette donnée ponctuelle indique que le creux central du profil en « M »
+est trop prononcé — la même conclusion que la réserve du point 9(a), ici étayée par une mesure.
+La figure antérieure « fondait » parce que son facteur d'échelle avait été calé sur le pic de
+ce seul essai, un ajustement sur mesure désormais écarté.
 
 Une réserve s'impose. Un RMSE de 30 à 65 °C sur une fenêtre de mise en œuvre d'environ 35 °C
 signifie que le modèle ordonne et explique correctement les niveaux de température, sans encore
@@ -491,7 +503,11 @@ traverse le chant (les composantes de courant normales aux bords sont exactement
 profil s'accorde avec l'observation : squeeze-out festonné localisé sur les chants,
 recommandation COMPAAM de réduire le concentrateur pour limiter les effets de bord. Une mesure
 le falsifierait directement : la cartographie bord→centre proposée au cahier de laboratoire
-(une ligne de 3 à 5 thermocouples sur la largeur).
+(une ligne de 3 à 5 thermocouples sur la largeur). Un premier point la met déjà en défaut : le
+thermocouple d'interface de l'essai de chauffe se trouve au centre de la largeur et y mesure
+395 °C, alors que le modèle y prédit 260 °C (creux) contre 639 °C sur les bords. Le centre réel
+est donc nettement plus chaud que le creux prédit : l'amplitude du profil en « M » est
+vraisemblablement surestimée, ce qui reste à confirmer par la cartographie complète.
 
 **(b) Le « déficit structurel » était une donnée d'entrée fausse.** Ce rapport présentait
 jusqu'ici un diagnostic central : le modèle concentrerait trop la puissance, avec des pics
@@ -782,10 +798,12 @@ python scripts/calibrer.py --modele 2D --essai serieA_A-1 --n-lhs 25 --figer-dec
 python scripts/valider.py --modele 2D --facteur 7.4172 --decalage-x 0 \
     --h-haut 26.367 --h-bas-2d 41.905 --h-bord-x0 250
 
-# Figures type Lionetto
-python scripts/figure_empreinte.py config/essais/serieA_A-1.yaml --facteur 7.4172 \
+# Figures type Lionetto (modèle 2D, cohérent avec la validation)
+python scripts/figure_empreinte.py config/essais/serieA_A-1.yaml --modele 2D \
+    --facteur 7.4172 --decalage-x 0 --h-haut 26.367 --h-bas-2d 41.905 --h-bord-x0 250 \
     --tmax-couleur 480 --suffixe _plafonne          # Fig. 4 (empreinte)
-python scripts/figure_fusion.py config/essais/chauffe_250A_3TC.yaml --facteur 7.4172  # Fig. 5
+python scripts/figure_fusion.py config/essais/chauffe_250A_3TC.yaml --modele 2D \
+    --facteur 7.4172 --decalage-x 0 --h-haut 26.367 --h-bas-2d 41.905 --h-bord-x0 250  # Fig. 5
 ```
 
 Ces paramètres supposent la géométrie corrigée du 2026-07-23 (`config/geometrie.yaml` :

@@ -163,9 +163,15 @@ chauds en y = 0 / 40 mm et le creux central.
   recommandation COMPAAM de réduire le MFC pour limiter les effets de bord.
 - **Réserve honnête** : l'amplitude du contraste est probablement **surestimée** (rapport
   T(bord)/T(centre) ≈ 2,3–4,6 en fin d'impulsion après diffusion).
+- **Première évidence, sur UN point** : l'essai de chauffe a son thermocouple d'interface
+  (TC2) **au centre de la largeur**. Le modèle y prédit 260 °C (creux) et 639 °C sur les
+  bords ; la mesure au centre donne **395 °C** (et elle a fondu). Le centre réel est donc
+  **bien plus chaud que le creux prédit** → le M est trop creusé. Un seul point, pas une
+  cartographie, mais il pointe déjà dans le sens de la réserve (cf. slide 11).
 
 *À dire* : c'est le point où le modèle apporte une **prédiction falsifiable** — et il
-existe une manip simple pour la trancher (slide 17).
+existe une manip simple pour la trancher (slide 17). Un premier point de mesure la
+contredit déjà partiellement, ce qui rend la cartographie complète d'autant plus utile.
 
 ---
 
@@ -242,22 +248,33 @@ encore.
 
 ## Slide 11 — Température et degré de fusion (analogue Lionetto Fig. 5)
 
-*Figure* : `resultats/chauffe_250A_3TC_fusion_fig5.png`
+*Figure* : `resultats/chauffe_250A_3TC_fusion_fig5.png` (régénérée le 2026-07-24, modèle 2D,
+θ\* de référence).
 
-- Panneau haut : température d'interface et de surface, simulée + mesurée.
+- Panneau haut : température d'interface, simulée + mesurée (interface TC2 / surface TC1).
 - Panneau bas : **degré de fusion Xm(t)** et fenêtre « état fondu » (Xm ≥ 0,99).
 - Xm = fonction de répartition du pic gaussien de fusion du cp apparent — même définition
   que l'éq. 8 de Lionetto (approche statistique Greco & Maffezzoli).
 - **Résultat exploitable pour le mémoire : temps à l'état fondu mesuré = 19 s**
-  (t = 23 → 42 s), très proche des ~19 s de Lionetto à 300 A / 2 mm/s.
+  (t = 23 → 42 s), très proche des ~19 s de Lionetto à 300 A / 2 mm/s. Ce chiffre est
+  **déduit de la mesure**, indépendant du modèle : il reste solide quoi qu'il arrive.
 
-> ⚠ **La figure existante date du modèle 3D** (2026-07-18, facteur calé sur le pic).
-> Le chiffre de 19 s, lui, est **déduit de la mesure** et reste valable. Régénérer la
-> figure au θ\* courant avant la présentation si la courbe simulée est montrée.
+> **Ce que la figure montre honnêtement, au θ\* de référence (aucun facteur ajusté sur cet
+> essai) : la courbe simulée SOUS-ESTIME le pic d'interface au point de mesure** (≈260 °C
+> simulé contre ≈395 °C mesuré) et ne franchit donc pas la fusion — pas de fenêtre d'état
+> fondu simulée. La raison n'est pas un manque d'énergie global : TC2 est au **centre de la
+> largeur**, exactement dans le **creux du profil en M**. Au même instant, le modèle prédit
+> **639 °C sur les bords** (y = 0/40) et 260 °C au centre. La mesure au centre (395 °C, qui
+> a fondu) tombe **entre les deux** → c'est une donnée ponctuelle qui dit que **le creux du
+> M est trop profond** (cf. slides 8 et 17). L'ancienne figure (2026-07-18) « fondait »
+> parce que son facteur avait été calé sur le pic de CET essai — une béquille sur mesure,
+> écartée.
 
-*À dire* : c'est le critère de qualité de soudure le plus directement comparable à la
-littérature ; il ne dépend pas du modèle (il est déduit de la mesure), ce qui le rend
-robuste.
+*À dire* : ne pas présenter ceci comme un échec. Le critère de qualité (19 s à l'état
+fondu) est mesuré, donc robuste. Et le désaccord de la courbe simulée est LOCALISÉ et
+INFORMATIF : il pointe le même défaut que la prédiction falsifiable du profil en « M ».
+La figure fait donc double emploi — analogue Lionetto Fig. 5 ET première évidence, sur un
+point unique, que le contraste bord/centre du modèle est exagéré.
 
 ---
 
@@ -544,10 +561,12 @@ python scripts/calibrer.py --modele 2D --essai serieA_A-1 --n-lhs 25 --figer-dec
 python scripts/valider.py --modele 2D --facteur 7.4172 --decalage-x 0 \
     --h-haut 26.367 --h-bas-2d 41.905 --h-bord-x0 250
 
-# Figures de présentation
-python scripts/figure_empreinte.py config/essais/serieA_A-1.yaml --facteur 7.4172 \
+# Figures de présentation (modèle 2D, cohérent avec la validation ci-dessus)
+python scripts/figure_empreinte.py config/essais/serieA_A-1.yaml --modele 2D \
+    --facteur 7.4172 --decalage-x 0 --h-haut 26.367 --h-bas-2d 41.905 --h-bord-x0 250 \
     --tmax-couleur 480 --suffixe _plafonne
-python scripts/figure_fusion.py config/essais/chauffe_250A_3TC.yaml --facteur 7.4172
+python scripts/figure_fusion.py config/essais/chauffe_250A_3TC.yaml --modele 2D \
+    --facteur 7.4172 --decalage-x 0 --h-haut 26.367 --h-bas-2d 41.905 --h-bord-x0 250
 
 pytest    # 34 tests, ~3 min
 ```
