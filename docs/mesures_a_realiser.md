@@ -148,9 +148,34 @@ compte ni de la pression ni de la céramique d'espacement. »
 >   supérieur (M atténué par la diffusion dans l'épaisseur). Utile quand même (champ de surface,
 >   et parfaite pour l'exp 8, face du CFC), mais l'interface exige des TC noyés.
 > - Le modèle ignore effectivement la **mécanique** de pression (son effet de contact est
->   absorbé dans `h_haut`) et traite la **céramique d'espacement** comme la condition limite
->   `h_haut` (pas comme un solide résolu) : retirer la pression pour ce test est donc sans
->   conséquence sur la comparaison.
+>   absorbé dans `h_haut`) : retirer la pression pour ce test est sans conséquence.
+
+> → **PROTOCOLE RETENU — caméra thermique de dessus (2026-07-27).**
+>
+> **Deux mises au point de physique** (suite à « chauffer sans céramique + caméra ») :
+> 1. **La caméra lit la SURFACE, pas l'interface.** Pour la diffusivité latérale c'est OK — la
+>    *longueur de décroissance* latérale est la même propriété matériau en surface qu'à
+>    l'interface. Mais la T absolue de surface est plus basse/retardée (diffusion sur 3,36 mm)
+>    → comparer à la prédiction de **surface du modèle 3D**, pas à l'interface.
+> 2. **Retirer la céramique d'espacement ≠ se rapprocher du modèle.** Le modèle ne la néglige
+>    PAS : il la représente comme le **gap bobine-laminé de 2 mm** (couplage EM) ET la condition
+>    `h_haut`. La retirer supprime le gap (bobine 2 mm plus bas → **source EM plus forte et de
+>    forme différente**) et change `h_haut`. La diffusivité reste mesurable (la décroissance
+>    latérale est robuste à ces changements), mais **la géométrie n'est plus celle des essais
+>    de calibration** : à documenter, et à re-représenter dans la config pour toute comparaison
+>    quantitative.
+>
+> **Mode opératoire.**
+> - Chauffer un **spot unique** (250 A puis 200 A), rester **sous Tf** (pic ~150-250 °C),
+>   échantillons réutilisables ; maintien quelques s à ~30 s.
+> - Caméra au-dessus : mesurer la **décroissance en LONGUEUR (x), au-delà de l'empreinte du
+>   CFC** (55×31,5 mm) — c'est là qu'est l'info. En **largeur (y)**, le CFC déborde les 40 mm et
+>   **masque la zone** → non mesurable à la caméra (réserver aux TC noyés, exp 7).
+> - Si la céramique d'espacement couvre tout le laminé (cahier B-1 : 120×40 mm) et masque la
+>   surface, la retirer est acceptable **pour ce seul but** — noter alors « gap nul » dans le
+>   compte rendu.
+> - Sortie utile : profil T_surface(x) à quelques instants → longueur de décroissance → `k_plan`
+>   effectif, confronté à la surface du modèle 3D à même géométrie.
 
 ### Expérience 7. Cartographie bord vers centre (le profil en « M ») — PRIORITAIRE
 
