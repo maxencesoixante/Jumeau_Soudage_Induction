@@ -116,7 +116,7 @@ matière : impulsion de chaleur → vitesse d'étalement → `k_plan`. L'exp 6 e
 
 ## Exp 6/7 — Cartographie bord→centre, 1re série (2026-07-27)
 
-Données : `data/exp6_diffusivite_2026-07-27/` (README = analyse complète). Manips étiquetées
+Données : `data/exp7_bord-centre_2026-07-27_sans-ceramique/` (README = analyse complète). Manips étiquetées
 « exp 6 » mais qui réalisent la cartographie en largeur (exp 7) : 5 TC en largeur au spot 3,
 **150 / 200 / 250 A**, céramique + pression **retirées**.
 

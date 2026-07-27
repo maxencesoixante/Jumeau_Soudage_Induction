@@ -34,7 +34,7 @@ Contraste bord/centre prédit = **2,46×**.
 4. **250 A** ; noter la fréquence (388 kHz).
 5. **Caméra** (optionnelle) : **finaliser l'enregistrement** (la vidéo 200 A était tronquée) ou
    exporter un **CSV radiométrique** (ligne/points ROI).
-6. Déposer dans `data/exp7_bord_centre_2026-07-28/` + README (courant, géométrie, positions TC,
+6. Déposer dans `data/exp7_bord-centre_2026-07-28_avec-ceramique/` + README (courant, géométrie, positions TC,
    repère spatial) → analyse + confrontation à la cible.
 
 ### 2. Exp 8 — Température de la face active du CFC

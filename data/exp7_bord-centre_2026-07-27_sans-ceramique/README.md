@@ -1,11 +1,12 @@
-# Exp 6 — Cartographie latérale de la diffusivité (caméra thermique)
+# Exp 7 — Cartographie bord→centre, série SANS céramique (1re série)
 
-**Date** : 2026-07-27 &nbsp;·&nbsp; **Opérateur** : Maxence &nbsp;·&nbsp; **Objectif** : mesurer la
-décroissance latérale de température en surface → `k_plan` effectif.
+**Date** : 2026-07-27 &nbsp;·&nbsp; **Opérateur** : Maxence &nbsp;·&nbsp; **Objectif** : profil de
+température en travers de la largeur (le « M »).
 
-> Dépose ici les fichiers exportés (CSV radiométrique de préférence — voir plus bas — ou
-> frames PNG avec échelle) et remplis la description ci-dessous. Claude analysera à partir de
-> ce dossier.
+> Manip d'abord étiquetée « exp 6 / diffusivité », mais elle réalise en fait la cartographie
+> bord→centre (exp 7) : 5 TC EN LARGEUR au spot 3. **Céramique d'espacement + pression RETIRÉES**
+> → géométrie non standard (gap ≈ 0). La reprise AVEC céramique est dans
+> `../exp7_bord-centre_2026-07-28_avec-ceramique/`.
 
 ---
 
@@ -42,11 +43,11 @@ décroissante) :
 2. **CSV température par image** : matrices T(x,y) par frame (ou au moins la frame au pic).
 3. **Frames PNG avec la barre d'échelle** de température visible.
 
-Fichiers déposés (3 essais, même montage, 5 TC en largeur au spot 3, format FR) :
-- `150a.txt` — **150 A / 390 kHz**.
-- `200A résultats TC.txt` — **200 A / 383 kHz**.
-- `250A 5TC Camera.txt` — **250 A / 388 kHz**.
-- `thermal camera 200A.mp4` — **CORROMPU / illisible** (voir Résultat).
+Fichiers (3 essais, même montage, 5 TC en largeur au spot 3, format FR) :
+- `150A.txt` — **150 A / 390 kHz**.
+- `200A.txt` — **200 A / 383 kHz**.
+- `250A.txt` — **250 A / 388 kHz**.
+- `camera_200A.mp4` — **CORROMPU / illisible** (voir Résultat ; hors dépôt, gitignore).
 
 ## Résultat (analyse Claude, 2026-07-27)
 
@@ -96,5 +97,5 @@ FORME ; l'AMPLITUDE absolue reste à caler par une **reprise propre** (géométr
 céramique, 5 TC valides à l'interface, montage symétrique — checklist fiche exp 7 de
 `mesures_a_realiser.md`).
 
-**Figures** : `tc_courbes_toutes.png` (courbes des 5 TC, 3 essais), `profil_largeur_toutes.png`
+**Figures** : `tc_courbes.png` (courbes des 5 TC, 3 essais), `profil_largeur.png`
 (profil en largeur, 3 courants).

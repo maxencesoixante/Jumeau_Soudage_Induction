@@ -112,7 +112,7 @@ Rapports/slides/mesures régénérés au θ\* corrigé. Diagnostic de la cote `h
 - **Fréquence à 200 A = 383 kHz** (relevé user ; correction A-3 préparée). Paquets de lecture
   vidéo ajoutés (`imageio`, `opencv`) pour dépouiller les manips caméra.
 - **Cartographie bord→centre, REPRODUITE à 200 et 250 A** (données user,
-  `data/exp6_diffusivite_2026-07-27/`) : **la vallée centrale du M est confirmée** (le centre
+  `data/exp7_bord-centre_2026-07-27_sans-ceramique/`) : **la vallée centrale du M est confirmée** (le centre
   est un creux, le plus lent à monter, même forme aux deux courants) et le modèle
   **sur-contraste** (chant/centre mesuré ~1,85 vs 2,46 prédit). Non quantitatif sur l'amplitude
   (géométrie non standard — céramique retirée ; TC1 défaillant) → reprise propre à faire.
@@ -124,7 +124,7 @@ Rapports/slides/mesures régénérés au θ\* corrigé. Diagnostic de la cote `h
 1. **Amplitude du profil en « M » (forme de la source).** Le modèle sur-concentre la source
    aux chants. **Cartographie bord→centre reproduite à 200 et 250 A (27 juillet) : vallée
    centrale CONFIRMÉE et modèle qui SUR-CONTRASTE** (chant/centre mesuré ~1,85 vs 2,46 prédit ;
-   `data/exp6_diffusivite_2026-07-27/`), même sens que le point chauffe (395 vs 292). Solide sur
+   `data/exp7_bord-centre_2026-07-27_sans-ceramique/`), même sens que le point chauffe (395 vs 292). Solide sur
    la FORME ; l'amplitude absolue reste à caler par une **reprise propre** (exp 7 standard :
    céramique en place, 5 TC interface valides, symétrique). Levier physique : courants de retour
    3D / contact du twill tissé. Réf. `resultats_diag_forme_source.log`.
