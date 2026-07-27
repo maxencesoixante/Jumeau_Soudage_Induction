@@ -94,6 +94,10 @@ def principale():
                     help="fige decalage_x à VALEUR (m) et calibre seulement "
                          "[facteur_couplage, p3, p4] — à utiliser si "
                          "corr(facteur_couplage, decalage_x) > 0.95 sur le fit joint")
+    ap.add_argument("--thermostat-capteurs", action="store_true",
+                    help="calibre avec la loi thermostat 'capteurs' (coupe sur le "
+                         "max de T aux positions TC d'interface ; defaut False = "
+                         "loi historique) -- cf. resultats_diag_b2_thermostat_capteurs.log")
     args = ap.parse_args()
 
     cfg = Config.charger(RACINE / "config")
@@ -113,7 +117,8 @@ def principale():
         bornes_hautes[3] = args.p4_borne_haute
 
     cal = Calibrateur(cfg, chemin, modele=args.modele, nx=args.nx, ny=args.ny, nz=args.nz,
-                      bornes_basses=bornes_basses, bornes_hautes=bornes_hautes)
+                      bornes_basses=bornes_basses, bornes_hautes=bornes_hautes,
+                      thermostat_capteurs=args.thermostat_capteurs)
     print(f"Calibration [{args.modele}] sur {args.essai} — TC : {cal.tc_valides}"
           + (f" (exclus : {cal.tc_exclus_2d})" if cal.tc_exclus_2d else ""))
     print(f"Paramètres : {cal.NOMS}")

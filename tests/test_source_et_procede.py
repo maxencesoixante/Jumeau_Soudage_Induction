@@ -123,13 +123,14 @@ def test_essai_decalage_x_augmente_taux_chauffe_tc2(cfg):
     décalage bobine de +10 mm sort du zéro et accélère la chauffe locale
     (grille 31x11x13, facteur_couplage=3.85).
 
-    VALEURS MISES À JOUR 2026-07-23 (correction de géométrie bobine : entraxe
-    0.019 -> 0.01235 m, cf. resultats_geometrie_corrigee_recalibration.log) :
-    taux_sim TC2 = 4.03 °C/s à decalage_x=0, 5.73 à +10 mm. Les brins plus
-    rapprochés affaiblissent l'effet du décalage (×1.4 au lieu de ×2.3 sous
-    l'ancienne géométrie) — le zéro de symétrie se place différemment. L'effet
-    reste QUALITATIVEMENT le même (le décalage augmente le taux) ; decalage_x
-    est de toute façon figé à 0 dans le θ* de référence."""
+    VALEURS MISES À JOUR 2026-07-27 (2e correction de géométrie bobine : hauteur
+    0.0068 -> 0.005 m, source ~1.34x plus forte, cf.
+    resultats_hauteur_5mm_recalibration.log ; succède à la correction d'entraxe
+    du 2026-07-23) : taux_sim TC2 = 5.43 °C/s à decalage_x=0, 14.16 à +10 mm.
+    Les brins plus rapprochés + plus bas rendent le décalage PLUS sensible
+    (×2.6) — le zéro de symétrie se place différemment. L'effet reste
+    QUALITATIVEMENT le même (le décalage augmente le taux) ; decalage_x est de
+    toute façon figé à 0 dans le θ* de référence."""
     from jumeau.validation.confrontation import taux_de_chauffe
 
     chemin = RACINE / "config" / "essais" / "chauffe_250A_3TC.yaml"
@@ -147,6 +148,55 @@ def test_essai_decalage_x_augmente_taux_chauffe_tc2(cfg):
     taux0 = taux_de_chauffe(sol0.t, essai0.series_tc(solveur0, sol0)["TC2"])
     taux_d = taux_de_chauffe(sol_d.t, essai_decale.series_tc(solveur_d, sol_d)["TC2"])
 
-    assert taux0 == pytest.approx(4.03, abs=0.3)
-    assert taux_d == pytest.approx(5.73, abs=0.5)
-    assert taux_d > taux0          # le décalage augmente le taux (×1.4, cf. docstring)
+    assert taux0 == pytest.approx(5.43, abs=0.3)
+    assert taux_d == pytest.approx(14.16, abs=0.6)
+    assert taux_d > taux0          # le décalage augmente le taux (×2.6, cf. docstring)
+
+
+# --- loi thermostat 'capteurs' (défaut off, cf. Essai.thermostat_capteurs) ---
+
+def _essai_b2(cfg, **kw):
+    chemin = RACINE / "config" / "essais" / "serieB_B-2.yaml"
+    return Essai(cfg, chemin, nx=25, ny=11, nz=9, racine=RACINE, **kw)
+
+
+def test_thermostat_capteurs_off_est_non_regression(cfg):
+    """Flag off (défaut) : nœuds de contrôle et T_ctrl strictement inchangés."""
+    e_def = _essai_b2(cfg)
+    e_off = _essai_b2(cfg, thermostat_capteurs=False)
+    assert e_def._noeuds_controle == e_off._noeuds_controle
+    assert e_def._noeuds_controle_2d == e_off._noeuds_controle_2d
+    assert e_def._brackets_capteurs == []          # non construit quand off
+    rng = np.random.default_rng(0)
+    T = rng.random((e_def.grille.nx, e_def.grille.ny)) * 400.0
+    spot = e_def.spots[0]
+    assert e_def._T_ctrl(T, spot, deux_d=True) == e_off._T_ctrl(T, spot, deux_d=True)
+
+
+def test_thermostat_capteurs_on_controle_sur_le_max_des_tc(cfg):
+    """Flag on : T_ctrl = max de T aux positions TC d'interface (≠ loi section)."""
+    from jumeau.thermique.solveur3d import bracket_lineaire
+    e_on = _essai_b2(cfg, thermostat_capteurs=True)
+    e_off = _essai_b2(cfg)
+    g = e_on.grille
+    assert e_on._brackets_capteurs                 # construit quand on
+    # nœuds de contrôle = brackets des TC, différents de la loi section
+    assert e_on._noeuds_controle_2d != e_off._noeuds_controle_2d
+
+    # champ synthétique : bosse localisée exactement sur un nœud proche de TC3
+    # (x=60mm, y=0). T_ctrl 'capteurs' doit valoir le max bilinéaire aux TC.
+    rng = np.random.default_rng(1)
+    T = rng.random((g.nx, g.ny)) * 50.0
+    positions = e_on._positions_capteurs_interface()
+    assert positions                                # B-2 a des TC d'interface
+    attendu = -np.inf
+    for x, y in positions:
+        ix, wx = bracket_lineaire(g.x, x)
+        iy, wy = bracket_lineaire(g.y, y)
+        v = ((1 - wx) * (1 - wy) * T[ix, iy] + wx * (1 - wy) * T[ix + 1, iy]
+             + (1 - wx) * wy * T[ix, iy + 1] + wx * wy * T[ix + 1, iy + 1])
+        attendu = max(attendu, v)
+    spot = e_on.spots[0]
+    assert e_on._T_ctrl(T, spot, deux_d=True) == pytest.approx(attendu)
+    # et c'est bien un MAX -> >= la valeur de n'importe quel TC pris seul
+    assert e_on._T_ctrl(T, spot, deux_d=True) >= T.min()

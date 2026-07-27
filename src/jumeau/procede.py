@@ -56,7 +56,8 @@ class Essai:
                  decalage_x: float | None = None,
                  racine: str | Path | None = None,
                  interp_ctrl: bool = True,
-                 champ_reaction: bool = False):
+                 champ_reaction: bool = False,
+                 thermostat_capteurs: bool = False):
         self.cfg = cfg
         self.spec = charger_yaml(chemin_essai)
         self.racine = Path(racine) if racine else Path(chemin_essai).resolve().parents[2]
@@ -95,6 +96,32 @@ class Essai:
         # 2/3 d'entre eux à θ* figé. Désactivé par défaut ; non recommandé
         # comme comportement par défaut (cf. rapport, §6).
         self.champ_reaction = bool(champ_reaction)
+        # thermostat_capteurs (défaut False = comportement historique inchangé) :
+        # asservit la coupure sur le MAX de T aux POSITIONS RÉELLES des TC
+        # d'interface de l'essai (au lieu du point/section à x=centre_x, cf.
+        # _T_ctrl). Motivation (2026-07-27) : le cahier de laboratoire (étape 6
+        # "chauffe jusqu'à Tprocessing", fiche B-1 "T max interface (TC 1/3/5)
+        # jamais dépassé") ET les données B-2 (chaque impulsion coupée par le TC
+        # le plus proche, alternant devant/derrière) établissent que le procédé
+        # coupait sur le MAX des TC d'interface, pas au centre du spot. Cette loi
+        # recale l'écart de pic (B-2 |ΔT_max| 45->23 après recalibration) mais
+        # DÉGRADE le RMSE (+5-6 °C) : le RMSE est dominé par le déficit de VITESSE
+        # de chauffe (taux ~2x trop lent), que le thermostat ne touche pas, et
+        # elle est couplée au profil en M trop contrasté (on contrôle sur des TC
+        # de bord y=0 surchauffés). NE PAS activer sans recalibrer θ* (le θ*
+        # 'capteurs' diffère nettement : facteur ~4.6 / h_haut ~16). Conservée
+        # derrière ce flag pour archivage/ablation, en attendant la cartographie
+        # bord->centre qui doit corriger le M conjointement. Cf.
+        # resultats_diag_b2_thermostat_capteurs.log.
+        self.thermostat_capteurs = bool(thermostat_capteurs)
+        # positions (x, y) des TC d'interface valides (loi thermostat_capteurs) :
+        # brackets bilinéaires précalculés une fois.
+        self._brackets_capteurs: list = []
+        if self.thermostat_capteurs:
+            self._brackets_capteurs = [
+                (bracket_lineaire(self.grille.x, x), bracket_lineaire(self.grille.y, y))
+                for x, y in self._positions_capteurs_interface()
+            ]
 
         courant = float(self.spec["courant"])
         self.spots = self.spec["spots"]
@@ -142,11 +169,21 @@ class Essai:
         self._noeuds_controle: list[tuple[int, int, int]] = []
         if self.spec.get("consigne_interface") is not None:
             noeuds = set()
-            for s in self.spots:
-                ix0, ix1, _ = self._colonnes_ctrl(float(s["centre_x"]))
-                for ix in {ix0, ix1}:
-                    for iy in range(self.grille.ny):
-                        noeuds.add((ix, iy, self.grille.iz_interface))
+            iz = self.grille.iz_interface
+            if self.thermostat_capteurs:
+                # loi capteurs : les 4 nœuds encadrant chaque position TC
+                # d'interface entrent dans T_ctrl (max) -> à déclarer pour le
+                # jacobien creux (cf. commentaire ci-dessus sur BDF).
+                for (ix, _), (iy, _) in self._brackets_capteurs:
+                    for dx in (0, 1):
+                        for dy in (0, 1):
+                            noeuds.add((ix + dx, iy + dy, iz))
+            else:
+                for s in self.spots:
+                    ix0, ix1, _ = self._colonnes_ctrl(float(s["centre_x"]))
+                    for ix in {ix0, ix1}:
+                        for iy in range(self.grille.ny):
+                            noeuds.add((ix, iy, iz))
             self._noeuds_controle = sorted(noeuds)
 
         # --- modèle 2D (lumpé dans l'épaisseur, cf. thermique/solveur2d.py) :
@@ -182,6 +219,31 @@ class Essai:
         ix0, wx = bracket_lineaire(self.grille.x, centre_x)
         return ix0, ix0 + 1, wx
 
+    def _positions_capteurs_interface(self) -> list[tuple[float, float]]:
+        """(x, y) des TC d'interface VALIDES de l'essai (loi thermostat_capteurs)."""
+        tcs = self.spec.get("thermocouples", {})
+        out = []
+        for nom in self.spec.get("tc_valides", []):
+            p = tcs.get(nom, {})
+            if p.get("z") == "interface":
+                out.append((float(p["x"]), float(p["y"])))
+        return out
+
+    def _T_ctrl_capteurs(self, T: np.ndarray, deux_d: bool) -> float:
+        """T_ctrl = MAX de T (interpolée bilinéairement) sur les positions TC
+        d'interface réelles (loi ``thermostat_capteurs``, cf. __init__). Mime la
+        coupure réelle « le TC d'interface le plus chaud atteint la consigne »."""
+        champ = T if deux_d else T[:, :, self.grille.iz_interface]
+        best = -np.inf
+        for (ix, wx), (iy, wy) in self._brackets_capteurs:
+            v = ((1.0 - wx) * (1.0 - wy) * champ[ix, iy]
+                 + wx * (1.0 - wy) * champ[ix + 1, iy]
+                 + (1.0 - wx) * wy * champ[ix, iy + 1]
+                 + wx * wy * champ[ix + 1, iy + 1])
+            if v > best:
+                best = v
+        return float(best)
+
     def _T_ctrl(self, T: np.ndarray, spot: dict, deux_d: bool) -> float:
         """Température de contrôle du thermostat pour le spot actif ``spot``.
 
@@ -212,7 +274,13 @@ class Essai:
         de °C, sans dégrader (au contraire, améliore) le bon accord de
         serieA_A-3 — cf. rapport de vérification thermal-solver-engineer
         2026-07-20.
+
+        Si ``thermostat_capteurs`` est actif (cf. __init__), on court-circuite ce
+        mélange point/section et on renvoie le MAX de T aux positions TC réelles
+        (loi 'capteurs', ``_T_ctrl_capteurs``).
         """
+        if self.thermostat_capteurs:
+            return self._T_ctrl_capteurs(T, deux_d)
         ix0, ix1, wx = self._colonnes_ctrl(float(spot["centre_x"]))
         iy_point = self.grille.indice_xy(0.0, self.grille.largeur / 2.0)[1]
         if deux_d:

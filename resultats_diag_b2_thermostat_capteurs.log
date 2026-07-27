@@ -1,0 +1,79 @@
+Résidu B-2 — loi thermostat 'capteurs' (contrôle sur les TC réels)
+==============================================================================
+Date : 2026-07-27. Reprend le résidu B-2 (basse consigne, sous-chauffe des
+points inter-empreintes) après le constat de resultats_diag_b2_longueur.log
+(trois correctifs réfutés : décalage +15mm fixe, marge de consigne, force).
+Scripts : scratchpad/proto_thermostat_capteurs.py, scratchpad/recalib_capteurs.py.
+
+
+1. IDENTIFICATION DE LA VRAIE LOI DE CONTRÔLE (données B-2)
+------------------------------------------------------------
+Pour chaque impulsion, le TC qui atteint la consigne (360 °C) à la coupure :
+  Impulsion 1 (spot x=15,9) : TC1 (x=0),  pic 362  -> 15,9 mm DERRIÈRE le spot
+  Impulsion 2 (spot x=45,9) : TC3 (x=60), pic 366  -> 14 mm DEVANT
+  Impulsion 3 (spot x=75,9) : TC3 (x=60), pic 366  -> 15,9 mm DERRIÈRE
+  Impulsion 4 (spot x=105,9): TC4 (x=90), pic 361  -> 15,9 mm DERRIÈRE
+=> le procédé coupait sur le TC physique le PLUS PROCHE (positions discrètes
+y=0, x=0/30/60/90/120), qui ALTERNE devant/derrière. PAS un offset fixe (d'où
+l'échec du "décalage +15mm fixe" de resultats_diag_b2_longueur.log).
+
+
+2. CONFIRMATION INDÉPENDANTE PAR LE CAHIER DE LABORATOIRE
+----------------------------------------------------------
+(vault, Cahier de laboratoire — soudage induction semi-statique.md)
+Étape 6 procédure : "chauffe à 250 A JUSQU'À T = Tprocessing".
+Fiche B-1 : "T max interface (TC fiables 1/3/5) ... jamais dépassé ~372 °C".
+=> la coupure se faisait sur le MAX des TC d'interface atteignant la consigne.
+Le MODÈLE, lui, coupe sur T au CENTRE du spot (x=centre_x, section en y) ->
+coupe trop tôt -> sous-chauffe les points inter-empreintes. Diagnostic confirmé.
+
+
+3. PROTOTYPE 'CAPTEURS' (max de T aux positions TC d'interface réelles)
+------------------------------------------------------------------------
+Loi : T_ctrl = max sur les positions TC d'interface valides de l'essai
+(interpolation bilinéaire). Nœuds de contrôle = 4 nœuds encadrant chaque TC.
+Prototypé SANS toucher src/ (sous-classe EssaiCapteurs patchant _T_ctrl).
+
+À θ* ACTUEL (6.0123/30.087/37.424, calibré pour la loi 'section') :
+  essai   ACTUEL (RMSE/|ΔTmax|)   CAPTEURS non-recalib
+  A-1      35.8 / 25.9             46.2 / 23.7
+  B-2      65.3 / 45.2            (voir §4 recalibré)
+Pics B-2 déjà spectaculaires (45->8) mais RMSE dégradé -> nécessite recalibration.
+
+
+4. RECALIBRATION OFFICIELLE-FIDÈLE AVEC LA LOI CAPTEURS
+--------------------------------------------------------
+Refit A-1 (2D 31x11, decalage_x figé 0, LHS 25) via le vrai Calibrateur, Essai
+substitué par EssaiCapteurs. θ* CAPTEURS = facteur 4.6205 / h_haut 16.164 /
+h_bas_2d 49.982 (coût 6.329e6). NB h_haut 16 = moins physique que le 30 de la
+loi section.
+
+Validation croisée 61x21 (RMSE / |ΔT_max| moyen, °C) :
+  essai   loi SECTION (réf.)   loi CAPTEURS recalibrée
+  A-1      35.8 / 25.9          41.5 / 19.5
+  A-3      31.7 / 41.3          36.4 / 32.0
+  B-2      65.3 / 45.2          70.4 / 23.0
+
+ÉCART DE PIC : améliore PARTOUT (B-2 45->23, TC2/TC3 quasi parfaits -5.7/-0.6).
+RMSE : dégrade PARTOUT (+5-6 °C), MÊME recalibré.
+
+
+5. POURQUOI LA RECALIBRATION NE RATTRAPE PAS LE RMSE
+-----------------------------------------------------
+Les TAUX de chauffe simulés restent ~2x trop lents partout (B-2 TC2 : 6.2 sim
+vs 13.0 mesuré), INCHANGÉS par la loi capteurs. Le RMSE est dominé par ce
+DÉFICIT DE VITESSE DE MONTÉE, que le thermostat ne touche pas : il fixe QUAND
+couper (le pic), pas À QUELLE VITESSE ça chauffe. Impulsions plus longues ->
+pic recalé, mais montée trop lente conservée, aire de désaccord accrue.
+
+
+6. VERDICT / COUPLAGE AVEC LE PROFIL EN M
+------------------------------------------
+La loi capteurs est PHYSIQUEMENT CORRECTE (validée cahier + données) et améliore
+la métrique la plus signifiante (pic / fenêtre de fusion). Le RMSE dégradé est
+le symptôme d'un AUTRE déficit (vitesse de chauffe), lui-même couplé au profil
+en M trop contrasté : on contrôle sur des TC de bord (y=0) que le modèle
+SURCHAUFFE (cf. resultats_diag_forme_source.log, contraste ~2.4x). Tant que
+l'amplitude du M n'est pas mesurée/corrigée (cartographie bord->centre, exp 7),
+la loi capteurs ne peut pas donner son plein effet : les deux sont à traiter
+ENSEMBLE. Décision d'adoption : ouverte (user).

@@ -119,6 +119,11 @@ def principale():
                     help="active le champ de reaction EM auto-coherent complexe "
                          "(jumeau.em.source_joule.source_spot, defaut False = "
                          "chemin historique inchange) -- cf. resultats_champ_reaction_em.log")
+    ap.add_argument("--thermostat-capteurs", action="store_true",
+                    help="coupe le thermostat sur le MAX de T aux positions TC "
+                         "d'interface reelles (au lieu du centre du spot ; defaut "
+                         "False = chemin historique). NECESSITE un theta* recalibre "
+                         "avec ce flag -- cf. resultats_diag_b2_thermostat_capteurs.log")
     ap.add_argument("--ny", type=int, default=21)
     ap.add_argument("--nz", type=int, default=15,
                     help="défaut 15 (= défaut Essai/construire_grille) ; nz n'a "
@@ -144,7 +149,8 @@ def principale():
         print(f"\n=== {nom} [{args.modele}] ===")
         essai = Essai(cfg, chemin, nx=args.nx, ny=args.ny, nz=args.nz,
                       facteur_couplage=args.facteur, decalage_x=args.decalage_x,
-                      racine=RACINE, champ_reaction=args.champ_reaction)
+                      racine=RACINE, champ_reaction=args.champ_reaction,
+                      thermostat_capteurs=args.thermostat_capteurs)
         solveur, sol = essai.simuler(modele=args.modele)
         series = essai.series_tc(solveur, sol)
         df = recaler_a_la_chauffe(charger_mesures(essai.fichier_mesures))
