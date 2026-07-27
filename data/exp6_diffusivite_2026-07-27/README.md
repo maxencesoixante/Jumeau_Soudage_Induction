@@ -44,6 +44,7 @@ décroissante) :
 
 Fichiers déposés :
 - `200A résultats TC.txt` — 5 TC en largeur au spot 3, 611→760 s (~1 Hz), format FR.
+- `250A 5TC Camera.txt` — **2e essai à 250 A**, même montage, 5 TC en largeur au spot 3.
 - `thermal camera 200A.mp4` — **CORROMPU / illisible** (voir Résultat).
 
 ## Résultat (analyse Claude, 2026-07-27)
@@ -88,11 +89,30 @@ reconstruction. La vidéo n'entre donc PAS dans ce résultat.
   décalage bobine.
 - Interface vs surface des TC non précisé (supposé interface).
 
-**Conclusion.** Première évidence directe que la **vallée centrale du M est réelle** et que ses
-**lobes de bord sont vraisemblablement exagérés** par le modèle — ça pointe dans le sens de
-l'adoucissement du M. Mais pour caler l'AMPLITUDE (falsification quantitative), il faut une
-**reprise propre** : géométrie standard (avec céramique), les 5 TC valides à l'interface,
-montage symétrique. Cf. fiche exp 7 de `mesures_a_realiser.md`.
+### Confirmation à 250 A (2e essai) — le résultat est REPRODUIT
 
-**Figures** : `tc_courbes_brutes.png` (les 5 courbes), `profil_largeur_mesure.png` (le profil
-en M mesuré).
+Même montage, 250 A. Profil ΔT au pic (200 A → 250 A) :
+
+| y (mm) | 0 (chant)* | 10 | 20 (**centre**) | 30 | 40 (chant) |
+|---|---|---|---|---|---|
+| 200 A | 52 | 116 | **78** | 124 | 146 |
+| 250 A | 49 | 139 | **96** | 146 | 178 |
+
+*TC1 (y=0) défaillant dans les DEUX essais.
+
+**La forme est identique aux deux courants** (même creux au centre, même montée vers y=40,
+juste mise à l'échelle) : le M-vallée n'est pas un aléa d'un essai. Contraste chant/centre
+(TC5/TC3) = **1,88 (200 A) et 1,85 (250 A)** — remarquablement stable, et **en-dessous du 2,46
+prédit**. Le taux au centre reste le plus lent (4,2 puis 5,1 °C/s vs 9-19 aux côtés).
+Figure : `profil_largeur_200vs250.png`.
+
+**Conclusion.** Évidence directe et **reproduite sur deux courants** que la **vallée centrale
+du M est réelle** et que le modèle **sur-contraste** (lobes de bord / contraste ~1,85 mesuré
+vs 2,46 prédit) — même sens que le point du chauffe (395 vs 292). Solide sur la FORME. Mais
+l'AMPLITUDE absolue reste non falsifiable ici (géométrie non standard : céramique + pression
+retirées → gap ≈ 0 ; TC1 mort ; profil asymétrique). **Reprise propre à faire** : géométrie
+standard (avec céramique), 5 TC valides à l'interface, montage symétrique. Cf. fiche exp 7 de
+`mesures_a_realiser.md`.
+
+**Figures** : `tc_courbes_brutes.png` (200 A), `profil_largeur_mesure.png` (profil 200 A),
+`profil_largeur_200vs250.png` (comparaison 200/250 A).

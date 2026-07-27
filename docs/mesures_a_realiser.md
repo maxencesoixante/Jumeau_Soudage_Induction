@@ -205,19 +205,18 @@ thermique de dessus, sans pression, échantillons réutilisés)
 > reste un bon complément (surface + face CFC), mais ne remplace pas les TC d'interface pour
 > falsifier la cible chiffrée ci-dessus.
 
-> ▶ **RÉSULTAT PARTIEL (2026-07-27).** Une première manip a été réalisée (déposée sous
-> `data/exp6_diffusivite_2026-07-27/`, étiquetée « exp 6 » mais c'est bien CETTE cartographie).
-> 5 TC en largeur au spot 3, 200 A. Analyse complète dans le README du dossier. **La vallée
-> centrale du M est CONFIRMÉE** : le centre (TC3, y=20) est un creux (101 °C, min local, plus
-> froid que ses voisins TC2=139/TC4=147) et le plus lent à monter (4,2 vs 9-14 °C/s). Les
-> **lobes de bord semblent moins extrêmes que la prédiction** (chant ≈1,2× le voisin, modèle
-> ≈2×) → indice que le modèle **sur-prédit les lobes** (M trop contrasté), cohérent avec le
-> point du chauffe (395 mesuré vs 292 prédit).
-> ⚠ **PAS une falsification quantitative** : céramique + pression retirées → gap ≈ 0 → source
-> EM différente du modèle (valeurs absolues non comparables à la cible) ; TC1 (un chant)
-> défaillant ; profil asymétrique (spot non centré) ; vidéo caméra illisible (MP4 non finalisé).
-> **REPRISE PROPRE À FAIRE** : géométrie STANDARD (céramique en place), 5 TC valides à
-> l'interface, montage symétrique, enregistrement caméra finalisé (ou CSV radiométrique).
+> ▶ **RÉSULTAT PARTIEL — REPRODUIT sur 2 courants (2026-07-27).** Deux manips réalisées
+> (`data/exp6_diffusivite_2026-07-27/`, étiquetées « exp 6 » mais c'est bien CETTE
+> cartographie) : 5 TC en largeur au spot 3, **200 A puis 250 A**. **La vallée centrale du M
+> est CONFIRMÉE et reproduite** : à 200 comme à 250 A, le centre (y=20) est un creux (min local,
+> plus froid que ses voisins) et le plus lent à monter. **Le modèle SUR-CONTRASTE** : contraste
+> chant/centre mesuré **1,88 (200 A) / 1,85 (250 A)** vs **2,46 prédit** — même sens que le point
+> du chauffe (395 mesuré vs 292 prédit). Analyse complète : README du dossier.
+> ⚠ **PAS une falsification quantitative de l'AMPLITUDE** : céramique + pression retirées → gap
+> ≈ 0 → source EM différente du modèle (absolus non comparables à la cible) ; TC1 (un chant)
+> défaillant dans les deux ; profil asymétrique (spot non centré) ; vidéo 200 A illisible (MP4
+> non finalisé). **REPRISE PROPRE À FAIRE** : géométrie STANDARD (céramique en place), 5 TC
+> valides à l'interface, montage symétrique, enregistrement caméra finalisé (ou CSV radiométrique).
 
 ### Expérience 8. Température de la face active du concentrateur
 

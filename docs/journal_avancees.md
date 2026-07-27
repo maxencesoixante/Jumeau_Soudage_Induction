@@ -111,22 +111,23 @@ Rapports/slides/mesures régénérés au θ\* corrigé. Diagnostic de la cote `h
 - Figures Lionetto portées sur le modèle 2D ; docs et archive réorganisés.
 - **Fréquence à 200 A = 383 kHz** (relevé user ; correction A-3 préparée). Paquets de lecture
   vidéo ajoutés (`imageio`, `opencv`) pour dépouiller les manips caméra.
-- **1re cartographie bord→centre** (données user, `data/exp6_diffusivite_2026-07-27/`) : **la
-  vallée centrale du M est confirmée** (le centre est un creux, le plus lent à monter) et ses
-  **lobes de bord semblent sur-prédits** par le modèle. Non quantitatif (géométrie non
-  standard — céramique retirée ; TC1 défaillant ; vidéo illisible) → reprise propre à faire.
+- **Cartographie bord→centre, REPRODUITE à 200 et 250 A** (données user,
+  `data/exp6_diffusivite_2026-07-27/`) : **la vallée centrale du M est confirmée** (le centre
+  est un creux, le plus lent à monter, même forme aux deux courants) et le modèle
+  **sur-contraste** (chant/centre mesuré ~1,85 vs 2,46 prédit). Non quantitatif sur l'amplitude
+  (géométrie non standard — céramique retirée ; TC1 défaillant) → reprise propre à faire.
 
 ---
 
 ## 3. Résidus ouverts (par priorité)
 
 1. **Amplitude du profil en « M » (forme de la source).** Le modèle sur-concentre la source
-   aux chants. **Première cartographie bord→centre (27 juillet) : vallée centrale CONFIRMÉE et
-   lobes de bord vraisemblablement sur-prédits** (`data/exp6_diffusivite_2026-07-27/`), dans le
-   même sens que le point chauffe (395 mesuré vs 292 prédit) — mais **non quantitatif**
-   (géométrie non standard, TC1 mort). L'amplitude reste à caler par une **reprise propre**
-   (exp 7 standard : céramique en place, 5 TC interface valides, symétrique). Levier physique :
-   courants de retour 3D / contact du twill tissé. Réf. `resultats_diag_forme_source.log`.
+   aux chants. **Cartographie bord→centre reproduite à 200 et 250 A (27 juillet) : vallée
+   centrale CONFIRMÉE et modèle qui SUR-CONTRASTE** (chant/centre mesuré ~1,85 vs 2,46 prédit ;
+   `data/exp6_diffusivite_2026-07-27/`), même sens que le point chauffe (395 vs 292). Solide sur
+   la FORME ; l'amplitude absolue reste à caler par une **reprise propre** (exp 7 standard :
+   céramique en place, 5 TC interface valides, symétrique). Levier physique : courants de retour
+   3D / contact du twill tissé. Réf. `resultats_diag_forme_source.log`.
 2. **Vitesse de chauffe ~2× trop lente** (taux simulés vs mesurés). Domine le RMSE ; non
    encore diagnostiqué à fond. Couplé au M.
 3. **Régime basse consigne (B-2).** Cause confirmée (le modèle coupe au centre du spot, le
