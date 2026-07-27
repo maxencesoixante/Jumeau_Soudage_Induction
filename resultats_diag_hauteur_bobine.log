@@ -87,9 +87,52 @@ conducteur hors du demi-espace perméable).
 5. PROCHAINE ÉTAPE QUAND LE THREAD REPREND
 --------------------------------------------
 1. Trancher (b) sur la CAO — c'est le plus gros levier des deux, inutile de
-   recalibrer avant.
+   recalibrer avant.  [FAIT, cf. §6 : (b) RÉSOLU, formule inchangée.]
 2. Appliquer (a) et, le cas échéant, (b) ENSEMBLE dans geometrie.yaml.
 3. Recalibrer sur A-1 (31x11, decalage_x figé 0, h_bord_x0=250) puis valider
    en croisé 61x21 sur A-1/A-3/B-2, comme pour la correction d'entraxe.
 4. Ne PAS mettre à jour les docs avant que le nouveau θ* soit validé — leçon
    du 2026-07-24 (docs/mesures_a_realiser.md avait diffusé une prémisse morte).
+
+
+6. LECTURE CAO DU PLAN IMAGE (2026-07-27) — (b) RÉSOLU
+-------------------------------------------------------
+Sources (vault, 10_notes/fortement liées/images/) :
+  - schema_montage_cote.png       : coupe de côté idéalisée
+  - photo_montage_zoom_coil_lamines.jpg : photo réelle du montage
+  - positionnement_CFC+coil.png   : vue de dessus (brins traversant le bloc)
+
+TOPOLOGIE CONFIRMÉE : le concentrateur (MFC) est AU-DESSUS des brins. Empilement
+(haut->bas) : cellule de force -> MFC -> céramique d'espacement -> laminé sup ->
+PEKK -> laminé inf -> bâti. Les brins de cuivre sortent par le BAS du bloc MFC,
+juste au-dessus de la céramique/laminé.
+
+=> L'hypothèse de base de la méthode des images (demi-espace perméable AU-DESSUS
+   du conducteur) est QUALITATIVEMENT CORRECTE. Pas d'erreur « mauvais côté ».
+   La crainte du §3 (semelle au bas des brins, ×2,8) est LEVÉE.
+
+HAUTEUR DE LA SEMELLE — désaccord entre sources, tranché par la photo :
+  - schema_montage_cote.png (idéalisé) dessine les brins à MI-HAUTEUR du MFC
+    (semelle ~6 mm sous l'axe) — c'était le cas « bas du tube » du §3.
+  - photo_montage_zoom (vérité terrain) montre les brins au RAS de la face
+    inférieure du concentrateur -> semelle ~= SOMMET des brins.
+
+Or plan_miroir_cfc = hauteur + rayon_tube = SOMMET des brins. La PHOTO CONFIRME
+donc la formule actuelle. Le schéma est une représentation idéalisée (trait
+épais du MFC englobant les brins), pas une cote.
+
+COHÉRENCE AVEC (a) : brins posés sur la céramique 2 mm -> axe à 2 + 3 = 5,0 mm
+(décision a), et semelle = axe + demi-tube = 5 + 3 = 8,0 mm au-dessus du laminé.
+Comme plan_miroir_cfc est TENU à hauteur+rayon_tube, corriger hauteur -> 5,0
+met AUTOMATIQUEMENT le plan image à 8,0 mm (toujours « sommet des brins »).
+=> La FORMULE du plan image ne demande AUCUNE modification. Seule la cote
+   hauteur (a) reste à appliquer, avec recalibration.
+
+INCERTITUDE RÉSIDUELLE : sommet des brins vs quelques mm plus bas = facteur ×1
+à ×1,5 sur l'amplitude (§2/§3), en grande partie absorbé par facteur_couplage.
+CE N'EST PAS une erreur de classe « entraxe 35 % ». La vraie limite restante =
+crudité de la méthode des images (concentrateur FINI, redistribution par la
+semelle polaire) — déjà en travaux futurs, NON URGENTE.
+
+DÉCISION (b) : plan image conservé tel quel (formule hauteur+rayon_tube). Le
+thread « plan image » est CLOS. Reste ouvert : appliquer (a) h=5,0 + recalibrer.
