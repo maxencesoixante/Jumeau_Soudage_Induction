@@ -673,10 +673,17 @@ la mesure que par le code.
 
 **Développements de modélisation (par priorité) :**
 
-1. **Modèle de concentrateur fini** (redistribution du flux par la semelle polaire) en
-   remplacement de l'approximation par courants images. Ce levier change la forme de la source,
-   pas seulement son échelle. Sa priorité a toutefois baissé depuis la correction de géométrie :
-   il devait expliquer l'écart de pic, que la cote corrigée absorbe déjà en grande partie.
+1. **Adoucissement du profil en « M » en largeur.** Un diagnostic du 27 juillet a localisé la
+   source de l'écart de pic résiduel : le champ magnétique est déjà uniforme sur la largeur,
+   et le profil en « M » naît entièrement de l'écrasement du courant de Foucault contre les
+   chants libres, où le modèle de plaque mince impose un courant nul. Ce constat réoriente le
+   développement. Le modèle de concentrateur fini, un temps envisagé comme correctif
+   principal, agit sur la répartition du champ ; il ne corrigera donc pas ce « M » en largeur
+   (il vaut pour le profil en longueur). Les mécanismes qui adouciraient le contraste
+   bord/centre sont les courants de retour dans l'épaisseur près des chants et la résistance
+   de contact du tissu tissé, absents du modèle de nappe continue idéalisée. Aucun ne se
+   calibre sans la cartographie bord→centre : cette mesure conditionne ce développement, d'où
+   sa priorité expérimentale (section perspectives, mesures).
 2. **Propriétés dépendantes de la température** σ(T), cp(T). O'Shaughnessey (2014) et Duhovic
    et al. (2012) le recommandent explicitement ; cela expliquerait qu'un facteur unique ne
    colle pas simultanément à la montée, au pic et à la décroissance.

@@ -1,0 +1,89 @@
+Forme de la source EM — diagnostic du profil en « M » en largeur
+==============================================================================
+Date : 2026-07-27. Contexte : après cadrage complet de la géométrie EM (entraxe,
+hauteur, plan image CFC), l'écart de pic résiduel est imputé à la FORME de la
+source (cf. resultats_hauteur_5mm_recalibration.log §4). Ce diagnostic localise
+l'origine du profil en « M » en largeur AVANT tout correctif.
+Scripts : scratchpad/diag_forme_source.py (+ sondes inline).
+DÉCISION user (2026-07-27) : MESURER d'abord (cartographie bord→centre) avant de
+modéliser l'amplitude du M. Ce log fournit la cible falsifiable.
+
+
+1. LE CHAMP Bz EST UNIFORME EN LARGEUR — LE M NE VIENT PAS DU CHAMP
+--------------------------------------------------------------------
+Bz(y) à l'interface twill, spot centré (x=60), fenêtre 0-40 mm :
+normalisé, il vaut 0,95 (chants) à 1,00 (centre) — quasi plat. La bobine et le
+CFC (55 mm) débordent la largeur (40 mm) => Bz quasi uniforme en y.
+
+CONSÉQUENCE STRATÉGIQUE : le levier « CFC fini » (redistribution du flux par la
+semelle) inscrit dans les docs comme correctif n°1 est MAL DIRIGÉ pour le M en
+LARGEUR. Un pôle fini reste plus long (55 mm) que la largeur (40 mm) : il ne
+casse pas l'uniformité de Bz en y. Il agit surtout sur le profil en LONGUEUR
+(x, pôle 31,5 mm). Le M en largeur — celui qui oppose TC1 (centre) à TC2-5
+(bord) — est indépendant de la forme du champ.
+
+
+2. LE M VIENT DE L'ÉCRASEMENT DU COURANT EN PLAQUE MINCE (ψ=0 AU BORD)
+-----------------------------------------------------------------------
+Équation résolue : ρyy·ψxx + ρxx·ψyy = ω·Bz, ψ=0 à tous les chants (aucun
+courant ne traverse le bord). Avec Bz uniforme, ψ est un dôme (parabolique en
+y), donc Jx = ∂ψ/∂y est linéaire (max aux bords, nul au centre) et
+q = ρ·Jx² pique aux chants. C'est l'effet de bord transverse (transverse-flux
+edge effect), physiquement réel — mais c'est une NAPPE CONTINUE IDÉALISÉE.
+
+
+3. LE CONTRASTE INTÉGRÉ EST MODÉRÉ (~2,4×), PAS EXTRÊME
+--------------------------------------------------------
+Puissance twill intégrée en longueur, par bande de largeur (u.a.) :
+  y  0-5 : 24247   |  y 20-25 : 10031
+  y  5-10: 14489   |  y 25-30 : 10947
+  y 10-15: 11121   |  y 30-35 : 13967
+  y 15-20: 10071   |  y 35-40 : 22839
+=> contraste bord/centre ≈ 2,4× en source intégrée. Modéré.
+
+
+4. LE « q≈0 AU CENTRE » EST L'ŒIL DE BOUCLE — ARTEFACT PONCTUEL
+----------------------------------------------------------------
+Sur la ligne de symétrie exacte du spot (x=centre), Jy=0 (symétrie) ET Jx=0 au
+centre largeur => q≈0 au point (60,20) : c'est l'ŒIL de la boucle de courant.
+Contraste q(bord)/q(centre) le long de x :
+  x=centre+ 0 mm : ratio ~1e28 (œil, artefact ponctuel)
+  x=centre+ 5 mm : 10,1
+  x=centre+10 mm : 1,4
+  x=centre+15 mm : 0,7  (centre PLUS chaud que le bord)
+  x=centre+20 mm : 0,3
+=> le creux profond est LOCALISÉ à la ligne de symétrie. TC2 de l'essai de
+chauffe est pile en (60,20) = cet œil de boucle : le point le PLUS défavorable
+au modèle. La « sous-chauffe du centre » observée (§6) est donc en partie un
+effet de sonde au pire endroit, pas seulement un défaut d'amplitude du M.
+
+
+5. MÉCANISMES PHYSIQUES ABSENTS QUI ADOUCIRAIENT LE M
+------------------------------------------------------
+- Courants de retour 3D par l'épaisseur près des chants (le modèle plaque mince
+  force tout le courant dans le plan avec ψ=0 au bord).
+- Résistance de contact aux croisements du tissu twill : le suscepteur est un
+  TISSÉ, pas une nappe continue ; les résistances de contact délocalisent le
+  courant et adoucissent l'œil de boucle et les lobes.
+Aucun n'est calibrable sans donnée => d'où la décision de mesurer d'abord.
+
+
+6. CIBLE FALSIFIABLE POUR LA CARTOGRAPHIE BORD→CENTRE
+------------------------------------------------------
+Profil de température d'interface prédit en travers de la largeur, essai de
+chauffe (spot centré x=60), au pic (t≈47 s), θ* de référence h=5,0 :
+
+   y (mm)   0     5     10    15    20    25    30    35    40
+   T (°C)  717   596   382   310   292   310   382   596   717
+
+Contraste thermique bord/centre au pic = 2,46× (717/292 °C).
+Point de mesure DÉJÀ existant : TC2 au centre (60,20) mesure 395 °C, contre
+292 °C prédits => modèle trop froid de 103 °C au centre. Le M est
+vraisemblablement trop creusé.
+
+MANIP : une ligne de ~5 TC d'interface à y = 0, 10, 20, 30, 40 mm (x=60), essai
+de chauffe simple spot centré, teste le profil ci-dessus point par point. Si le
+contraste réel est nettement < 2,46×, le M est confirmé trop creusé et il faut
+un mécanisme d'adoucissement (§5). Si ≈ 2,46×, le modèle tient et l'écart au
+centre est un artefact d'œil de boucle (§4) à traiter par la lecture, pas la
+physique.

@@ -125,10 +125,19 @@ mesures thermocouples des essais (Séries A/B + essais de chauffe).
   de la boucle de courants induits ; retours de courant confinés aux chants).
   Qualitativement cohérent avec le squeeze-out observé sur les chants et la
   reco COMPAAM (réduire le MFC pour limiter les effets de bord), mais
-  l'amplitude du contraste bord/centre est probablement exagérée : le modèle
-  d'images ne capture pas la redistribution du flux par la semelle du CFC.
-  **Test expérimental direct : la cartographie bord→centre proposée au cahier
-  §2.1.4** (3–5 TC en ligne sur la largeur).
+  l'amplitude du contraste bord/centre est probablement exagérée.
+  **Diagnostic 2026-07-27** (`resultats_diag_forme_source.log`) : le champ `Bz`
+  est déjà UNIFORME sur la largeur (0,95→1,00) — le M ne vient donc PAS de la
+  forme du champ ni de la semelle du CFC, mais **entièrement de l'écrasement du
+  courant de Foucault** contre les chants (`ψ = 0` au bord d'une nappe continue
+  idéalisée). Contraste bord/centre ~2,4× en source intégrée ; le « q ≈ 0 au
+  centre » est l'œil de boucle (point de courant nul), un minimum ponctuel sur
+  la ligne de symétrie où tombe justement TC2 de l'essai de chauffe. Corollaire :
+  un modèle de CFC fini n'y changera rien (il vaut pour le profil en longueur) ;
+  les leviers d'adoucissement sont les courants de retour 3D et la résistance de
+  contact du twill tissé — non calibrables sans mesure.
+  **Test expérimental direct : la cartographie bord→centre** (5 TC d'interface à
+  y = 0/10/20/30/40 mm, x = 60 mm), cible chiffrée 717/382/292/382/717 °C au pic.
 - **TC1 (surface côté bobine) chauffe 5–6× trop lentement dans le modèle** (diagnostic thermal-solver-engineer, 2026-07-18/20 : 37,7 °C/s mesuré vs ~6,3 °C/s simulé, essai `chauffe_250A_3TC`). Trois explications ont été testées et **écartées** :
   - condition limite thermique (`h_contact=0` ne change quasiment rien, 6,38→6,42 °C/s) et diffusion (couper la source dans le laminé sup. fait chuter TC1 à 0,98 °C/s, τ_diffusion≈28,5 s ≫ 1 s) ;
   - auto-échauffement du CFC (Ferrotron 559H) : ≈0,6–1,4 W chiffrés via la fiche constructeur, 1–2 ordres de grandeur trop faible même dans l'hypothèse la plus généreuse ;

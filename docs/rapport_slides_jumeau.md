@@ -411,10 +411,12 @@ scientifique — la valeur est dans l'accessibilité de l'outil.
 
 Trois manips discriminantes, par ordre de rapport valeur/effort :
 
-1. **Cartographie bord → centre** (3–5 TC en ligne sur la largeur 40 mm, à l'interface,
-   mêmes paramètres que B-2). ⟶ tranche directement le profil en « M » : le modèle prédit
-   bord chaud / centre froid, les essais actuels suggèrent l'inverse. *La manip est déjà
-   décrite au cahier §2.1.4.*
+1. **Cartographie bord → centre — LA priorité** (5 TC d'interface à y = 0/10/20/30/40 mm,
+   x = 60 mm, essai de chauffe simple spot). ⟶ c'est la mesure qui **débloque le levier n° 1**
+   (forme de la source, slide 18) : elle seule cale l'amplitude du « M ». **Cible chiffrée du
+   modèle** : 717 / 382 / **292** / 382 / 717 °C au pic (contraste bord/centre 2,46×) ; le
+   seul point déjà mesuré, le centre à 395 °C, dépasse déjà les 292 prédits → le M est
+   vraisemblablement trop creusé. *Manip décrite au cahier §2.1.4.*
 2. **Température du CFC** (thermocouple ou caméra IR sur sa face active pendant une
    chauffe). ⟶ seule mesure capable d'attaquer le déficit TC1.
 3. **Relevé métrologique de la position de la tête** (bobine / CFC / thermocouples, surtout
@@ -434,13 +436,14 @@ question de **métrologie**, pas de physique.
 
 Par ordre de priorité, avec l'incertitude assumée :
 
-1. **Modèle de CFC fini** (redistribution du flux par la semelle polaire) — remplacer
-   l'approximation par courants images. *Il change la forme de la source, pas son échelle.*
-   Nécessite un refit complet de θ\* derrière. ⚠ Effort : plusieurs jours de travail EM
-   dédié (FEM/BEM ou modèle de semelle). **C'est le levier n° 1** : la géométrie EM est
-   désormais juste (entraxe, hauteur, plan image tous vérifiés), donc l'écart résiduel de
-   pic n'est plus imputable à une cote — il vient de la **forme** de la source, exactement
-   ce que ce modèle corrigerait.
+1. **Adoucir le profil en « M » en largeur** — le levier n° 1, mais **pas** celui qu'on
+   croyait. Un diagnostic (27 juillet) a montré que le champ `Bz` est déjà uniforme en
+   largeur : le M vient **entièrement** de l'écrasement du courant de Foucault contre les
+   chants libres (`ψ = 0` au bord d'une nappe continue idéalisée), pas de la forme du champ.
+   ⟹ Le **CFC fini** (redistribution du flux) n'y changera rien — il agit sur le profil en
+   **longueur**. Les vrais mécanismes d'adoucissement : courants de retour 3D par l'épaisseur
+   près des chants, résistance de contact du tissu twill. **Aucun ne se calibre sans la
+   cartographie bord→centre** (slide 17) — d'où la priorité donnée à cette mesure.
 2. **Forme du blindage inter-couches** — l'écran actuel `e^(−2t/δ)` (onde plane) est-il
    adapté à une nappe de courant plane ? Le calcul rigoureux nappe-à-nappe suggère un
    blindage plus faible, ce qui redistribuerait la puissance entre couches — piste possible
@@ -451,9 +454,10 @@ Par ordre de priorité, avec l'incertitude assumée :
 4. **Cinétique de cristallisation** (Ozawa) — complèterait la Fig. 5 avec le degré de
    cristallinité, et donnerait un critère de qualité de joint au refroidissement.
 
-*À dire* : depuis la correction de géométrie, aucun de ces quatre points n'est un
-« correctif attendu » — ce sont des raffinements. Le résidu ouvert (B-2, basse consigne)
-relève d'abord d'une **mesure** (point 4 de la slide 17), pas d'un modèle plus fin.
+*À dire* : le point 1 est le vrai levier restant, mais le diagnostic a corrigé la cible —
+ce n'est pas le CFC fini, c'est l'adoucissement du M en largeur, et il faut la mesure
+(slide 17) avant de le coder. Les points 2–4 sont des raffinements. Message d'ensemble :
+la modélisation est désormais **pilotée par la mesure**, pas l'inverse.
 
 ---
 

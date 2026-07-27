@@ -156,24 +156,40 @@ sur l'étalement latéral que le modèle peut produire.
 
 **Temps estimé.** Un essai de chauffe instrumenté en ligne.
 
-### Expérience 7. Cartographie bord vers centre (le profil en « M »)
+### Expérience 7. Cartographie bord vers centre (le profil en « M ») — PRIORITAIRE
 
-**Objectif.** Tester la prédiction du modèle sur la répartition de température dans la largeur.
+> ★ **C'est LA mesure qui débloque le levier « forme de la source ».** Le diagnostic du
+> 27 juillet (`resultats_diag_forme_source.log`) a établi que l'écart de pic résiduel, une
+> fois la géométrie EM entièrement corrigée, vient du profil en « M » en largeur — un effet
+> de courants de Foucault en nappe idéalisée, PAS du champ. Son amplitude ne peut être
+> calibrée qu'avec cette cartographie. Tant qu'elle manque, tout correctif de la forme
+> serait un ajustement à l'aveugle.
 
-**Méthode.** Une ligne de 3 à 5 thermocouples sur la largeur de 40 mm, à l'interface, mêmes
-paramètres qu'un essai B-2. Cette expérience se combine avec l'expérience 6, même type de
-montage.
+**Objectif.** Mesurer le profil de température d'interface en travers de la largeur et le
+confronter point par point à la prédiction du modèle.
 
-**Paramètre du modèle résolu.** Le profil en « M » prédit (bord chaud, centre froid), dont
-l'amplitude reste incertaine.
+**Méthode.** Une ligne de 5 thermocouples d'interface à **y = 0, 10, 20, 30, 40 mm**, au
+centre de la longueur (**x = 60 mm**), sur un essai de chauffe simple spot centré (même
+montage que l'essai `chauffe_250A_3TC`, qui a déjà son TC d'interface au centre).
 
-**Gain attendu.** Confirme ou falsifie la seule prédiction franchement falsifiable du modèle.
-Celui-ci prédit des lobes chauds sur les chants et un creux au centre ; aucun capteur actuel
-ne se trouve au centre de la largeur, donc rien ne la contredit ni ne la confirme aujourd'hui.
-La correction de géométrie du 23 juillet a modifié la forme de la source : la prédiction vaut
-d'être retestée telle qu'elle sort du modèle courant.
+**Cible falsifiable (modèle courant, θ\* h=5,0, au pic ≈ 47 s) :**
 
-**Temps estimé.** Un essai.
+| y (mm) | 0 | 10 | 20 (centre) | 30 | 40 |
+|---|---|---|---|---|---|
+| T_pic prédite (°C) | 717 | 382 | **292** | 382 | 717 |
+
+Contraste bord/centre prédit = **2,46×**. Le seul point déjà mesuré, TC2 au centre, donne
+**395 °C** contre 292 prédits (modèle trop froid de 103 °C) : indice que **le creux du M est
+trop prononcé**, à confirmer sur toute la largeur.
+
+**Interprétation selon le résultat.** Si le contraste réel est nettement inférieur à 2,46×
+(centre plus chaud, bords moins), le M est confirmé trop creusé → il faut un mécanisme
+d'adoucissement (courants de retour 3D par l'épaisseur, ou résistance de contact du tissu
+twill ; cf. `resultats_diag_forme_source.log` §5). Si le contraste est proche de 2,46×, le
+modèle tient et l'écart au centre s'explique par l'« œil de boucle » (le TC central tombe au
+point de courant nul) — un effet de lecture, pas de physique.
+
+**Temps estimé.** Un essai (se combine avec l'expérience 6, même ligne de TC).
 
 ### Expérience 8. Température de la face active du concentrateur
 
@@ -229,18 +245,19 @@ cette prise en compte.
 
 ## Recommandation
 
-Si le temps de laboratoire est limité, trois actions couvrent les deux écarts ouverts pour un
-temps de banc quasi nul :
+Par ordre de priorité pour l'avancement du modèle :
 
-1. **Le relevé 5** (point de coupure du thermostat) : aucune manipulation, une relecture de
+1. **L'expérience 7** (cartographie bord→centre) : c'est désormais LA mesure clé. La
+   géométrie EM étant entièrement cadrée, l'écart de pic résiduel vient de la forme de la
+   source (profil en « M »), dont l'amplitude ne se calibre qu'avec cette cartographie. Un
+   seul essai de chauffe instrumenté d'une ligne de 5 TC, contre une cible chiffrée
+   (2,46× de contraste bord/centre). L'expérience 6 s'y ajoute sans coût sur le même montage.
+2. **Le relevé 5** (point de coupure du thermostat) : aucune manipulation, une relecture de
    configuration, et c'est la seule information qui tranche le résidu à basse consigne.
-2. **Les relevés 1 et 2**, triviaux, qui lèvent deux paramètres figés — l'épisode du
-   23 juillet a montré ce que rapporte un quart d'heure de métrologie.
-3. **L'expérience 7** (cartographie bord vers centre), qui teste la prédiction falsifiable du
-   modèle. L'expérience 6 s'y ajoute sans coût si le même montage de thermocouples en ligne
-   est utilisé, mais elle n'est plus prioritaire à elle seule.
+3. **Les relevés 1 et 2**, triviaux, qui lèvent deux paramètres figés — l'épisode de
+   juillet a montré ce que rapporte un quart d'heure de métrologie.
 
-Ces trois actions représentent un temps de banc minimal pour le gain le plus élevé.
+Ces actions représentent un temps de banc minimal pour le gain le plus élevé.
 
 ---
 
@@ -254,7 +271,7 @@ Ces trois actions représentent un temps de banc minimal pour le gain le plus é
 | 4 | Condition aux bords de l'échantillon | 1 | justification `h_bord_x0` | 1 photo |
 | 5 | **Point de coupure du thermostat** | 1 | nœud de contrôle — **résidu B-2** | relecture |
 | 6 | Cartographie latérale (diffusivité) | 2 | `k_plan` (vérification, non prioritaire) | 1 essai |
-| 7 | Cartographie bord vers centre | 2 | profil en « M » | 1 essai |
+| 7 | **Cartographie bord vers centre** | 2 | **profil en « M » — levier forme, PRIORITAIRE** | 1 essai |
 | 8 | Température face active du CFC | 2 | déficit de surface TC1 | 1 essai |
 | 9 | Conductivité thermique in-plane | 3 | `k_plan` (mesure directe) | labo |
 | 10 | Conductivité électrique σ(T) | 3 | dépendance σ(T) | labo |
