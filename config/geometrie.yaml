@@ -21,11 +21,15 @@ coil:
                              # supposait à tort un tube 9,5 mm)
   rayon_tube: 0.003          # m — demi-côté du tube carré 6 mm (filament équivalent ;
                              # n'entre que dans plan_miroir_cfc = hauteur + rayon_tube)
-  # Hauteur de l'axe du conducteur au-dessus de la surface du laminé.
-  # CONFIRMÉ correct (user 2026-07-23) ; NB : la décomposition « gap céramique
-  # 2 mm + demi-tube » ne tient plus avec le tube 6 mm (donnerait 5 mm) — à
-  # réconcilier (gap réel ~3,8 mm ? mesure autrement ?), mais la valeur tient.
-  hauteur: 0.0068            # m
+  # Hauteur de l'axe du conducteur au-dessus de la surface du laminé =
+  # gap céramique 2 mm + demi-tube 3 mm (tube carré 6 mm). CORRIGÉ 2026-07-27 :
+  # l'ancienne valeur 0.0068 était une SÉQUELLE du tube 9,5 mm (2 + 4,76 = 6,76,
+  # cf. commit d'origine 55068a6) — pas une mesure. La photo de montage
+  # (photo_montage_zoom_coil_lamines.jpg) montre les brins posés au ras de la
+  # céramique. Plan image du CFC (plan_miroir_cfc = hauteur + rayon_tube) reste
+  # au sommet des brins, confirmé par la même photo — cf.
+  # resultats_diag_hauteur_bobine.log §6.
+  hauteur: 0.005             # m
   # CONFIRMÉ (2026-07-17) : le grand côté 55 mm du CFC est parallèle à la
   # LARGEUR des échantillons (axe y) => brins du hairpin le long de y.
   orientation: y

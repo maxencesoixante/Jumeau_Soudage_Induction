@@ -1,0 +1,86 @@
+Correction de la hauteur bobine (6,8 -> 5,0 mm) + recalibration — rapport
+==============================================================================
+Date : 2026-07-27. Fait suite à resultats_diag_hauteur_bobine.log (§1-§6) et à
+la lecture CAO du 2026-07-27 (§6 : plan image du CFC résolu, formule inchangée).
+
+
+RÉSUMÉ EXÉCUTIF
+---------------
+La cote coil.hauteur = 0,0068 m était une SÉQUELLE du tube de 9,5 mm (2 mm de
+céramique + 4,76 mm de demi-tube ; commit d'origine 55068a6) — pas une mesure.
+Avec le tube réel de 6 mm et la photo de montage (brins posés au ras de la
+céramique), la cote physique est 2 + 3 = 5,0 mm. Appliquée + recalibrée, elle
+donne un θ* plus bas (facteur 7,42 -> 6,01) et un RMSE marginalement meilleur,
+mais DÉGRADE l'écart de pic sur les trois essais. ARBITRAGE TRANCHÉ (user
+2026-07-27) : on adopte la cote PHYSIQUE 5,0 mm, la régression de pic étant une
+évidence de plus que la FORME de la source est trop concentrée (même limite que
+le profil en M) — garder 6,8 reviendrait à compenser une erreur de forme par une
+cote fausse.
+
+
+1. CORRECTION DE COTE (config/geometrie.yaml)
+-----------------------------------------------
+  coil.hauteur : 0.0068 -> 0.005 m   (céramique 2 mm + demi-tube 3 mm)
+  rayon_tube et entraxe INCHANGÉS (0.003 / 0.01235, corrigés le 2026-07-23).
+  plan_miroir_cfc = hauteur + rayon_tube -> 0.008 m (sommet des brins), toujours
+  confirmé par la photo (cf. diag §6) : la FORMULE du plan image ne change pas,
+  seule hauteur bouge.
+
+
+2. RECALIBRATION (géométrie h=5,0, k_plan=3 physique)
+------------------------------------------------------
+Calibration A-1, modèle 2D, grille 31×11×13, decalage_x figé 0, h_bord_x0=250
+(défaut config/materiaux.yaml). Commande :
+  python scripts/calibrer.py --modele 2D --essai serieA_A-1 --n-lhs 25 \
+      --figer-decalage-x 0 --nx 31 --ny 11 --nz 13
+
+  θ* = facteur_couplage 6.0123 ± 0.0666
+       h_haut           30.087 ± 1.30
+       h_bas_2d         37.424 ± 0.514
+       (decalage_x figé 0 ; coût 4.979e6, succès, 35 évaluations NLSQ)
+  Corrélations ≤ 0.49 -> bien identifié. Coût 4.979e6 < 5.117e6 (h=6,8) :
+  A-1 est marginalement MIEUX ajusté à h=5,0.
+
+  Comparaison des θ* :
+    param             h=6,8 (obsolète)   h=5,0 (RÉFÉRENCE)
+    facteur_couplage  7.4172             6.0123
+    h_haut            26.367             30.087
+    h_bas_2d          41.905             37.424
+  facteur baisse comme attendu (source ~1,34× plus forte à h=5,0).
+
+
+3. VALIDATION CROISÉE 61×21×15 (RMSE / |ΔT_max| moyen, °C)
+-----------------------------------------------------------
+  essai         h=6,8 (obsolète)   h=5,0 (RÉFÉRENCE)
+  A-1 (calib)    36.8 / 14.9        35.8 / 25.9
+  A-3 (aveugle)  32.0 / 28.4        31.7 / 41.3
+  B-2 (aveugle)  66.2 / 34.8        65.3 / 45.2
+
+  RMSE : marginalement MEILLEUR partout (~1 °C, dans le bruit).
+  ÉCART DE PIC : RÉGRESSE nettement partout (+10 à +13 °C).
+
+Mécanisme : à h=5,0 la source est plus piquée (+8 %) et plus étroite (-6 % de
+FWHM_x, cf. diag §2). La calibration sur le RMSE abaisse facteur -> les TC
+INTÉRIEURS sous-chauffent (A-1 : TC2-4 passent à -20/-30 °C ; ΔT_max 14,9 ->
+25,9). Le pic A-1, ramené de 46 à 15 °C par la correction d'entraxe, remonte à 26.
+
+
+4. INTERPRÉTATION
+------------------
+La cote physiquement correcte DÉGRADE l'accord de pic. Ce n'est pas un argument
+pour revenir à 6,8 (qui était faux) mais une CONFIRMATION que le modèle
+sur-concentre la source : à géométrie EM juste, il faut baisser l'amplitude pour
+tenir le RMSE, d'où la sous-chauffe des points intérieurs. Le vrai levier reste
+la FORME (concentrateur fini / redistribution par la semelle polaire, profil en
+M trop contrasté) — déjà en travaux futurs. La confrontation bord->centre
+(mesures_a_realiser §7) tranchera l'amplitude du M ; la donnée ponctuelle
+existante (chauffe_250A_3TC : centre mesuré 395 °C vs 260 °C prédit) pointe déjà
+dans ce sens.
+
+
+5. θ* DE RÉFÉRENCE À UTILISER DÉSORMAIS (géométrie h=5,0)
+---------------------------------------------------------
+  --facteur 6.0123 --decalage-x 0 --h-haut 30.087 --h-bas-2d 37.424 --h-bord-x0 250
+
+  L'ancien θ* (7.4172 / 26.367 / 41.905, géométrie h=6,8) est OBSOLÈTE.
+  Docs à mettre à jour (report/slides/mesures/docx + figures) au nouveau θ*.
