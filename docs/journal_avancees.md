@@ -117,11 +117,12 @@ Rapports/slides/mesures régénérés au θ\* corrigé. Diagnostic de la cote `h
   ~1,35-1,88 vs 2,46 prédit — mais géométrie non standard (céramique retirée).
 
 ### 28 juillet — Le profil en « M » est validé (avec céramique)
-- **Reprise AVEC céramique (200 A, géométrie standard)** : contraste chant/centre mesuré **2,17
-  ≈ 2,43 modèle**, forme quasi superposée (`data/exp7_bord-centre_2026-07-28_avec-ceramique/`).
-  **Le modèle a raison sur l'amplitude du M** — le « sur-contraste » de la série sans céramique
-  était un artefact du gap 0. → **Le levier « adoucir le M » n'est plus justifié.** (Restes :
-  TC1 mort, absolus non confrontés, essai unique.)
+- **Reprise AVEC céramique (200 A, géométrie standard), 2 essais v2/v3** : contraste chant/centre
+  mesuré **2,17 / 2,16 ≈ 2,43 modèle** (REPRODUIT), forme quasi superposée
+  (`data/exp7_bord-centre_2026-07-28_avec-ceramique/`). **Le modèle a raison sur l'amplitude du
+  M** — le « sur-contraste » de la série sans céramique était un artefact du gap 0. → **Le
+  levier « adoucir le M » n'est plus justifié.** Restes : TC1 (chant y=0) cassé → chant y=0 non
+  vérifié (question ouverte d'une éventuelle asymétrie) ; absolus non confrontés (chauffe courte).
 
 ---
 

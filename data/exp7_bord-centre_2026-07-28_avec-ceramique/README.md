@@ -45,30 +45,37 @@ _(déroulé, observations, aléas…)_
 
 ## Fichiers déposés
 
-- `200a v2 ceram.txt` — 200 A, céramique en place, 5 TC en largeur au spot 3.
-- `analyse_200A_ceramique.png` — courbes + comparaison de forme mesuré/modèle.
+- `200a v2 ceram.txt`, `200a v3 ceram.txt` — 200 A, céramique en place, 5 TC en largeur au
+  spot 3 (deux essais pour la répétabilité).
+- `analyse_200A_ceramique.png` (v2 seul), `analyse_200A_v2_v3.png` (v2 vs v3 vs modèle).
 
 ## Résultat (analyse Claude, 2026-07-28)
 
 **En bref : avec la géométrie standard, le modèle a RAISON sur l'amplitude du profil en « M ».**
 
-Profil ΔT au pic (TC1 encore mort — voir plus bas) :
+Profil ΔT au pic — **deux essais (v2, v3) + modèle** :
 
 | y (mm) | 0 | 10 | 20 (centre) | 30 | 40 | contraste chant/centre |
 |---|---|---|---|---|---|---|
-| **mesuré** | (TC1 mort) | 141 | **89** | 119 | 192 | **2,17** |
+| **v2** | (TC1 mort) | 141 | **89** | 119 | 192 | **2,17** |
+| **v3** | (93, TC1 douteux) | 172 | **104** | 141 | 226 | **2,16** |
 | **modèle 200 A** | 444 | 252 | **183** | 252 | 444 | **2,43** |
 
-- **Le contraste mesuré (2,17) est PROCHE du modèle (2,43)** ; la *forme normalisée* se superpose
-  presque sur y = 10/20/30/40 (cf. `analyse_200A_ceramique.png`, panneau droit).
+- **Contraste REPRODUIT : 2,17 (v2) / 2,16 (v3), proche du modèle (2,43)** ; la *forme
+  normalisée* de v2 et v3 se superpose et suit le modèle sur y = 10/20/30/40 (cf.
+  `analyse_200A_v2_v3.png`, panneau droit).
 - **Révision majeure** : le « sur-contraste » observé dans la série SANS céramique
   (1,35-1,88 vs 2,46) venait surtout du **retrait de la céramique** (gap ≈ 0 → source aplatie),
   PAS d'un défaut du modèle. Avec la céramique = géométrie du modèle, le M est bien reproduit.
   → **Le levier « adoucir le M » n'est donc plus justifié** ; l'amplitude du M est ~correcte.
 
 **Réserves.**
-- **TC1 (y=0, un chant) toujours mort** (reste à l'ambiant) → le point d'extrémité y=0 manque ;
-  le contraste s'appuie sur TC5 (y=40), fiable. Symétrie non vérifiable.
+- **TC1 (y=0, un chant) non fiable** (mort en v2 ; en v3 il lit ~93 = ΔT bien SOUS ses voisins,
+  alors que le modèle y prédit le maximum). Le user confirme TC1 cassé. → le chant y=0 reste
+  **non vérifié** ; le contraste s'appuie sur TC5 (y=40), fiable. **Question ouverte** : si le
+  y=0 réel était bien plus froid que le y=40 (comme le suggère v3), le M serait ASYMÉTRIQUE —
+  mais impossible à trancher avec TC1 cassé (peut aussi être un spot non centré). Un TC1
+  réparé le dirait.
 - **Absolus non confrontés** : la chauffe manuelle s'est arrêtée tôt (pic mesuré ~15-25 s,
   TC5 ~219 °C ; le modèle vise ~46 s / plus chaud) → seule la FORME (contraste) est comparée,
   pas l'amplitude en °C.
