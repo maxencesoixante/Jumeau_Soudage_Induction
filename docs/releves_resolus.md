@@ -118,22 +118,22 @@ matière : impulsion de chaleur → vitesse d'étalement → `k_plan`. L'exp 6 e
 
 Données : `data/exp6_diffusivite_2026-07-27/` (README = analyse complète). Manips étiquetées
 « exp 6 » mais qui réalisent la cartographie en largeur (exp 7) : 5 TC en largeur au spot 3,
-**200 A puis 250 A**, céramique + pression **retirées**.
+**150 / 200 / 250 A**, céramique + pression **retirées**.
 
-**Résultat (reproduit sur 2 courants).** Profil ΔT au pic (200 A / 250 A) :
+**Résultat (reproduit sur 3 courants).** Profil ΔT au pic (TC fiables ; TC1 écarté) :
 
-| y (mm) | 0* | 10 | 20 (centre) | 30 | 40 |
+| essai | y10 | y20 (centre) | y30 | y40 | chant/centre |
 |---|---|---|---|---|---|
-| 200 A | 52 | 116 | **78** | 124 | 146 |
-| 250 A | 49 | 139 | **96** | 146 | 178 |
+| 150 A | 150 | **111** | 151 | 150 | 1,35 |
+| 200 A | 116 | **78** | 124 | 146 | 1,88 |
+| 250 A | 139 | **96** | 146 | 178 | 1,85 |
+| modèle | 382 | **292** | 382 | 717 | **2,46** |
 
-*TC1 (y=0) défaillant dans les deux essais.
-
-- **Vallée centrale du M CONFIRMÉE** : le centre (y=20) est un creux (min local, plus froid que
-  ses voisins) et le plus lent à monter (4-5 vs 9-19 °C/s) — même forme aux deux courants.
-- **Le modèle SUR-CONTRASTE** : chant/centre mesuré **1,88 (200 A) / 1,85 (250 A)** vs **2,46
-  prédit** — même sens que le point du chauffe (395 mesuré vs 292 prédit).
+- **Vallée centrale du M CONFIRMÉE aux 3 courants** : le centre (y=20) est un creux (min local,
+  plus froid que ses voisins) et le plus lent à monter (4-5 vs 9-19 °C/s).
+- **Le modèle SUR-CONTRASTE** : chant/centre mesuré **1,35-1,88** vs **2,46 prédit** — même sens
+  que le point du chauffe (395 mesuré vs 292 prédit).
+- **TC1 écarté partout** (incohérent : ΔT 235 erratique à 150 A ; ~50 quasi mort à 200/250 A).
 - **PAS de falsification quantitative de l'amplitude** : géométrie non standard (céramique +
-  pression retirées → gap ≈ 0, source EM ≠ modèle), TC1 mort, profil asymétrique (spot non
-  centré), vidéo 200 A illisible (MP4 non finalisé). → **reprise propre** prévue le 2026-07-28
-  (checklist dans `mesures_a_realiser.md`, exp 7).
+  pression retirées → gap ≈ 0, source EM ≠ modèle), TC1 mort, profils un peu asymétriques,
+  vidéo 200 A illisible. → **reprise propre** prévue le 2026-07-28 (checklist exp 7).

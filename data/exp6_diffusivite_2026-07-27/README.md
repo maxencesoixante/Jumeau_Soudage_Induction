@@ -42,9 +42,10 @@ décroissante) :
 2. **CSV température par image** : matrices T(x,y) par frame (ou au moins la frame au pic).
 3. **Frames PNG avec la barre d'échelle** de température visible.
 
-Fichiers déposés :
-- `200A résultats TC.txt` — 5 TC en largeur au spot 3, 611→760 s (~1 Hz), format FR.
-- `250A 5TC Camera.txt` — **2e essai à 250 A**, même montage, 5 TC en largeur au spot 3.
+Fichiers déposés (3 essais, même montage, 5 TC en largeur au spot 3, format FR) :
+- `150a.txt` — **150 A / 390 kHz**.
+- `200A résultats TC.txt` — **200 A / 383 kHz**.
+- `250A 5TC Camera.txt` — **250 A / 388 kHz**.
 - `thermal camera 200A.mp4` — **CORROMPU / illisible** (voir Résultat).
 
 ## Résultat (analyse Claude, 2026-07-27)
@@ -59,60 +60,41 @@ finalisé (caméra arrêtée avant clôture, ou export FLIR tronqué). À ré-ex
 source FLIR, ou fournir une vidéo de référence (même caméra/réglages) pour tenter une
 reconstruction. La vidéo n'entre donc PAS dans ce résultat.
 
-**Thermocouples — profil en largeur (pics, données nettoyées des glitches) :**
+**Profil en largeur au pic — ΔT au-dessus de l'ambiant (TC fiables ; TC1 écarté) :**
 
-| TC | y (mm) | T_pic (°C) | ΔT (°C) | taux (°C/s) | fiable |
+| essai | y=10 | y=20 (**centre**) | y=30 | y=40 (chant) | chant/centre |
 |---|---|---|---|---|---|
-| TC1 | 0 (chant) | 76 | 52 | — | **non** (retombe à l'ambiant, mauvais contact) |
-| TC2 | 10 | 139 | 116 | 9,2 | oui |
-| TC3 | 20 (**centre**) | **101** | **78** | **4,2** | oui |
-| TC4 | 30 | 147 | 124 | 10,1 | ~ (bruité, glitche à 1969 °C) |
-| TC5 | 40 (chant) | 170 | 146 | 13,8 | oui |
+| 150 A / 390 kHz | 150 | **111** | 151 | 150 | 1,35 |
+| 200 A / 383 kHz | 116 | **78** | 124 | 146 | 1,88 |
+| 250 A / 388 kHz | 139 | **96** | 146 | 178 | 1,85 |
+| **modèle (cible)** | 382 | **292** | 382 | 717 | **2,46** |
 
-**Ce que ça établit (qualitatif, robuste) :**
-1. **Le centre de la largeur (TC3, y=20) est un CREUX** : minimum local, plus froid que ses
-   deux voisins (TC2=139, TC4=147 vs TC3=101). → **le profil en « M » est RÉEL**, ce n'est pas
-   un artefact numérique.
-2. **Le centre chauffe le plus LENTEMENT** (4,2 °C/s vs 9-14 aux côtés ; pic à 54 s vs 34-42 s)
-   → il est alimenté par conduction latérale, pas par la source directe (cohérent M-vallée).
-3. **Les lobes de bord semblent MOINS extrêmes que la prédiction** : le modèle prédit un chant
-   ~2× plus chaud que le point voisin (717 vs 382) ; ici TC5 (chant) n'est que ~1,2× TC4. →
-   indice que **le modèle sur-prédit les lobes de bord** (M trop contrasté), cohérent avec le
-   point mesuré au centre de l'essai de chauffe (395 mesuré vs 292 prédit).
+**Ce que ça établit (reproduit sur 3 courants) :**
+1. **Le centre (y=20) est un CREUX aux trois courants** : minimum local, plus froid que ses
+   voisins → **le profil en « M » est RÉEL**, pas un artefact numérique.
+2. **Le centre chauffe le plus LENTEMENT** (4-5 °C/s vs 9-19 aux côtés) → alimenté par
+   conduction latérale, pas par la source directe (cohérent M-vallée).
+3. **Le modèle SUR-CONTRASTE** : contraste chant/centre mesuré **1,35 à 1,88** contre **2,46**
+   prédit — même sens que le point du chauffe (395 mesuré vs 292 prédit). Le M mesuré est plus
+   doux que le M du modèle. (Le 150 A est le plus doux : chauffe plus lente/longue → plus de
+   temps pour que la conduction remplisse la vallée ; NB départ à chaud, ambiant 38 °C.)
 
-**Réserves (empêchent une falsification QUANTITATIVE propre) :**
-- **Géométrie non standard** : céramique d'espacement ET pression retirées → gap bobine-laminé
-  ≈ 0 → source EM plus forte et de forme différente du modèle calibré. Les valeurs absolues ne
-  sont PAS comparables à la cible 717/382/292.
-- **TC1 défaillant** (un des deux chants) → symétrie non vérifiable.
-- **Profil asymétrique** (monte vers y=40) → spot probablement non centré en largeur, ou
-  décalage bobine.
+**TC1 (y=0) écarté partout** : incohérent d'un essai à l'autre (ΔT 235 à 150 A — erratique,
+pics à 275/197/167 = contact intermittent ; ~50, quasi mort, à 200/250 A).
+
+**Réserves (empêchent la falsification QUANTITATIVE de l'amplitude) :**
+- **Géométrie non standard** : céramique + pression retirées → gap ≈ 0 → source EM plus forte
+  et de forme différente du modèle. Absolus non comparables à la cible 717/382/292 ; seule la
+  FORME (contraste) est exploitée.
+- **TC1 mort** (un des deux chants) → symétrie non vérifiable ; profils un peu asymétriques
+  (montée vers y=40 à 200/250 A) → spot probablement non centré.
 - Interface vs surface des TC non précisé (supposé interface).
 
-### Confirmation à 250 A (2e essai) — le résultat est REPRODUIT
+**Conclusion.** Évidence directe et **reproduite sur 3 courants** que la **vallée centrale du M
+est réelle** et que le modèle **sur-contraste** (1,35-1,88 mesuré vs 2,46). Solide sur la
+FORME ; l'AMPLITUDE absolue reste à caler par une **reprise propre** (géométrie standard avec
+céramique, 5 TC valides à l'interface, montage symétrique — checklist fiche exp 7 de
+`mesures_a_realiser.md`).
 
-Même montage, 250 A. Profil ΔT au pic (200 A → 250 A) :
-
-| y (mm) | 0 (chant)* | 10 | 20 (**centre**) | 30 | 40 (chant) |
-|---|---|---|---|---|---|
-| 200 A | 52 | 116 | **78** | 124 | 146 |
-| 250 A | 49 | 139 | **96** | 146 | 178 |
-
-*TC1 (y=0) défaillant dans les DEUX essais.
-
-**La forme est identique aux deux courants** (même creux au centre, même montée vers y=40,
-juste mise à l'échelle) : le M-vallée n'est pas un aléa d'un essai. Contraste chant/centre
-(TC5/TC3) = **1,88 (200 A) et 1,85 (250 A)** — remarquablement stable, et **en-dessous du 2,46
-prédit**. Le taux au centre reste le plus lent (4,2 puis 5,1 °C/s vs 9-19 aux côtés).
-Figure : `profil_largeur_200vs250.png`.
-
-**Conclusion.** Évidence directe et **reproduite sur deux courants** que la **vallée centrale
-du M est réelle** et que le modèle **sur-contraste** (lobes de bord / contraste ~1,85 mesuré
-vs 2,46 prédit) — même sens que le point du chauffe (395 vs 292). Solide sur la FORME. Mais
-l'AMPLITUDE absolue reste non falsifiable ici (géométrie non standard : céramique + pression
-retirées → gap ≈ 0 ; TC1 mort ; profil asymétrique). **Reprise propre à faire** : géométrie
-standard (avec céramique), 5 TC valides à l'interface, montage symétrique. Cf. fiche exp 7 de
-`mesures_a_realiser.md`.
-
-**Figures** : `tc_courbes_brutes.png` (200 A), `profil_largeur_mesure.png` (profil 200 A),
-`profil_largeur_200vs250.png` (comparaison 200/250 A).
+**Figures** : `tc_courbes_toutes.png` (courbes des 5 TC, 3 essais), `profil_largeur_toutes.png`
+(profil en largeur, 3 courants).
