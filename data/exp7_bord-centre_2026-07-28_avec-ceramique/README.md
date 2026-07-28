@@ -46,8 +46,8 @@ ampérage**.
 | Ampérage | Statut | M symétrique ? | Résidu centre-fill |
 |---|---|---|---|
 | 200 A | ✔ FAIT (v4/v5/v6 valides) | oui (ratio 1,07) | centre ~4× trop lent dans le modèle (cf. `200A/`) |
-| 150 A | ✔ FAIT (v1) | oui (ratio 1,00) | centre ~3× trop lent (idem → indépendant du courant, cf. `150A/`) |
-| 250 A | à faire | — | — |
+| 150 A | ✔ FAIT (v1/v2/v3 valides) | oui (ratio 1,00) | centre ~3× trop lent (idem → indépendant du courant, cf. `150A/`) |
+| 250 A | ✔ FAIT (v1) | oui (ratio 1,03) | contraste 2,19 ; même motif (cf. `250A/`) |
 
 **Conclusion de la campagne** : le profil en « M » est **symétrique et de bonne forme
 d'équilibre** ; le seul résidu est **transitoire** — le centre du modèle se remplit trop

@@ -139,11 +139,16 @@ Rapports/slides/mesures régénérés au θ\* corrigé. Diagnostic de la cote `h
    « sur-contraste » venait du retrait de la céramique (gap 0), pas du modèle. → **Le levier
    « adoucir le M » (courants de retour 3D / contact twill) n'est plus justifié.** Restes :
    TC1 (un chant) mort, absolus non confrontés (chauffe courte), essai unique → à confirmer.
-2. **Vitesse de chauffe / lobes A/B trop froids — LE résidu dominant du RMSE.** Les taux
-   simulés restent ~2× trop lents et les TC A/B (TC2-4, sur les lobes y=0) sont sous-estimés de
-   20-30 °C. Distinct du profil en M (forme validée). **Le lissage de source NE le corrige PAS**
-   (cf. ci-dessous) : il redistribue centre↑/lobes↓, ce qui baisse encore les lobes A/B. Cause
-   probable : la source/le taux sur la montée, pas la répartition spatiale.
+2. **Lobes A/B trop froids / montée lente hors-spot — LE résidu dominant du RMSE, DIAGNOSTIQUÉ.**
+   Les TC A/B TC2-4 (sur les lobes y=0, mais HORS-SPOT en x) sont sous-estimés de 20-30 °C et
+   montent ~2× trop lentement. **Diagnostic du taux** (`resultats_diag_taux_chauffe.log`) : ce
+   N'EST PAS un défaut de taux fondamental — directement sous le spot (chants exp 7, 200 A) le
+   modèle chauffe à 13,7 °C/s vs 16,1 mesuré (~15 % lent). cp / masse thermique / e_eff (stack
+   complet) ÉCARTÉS (réduire e_eff sur-corrige). Le « 2× lent » est spécifique aux points
+   HORS-SPOT (TC2 à ~15 mm du spot) → **étalement latéral trop lent**, même famille que le
+   centre-fill. Aucun levier 2D simple (cp, k_plan, lissage) ne ferme A/B sans casser les
+   pics/le contraste → **limite structurelle probable du 2D lumpé** au régime multi-passes
+   hors-spot (piste : effet 3D, à vérifier en 3D si besoin, coûteux).
 
 **Résidu résolu / tranché (28 juillet) — le remplissage du centre.** La cartographie 200 A
 avec céramique (chauffe longue, v4/v5/v6) montrait le centre du modèle ~4× trop lent (à chant

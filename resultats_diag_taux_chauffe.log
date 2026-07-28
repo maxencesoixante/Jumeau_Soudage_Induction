@@ -1,0 +1,60 @@
+Diagnostic — le TAUX de chauffe (cp / masse thermique / lumping)
+==============================================================================
+Date : 2026-07-28. Déclencheur : la validation croisée A/B montre taux_sim ~2×
+trop lent (ex. serieA_A-1 TC2 : 7,9 sim vs 16,1 mesuré). Hypothèses à tester
+(user) : cp apparent, masse thermique, épaisseur lumpée e_eff.
+DIAGNOSTIC SEUL — θ* figé, rien commité.
+
+
+1. COMMENT LE 2D RELIE SOURCE ET TAUX
+---------------------------------------
+solveur2d : (ρcp)_eff · e_eff · ∂T/∂t = ∇·(k·e·∇T) + P_surf, soit
+  ∂T/∂t = P_surf / (e_eff · ρcp) + (conduction).
+e_eff = épaisseur TOTALE du stack (grille.epaisseur ≈ 6,82 mm) ; ρcp = 1600·1200
+= 1,92e6 J/m³·K. => le taux est P_surf étalé sur TOUTE la masse du stack.
+
+
+2. TAUX MESURÉ vs MODÈLE (chant, 200 A, géométrie standard avec céramique)
+----------------------------------------------------------------------------
+Taux aux chants (y=0/40, sous le spot), 25-75 % de la montée :
+  MESURÉ (moy v4/v5/v6) = 16,1 °C/s.
+  MODÈLE 2D, e_eff selon :
+    6,82 mm (stack complet) -> 13,7 °C/s   (pic chant 468)
+    3,41 mm (moitié)        -> 27,4 °C/s
+    2,27 mm (tiers)         -> 43,6 °C/s
+    3,64 mm (twill+lam.sup) -> 25,8 °C/s
+
+=> À e_eff = stack complet, le modèle donne 13,7 °C/s, PROCHE du mesuré 16,1
+(~15 % lent seulement). Réduire e_eff SUR-corrige (27-44 °C/s). Donc e_eff =
+stack complet est ~CORRECT et le TAUX FONDAMENTAL du modèle (directement sous le
+spot) N'EST PAS 2× trop lent. cp / masse thermique / lumping ÉCARTÉS.
+
+
+3. ALORS D'OÙ VIENT LE « 2× TROP LENT » DES ESSAIS A/B ?
+---------------------------------------------------------
+Les TC A/B exploités (TC2-4) sont HORS-SPOT : TC2 à x=30 mm, empreintes à
+x=15,9/45,9 -> ~14-16 mm du centre de spot le plus proche. Ils chauffent donc
+surtout par ÉTALEMENT LATÉRAL depuis le spot, pas par la source directe. Un
+point directement sous le spot (comme les chants de l'exp 7) chauffe, lui, au
+bon taux (§2). => le « taux trop lent » sur A/B TC2-4 = l'étalement latéral du
+modèle vers les points HORS-SPOT est trop lent, PAS un défaut de taux fondamental.
+
+C'est la MÊME FAMILLE que le résidu centre-fill (resultats_diag_centre_transitoire.log)
+et que la sous-estimation des lobes A/B TC2-4 : le modèle propage la chaleur trop
+lentement des zones chaudes vers les points voisins. Le lissage de source
+(resultats_diag_centre_transitoire.log §7) remplit le centre mais baisse les
+lobes -> n'aide pas A/B ; k_plan monté casse le contraste. Le vrai levier reste
+sur la répartition/dynamique LATÉRALE de la source+conduction, pas sur cp.
+
+
+4. IMPLICATION
+---------------
+- NE PAS toucher cp / e_eff / la masse thermique : le taux fondamental est bon.
+- Le résidu RMSE des A/B (TC2-4 trop froids, montée lente hors-spot) est un
+  problème d'ÉTALEMENT LATÉRAL, déjà cerné (source loop-eye + conduction), sans
+  correctif propre qui n'échange pas les pics (cf. diag centre-transitoire §7).
+- Piste résiduelle honnête : ce pourrait être un effet 3D (le 2D lumpé égalise
+  la profondeur ; un point hors-spot chauffe d'abord en surface/interface). À
+  vérifier éventuellement en 3D (coûteux). Mais AUCUN levier 2D simple (cp,
+  k_plan, lissage) ne ferme A/B sans casser autre chose -> limite structurelle
+  du modèle 2D lumpé au régime multi-passes hors-spot.
