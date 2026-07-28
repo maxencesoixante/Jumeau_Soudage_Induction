@@ -32,6 +32,24 @@ joint (4 dwells), le point chaud avance le long de la longueur. Acquisition 1 Hz
 (±15 mm) et ~rien au-delà (±45 mm ≈ 0-16 °C). Spots ~x=15/45/75/105 (pas de 30 mm). Figure :
 `200A/analyse_200A_y0.png`.
 
+**Confrontation au modèle multi-spots** (4 spots x=15/45/75/105, aux instants mesurés, 200 A, sans
+consigne). Footprint normalisé par dwell (l'absolu n'est pas confronté : énergie/durée de dwell
+inconnue) :
+
+| dwell | modèle (x=0/30/60/90/120) | mesuré |
+|---|---|---|
+| 1 | 1 / 0,87 / 0,02 / 0 / 0 | 0,81 / **1** / 0,05 / 0 / 0,02 |
+| 2 | 0 / 0,89 / **1** / 0,03 / 0 | 0,03 / **1** / 0,82 / 0,06 / 0,11 |
+| 3 | 0 / 0 / 0,86 / **1** / 0,05 | 0 / 0,02 / **1** / 0,78 / 0,10 |
+| 4 | 0 / 0 / 0 / 0,5 / **1** | 0 / 0 / 0,02 / **1** / 0,94 |
+
+→ **Le procédé est reproduit** : à chaque dwell le modèle chauffe la **bonne paire de TC adjacents**
+(le spot avance bien de 30 mm) avec une **décroissance longitudinale raide** (négligeable au-delà de
+la paire), comme mesuré. La **balance intra-paire** (lequel des 2 TC est le plus chaud) n'est pas
+reproduite fidèlement — attendu : les deux sont à ~15 mm du spot, la balance est sensible à la
+position exacte (inconnue à ±15 mm), à l'asymétrie de montage et à l'accumulation ; ce n'est pas un
+défaut du modèle. Figure : `200A/analyse_200A_y0_semistatique_vs_modele.png`.
+
 ### `200A/200A_y0_monospot.txt` — 200 A, y=0, **spot unique** (MFC centré sur TC3, x=60) ✔
 Source unique fixe à x=60 → décroissance longitudinale pure, stations symétriques. Pic TC3
 235,9 °C (≤ 270, réutilisable), 1 Hz, ~250 s (avec refroidissement).

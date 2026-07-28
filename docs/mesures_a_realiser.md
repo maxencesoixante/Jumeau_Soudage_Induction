@@ -21,13 +21,21 @@
 
 ## À faire — par priorité
 
-### 1. ★ Exp 9 — Dissipation longitudinale de la chaleur T(x) — PROCHAINE (fiche prête)
+### 1. ★ Exp 9 — Dissipation longitudinale de la chaleur T(x) — EN COURS
 
-**Objectif.** Cartographier la décroissance de température le long de la **longueur** (ligne de TC
-en x), phase 1 au bord (`y=0`), phase 2 au centre (`y=20`). **Résout** le résidu n°1 (étalement de
-chaleur trop lent) : donne la longueur de décroissance et la diffusivité `α = k_plan/(ρ·cp·e)` →
-valide `k_plan`. Échantillons réutilisables (≤ 270 °C, pas de fusion). Réalise l'objectif d'Exp 6.
-**Fiche protocole détaillée : [`protocole_exp_dissipation_longitudinale.md`](protocole_exp_dissipation_longitudinale.md).**
+**Fait (2026-07-28) — phase 1 au bord (y=0), 200 A** : TC à x=0/30/60/90/120 mm. Monospot (x=60) et
+semi-statique confrontés au modèle → **la source en longueur est validée** (décroissance raide
+reproduite). Détail : `data/exp9/README.md`.
+
+**Reste à faire** :
+- **Phase 2 — ligne au CENTRE (y=20)** : source ≈ 0 → conduction quasi pure → **probe direct de
+  `k_plan`** et vrai juge du résidu d'étalement. **C'est la mesure décisive.**
+- Recentrer le spot (offset de montage +x constaté) ; enregistrer le refroidissement.
+- Optionnel : autres courants (150/250 A) pour vérifier l'indépendance de la diffusivité au courant.
+
+**Résout** le résidu n°1 (étalement de chaleur trop lent) : donne la longueur de décroissance et la
+diffusivité `α = k_plan/(ρ·cp·e)`. Échantillons réutilisables (≤ 270 °C). Réalise l'objectif d'Exp 6.
+**Fiche : [`protocole_exp_dissipation_longitudinale.md`](protocole_exp_dissipation_longitudinale.md).**
 
 ### 2. Exp 8 — Température de la face active du CFC
 
@@ -78,7 +86,7 @@ exp 7 étant close, ces corrections ne sont plus bloquées et peuvent être reca
 
 | # | Mesure | Priorité | Résout |
 |---|---|---|---|
-| **Exp 9** | **Dissipation longitudinale T(x)** (fiche prête) | ★ **haute** | étalement trop lent + `k_plan` |
+| **Exp 9** | **Dissipation longitudinale T(x)** — phase 1 (y=0) FAITE, **phase 2 (y=20) à faire** | ★ **haute** | étalement trop lent + `k_plan` |
 | Exp 8 | Température face active du CFC | moyenne | déficit de surface TC1 |
 | Relevé 1 | Position longitudinale bobine | basse | `decalage_x` (figé) |
 | Exp 6 | Diffusivité latérale | → couverte par Exp 9 | `k_plan` |

@@ -149,6 +149,21 @@ Rapports/slides/mesures régénérés au θ\* corrigé. Diagnostic de la cote `h
   → **La source suit bien la loi en I² du modèle** ; l'écart apparent = les pertes, pas la source.
   Deux figures ajoutées : `fig4_courbes_brutes` (5 TC d'un essai) et `fig5_loi_courant`.
 
+### 28 juillet (soir) — Exp 9 : dissipation longitudinale T(x) — phase 1 (bord y=0)
+Nouvelle campagne (`data/exp9/`, fiche `docs/protocole_exp_dissipation_longitudinale.md`) : 5 TC
+alignés en **longueur** à x=0/30/60/90/120 mm (pas 30 mm), y=0. Deux essais 200 A, ≤ 236 °C
+(réutilisables) :
+- **Monospot** (spot fixe x=60) → **confrontation modèle** (profil normalisé, absolu non confronté
+  car chauffe courte) : le modèle **reproduit la décroissance longitudinale** (mod 0,094 / mes
+  0,081-0,139 à ±30 mm ; ~0,03 à ±60 mm). → **la forme de la source EN LONGUEUR au bord (dominé par
+  la source) est VALIDÉE**. Asymétrie de montage (+x plus chaud) non reproductible (artefact).
+- **Semi-statique** (4 dwells, procédé établi) → **confrontation modèle multi-spots** : le procédé
+  est reproduit (spots avançant de 30 mm, bonne paire de TC chauffée par dwell, décroissance raide) ;
+  la balance intra-paire n'est pas fidèle (±15 mm d'incertitude sur la position, pas un défaut).
+- **Portée** : ceci valide la SOURCE en longueur, pas encore le résidu d'étalement. Le test décisif
+  = **phase 2 à y=20 (centre, dominé par la conduction)** → probe direct de `k_plan`. À venir (+
+  autres courants). Figures : `data/exp9/200A/analyse_*.png`.
+
 ---
 
 ## 3. Résidus ouverts (par priorité)
