@@ -58,3 +58,23 @@ sur la répartition/dynamique LATÉRALE de la source+conduction, pas sur cp.
   vérifier éventuellement en 3D (coûteux). Mais AUCUN levier 2D simple (cp,
   k_plan, lissage) ne ferme A/B sans casser autre chose -> limite structurelle
   du modèle 2D lumpé au régime multi-passes hors-spot.
+
+
+5. TEST DE LA PISTE 3D (2026-07-28) — le lumping EST en partie coupable
+------------------------------------------------------------------------
+Run A-1 en 3D (facteur 6.0123 = valeur 2D, h_contact=50, h_bas=15, 31×11×13,
+scripts/valider.py --modele 3D) pour voir si résoudre le gradient d'épaisseur
+accélère le point HORS-SPOT (le 2D lumpé étale la source sur toute la masse).
+
+  TC   taux_sim 2D   taux_sim 3D   taux mesuré
+  TC2      7.8          11.0          16.1     (hors-spot -> 3D ACCÉLÈRE, vers la cible)
+  TC1     ~12          90.4          19.0     (interface directe -> 3D EXPLOSE)
+  pic TC1 (3D) = 682 °C vs 398 mesuré (surchauffe interface).
+
+VERDICT : le lumping supprimait bien une PARTIE du taux hors-spot (TC2 monte de
+7.8 à 11 en 3D). MAIS le 3D au facteur calibré-2D SURCHAUFFE l'interface
+(TC1 90 °C/s, pic 682) : sans la masse d'épaisseur lumpée, l'interface chauffe
+trop vite. Un vrai 3D exigerait sa PROPRE recalibration complète (et ~10× plus
+lent que le 2D). => 3D non adopté ; le 2D lumpé reste le modèle de travail avec
+la limite hors-spot documentée. La piste 3D est RÉELLE (confirme le mécanisme)
+mais coûteuse ; à réserver si une fidélité de montée hors-spot est requise.
