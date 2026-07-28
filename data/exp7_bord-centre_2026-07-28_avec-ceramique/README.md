@@ -66,13 +66,16 @@ le flag `--source-sigma-mm` (défaut off, non adopté). Le test **3D** confirme 
 exigerait sa propre recalibration → **le 2D lumpé reste le modèle de travail, avec la
 limite hors-spot/centre-fill documentée**.
 
-**Loi taux-courant (5 courants).** Comme la chauffe n'a pas été standardisée (arrêt manuel
-vers ~240 °C au chant), les *pics* ne se comparent pas ; l'observable propre est le **taux de
-chauffe au chant** (sous le spot). Il croît **un peu plus vite que I²** : ajustement en loi de
-puissance **∝ I^2,4** (robuste : n≈2,5 même sur les seuls courants triplés), là où une source à
-fréquence fixe donnerait exactement I². Candidat pour l'écart : la **fréquence du générateur
-monte avec le courant** (source ∝ I²·f), que le modèle traite comme fixe par essai ; y
-contribuent aussi la σ(T) et les pertes croissantes. Cf. `docs/figures_presentation/fig5`.
+**Loi taux-courant (5 courants) — la source suit I².** Comme la chauffe n'a pas été
+standardisée (arrêt manuel vers ~240 °C au chant), les *pics* ne se comparent pas ; l'observable
+propre est le **taux de chauffe au chant** (sous le spot) : 9,7 / 15,7 / 20,8 / 26,9 / 34,2 °C/s.
+Un ajustement en loi de puissance pure donne I^2,4, mais c'est un **artefact de pertes** : le
+modèle **`R = k·I² − L`** (source en I² moins une perte thermique ~constante) fitte
+**R²=0,999** avec **L≈3,5 °C/s** (indépendant du courant), mieux que la loi de puissance. Et
+surtout, la **fréquence mesurée est CONSTANTE** (388±2 kHz sur 150-250 A, cf. relevé user
+2026-07-28), ce qui **écarte** le couplage fréquence↔courant. → **La source suit bien la loi en
+I² du modèle** ; l'écart apparent venait des pertes, pas de la source. Cf.
+`docs/figures_presentation/fig5`.
 
 **Figures de présentation** (`docs/figures_presentation/`) : `fig1` profil M aux 3 courants ·
 `fig2` mesuré vs modèle · `fig3` dynamique centre-vs-chant · `fig4` courbes brutes 5 TC d'un

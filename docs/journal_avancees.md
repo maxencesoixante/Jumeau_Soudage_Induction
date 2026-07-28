@@ -138,14 +138,16 @@ Rapports/slides/mesures régénérés au θ\* corrigé. Diagnostic de la cote `h
   présentation** pour la directrice : `docs/figures_presentation/` (profil M aux 3 courants ;
   mesuré vs modèle ; dynamique centre-vs-chant). Détail :
   `data/exp7_bord-centre_2026-07-28_avec-ceramique/README.md`.
-- **Campagne densifiée à 5 courants (ajout 176 et 225 A, 1 essai chacun) → loi taux-courant.**
-  Les pics ne se comparant pas (chauffe manuelle non standardisée, arrêt ~240 °C au chant),
-  l'observable est le **taux de chauffe au chant** (ΔT 30→130, sous le spot) : 9,7 / 15,7 /
-  20,8 / 26,9 / 34,2 °C/s à 150 / 176 / 200 / 225 / 250 A. Il croît **un peu plus vite que I²**
-  — ajustement **∝ I^2,4** (robuste, n≈2,5 sur les seuls courants triplés) vs I² exact attendu
-  d'une source à fréquence fixe. **Candidat** : la fréquence du générateur monte avec le courant
-  (source ∝ I²·f), traitée comme fixe par le modèle ; σ(T) et pertes croissantes y contribuent
-  aussi. Deux figures ajoutées : `fig4_courbes_brutes` (5 TC d'un essai) et `fig5_loi_courant`.
+- **Campagne densifiée à 5 courants (ajout 176 et 225 A, 1 essai chacun) → loi taux-courant :
+  la source suit I².** Les pics ne se comparant pas (chauffe manuelle non standardisée, arrêt
+  ~240 °C au chant), l'observable est le **taux de chauffe au chant** (ΔT 30→130, sous le spot) :
+  9,7 / 15,7 / 20,8 / 26,9 / 34,2 °C/s à 150 / 176 / 200 / 225 / 250 A. Une loi de puissance pure
+  donne I^2,4, mais c'est un **artefact de pertes** : le modèle **R = k·I² − L** (source I² moins
+  perte ~constante) fitte **R²=0,999**, L≈3,5 °C/s indépendant de I. **Fréquence mesurée CONSTANTE**
+  (388±2 kHz sur 150-250 A, relevé user) → couplage fréquence↔courant **écarté** ; l'ancien relevé
+  « 200 A=383 kHz » infirmé, correction « fréquence par essai » abandonnée (`config/geometrie.yaml`).
+  → **La source suit bien la loi en I² du modèle** ; l'écart apparent = les pertes, pas la source.
+  Deux figures ajoutées : `fig4_courbes_brutes` (5 TC d'un essai) et `fig5_loi_courant`.
 
 ---
 
@@ -196,7 +198,7 @@ vrai verrou A/B est la vitesse de chauffe (résidu n°2 ci-dessus).
 | Loi thermostat « capteurs » | cahier de labo + données B-2 | flag prêt (défaut off) |
 | Épaisseur twill 0,28 → **0,20 mm** | mesure user | préparée (commentaire config) |
 | Retrait/révision `h_bord_x0` | chants libres (user) | requalifié effectif, à retravailler |
-| Fréquence A-3 (200 A) 388 → **383 kHz** | relevé user | préparée (fréquence par essai à ajouter) |
+| ~~Fréquence par essai (383 kHz A-3)~~ | ~~relevé user~~ | **ABANDONNÉE** : mesure 5 courants = 388±2 kHz constante (2026-07-28), ancien 383 infirmé |
 
 Ces trois se recalibrent **ensemble**, idéalement après la cartographie bord→centre (elles
 sont couplées au profil en M).

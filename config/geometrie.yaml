@@ -58,13 +58,13 @@ cfc:
 
 generateur:
   modele: "Ambrell EASYHEAT 4.2 kW"
-  # Fréquence GLOBALE (relevé machine). La fréquence varie avec l'ampérage :
-  # 250 A -> 388 kHz (2026-07-17) ; 200 A -> 383 kHz (relevé user 2026-07-27).
-  # CORRECTION PRÉPARÉE : l'essai A-3 (200 A) devrait utiliser 383 kHz, mais la
-  # fréquence est ici globale -> ajouter une fréquence PAR ESSAI (champ optionnel
-  # dans le YAML d'essai) à la prochaine recalibration. Effet faible (~0,7 % sur
-  # skin depth). Cf. docs/releves_resolus.md (relevé 2).
-  frequence: 388.0e+3        # Hz — 250 A ; 200 A = 383 kHz (à appliquer à A-3)
+  # Fréquence GLOBALE (relevé machine). MESURE 2026-07-28 sur 5 courants :
+  # 150->390, 176->387, 200->390, 225->388, 250->386 kHz = CONSTANTE 388±2 kHz,
+  # aucune tendance avec I (corr -0,63 = bruit). => la fréquence NE varie PAS avec
+  # l'ampérage : l'ancien relevé "200 A = 383 kHz" est infirmé, et la "correction
+  # fréquence par essai" est ABANDONNÉE (une seule valeur globale suffit). Confirme
+  # aussi la loi en I² de la source (cf. docs/figures_presentation/fig5).
+  frequence: 388.0e+3        # Hz — constante mesurée 388±2 kHz sur 150-250 A
   courant_max: 600.0         # A
 
 empreintes:

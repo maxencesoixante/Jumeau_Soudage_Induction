@@ -11,8 +11,9 @@
 > vs modèle 2,4-2,55) ; seul résidu = **transitoire** (le centre du modèle se remplit trop
 > lentement, indépendant du courant). Levier source-adoucie testé → flag off ; cp/k_plan/placement
 > TC écartés ; 3D confirme le mécanisme mais surchauffe l'interface → 2D lumpé conservé avec limite
-> documentée. **Loi taux-courant** : le taux de chauffe au chant croît **∝ I^2,4** (un peu plus
-> vite que I² ; candidat = fréquence générateur montant avec I). Détail :
+> documentée. **Loi taux-courant** : la source suit **I²** (modèle `R=k·I²−L`, R²=0,999) ; la
+> fréquence mesurée est constante (388±2 kHz sur 5 courants) → couplage fréquence↔courant écarté.
+> Détail :
 > `data/exp7_bord-centre_2026-07-28_avec-ceramique/README.md`. Figures : `docs/figures_presentation/`
 > (fig1-5).
 
@@ -57,7 +58,8 @@ exp 7 étant close, ces corrections ne sont plus bloquées et peuvent être reca
 - **Loi thermostat « capteurs »** — flag prêt (`--thermostat-capteurs`, défaut off).
 - **Épaisseur twill 0,28 → 0,20 mm** — préparée (commentaire config).
 - **`h_bord_x0`** — requalifié effectif (chants libres) ; candidat au retrait.
-- **Fréquence A-3 (200 A) 388 → 383 kHz** — fréquence par essai à ajouter.
+- ~~**Fréquence A-3 (200 A) 388 → 383 kHz**~~ — **abandonnée** : mesure 5 courants (2026-07-28)
+  = 388±2 kHz constante, ancien relevé 383 infirmé ; une seule valeur globale suffit.
 - **Lissage de source** (`--source-sigma-mm`, défaut off) — testé exp 7 : remplit le centre mais
   abaisse les pics → **non retenu** tel quel ; à ré-arbitrer seulement si le centre-fill devient
   prioritaire.
