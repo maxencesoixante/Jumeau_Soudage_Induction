@@ -43,8 +43,14 @@ ampérage**.
 
 ## Résultats
 
-| Ampérage | Statut | Contraste mesuré (moy.) | vs modèle |
+| Ampérage | Statut | M symétrique ? | Résidu centre-fill |
 |---|---|---|---|
-| 200 A | ✔ FAIT (v2/v3/v4) | **~2,2** | 2,43 — proche ; M **symétrique validé** (cf. `200A/`) |
-| 150 A | à faire | — | 2,69 |
-| 250 A | à faire | — | 2,55 |
+| 200 A | ✔ FAIT (v4/v5/v6 valides) | oui (ratio 1,07) | centre ~4× trop lent dans le modèle (cf. `200A/`) |
+| 150 A | ✔ FAIT (v1) | oui (ratio 1,00) | centre ~3× trop lent (idem → indépendant du courant, cf. `150A/`) |
+| 250 A | à faire | — | — |
+
+**Conclusion de la campagne** : le profil en « M » est **symétrique et de bonne forme
+d'équilibre** ; le seul résidu est **transitoire** — le centre du modèle se remplit trop
+lentement (structurel, reproduit à 150 et 200 A). Diagnostiqué comme une **source trop
+concentrée aux chants** (ni cp, ni k_plan, ni placement TC) ; prototype « source adoucie »
+(gaussienne σ≈6 mm) opérant — cf. `resultats_diag_centre_transitoire.log` et `200A/`.
