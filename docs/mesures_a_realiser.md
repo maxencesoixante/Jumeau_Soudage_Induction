@@ -21,28 +21,36 @@
 
 ## À faire — par priorité
 
-### 1. Exp 8 — Température de la face active du CFC
+### 1. ★ Exp 9 — Dissipation longitudinale de la chaleur T(x) — PROCHAINE (fiche prête)
+
+**Objectif.** Cartographier la décroissance de température le long de la **longueur** (ligne de TC
+en x), phase 1 au bord (`y=0`), phase 2 au centre (`y=20`). **Résout** le résidu n°1 (étalement de
+chaleur trop lent) : donne la longueur de décroissance et la diffusivité `α = k_plan/(ρ·cp·e)` →
+valide `k_plan`. Échantillons réutilisables (≤ 270 °C, pas de fusion). Réalise l'objectif d'Exp 6.
+**Fiche protocole détaillée : [`protocole_exp_dissipation_longitudinale.md`](protocole_exp_dissipation_longitudinale.md).**
+
+### 2. Exp 8 — Température de la face active du CFC
 
 **Objectif.** Mesurer la température du concentrateur pendant une chauffe (caméra FLIR A700 sur
 la face active, ou TC posé). Vue de dessus idéale ici (la face du CFC est directement visible).
 **Résout** : le déficit de chauffe en surface (TC1) — seule mesure qui l'attaque. Comparer la
 montée du CFC à celle de TC1. Un essai.
 
-### 2. Relevé 1 — Position longitudinale de la bobine
+### 3. Relevé 1 — Position longitudinale de la bobine
 
 **Objectif.** Mesurer le décalage en x du centre de la bobine par rapport au spot visé
 (paramètre `decalage_x`, figé à 0 faute de mesure). Pied à coulisse, 15 min. **Peu critique** :
 si non mesurable facilement, on le laisse figé. (Les cotes propres de la bobine sont déjà
 résolues, cf. archive.)
 
-### 3. Exp 6 — Diffusivité latérale (optionnel, non prioritaire)
+### 4. Exp 6 — Diffusivité latérale (→ désormais couverte par Exp 9)
 
-**Objectif.** `k_plan` effectif via la décroissance latérale de T. Depuis la correction de
-géométrie, le modèle s'accorde à `k_plan = 3 W/m·K` (physique) : cette mesure ne tranche plus
-un écart ouvert, elle **vérifie** une propriété assumée. Protocole caméra détaillé dans
-l'archive. Un essai, sous Tf, échantillons réutilisables.
+**Objectif.** `k_plan` effectif via la décroissance latérale de T. **Réalisée sous une forme
+directe par Exp 9** (ligne de TC en longueur, phase centre = conduction pure). Garder cette entrée
+comme rappel de l'option « caméra » (protocole détaillé dans l'archive) si l'on préfère l'imagerie
+aux thermocouples.
 
-### 4. Mesures de propriété au labo (optionnel, si les niveaux 1-3 ne suffisent pas)
+### 5. Mesures de propriété au labo (optionnel, si les niveaux 1-4 ne suffisent pas)
 
 - **Mesure 9 — `k_plan` direct** : hot-disk ou flash laser sur un échantillon de laminé.
 - **Mesure 10 — σ(T)** : conductivité électrique en fonction de T (4 pointes en montée) ; le
@@ -70,9 +78,10 @@ exp 7 étant close, ces corrections ne sont plus bloquées et peuvent être reca
 
 | # | Mesure | Priorité | Résout |
 |---|---|---|---|
+| **Exp 9** | **Dissipation longitudinale T(x)** (fiche prête) | ★ **haute** | étalement trop lent + `k_plan` |
 | Exp 8 | Température face active du CFC | moyenne | déficit de surface TC1 |
 | Relevé 1 | Position longitudinale bobine | basse | `decalage_x` (figé) |
-| Exp 6 | Diffusivité latérale | basse (vérif.) | `k_plan` |
+| Exp 6 | Diffusivité latérale | → couverte par Exp 9 | `k_plan` |
 | Mesure 9 | `k_plan` direct (labo) | basse | `k_plan` sourcé |
 | Mesure 10 | σ(T) (labo) | basse | dépendance σ(T) |
 
