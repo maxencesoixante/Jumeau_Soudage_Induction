@@ -139,8 +139,13 @@ Rapports/slides/mesures régénérés au θ\* corrigé. Diagnostic de la cote `h
    « sur-contraste » venait du retrait de la céramique (gap 0), pas du modèle. → **Le levier
    « adoucir le M » (courants de retour 3D / contact twill) n'est plus justifié.** Restes :
    TC1 (un chant) mort, absolus non confrontés (chauffe courte), essai unique → à confirmer.
-2. **Vitesse de chauffe ~2× trop lente** (taux simulés vs mesurés). Domine le RMSE ; non
-   encore diagnostiqué à fond. Couplé au M.
+2. **Le centre du modèle se remplit trop lentement (transitoire) — mesuré 28 juillet.**
+   Cartographie 200 A avec céramique, chauffe longue (v4/v5, reproductible) : à *chant* donné
+   pendant la chauffe, le centre RÉEL est ~4× plus chaud que le modèle (chant ΔT=200 → centre
+   76 mesuré vs 18 modèle). Au pic le contraste se recale (~2,1 vs 2,4) → défaut du TRANSITOIRE,
+   pas de la forme d'équilibre : couplage centre↔chants trop lent. Candidats : `k_plan` trop
+   faible, ou taux des chants trop rapide. Réf. `.../200A/dynamique_centre_vs_chant.png`. Lié au
+   vieux résidu « vitesse de chauffe ~2× trop lente » (domine le RMSE).
 3. **Régime basse consigne (B-2).** Cause confirmée (le modèle coupe au centre du spot, le
    procédé coupait sur le max des TC d'interface) ; correctif « capteurs » prêt derrière flag,
    à activer conjointement avec la correction du M. Réf. `resultats_diag_b2_thermostat_capteurs.log`.
