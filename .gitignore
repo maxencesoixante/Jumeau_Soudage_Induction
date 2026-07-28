@@ -8,19 +8,18 @@ venv/
 build/
 dist/
 resultats/
-resultats_calibration.log
-resultats_validation.log
-resultats_validation_thetafinal.log
-resultats_validation_2d.log
-resultats_validation_2d_thermostat.log
-resultats_validation_2d_final.log
-resultats_validation_2d_newpos.log
+journaux/resultats_calibration.log
+journaux/resultats_validation.log
+journaux/resultats_validation_thetafinal.log
+journaux/resultats_validation_2d.log
+journaux/resultats_validation_2d_thermostat.log
+journaux/resultats_validation_2d_final.log
+journaux/resultats_validation_2d_newpos.log
 .pytest_cache/
 
 # Couche IA (secrets et configs de session éphémères)
 ai_framework/.env
 config/essais/_session_*.yaml
-resultats_validation_2d_newpos.log
 
 # vidéos brutes caméra thermique (volumineuses ; garder hors dépôt)
 data/**/*.mp4
