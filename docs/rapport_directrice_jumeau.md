@@ -839,13 +839,13 @@ Ces paramètres supposent la géométrie corrigée (`config/geometrie.yaml` :
 aux corrections de géométrie, et les valeurs de paramètres qu'ils contiennent, se rapportent
 à une géométrie antérieure : leurs raisonnements restent valides, leurs chiffres non.
 
-Chaque exécution se journalise à la racine du dépôt (`resultats_*.log`), et les figures
+Chaque exécution se journalise dans `journaux/` (`journaux/resultats_*.log`), et les figures
 s'écrivent dans `resultats/`. Journaux de référence pour l'état courant :
-`resultats_hauteur_5mm_recalibration.log` (correction de hauteur et recalibration courante),
-`resultats_geometrie_corrigee_recalibration.log` (correction d'entraxe, étape précédente),
-`resultats_diag_hauteur_bobine.log` (diagnostic hauteur + plan image du CFC vérifié sur CAO),
-`resultats_validation_reference_figures.log` (validation au jeu de paramètres courant) et
-`resultats_diag_b2_longueur.log` (résidu à basse consigne et correctifs réfutés).
+`journaux/resultats_hauteur_5mm_recalibration.log` (correction de hauteur et recalibration courante),
+`journaux/resultats_geometrie_corrigee_recalibration.log` (correction d'entraxe, étape précédente),
+`journaux/resultats_diag_hauteur_bobine.log` (diagnostic hauteur + plan image du CFC vérifié sur CAO),
+`journaux/resultats_validation_reference_figures.log` (validation au jeu de paramètres courant) et
+`journaux/resultats_diag_b2_longueur.log` (résidu à basse consigne et correctifs réfutés).
 
 ---
 

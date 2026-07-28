@@ -49,7 +49,7 @@ mesures thermocouples des essais (Séries A/B + essais de chauffe).
   parallèle à la largeur y des échantillons. **CORRECTION 2026-07-23** : la
   valeur antérieure (tubes ~9,5 mm, entraxe ~19 mm) était fausse ; la corriger a
   résolu l'essentiel du dépassement de pic A-1 (|ΔT_max| 46→15 °C à `k_plan=3`
-  physique — cf. `resultats_geometrie_corrigee_recalibration.log`) : ce
+  physique — cf. `journaux/resultats_geometrie_corrigee_recalibration.log`) : ce
   « déficit structurel » était en grande partie un artefact de cette entrée.
 - Les **positions des TC des Séries A/B** ont été confirmées par l'utilisateur
   (2026-07-20) : les 5 TC sont TOUS à l'interface (repère cahier origine-milieu
@@ -70,14 +70,14 @@ mesures thermocouples des essais (Séries A/B + essais de chauffe).
   chaleur s'étale moins en x → les TC à ~15 mm restent froids ; le vrai process
   coupait quand le TC lui-même atteignait la consigne (impulsions plus longues).
   Trois correctifs prototypés + recalibrés + validés croisés ont été **réfutés**
-  (`resultats_diag_b2_longueur.log`) : décalage de la position de contrôle
+  (`journaux/resultats_diag_b2_longueur.log`) : décalage de la position de contrôle
   (casse A-1), marge de consigne `consigne+Δ` (échange A-1 contre B-2, sens
   opposés — total constant), et `h_haut`/force 25 N (neutralisé par le
   thermostat). **Limite structurelle connue** du modèle 2D lumpé au régime
   basse-consigne / impulsions courtes ; non corrigeable sans casser A-1.
 - **Le résidu TC4 documenté auparavant (+74 à +110 °C) était très majoritairement
   un artefact de discrétisation, pas un déficit physique** (étude de convergence
-  maillage 2026-07-21, `resultats_convergence_maillage.log`). Décomposition
+  maillage 2026-07-21, `journaux/resultats_convergence_maillage.log`). Décomposition
   chiffrée sur la grille de calibration 31×11 (A-1/A-3/B-2) :
   - **Snapping de la LECTURE des TC** (`Grille3D.indice_xy`, nœud le plus
     proche) : TC4 (x=90 mm) tombait pile à mi-distance entre deux nœuds à
@@ -126,7 +126,7 @@ mesures thermocouples des essais (Séries A/B + essais de chauffe).
   Qualitativement cohérent avec le squeeze-out observé sur les chants et la
   reco COMPAAM (réduire le MFC pour limiter les effets de bord), mais
   l'amplitude du contraste bord/centre est probablement exagérée.
-  **Diagnostic 2026-07-27** (`resultats_diag_forme_source.log`) : le champ `Bz`
+  **Diagnostic 2026-07-27** (`journaux/resultats_diag_forme_source.log`) : le champ `Bz`
   est déjà UNIFORME sur la largeur (0,95→1,00) — le M ne vient donc PAS de la
   forme du champ ni de la semelle du CFC, mais **entièrement de l'écrasement du
   courant de Foucault** contre les chants (`ψ = 0` au bord d'une nappe continue

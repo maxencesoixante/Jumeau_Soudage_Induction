@@ -25,7 +25,7 @@
 
 **Fait (2026-07-28) — phase 1 au bord (y=0), 200 A** : TC à x=0/30/60/90/120 mm. Monospot (x=60) et
 semi-statique confrontés au modèle → **la source en longueur est validée** (décroissance raide
-reproduite). Détail : `data/exp9/README.md`.
+reproduite). Détail : `data/exp9_dissipation-longitudinale_2026-07-28/README.md`.
 
 **Reste à faire** :
 - **Phase 2 — ligne au CENTRE (y=20)** : source ≈ 0 → conduction quasi pure → **probe direct de

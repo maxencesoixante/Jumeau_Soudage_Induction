@@ -83,7 +83,7 @@ points inter-empreintes (résidu B-2). Correctif « loi capteurs » (couper sur 
 positions TC réelles) **implémenté derrière le flag `--thermostat-capteurs`** (défaut off,
 commit `b50bd76`) : recale les pics (B-2 |ΔT_max| 45 → 23 après recalibration) mais dégrade le
 RMSE (+5-6 °C), couplé au profil en « M ». Non adopté par défaut en attendant la cartographie
-bord→centre (exp 7). Détail : `resultats_diag_b2_thermostat_capteurs.log`.
+bord→centre (exp 7). Détail : `journaux/resultats_diag_b2_thermostat_capteurs.log`.
 
 ---
 

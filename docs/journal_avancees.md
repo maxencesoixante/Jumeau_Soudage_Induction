@@ -129,7 +129,7 @@ Rapports/slides/mesures régénérés au θ\* corrigé. Diagnostic de la cote `h
   mesuré ~2,0-2,2) aux trois courants ; le seul résidu est **transitoire** — le centre du modèle
   se remplit trop lentement, **indépendamment du courant** (motif centre-fill identique de 150 à
   250 A). Leviers testés puis **écartés** pour ce résidu : cp / masse thermique / e_eff (taux
-  fondamental sous spot bon à ~15 %, `resultats_diag_taux_chauffe.log`), k_plan (casse le
+  fondamental sous spot bon à ~15 %, `journaux/resultats_diag_taux_chauffe.log`), k_plan (casse le
   contraste), placement TC. Le **lissage de source** (gaussienne σ≈6 mm) remplit le centre mais
   abaisse les pics → posé derrière `--source-sigma-mm` (défaut off, **non adopté**). Le test **3D**
   confirme le mécanisme (le lumping supprime une partie du taux hors-spot : TC2 7,8 → 11,0 °C/s)
@@ -150,7 +150,7 @@ Rapports/slides/mesures régénérés au θ\* corrigé. Diagnostic de la cote `h
   Deux figures ajoutées : `fig4_courbes_brutes` (5 TC d'un essai) et `fig5_loi_courant`.
 
 ### 28 juillet (soir) — Exp 9 : dissipation longitudinale T(x) — phase 1 (bord y=0)
-Nouvelle campagne (`data/exp9/`, fiche `docs/protocole_exp_dissipation_longitudinale.md`) : 5 TC
+Nouvelle campagne (`data/exp9_dissipation-longitudinale_2026-07-28/`, fiche `docs/protocole_exp_dissipation_longitudinale.md`) : 5 TC
 alignés en **longueur** à x=0/30/60/90/120 mm (pas 30 mm), y=0. Deux essais 200 A, ≤ 236 °C
 (réutilisables) :
 - **Monospot** (spot fixe x=60) → **confrontation modèle** (profil normalisé, absolu non confronté
@@ -162,7 +162,7 @@ alignés en **longueur** à x=0/30/60/90/120 mm (pas 30 mm), y=0. Deux essais 20
   la balance intra-paire n'est pas fidèle (±15 mm d'incertitude sur la position, pas un défaut).
 - **Portée** : ceci valide la SOURCE en longueur, pas encore le résidu d'étalement. Le test décisif
   = **phase 2 à y=20 (centre, dominé par la conduction)** → probe direct de `k_plan`. À venir (+
-  autres courants). Figures : `data/exp9/200A/analyse_*.png`.
+  autres courants). Figures : `data/exp9_dissipation-longitudinale_2026-07-28/200A/analyse_*.png`.
 
 ---
 
@@ -180,7 +180,7 @@ alignés en **longueur** à x=0/30/60/90/120 mm (pas 30 mm), y=0. Deux essais 20
    (résidu #2), indépendant du courant.
 2. **Lobes A/B trop froids / montée lente hors-spot — LE résidu dominant du RMSE, DIAGNOSTIQUÉ.**
    Les TC A/B TC2-4 (sur les lobes y=0, mais HORS-SPOT en x) sont sous-estimés de 20-30 °C et
-   montent ~2× trop lentement. **Diagnostic du taux** (`resultats_diag_taux_chauffe.log`) : ce
+   montent ~2× trop lentement. **Diagnostic du taux** (`journaux/resultats_diag_taux_chauffe.log`) : ce
    N'EST PAS un défaut de taux fondamental — directement sous le spot (chants exp 7, 200 A) le
    modèle chauffe à 13,7 °C/s vs 16,1 mesuré (~15 % lent). cp / masse thermique / e_eff (stack
    complet) ÉCARTÉS (réduire e_eff sur-corrige). Le « 2× lent » est spécifique aux points
@@ -191,7 +191,7 @@ alignés en **longueur** à x=0/30/60/90/120 mm (pas 30 mm), y=0. Deux essais 20
 
 **Résidu résolu / tranché (28 juillet) — le remplissage du centre.** La cartographie 200 A
 avec céramique (chauffe longue, v4/v5/v6) montrait le centre du modèle ~4× trop lent (à chant
-ΔT=200 : centre 76 mesuré vs 18 modèle). Diagnostic (`resultats_diag_centre_transitoire.log`) :
+ΔT=200 : centre 76 mesuré vs 18 modèle). Diagnostic (`journaux/resultats_diag_centre_transitoire.log`) :
 ni `cp` (invariant), ni `k_plan` seul (mauvaise forme), ni placement TC3 (5 mm insuffisant) →
 œil de boucle (source ≈0 au centre exact) + source trop concentrée. **Prototype « source
 adoucie » (gaussienne σ, délocalisation twill) IMPLÉMENTÉ derrière `lissage_sigma_mm`
@@ -202,7 +202,7 @@ inchangé** ; correctif physique valable pour le régime « spot unique/centre �
 vrai verrou A/B est la vitesse de chauffe (résidu n°2 ci-dessus).
 3. **Régime basse consigne (B-2).** Cause confirmée (le modèle coupe au centre du spot, le
    procédé coupait sur le max des TC d'interface) ; correctif « capteurs » prêt derrière flag,
-   à activer conjointement avec la correction du M. Réf. `resultats_diag_b2_thermostat_capteurs.log`.
+   à activer conjointement avec la correction du M. Réf. `journaux/resultats_diag_b2_thermostat_capteurs.log`.
 4. **Déficit de chauffe en surface (TC1).** 5-6× trop lent, mécanisme non identifié ; attaqué
    par la mesure de la face du CFC (exp 8).
 
@@ -263,19 +263,19 @@ Détail archivé dans `docs/releves_resolus.md`.
   mesuré vs modèle, fig3 dynamique centre-vs-chant, fig4 courbes brutes 5 TC, fig5 loi
   taux-courant I^2,4) en PNG + PDF, pour la directrice.
 
-**Journaux de référence (`resultats_*.log`, racine) — état courant**
-- `resultats_hauteur_5mm_recalibration.log` — correction hauteur + θ\* courant.
-- `resultats_validation_reference_figures.log` — validation au θ\* courant.
-- `resultats_diag_forme_source.log` — profil en M (source, pas champ).
-- `resultats_diag_b2_thermostat_capteurs.log` — résidu B-2 + loi capteurs.
-- `resultats_diag_hauteur_bobine.log` — cote hauteur + plan image CFC (CAO).
-- `resultats_geometrie_corrigee_recalibration.log` — correction d'entraxe (étape précédente).
+**Journaux de référence (`journaux/resultats_*.log`) — état courant**
+- `journaux/resultats_hauteur_5mm_recalibration.log` — correction hauteur + θ\* courant.
+- `journaux/resultats_validation_reference_figures.log` — validation au θ\* courant.
+- `journaux/resultats_diag_forme_source.log` — profil en M (source, pas champ).
+- `journaux/resultats_diag_b2_thermostat_capteurs.log` — résidu B-2 + loi capteurs.
+- `journaux/resultats_diag_hauteur_bobine.log` — cote hauteur + plan image CFC (CAO).
+- `journaux/resultats_geometrie_corrigee_recalibration.log` — correction d'entraxe (étape précédente).
 
 **Journaux d'archive (géométrie/θ\* antérieurs — raisonnements valides, chiffres périmés)**
-- `resultats_diag_b2_longueur.log`, `resultats_diag_cp_kplan.log`,
-  `resultats_diag_blindage_intercouche.log`, `resultats_convergence_maillage.log`,
-  `resultats_diagnostic_profil_M_em.log`, `resultats_champ_reaction_em.log`,
-  `resultats_test_position_thermostat.log`, et les `resultats_validation_2d_*.log`.
+- `journaux/resultats_diag_b2_longueur.log`, `journaux/resultats_diag_cp_kplan.log`,
+  `journaux/resultats_diag_blindage_intercouche.log`, `journaux/resultats_convergence_maillage.log`,
+  `journaux/resultats_diagnostic_profil_M_em.log`, `journaux/resultats_champ_reaction_em.log`,
+  `journaux/resultats_test_position_thermostat.log`, et les `resultats_validation_2d_*.log`.
 
 **Code** : `src/jumeau/` (em, thermique, identification, validation) ; `scripts/` (simuler,
 calibrer, valider, figures) ; `config/` (geometrie.yaml, materiaux.yaml, essais/) ;
