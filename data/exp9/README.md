@@ -49,6 +49,21 @@ côté −x (TC2=19,2) → spot probablement décalé vers +x (~x=70-75) ou conc
 Figure : `200A/analyse_200A_y0_monospot.png`. C'est le cas propre pour confronter la forme de la
 source en longueur au modèle (spot unique).
 
+**Confrontation au modèle 2D** (spot unique x=60, 200 A, θ\* de référence) — profil normalisé au
+spot (l'absolu n'est pas confronté : chauffe arrêtée tôt à 236 °C vs pic modèle ~448 °C) :
+
+| x (mm) | 0 | 30 | 60 | 90 | 120 |
+|---|---|---|---|---|---|
+| Modèle /centre | 0,013 | 0,094 | 1,00 | 0,094 | 0,027 |
+| Mesuré /centre | 0,015 | 0,081 | 1,00 | 0,139 | 0,03 |
+
+→ **Le modèle reproduit la décroissance longitudinale** (raide : ~9 % à ±30 mm, ~3 % à ±60 mm).
+L'écart à x=90 (mesuré 0,139 vs modèle 0,094) = l'**asymétrie du montage** (+x plus chaud), que le
+modèle symétrique ne peut pas rendre — artefact expérimental, pas du modèle. **Conclusion : la
+forme de la source en longueur (au bord, y=0, dominé par la source) est validée.** Le vrai test du
+résidu d'étalement est la **phase 2 (y=20, centre, dominé par la conduction)**, à venir. Figure :
+`200A/analyse_200A_y0_monospot_vs_modele.png`.
+
 ### (à venir) phase 2 — ligne au **centre (y=20)** : conduction quasi pure (source ≈ 0), probe direct de `k_plan`.
 
 ## Exploitation prévue
