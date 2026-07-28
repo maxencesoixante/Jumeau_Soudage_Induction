@@ -45,7 +45,7 @@ brins. Fréquence 388 kHz, `k_plan = 3 W/m·K` (physique).
 
 Le modèle **ordonne et explique** les niveaux de température (séquence spatio-temporelle
 juste, transfert à 200 A sans retouche) mais ne pilote pas encore au degré près.
-**36 tests** automatisés verts (~2 min).
+**38 tests** automatisés verts (~2 min).
 
 **Reproduire** :
 ```bash
@@ -123,22 +123,36 @@ Rapports/slides/mesures régénérés au θ\* corrigé. Diagnostic de la cote `h
   chant y=0 (215) ≈ chant y=40 (201), ratio **1,07** → **M SYMÉTRIQUE**, les deux chants sont des
   lobes chauds comme le prédit le modèle. L'asymétrie de v2/v3 venait entièrement du TC1 cassé.
   **Le modèle a raison sur l'amplitude ET la symétrie du M** ; le « sur-contraste » de la série
-  sans céramique était un artefact du gap 0. → **Le levier « adoucir le M » est ÉCARTÉ.** Reste :
-  absolus non confrontés (chauffe manuelle courte) → campagne multi-ampérages avec chauffe
-  standardisée à venir (150/200/250 A, 3 reps ; pas 300 A car chants ~962 °C > dégradation).
+  sans céramique était un artefact du gap 0. → **Le levier « adoucir le M » est ÉCARTÉ.**
+- **Campagne exp 7 CLOSE — 3 courants × 3 essais (150 / 200 / 250 A, avec céramique).** Le M est
+  **symétrique** (ratios chant/chant 1,00-1,07) et de **bonne forme d'équilibre** (contraste
+  mesuré ~2,0-2,2) aux trois courants ; le seul résidu est **transitoire** — le centre du modèle
+  se remplit trop lentement, **indépendamment du courant** (motif centre-fill identique de 150 à
+  250 A). Leviers testés puis **écartés** pour ce résidu : cp / masse thermique / e_eff (taux
+  fondamental sous spot bon à ~15 %, `resultats_diag_taux_chauffe.log`), k_plan (casse le
+  contraste), placement TC. Le **lissage de source** (gaussienne σ≈6 mm) remplit le centre mais
+  abaisse les pics → posé derrière `--source-sigma-mm` (défaut off, **non adopté**). Le test **3D**
+  confirme le mécanisme (le lumping supprime une partie du taux hors-spot : TC2 7,8 → 11,0 °C/s)
+  mais **surchauffe l'interface** (TC1 682 vs 398 °C) et exigerait sa propre recalibration → **le
+  2D lumpé reste le modèle de travail, limite centre-fill/hors-spot documentée**. **Figures de
+  présentation** pour la directrice : `docs/figures_presentation/` (profil M aux 3 courants ;
+  mesuré vs modèle ; dynamique centre-vs-chant). Détail :
+  `data/exp7_bord-centre_2026-07-28_avec-ceramique/README.md`.
 
 ---
 
 ## 3. Résidus ouverts (par priorité)
 
-1. **Amplitude du profil en « M » — LARGEMENT RÉSOLU (28 juillet).** La cartographie
+1. **Amplitude du profil en « M » — RÉSOLU / campagne close (28 juillet).** La cartographie
    bord→centre a d'abord semblé montrer un modèle qui sur-contraste (série SANS céramique,
    contraste ~1,85 vs 2,46). Mais la **reprise AVEC céramique** (géométrie standard,
    `data/exp7_bord-centre_2026-07-28_avec-ceramique/`) donne un contraste mesuré **2,17 ≈ 2,43
    modèle**, forme normalisée quasi superposée : **le modèle a raison sur l'amplitude du M**. Le
    « sur-contraste » venait du retrait de la céramique (gap 0), pas du modèle. → **Le levier
-   « adoucir le M » (courants de retour 3D / contact twill) n'est plus justifié.** Restes :
-   TC1 (un chant) mort, absolus non confrontés (chauffe courte), essai unique → à confirmer.
+   « adoucir le M » (courants de retour 3D / contact twill) n'est plus justifié.** **Confirmé aux
+   3 courants (150 / 200 / 250 A, 3 essais chacun) — campagne close** : M symétrique et de bonne
+   forme d'équilibre partout. Reste ouvert seulement le résidu **transitoire** de centre-fill
+   (résidu #2), indépendant du courant.
 2. **Lobes A/B trop froids / montée lente hors-spot — LE résidu dominant du RMSE, DIAGNOSTIQUÉ.**
    Les TC A/B TC2-4 (sur les lobes y=0, mais HORS-SPOT en x) sont sous-estimés de 20-30 °C et
    montent ~2× trop lentement. **Diagnostic du taux** (`resultats_diag_taux_chauffe.log`) : ce
@@ -220,6 +234,8 @@ Détail archivé dans `docs/releves_resolus.md`.
 - `mesures_a_realiser.md` / `.docx` — mesures encore À FAIRE.
 - `releves_resolus.md` — relevés terrain déjà tranchés (archive).
 - `etat_art_induction.md` — revue de littérature.
+- `figures_presentation/` — figures de présentation exp 7 (profil M aux 3 courants, mesuré vs
+  modèle, dynamique centre-vs-chant) en PNG + PDF, pour la directrice.
 
 **Journaux de référence (`resultats_*.log`, racine) — état courant**
 - `resultats_hauteur_5mm_recalibration.log` — correction hauteur + θ\* courant.
@@ -237,4 +253,4 @@ Détail archivé dans `docs/releves_resolus.md`.
 
 **Code** : `src/jumeau/` (em, thermique, identification, validation) ; `scripts/` (simuler,
 calibrer, valider, figures) ; `config/` (geometrie.yaml, materiaux.yaml, essais/) ;
-`tests/` (36 tests). `README.md` résume la chaîne physique et les limites connues.
+`tests/` (38 tests). `README.md` résume la chaîne physique et les limites connues.

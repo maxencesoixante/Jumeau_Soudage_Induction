@@ -47,10 +47,17 @@ ampérage**.
 |---|---|---|---|
 | 200 A | ✔ FAIT (v4/v5/v6 valides) | oui (ratio 1,07) | centre ~4× trop lent dans le modèle (cf. `200A/`) |
 | 150 A | ✔ FAIT (v1/v2/v3 valides) | oui (ratio 1,00) | centre ~3× trop lent (idem → indépendant du courant, cf. `150A/`) |
-| 250 A | ✔ FAIT (v1) | oui (ratio 1,03) | contraste 2,19 ; même motif (cf. `250A/`) |
+| 250 A | ✔ FAIT (v1/v2/v3 valides) | oui (ratio 1,02-1,03) | contraste 2,05-2,19 ; même motif (cf. `250A/`) |
 
-**Conclusion de la campagne** : le profil en « M » est **symétrique et de bonne forme
-d'équilibre** ; le seul résidu est **transitoire** — le centre du modèle se remplit trop
-lentement (structurel, reproduit à 150 et 200 A). Diagnostiqué comme une **source trop
-concentrée aux chants** (ni cp, ni k_plan, ni placement TC) ; prototype « source adoucie »
-(gaussienne σ≈6 mm) opérant — cf. `resultats_diag_centre_transitoire.log` et `200A/`.
+**Conclusion de la campagne (close)** : le profil en « M » est **symétrique et de bonne
+forme d'équilibre**, confirmé aux **3 courants (150 / 200 / 250 A, 3 essais chacun)** ;
+le seul résidu est **transitoire** — le centre du modèle se remplit trop lentement,
+indépendamment du courant (structurel). Leviers testés et **écartés** : cp et masse
+thermique (le taux fondamental sous spot est bon, ~15 % près — cf.
+`resultats_diag_taux_chauffe.log`), k_plan (casse le contraste), placement TC. Le lissage
+de source (gaussienne σ≈6 mm) remplit le centre **mais abaisse les pics** → posé derrière
+le flag `--source-sigma-mm` (défaut off, non adopté). Le test **3D** confirme le mécanisme
+(le lumping supprime une partie du taux hors-spot) mais **surchauffe l'interface** et
+exigerait sa propre recalibration → **le 2D lumpé reste le modèle de travail, avec la
+limite hors-spot/centre-fill documentée**. Figures de présentation :
+`docs/figures_presentation/`.
