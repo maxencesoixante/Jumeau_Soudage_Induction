@@ -138,6 +138,14 @@ Rapports/slides/mesures régénérés au θ\* corrigé. Diagnostic de la cote `h
   présentation** pour la directrice : `docs/figures_presentation/` (profil M aux 3 courants ;
   mesuré vs modèle ; dynamique centre-vs-chant). Détail :
   `data/exp7_bord-centre_2026-07-28_avec-ceramique/README.md`.
+- **Campagne densifiée à 5 courants (ajout 176 et 225 A, 1 essai chacun) → loi taux-courant.**
+  Les pics ne se comparant pas (chauffe manuelle non standardisée, arrêt ~240 °C au chant),
+  l'observable est le **taux de chauffe au chant** (ΔT 30→130, sous le spot) : 9,7 / 15,7 /
+  20,8 / 26,9 / 34,2 °C/s à 150 / 176 / 200 / 225 / 250 A. Il croît **un peu plus vite que I²**
+  — ajustement **∝ I^2,4** (robuste, n≈2,5 sur les seuls courants triplés) vs I² exact attendu
+  d'une source à fréquence fixe. **Candidat** : la fréquence du générateur monte avec le courant
+  (source ∝ I²·f), traitée comme fixe par le modèle ; σ(T) et pertes croissantes y contribuent
+  aussi. Deux figures ajoutées : `fig4_courbes_brutes` (5 TC d'un essai) et `fig5_loi_courant`.
 
 ---
 
@@ -234,8 +242,9 @@ Détail archivé dans `docs/releves_resolus.md`.
 - `mesures_a_realiser.md` / `.docx` — mesures encore À FAIRE.
 - `releves_resolus.md` — relevés terrain déjà tranchés (archive).
 - `etat_art_induction.md` — revue de littérature.
-- `figures_presentation/` — figures de présentation exp 7 (profil M aux 3 courants, mesuré vs
-  modèle, dynamique centre-vs-chant) en PNG + PDF, pour la directrice.
+- `figures_presentation/` — figures de présentation exp 7 (fig1 profil M aux 3 courants, fig2
+  mesuré vs modèle, fig3 dynamique centre-vs-chant, fig4 courbes brutes 5 TC, fig5 loi
+  taux-courant I^2,4) en PNG + PDF, pour la directrice.
 
 **Journaux de référence (`resultats_*.log`, racine) — état courant**
 - `resultats_hauteur_5mm_recalibration.log` — correction hauteur + θ\* courant.

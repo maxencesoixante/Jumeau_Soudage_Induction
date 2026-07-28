@@ -5,14 +5,16 @@
 > résultats des manips déjà réalisées sont dans **[`releves_resolus.md`](releves_resolus.md)**
 > et les `data/exp*/README.md`.
 
-> ✅ **Exp 7 — Cartographie bord→centre : CLOSE (2026-07-28).** Campagne complète aux
-> **3 courants (150 / 200 / 250 A, 3 essais chacun, avec céramique)**. Le profil en « M » est
-> **symétrique et de bonne forme d'équilibre** (contraste mesuré ~2,0-2,2 vs modèle 2,4-2,55) ;
-> seul résidu = **transitoire** (le centre du modèle se remplit trop lentement, indépendant du
-> courant). Levier source-adoucie testé → flag off ; cp/k_plan/placement TC écartés ; 3D
-> confirme le mécanisme mais surchauffe l'interface → 2D lumpé conservé avec limite documentée.
-> Détail : `data/exp7_bord-centre_2026-07-28_avec-ceramique/README.md`. Figures de présentation :
-> `docs/figures_presentation/`.
+> ✅ **Exp 7 — Cartographie bord→centre : CLOSE (2026-07-28).** Campagne aux **5 courants
+> (150 / 176 / 200 / 225 / 250 A, avec céramique ; 3 essais aux 150/200/250, 1 aux 176/225)**.
+> Le profil en « M » est **symétrique et de bonne forme d'équilibre** (contraste mesuré ~2,0-2,2
+> vs modèle 2,4-2,55) ; seul résidu = **transitoire** (le centre du modèle se remplit trop
+> lentement, indépendant du courant). Levier source-adoucie testé → flag off ; cp/k_plan/placement
+> TC écartés ; 3D confirme le mécanisme mais surchauffe l'interface → 2D lumpé conservé avec limite
+> documentée. **Loi taux-courant** : le taux de chauffe au chant croît **∝ I^2,4** (un peu plus
+> vite que I² ; candidat = fréquence générateur montant avec I). Détail :
+> `data/exp7_bord-centre_2026-07-28_avec-ceramique/README.md`. Figures : `docs/figures_presentation/`
+> (fig1-5).
 
 ---
 

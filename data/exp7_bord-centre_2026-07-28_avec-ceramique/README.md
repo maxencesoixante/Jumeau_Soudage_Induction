@@ -43,11 +43,16 @@ ampérage**.
 
 ## Résultats
 
-| Ampérage | Statut | M symétrique ? | Résidu centre-fill |
+| Ampérage | Statut | M symétrique ? | Taux chant (ΔT 30→130) |
 |---|---|---|---|
-| 200 A | ✔ FAIT (v4/v5/v6 valides) | oui (ratio 1,07) | centre ~4× trop lent dans le modèle (cf. `200A/`) |
-| 150 A | ✔ FAIT (v1/v2/v3 valides) | oui (ratio 1,00) | centre ~3× trop lent (idem → indépendant du courant, cf. `150A/`) |
-| 250 A | ✔ FAIT (v1/v2/v3 valides) | oui (ratio 1,02-1,03) | contraste 2,05-2,19 ; même motif (cf. `250A/`) |
+| 150 A | ✔ FAIT (v1/v2/v3 valides) | oui (ratio 1,00) | 9,7 °C/s |
+| 176 A | ✔ FAIT (v1) | oui (ratio 1,00) | 15,7 °C/s |
+| 200 A | ✔ FAIT (v4/v5/v6 valides) | oui (ratio 1,02-1,07) | 20,8 °C/s |
+| 225 A | ✔ FAIT (v1) | oui (ratio 1,01) | 26,9 °C/s |
+| 250 A | ✔ FAIT (v1/v2/v3 valides) | oui (ratio 1,02-1,03) | 34,2 °C/s |
+
+*176 A et 225 A (1 essai chacun) ajoutés pour densifier la loi taux-courant. Contraste
+centre-fill du même type à tous les courants (structurel, cf. sous-dossiers).*
 
 **Conclusion de la campagne (close)** : le profil en « M » est **symétrique et de bonne
 forme d'équilibre**, confirmé aux **3 courants (150 / 200 / 250 A, 3 essais chacun)** ;
@@ -59,5 +64,16 @@ de source (gaussienne σ≈6 mm) remplit le centre **mais abaisse les pics** →
 le flag `--source-sigma-mm` (défaut off, non adopté). Le test **3D** confirme le mécanisme
 (le lumping supprime une partie du taux hors-spot) mais **surchauffe l'interface** et
 exigerait sa propre recalibration → **le 2D lumpé reste le modèle de travail, avec la
-limite hors-spot/centre-fill documentée**. Figures de présentation :
-`docs/figures_presentation/`.
+limite hors-spot/centre-fill documentée**.
+
+**Loi taux-courant (5 courants).** Comme la chauffe n'a pas été standardisée (arrêt manuel
+vers ~240 °C au chant), les *pics* ne se comparent pas ; l'observable propre est le **taux de
+chauffe au chant** (sous le spot). Il croît **un peu plus vite que I²** : ajustement en loi de
+puissance **∝ I^2,4** (robuste : n≈2,5 même sur les seuls courants triplés), là où une source à
+fréquence fixe donnerait exactement I². Candidat pour l'écart : la **fréquence du générateur
+monte avec le courant** (source ∝ I²·f), que le modèle traite comme fixe par essai ; y
+contribuent aussi la σ(T) et les pertes croissantes. Cf. `docs/figures_presentation/fig5`.
+
+**Figures de présentation** (`docs/figures_presentation/`) : `fig1` profil M aux 3 courants ·
+`fig2` mesuré vs modèle · `fig3` dynamique centre-vs-chant · `fig4` courbes brutes 5 TC d'un
+essai · `fig5` loi taux-courant (I^2,4).
