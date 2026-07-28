@@ -1,83 +1,50 @@
-# Exp 7 — Cartographie bord→centre AVEC céramique (reprise propre)
+# Exp 7 — Cartographie bord→centre AVEC céramique (campagne multi-ampérages)
 
-**Date** : 2026-07-28 &nbsp;·&nbsp; **Opérateur** : Maxence &nbsp;·&nbsp; **Objectif** : caler
-l'**amplitude** du profil en « M » (falsification quantitative contre la cible du modèle).
+**Objectif** : confronter le profil de température en largeur (le « M ») à la prédiction du
+modèle, à **géométrie standard** (céramique en place = celle du modèle). Un **sous-dossier par
+ampérage**.
 
-> Reprise contrôlée de la série `../exp7_bord-centre_2026-07-27_sans-ceramique/` (qui avait la
-> céramique retirée → géométrie non standard, amplitude non comparable). Ici : **céramique en
-> place** = géométrie du modèle. Dépose les fichiers ici et remplis la description.
+```
+150A/   200A/  (v2/v3/v4 — FAIT)   250A/   [300A/ non recommandé]
+```
 
----
+## Protocole (par essai)
 
-## Checklist (corrige les 4 réserves de la 1re série)
+- **Céramique d'espacement en place** + pression nominale (gap 2 mm = modèle).
+- **5 TC valides à l'interface**, y = 0/10/20/30/40 mm, x = 60 mm (spot centré ou spot 3).
+  Vérifier chaque voie AVANT : toutes doivent lire l'ambiant (même valeur à froid).
+- **Montage centré en largeur** (viser TC1 ≈ TC5 à chaud → chants symétriques).
+- **Chauffe STANDARDISÉE** : viser une durée fixe / un quasi-plateau (≈ 30-45 s), identique à
+  tous les essais, pour pouvoir comparer aussi les **valeurs absolues** (les essais v2/v3/v4
+  ont chauffé trop court → seule la forme était comparable).
+- Nommer les fichiers `<I>A_v<n>.txt` et déposer dans le sous-dossier du courant.
 
-- [ ] **Céramique d'espacement EN PLACE** (+ pression nominale) → gap 2 mm standard.
-- [ ] **5 TC valides à l'INTERFACE**, y = 0/10/20/30/40 mm, x = 60 mm. **TC1 remplacé** ;
-      chaque voie vérifiée avant l'essai (toutes à l'ambiant, sans saut).
-- [ ] **Montage CENTRÉ en largeur** (viser TC1↔TC5 symétriques à l'ambiant).
-- [ ] **200 A** ; fréquence **383 kHz**.
-- [ ] **Caméra** (optionnelle) : enregistrement **bien finalisé**, ou export **CSV radiométrique**.
+## Cibles du modèle (θ\* de référence, spot centré, au pic)
 
-## Cible du modèle **à 200 A** (spot centré, θ\* de référence, au pic ≈ 46 s) — à confronter
-
-| y (mm) | 0 | 10 | 20 (centre) | 30 | 40 |
-|---|---|---|---|---|---|
-| T_pic prédite (°C) | 468 | 276 | **207** | 276 | 468 |
-
-**Contraste bord/centre prédit = 2,26×** (à 250 A ce serait 2,46 ; cible 717/382/292).
-La 1re série sans céramique donnait un contraste 1,35-1,88 (modèle sur-contraste) mais en
-géométrie non standard → cette série AVEC céramique doit le trancher quantitativement.
-NB : cible calculée avec la fréquence globale du modèle (388 kHz) ; l'écart à 383 kHz est
-négligeable (~1 % sur la profondeur de peau).
-
-## Description de l'essai (à remplir)
-
-- **Courant / fréquence** : ______ A / ______ kHz
-- **Céramique** : en place ✔ / retirée &nbsp;·&nbsp; **Pression** : ______
-- **Durée de chauffe** : ______ s
-- **Positions TC** (interface, y en mm) : TC1=___ TC2=___ TC3=___ TC4=___ TC5=___
-- **Vérification des voies avant essai** (toutes propres ?) : ______
-- **Caméra** : position ______ , émissivité ______ , export : vidéo finalisée / CSV radiométrique
-
-## Ce que j'ai fait (texte libre)
-
-_(déroulé, observations, aléas…)_
-
-## Fichiers déposés
-
-- `200a v2 ceram.txt`, `200a v3 ceram.txt` — 200 A, céramique en place, 5 TC en largeur au
-  spot 3 (deux essais pour la répétabilité).
-- `analyse_200A_ceramique.png` (v2 seul), `analyse_200A_v2_v3.png` (v2 vs v3 vs modèle).
-
-## Résultat (analyse Claude, 2026-07-28)
-
-**En bref : avec la géométrie standard, le modèle a RAISON sur l'amplitude du profil en « M ».**
-
-Profil ΔT au pic — **deux essais (v2, v3) + modèle** :
-
-| y (mm) | 0 | 10 | 20 (centre) | 30 | 40 | contraste chant/centre |
+| I (A) | y0 | y10 | y20 (centre) | y30 | y40 | contraste chant/centre |
 |---|---|---|---|---|---|---|
-| **v2** | (TC1 mort) | 141 | **89** | 119 | 192 | **2,17** |
-| **v3** | (93, TC1 douteux) | 172 | **104** | 141 | 226 | **2,16** |
-| **modèle 200 A** | 444 | 252 | **183** | 252 | 444 | **2,43** |
+| 150 | 303 | 174 | **127** | 174 | 303 | 2,69 |
+| 200 | 468 | 276 | **207** | 276 | 468 | 2,43 |
+| 250 | 708 | 382 | **292** | 382 | 708 | 2,55 |
+| 300 | 962 | 546 | **348** | 546 | 962 | 2,89 |
 
-- **Contraste REPRODUIT : 2,17 (v2) / 2,16 (v3), proche du modèle (2,43)** ; la *forme
-  normalisée* de v2 et v3 se superpose et suit le modèle sur y = 10/20/30/40 (cf.
-  `analyse_200A_v2_v3.png`, panneau droit).
-- **Révision majeure** : le « sur-contraste » observé dans la série SANS céramique
-  (1,35-1,88 vs 2,46) venait surtout du **retrait de la céramique** (gap ≈ 0 → source aplatie),
-  PAS d'un défaut du modèle. Avec la céramique = géométrie du modèle, le M est bien reproduit.
-  → **Le levier « adoucir le M » n'est donc plus justifié** ; l'amplitude du M est ~correcte.
+⚠ **300 A : les chants atteignent ~962 °C** (bien au-dessus de la dégradation PEKK ~450 °C) →
+**non recommandé** (dégradation des chants, pas exploitable).
 
-**Réserves.**
-- **TC1 (y=0, un chant) non fiable** (mort en v2 ; en v3 il lit ~93 = ΔT bien SOUS ses voisins,
-  alors que le modèle y prédit le maximum). Le user confirme TC1 cassé. → le chant y=0 reste
-  **non vérifié** ; le contraste s'appuie sur TC5 (y=40), fiable. **Question ouverte** : si le
-  y=0 réel était bien plus froid que le y=40 (comme le suggère v3), le M serait ASYMÉTRIQUE —
-  mais impossible à trancher avec TC1 cassé (peut aussi être un spot non centré). Un TC1
-  réparé le dirait.
-- **Absolus non confrontés** : la chauffe manuelle s'est arrêtée tôt (pic mesuré ~15-25 s,
-  TC5 ~219 °C ; le modèle vise ~46 s / plus chaud) → seule la FORME (contraste) est comparée,
-  pas l'amplitude en °C.
-- Léger reste d'asymétrie (côté y=10 un peu plus chaud que y=30) + essai unique → à confirmer,
-  idéalement avec TC1 réparé et une chauffe plus longue/standardisée.
+## Ampérages à tester et répétitions — recommandation
+
+- **150, 200 et 250 A** (la plage utile ; elle encadre les points de calibration : A-3 = 200 A,
+  A-1/A-2 = 250 A, et teste la loi en I²). **Pas 300 A** (dégradation).
+- **3 répétitions par ampérage.** Le trio 200 A (v2/v3/v4) a donné un contraste 2,16 / 2,17 /
+  2,31 (dispersion ~0,07) : 3 essais donnent une moyenne solide et attrapent un TC défaillant.
+  2 au minimum.
+- **Priorité** : la FORME du M est déjà validée (200 A) ; ce qui reste à confronter, ce sont
+  les **valeurs absolues** et la **loi en I²** → d'où l'importance d'une chauffe standardisée.
+
+## Résultats
+
+| Ampérage | Statut | Contraste mesuré (moy.) | vs modèle |
+|---|---|---|---|
+| 200 A | ✔ FAIT (v2/v3/v4) | **~2,2** | 2,43 — proche ; M **symétrique validé** (cf. `200A/`) |
+| 150 A | à faire | — | 2,69 |
+| 250 A | à faire | — | 2,55 |

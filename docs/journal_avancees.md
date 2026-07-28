@@ -116,13 +116,16 @@ Rapports/slides/mesures régénérés au θ\* corrigé. Diagnostic de la cote `h
   centre est un creux, le plus lent à monter, même forme aux 3 courants). Contraste mesuré
   ~1,35-1,88 vs 2,46 prédit — mais géométrie non standard (céramique retirée).
 
-### 28 juillet — Le profil en « M » est validé (avec céramique)
-- **Reprise AVEC céramique (200 A, géométrie standard), 2 essais v2/v3** : contraste chant/centre
-  mesuré **2,17 / 2,16 ≈ 2,43 modèle** (REPRODUIT), forme quasi superposée
-  (`data/exp7_bord-centre_2026-07-28_avec-ceramique/`). **Le modèle a raison sur l'amplitude du
-  M** — le « sur-contraste » de la série sans céramique était un artefact du gap 0. → **Le
-  levier « adoucir le M » n'est plus justifié.** Restes : TC1 (chant y=0) cassé → chant y=0 non
-  vérifié (question ouverte d'une éventuelle asymétrie) ; absolus non confrontés (chauffe courte).
+### 28 juillet — Le profil en « M » est VALIDÉ et SYMÉTRIQUE (avec céramique)
+- **Reprise AVEC céramique (200 A, géométrie standard), 3 essais v2/v3/v4** : contraste
+  chant/centre mesuré **2,16 / 2,17 / 2,31 ≈ 2,43 modèle** (REPRODUIT), forme quasi superposée
+  au modèle (`data/exp7_bord-centre_2026-07-28_avec-ceramique/200A/`). **v4 avec TC1 réparé** :
+  chant y=0 (215) ≈ chant y=40 (201), ratio **1,07** → **M SYMÉTRIQUE**, les deux chants sont des
+  lobes chauds comme le prédit le modèle. L'asymétrie de v2/v3 venait entièrement du TC1 cassé.
+  **Le modèle a raison sur l'amplitude ET la symétrie du M** ; le « sur-contraste » de la série
+  sans céramique était un artefact du gap 0. → **Le levier « adoucir le M » est ÉCARTÉ.** Reste :
+  absolus non confrontés (chauffe manuelle courte) → campagne multi-ampérages avec chauffe
+  standardisée à venir (150/200/250 A, 3 reps ; pas 300 A car chants ~962 °C > dégradation).
 
 ---
 
