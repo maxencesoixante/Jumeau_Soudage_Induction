@@ -85,3 +85,34 @@ délocalisation du twill, ou modèle de contact) et refit -> voir si elle
 reproduit la courbe centre-vs-chant SANS casser le contraste ; (b) accepter comme
 limite transitoire connue si l'usage vise le pic/plateau. NE PAS monter k_plan
 (casse le contraste, valeur physique). Rien commité au modèle (diagnostic seul).
+
+
+6. PROTOTYPE « SOURCE ADOUCIE » (gaussienne σ) — 2026-07-28
+------------------------------------------------------------
+Test (scratch, sans toucher src/) : étaler la source surfacique P(x,y) par une
+gaussienne 2D de longueur σ (délocalisation du courant par contact-résistance du
+twill tissé), en CONSERVANT la puissance totale (renormalisation) -> pas de
+re-calage de facteur_couplage. Confronté à la cible centre-vs-chant (moy v4/v5/v6
+= 31/49/77 à chant=100/150/200).
+
+  sigma(mm)  centre@100  @150  @200  contraste_pic
+      0          3        10    18      2.97   (base, actuel)
+      3         10        24    34      2.39
+      5         22        40    65      1.88
+      7         41        62    89      1.58
+     10         61        90   132      1.42
+
+VERDICT : σ ≈ 5-6 mm cale la MAGNITUDE du remplissage (bien mieux que k_plan, qui
+avait la mauvaise forme). σ ~ 6 mm est PHYSIQUEMENT plausible (pas de trame du
+tissé). Contrairement à k_plan/cp, ce levier FONCTIONNE sur le résidu.
+
+RÉSERVES : (a) la FORME fine n'est pas parfaite (courbes lissées convexes vs
+« épaulement » mesuré — possiblement artefact de la chauffe manuelle) ; (b)
+compromis : σ ~ 6 abaisse le contraste d'équilibre à ~1,8 (vs ~2,1 mesuré) ->
+léger sur-aplatissement. σ ~ 4-5 préserverait mieux le contraste au prix d'un
+remplissage un peu sous la cible.
+
+PROCHAINE ÉTAPE (décision user) : implémenter σ derrière un flag (défaut off,
+pattern champ_reaction) + RECALIBRER θ* + valider croisé A-1/A-3/B-2. C'est le
+seul test qui dira si ça améliore le fit GLOBAL (le résidu centre/vitesse domine
+le RMSE) sans casser les 3 essais. Figure : proto_source_adoucie.png.
