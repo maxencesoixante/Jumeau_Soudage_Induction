@@ -32,9 +32,22 @@ joint (4 dwells), le point chaud avance le long de la longueur. Acquisition 1 Hz
 (±15 mm) et ~rien au-delà (±45 mm ≈ 0-16 °C). Spots ~x=15/45/75/105 (pas de 30 mm). Figure :
 `200A/analyse_200A_y0.png`.
 
-### (à venir) `200A/200A_y0_monospot.txt` — 200 A, y=0, **spot unique** (MFC centré sur TC3, x=60)
-Source unique fixe à x=60 → décroissance longitudinale pure, stations symétriques (TC2/TC4 à
-±30 mm, TC1/TC5 à ±60 mm). Complément propre à la mesure semi-statique.
+### `200A/200A_y0_monospot.txt` — 200 A, y=0, **spot unique** (MFC centré sur TC3, x=60) ✔
+Source unique fixe à x=60 → décroissance longitudinale pure, stations symétriques. Pic TC3
+235,9 °C (≤ 270, réutilisable), 1 Hz, ~250 s (avec refroidissement).
+
+**Profil longitudinal au pic** (ΔT au-dessus de l'ambiant) :
+
+| x (mm) | 0 | 30 | **60 (spot)** | 90 | 120 |
+|---|---|---|---|---|---|
+| ΔT (°C) | 3,6 | 19,2 | **235,9** | 32,8 | 7,1 |
+| /centre | 0,02 | 0,08 | 1,00 | 0,14 | 0,03 |
+
+→ **Décroissance longitudinale très raide** : < 15 % à ±30 mm, < 3 % à ±60 mm — la chaleur ne
+s'étale quasiment pas en longueur pendant le dwell. **Asymétrie** : côté +x (TC4=32,8) ~1,7×
+côté −x (TC2=19,2) → spot probablement décalé vers +x (~x=70-75) ou concentrateur asymétrique.
+Figure : `200A/analyse_200A_y0_monospot.png`. C'est le cas propre pour confronter la forme de la
+source en longueur au modèle (spot unique).
 
 ### (à venir) phase 2 — ligne au **centre (y=20)** : conduction quasi pure (source ≈ 0), probe direct de `k_plan`.
 
