@@ -1,0 +1,87 @@
+Diagnostic — pourquoi le CENTRE du modèle se remplit trop lentement (transitoire)
+==============================================================================
+Date : 2026-07-28. Déclencheur : la cartographie bord→centre AVEC céramique
+(200 A, essais v4/v5, TC1 fonctionnel) montre, en dynamique « centre vs chant »,
+que le centre RÉEL se remplit ~4× plus vite que le modèle (à chant ΔT=200 :
+centre 76-77 mesuré vs 18 modèle). Reproductible v4≈v5. Cf.
+data/exp7_bord-centre_2026-07-28_avec-ceramique/200A/ (README, figures
+dynamique_centre_vs_chant.png et diag_kplan_sweep.png).
+DIAGNOSTIC SEUL — θ* figé, config inchangée, rien commité au modèle.
+
+
+1. CIBLE MESURÉE (moy. v4/v5, branche CHAUFFE)
+------------------------------------------------
+  centre ΔT quand le chant atteint : 100 -> 32 ; 150 -> 49 ; 200 -> 77 °C.
+Signature de forme : le centre monte VITE tôt (centre ≈ 13 dès chant ≈ 40),
+puis fait un ÉPAULEMENT, puis remonte. Courbe quasi linéaire, pas convexe.
+
+
+2. BALAYAGE k_plan (200 A, spot centré)
+-----------------------------------------
+  k_plan  centre@100  centre@150  centre@200  contraste_pic
+     3         3          10          18          2.97   (actuel)
+     9        16          36          73          1.69
+    18        39          75         125          1.42
+    30        56         107         157          1.29
+    50        74         124          —           1.20
+
+- k_plan ~9-12 approche le point chant=200 (centre ~73-90) MAIS :
+  * ne reproduit PAS la forme (les courbes modèle sont convexes : centre ≈ 0 à
+    faible chant, puis accélèrent — la mesure, elle, monte vite tôt puis plat) ;
+  * écrase le contraste d'équilibre (1,7 à k=9, vs ~2,1 mesuré au pic).
+- AUCUN k_plan constant ne reproduit « vite tôt + épaulement ». La conduction
+  latérale démarre forcément lentement (centre alimenté de proche en proche).
+
+
+3. cp ÉCARTÉ
+-------------
+La courbe centre-vs-chant est PARAMÉTRIQUE (le temps est éliminé). cp (comme la
+densité) ne fait que ré-échelonner le temps de façon UNIFORME : chant et centre
+montent ensemble -> la courbe centre-vs-chant est INVARIANTE en cp. cp n'est
+donc PAS le levier de ce résidu (ni « cp de bord »).
+
+
+4. REPRODUCTIBILITÉ (v4/v5/v6) + TEST DE DÉCENTRAGE
+----------------------------------------------------
+CIBLE consolidée sur 3 essais valides (TC1 fonctionnel v4/v5, + v6) — centre à
+chant=100/150/200 :
+  v4 : 31 / 50 / 77   v5 : 34 / 48 / 76   v6 : 29 / 50 / 76   -> moy ~30 / 49 / 76.
+Très reproductible.
+
+Le centre mesuré monte TÔT (centre ≈ 13 à chant=40) -> source directe au centre.
+Le modèle met q ≈ 0 au centre exact (œil de boucle, x=60/y=20 = zéro de courant,
+cf. resultats_diag_forme_source.log §4), là où tombe TC3 -> ce point ne chauffe
+que par conduction (lent).
+
+MAIS le décentrage seul NE SUFFIT PAS. Modèle (k_plan=3), centre à chant=200
+selon la position lue :
+  (60,20) œil exact : 18   (60,17) 3mm : 22   (60,15) 5mm : 28   (55,20) 5mm x : 40
+Même à 5 mm de l'œil, le modèle donne 28-40, vs 76 mesuré. Donc l'œil de boucle
+ponctuel + un éventuel décentrage de TC3 expliquent une PARTIE de l'écart, pas
+tout : il reste un EXCÈS RÉEL de chauffe au centre (~2× au-delà de ce qu'un point
+décentré de 5 mm donnerait).
+
+
+5. CONCLUSION : source trop CONCENTRÉE aux chants dans le transitoire
+----------------------------------------------------------------------
+Le résidu « centre trop lent » N'EST ni cp (invariant, §3), ni k_plan seul
+(mauvaise forme de courbe, §2), ni le placement de TC3 seul (§4). Il pointe vers
+une source EM trop concentrée aux chants au centre du spot : la réalité dépose
+plus de puissance vers le centre (twill tissé : résistance de contact aux
+croisements qui délocalise le courant ; et/ou courants de retour 3D) que le
+modèle de nappe continue idéalisée. C'est le thread « FORME FINE de la source »
+(resultats_diag_forme_source.log §5), désormais étayé QUANTITATIVEMENT par la
+dynamique centre-vs-chant.
+
+Nuance importante : le CONTRASTE d'ÉQUILIBRE (au plein pic) reste ~OK — mais les
+essais s'arrêtent tôt (chant ~240, cap 270), et à cet état MATCHÉ le centre du
+modèle est ~4× trop froid. La « validation du M » (avec céramique) portait sur
+le contraste à l'endpoint mesuré ~ contraste au plein pic du modèle : une
+COÏNCIDENCE d'états différents. La confrontation à ÉTAT MATCHÉ (même chant)
+révèle le vrai écart, TRANSITOIRE.
+
+Suite possible : (a) prototyper une source « adoucie » au centre (paramètre de
+délocalisation du twill, ou modèle de contact) et refit -> voir si elle
+reproduit la courbe centre-vs-chant SANS casser le contraste ; (b) accepter comme
+limite transitoire connue si l'usage vise le pic/plateau. NE PAS monter k_plan
+(casse le contraste, valeur physique). Rien commité au modèle (diagnostic seul).

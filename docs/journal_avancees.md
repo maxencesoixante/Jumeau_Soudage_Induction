@@ -139,13 +139,16 @@ Rapports/slides/mesures régénérés au θ\* corrigé. Diagnostic de la cote `h
    « sur-contraste » venait du retrait de la céramique (gap 0), pas du modèle. → **Le levier
    « adoucir le M » (courants de retour 3D / contact twill) n'est plus justifié.** Restes :
    TC1 (un chant) mort, absolus non confrontés (chauffe courte), essai unique → à confirmer.
-2. **Le centre du modèle se remplit trop lentement (transitoire) — mesuré 28 juillet.**
-   Cartographie 200 A avec céramique, chauffe longue (v4/v5, reproductible) : à *chant* donné
-   pendant la chauffe, le centre RÉEL est ~4× plus chaud que le modèle (chant ΔT=200 → centre
-   76 mesuré vs 18 modèle). Au pic le contraste se recale (~2,1 vs 2,4) → défaut du TRANSITOIRE,
-   pas de la forme d'équilibre : couplage centre↔chants trop lent. Candidats : `k_plan` trop
-   faible, ou taux des chants trop rapide. Réf. `.../200A/dynamique_centre_vs_chant.png`. Lié au
-   vieux résidu « vitesse de chauffe ~2× trop lente » (domine le RMSE).
+2. **Le centre du modèle se remplit trop lentement (transitoire) — mesuré + DIAGNOSTIQUÉ
+   28 juillet.** Cartographie 200 A avec céramique, chauffe longue (v4/v5/v6, très
+   reproductible) : à *chant* donné, le centre RÉEL est ~4× plus chaud que le modèle (chant
+   ΔT=200 → centre ~76 mesuré vs 18 modèle). **Diagnostic** (`resultats_diag_centre_transitoire.log`) :
+   ce N'EST ni `cp` (invariant sur la courbe centre-vs-chant), ni `k_plan` seul (ne reproduit pas
+   la forme ; le monter casse le contraste d'équilibre), ni le placement de TC3 seul (5 mm de
+   décentrage insuffisant). → **source EM trop concentrée aux chants au centre du spot** dans le
+   transitoire (œil de boucle + déficit réel) : rejoint le thread « forme fine de la source »
+   (twill tissé / courants de retour 3D), maintenant étayé quantitativement. NB : la « validation
+   du M » d'équilibre tenait ; c'est le transitoire à état matché qui révèle l'écart.
 3. **Régime basse consigne (B-2).** Cause confirmée (le modèle coupe au centre du spot, le
    procédé coupait sur le max des TC d'interface) ; correctif « capteurs » prêt derrière flag,
    à activer conjointement avec la correction du M. Réf. `resultats_diag_b2_thermostat_capteurs.log`.

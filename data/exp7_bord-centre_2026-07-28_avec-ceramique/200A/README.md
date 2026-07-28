@@ -29,21 +29,24 @@ v5 (TC1 fonctionnel) confirme la forme (chants symétriques 239/229, contraste a
 permet la **dynamique**. En comparant *le centre en fonction du chant* pendant la CHAUFFE
 (mesuré vs modèle) — reproductible sur v4 et v5 :
 
-| chant ΔT (°C) | centre v4 | centre v5 | **centre MODÈLE** |
-|---|---|---|---|
-| 100 | 31 | 34 | **3** |
-| 150 | 50 | 48 | **10** |
-| 200 | 77 | 76 | **18** |
+| chant ΔT (°C) | centre v4 | centre v5 | centre v6 | **centre MODÈLE** |
+|---|---|---|---|---|
+| 100 | 31 | 34 | 29 | **3** |
+| 150 | 50 | 48 | 50 | **10** |
+| 200 | 77 | 76 | 76 | **18** |
 
-**Le centre RÉEL se remplit ~4× plus vite (relativement aux chants) que dans le modèle**
-(chant=200 : centre 76 mesuré vs 18 modèle ; cf. `dynamique_centre_vs_chant.png`). Au **pic** le
-contraste se recale (~2,1 vs 2,4) → **c'est un défaut du TRANSITOIRE**, pas de la forme
-d'équilibre : le couplage centre↔chants est trop lent dans le modèle. **Candidats** :
-conduction latérale `k_plan` trop faible, ou taux de chauffe des chants trop rapide (source de
-bord trop forte / cp trop bas). → thread diagnostic distinct.
+**Le centre RÉEL se remplit ~4× plus vite que dans le modèle** — reproductible sur 3 essais
+valides (v4/v5/v6), cf. `dynamique_centre_vs_chant.png`.
+
+**DIAGNOSTIC** (`../../../resultats_diag_centre_transitoire.log`) : ce n'est ni `cp` (invariant
+sur cette courbe), ni `k_plan` seul (ne reproduit pas la forme ; le monter casse le contraste
+d'équilibre), ni le placement de TC3 seul (5 mm de décentrage insuffisant). → **source EM trop
+concentrée aux chants au centre du spot** dans le transitoire (œil de boucle + déficit réel) :
+le vrai levier est la **forme fine de la source** (twill tissé / courants de retour 3D), pas la
+conduction. Défaut TRANSITOIRE : au plein pic le contraste d'équilibre restait ~OK.
 
 ## Fichiers
 
-- `200A_v2.txt`, `200A_v3.txt`, `200A_v4_TC1ok.txt`, `200A_v5.txt` — essais (5 TC en largeur ;
-  v4/v5 = TC1 fonctionnel).
-- `analyse_v2*.png`, `dynamique_centre_vs_chant.png` — figures.
+- `200A_v2.txt`, `200A_v3.txt`, `200A_v4_TC1ok.txt`, `200A_v5.txt`, `200A_v6.txt` — essais
+  (5 TC en largeur ; v4/v5/v6 = TC1 fonctionnel).
+- `analyse_v2*.png`, `dynamique_centre_vs_chant.png`, `diag_kplan_sweep.png` — figures.
