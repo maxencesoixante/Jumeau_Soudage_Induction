@@ -139,16 +139,23 @@ Rapports/slides/mesures régénérés au θ\* corrigé. Diagnostic de la cote `h
    « sur-contraste » venait du retrait de la céramique (gap 0), pas du modèle. → **Le levier
    « adoucir le M » (courants de retour 3D / contact twill) n'est plus justifié.** Restes :
    TC1 (un chant) mort, absolus non confrontés (chauffe courte), essai unique → à confirmer.
-2. **Le centre du modèle se remplit trop lentement (transitoire) — mesuré + DIAGNOSTIQUÉ
-   28 juillet.** Cartographie 200 A avec céramique, chauffe longue (v4/v5/v6, très
-   reproductible) : à *chant* donné, le centre RÉEL est ~4× plus chaud que le modèle (chant
-   ΔT=200 → centre ~76 mesuré vs 18 modèle). **Diagnostic** (`resultats_diag_centre_transitoire.log`) :
-   ce N'EST ni `cp` (invariant sur la courbe centre-vs-chant), ni `k_plan` seul (ne reproduit pas
-   la forme ; le monter casse le contraste d'équilibre), ni le placement de TC3 seul (5 mm de
-   décentrage insuffisant). → **source EM trop concentrée aux chants au centre du spot** dans le
-   transitoire (œil de boucle + déficit réel) : rejoint le thread « forme fine de la source »
-   (twill tissé / courants de retour 3D), maintenant étayé quantitativement. NB : la « validation
-   du M » d'équilibre tenait ; c'est le transitoire à état matché qui révèle l'écart.
+2. **Vitesse de chauffe / lobes A/B trop froids — LE résidu dominant du RMSE.** Les taux
+   simulés restent ~2× trop lents et les TC A/B (TC2-4, sur les lobes y=0) sont sous-estimés de
+   20-30 °C. Distinct du profil en M (forme validée). **Le lissage de source NE le corrige PAS**
+   (cf. ci-dessous) : il redistribue centre↑/lobes↓, ce qui baisse encore les lobes A/B. Cause
+   probable : la source/le taux sur la montée, pas la répartition spatiale.
+
+**Résidu résolu / tranché (28 juillet) — le remplissage du centre.** La cartographie 200 A
+avec céramique (chauffe longue, v4/v5/v6) montrait le centre du modèle ~4× trop lent (à chant
+ΔT=200 : centre 76 mesuré vs 18 modèle). Diagnostic (`resultats_diag_centre_transitoire.log`) :
+ni `cp` (invariant), ni `k_plan` seul (mauvaise forme), ni placement TC3 (5 mm insuffisant) →
+œil de boucle (source ≈0 au centre exact) + source trop concentrée. **Prototype « source
+adoucie » (gaussienne σ, délocalisation twill) IMPLÉMENTÉ derrière `lissage_sigma_mm`
+(défaut off) + recalibré σ=6 + validé croisé** : il reproduit bien la cible exp 7 mais
+**n'améliore PAS le fit global A/B** (RMSE ~-1 °C, mais écart de pic +13 à +17 °C : il abaisse
+les lobes A/B déjà sous-estimés). → **gardé derrière le flag, défaut OFF, θ\* de référence
+inchangé** ; correctif physique valable pour le régime « spot unique/centre », pas pour A/B. Le
+vrai verrou A/B est la vitesse de chauffe (résidu n°2 ci-dessus).
 3. **Régime basse consigne (B-2).** Cause confirmée (le modèle coupe au centre du spot, le
    procédé coupait sur le max des TC d'interface) ; correctif « capteurs » prêt derrière flag,
    à activer conjointement avec la correction du M. Réf. `resultats_diag_b2_thermostat_capteurs.log`.

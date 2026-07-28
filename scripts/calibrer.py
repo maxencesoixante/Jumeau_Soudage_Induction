@@ -98,6 +98,10 @@ def principale():
                     help="calibre avec la loi thermostat 'capteurs' (coupe sur le "
                          "max de T aux positions TC d'interface ; defaut False = "
                          "loi historique) -- cf. resultats_diag_b2_thermostat_capteurs.log")
+    ap.add_argument("--source-sigma-mm", type=float, default=0.0,
+                    help="calibre avec la source etalee (gaussienne sigma mm, "
+                         "delocalisation twill ; defaut 0 = source nette) -- cf. "
+                         "resultats_diag_centre_transitoire.log")
     args = ap.parse_args()
 
     cfg = Config.charger(RACINE / "config")
@@ -118,7 +122,8 @@ def principale():
 
     cal = Calibrateur(cfg, chemin, modele=args.modele, nx=args.nx, ny=args.ny, nz=args.nz,
                       bornes_basses=bornes_basses, bornes_hautes=bornes_hautes,
-                      thermostat_capteurs=args.thermostat_capteurs)
+                      thermostat_capteurs=args.thermostat_capteurs,
+                      source_sigma_mm=args.source_sigma_mm)
     print(f"Calibration [{args.modele}] sur {args.essai} — TC : {cal.tc_valides}"
           + (f" (exclus : {cal.tc_exclus_2d})" if cal.tc_exclus_2d else ""))
     print(f"Paramètres : {cal.NOMS}")

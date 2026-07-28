@@ -57,7 +57,8 @@ class Essai:
                  racine: str | Path | None = None,
                  interp_ctrl: bool = True,
                  champ_reaction: bool = False,
-                 thermostat_capteurs: bool = False):
+                 thermostat_capteurs: bool = False,
+                 source_sigma_mm: float = 0.0):
         self.cfg = cfg
         self.spec = charger_yaml(chemin_essai)
         self.racine = Path(racine) if racine else Path(chemin_essai).resolve().parents[2]
@@ -123,12 +124,21 @@ class Essai:
                 for x, y in self._positions_capteurs_interface()
             ]
 
+        # source_sigma_mm (défaut 0.0 = inchangé) : étalement gaussien de la
+        # source (délocalisation du courant dans le twill tissé), cf.
+        # source_joule._lisser_source et resultats_diag_centre_transitoire.log.
+        # Adoucit l'« œil de boucle » au centre du spot -> le centre se remplit
+        # plus tôt (résidu transitoire mesuré exp 7 avec céramique). NE PAS
+        # activer sans recalibrer θ*. Défaut 0.0 -> non-régression bit-à-bit.
+        self.source_sigma_mm = float(source_sigma_mm)
+
         courant = float(self.spec["courant"])
         self.spots = self.spec["spots"]
         self._Q_spots = [
             source_spot(self.grille, cfg, self.couches, courant,
                         float(s["centre_x"]), facteur_couplage=facteur_couplage,
-                        decalage_x=self.decalage_x, champ_reaction=self.champ_reaction)
+                        decalage_x=self.decalage_x, champ_reaction=self.champ_reaction,
+                        lissage_sigma_mm=self.source_sigma_mm)
             for s in self.spots
         ]
         self._masques = [

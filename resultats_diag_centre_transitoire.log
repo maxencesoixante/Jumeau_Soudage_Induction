@@ -116,3 +116,36 @@ PROCHAINE ÉTAPE (décision user) : implémenter σ derrière un flag (défaut o
 pattern champ_reaction) + RECALIBRER θ* + valider croisé A-1/A-3/B-2. C'est le
 seul test qui dira si ça améliore le fit GLOBAL (le résidu centre/vitesse domine
 le RMSE) sans casser les 3 essais. Figure : proto_source_adoucie.png.
+
+
+7. IMPLÉMENTATION + RECALIBRATION σ=6 : VERDICT (2026-07-28)
+-------------------------------------------------------------
+Lissage implémenté derrière lissage_sigma_mm (défaut 0 = inchangé bit-à-bit,
+non-régression testée ; source_joule._lisser_source ; propagé Essai/Calibrateur/
+CLI --source-sigma-mm). Recalibration A-1 (2D 31×11, decalage_x figé 0) avec σ=6 :
+  θ* = facteur 5.2239 / h_haut 31.196 / h_bas_2d 35.518 (coût A-1 4.549e6, vs
+  4.979e6 sans lissage -> A-1 MIEUX ajusté).
+
+Validation croisée 61×21 (RMSE / |ΔT_max| moyen, σ=0 réf -> σ=6) :
+  A-1  35.8/25.9 -> 34.1/39.4
+  A-3  31.7/41.3 -> 31.1/58.6
+  B-2  65.3/45.2 -> 63.5/57.1
+=> RMSE marginalement MEILLEUR partout (~1-2 °C) ; écart de PIC nettement PIRE
+partout (+13 à +17 °C).
+
+MÉCANISME : le lissage REDISTRIBUE la source (centre ↑, lobes ↓). Dans les essais
+A/B, les TC d'interface exploités (TC2-5) sont sur les LOBES (y=0), que le modèle
+SOUS-ESTIMAIT déjà (réf : TC2-4 à -20/-30 °C) -> le lissage les baisse ENCORE
+(σ=6 : TC3/TC4 à -43 °C). Le lissage remplit le CENTRE (bon pour exp 7, où TC3
+est au centre = œil de boucle) mais ABAISSE les LOBES (mauvais pour A/B). Les
+deux résidus veulent des directions OPPOSÉES.
+
+CONCLUSION : le lissage de source est un correctif PHYSIQUEMENT MOTIVÉ et VALIDÉ
+sur la cible exp 7 (remplissage du centre), mais il N'AMÉLIORE PAS le fit global
+A/B : il échange les pics des lobes (déjà sous-estimés) contre un gain RMSE
+marginal. Ce n'est donc PAS un défaut unique de « source trop concentrée » : le
+résidu A/B TC2-4 (lobes trop froids) est un problème DISTINCT (probablement la
+VITESSE de chauffe/le taux, cf. taux_sim ~2× trop lent, INCHANGÉ par le lissage).
+=> DÉCISION : garder le lissage derrière le flag (défaut OFF, θ* de référence
+INCHANGÉ), documenté comme option physique pour le régime « spot unique / centre »,
+non adopté par défaut. Le vrai verrou A/B reste la vitesse de chauffe.

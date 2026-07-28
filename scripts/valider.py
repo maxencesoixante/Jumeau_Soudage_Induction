@@ -124,6 +124,11 @@ def principale():
                          "d'interface reelles (au lieu du centre du spot ; defaut "
                          "False = chemin historique). NECESSITE un theta* recalibre "
                          "avec ce flag -- cf. resultats_diag_b2_thermostat_capteurs.log")
+    ap.add_argument("--source-sigma-mm", type=float, default=0.0,
+                    help="etale la source par une gaussienne sigma (mm) = delocalisation "
+                         "du courant (twill tisse), puissance conservee ; adoucit l'oeil "
+                         "de boucle au centre (defaut 0 = inchange). NECESSITE un theta* "
+                         "recalibre -- cf. resultats_diag_centre_transitoire.log")
     ap.add_argument("--ny", type=int, default=21)
     ap.add_argument("--nz", type=int, default=15,
                     help="défaut 15 (= défaut Essai/construire_grille) ; nz n'a "
@@ -150,7 +155,8 @@ def principale():
         essai = Essai(cfg, chemin, nx=args.nx, ny=args.ny, nz=args.nz,
                       facteur_couplage=args.facteur, decalage_x=args.decalage_x,
                       racine=RACINE, champ_reaction=args.champ_reaction,
-                      thermostat_capteurs=args.thermostat_capteurs)
+                      thermostat_capteurs=args.thermostat_capteurs,
+                      source_sigma_mm=args.source_sigma_mm)
         solveur, sol = essai.simuler(modele=args.modele)
         series = essai.series_tc(solveur, sol)
         df = recaler_a_la_chauffe(charger_mesures(essai.fichier_mesures))

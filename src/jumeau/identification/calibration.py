@@ -175,7 +175,7 @@ class Calibrateur:
 
     def __init__(self, cfg: Config, chemin_essai, modele: str = "3D",
                  bornes_basses=None, bornes_hautes=None, nx=31, ny=11, nz=13,
-                 recaler_debut=True, thermostat_capteurs=False):
+                 recaler_debut=True, thermostat_capteurs=False, source_sigma_mm=0.0):
         if modele not in self.NOMS_PAR_MODELE:
             raise ValueError(f"modele={modele!r} inconnu (attendu '3D' ou '2D')")
         self.modele = modele
@@ -188,6 +188,7 @@ class Calibrateur:
         # à chaque Essai reconstruit dans _residus, pour recalibrer θ* avec cette
         # loi. Aucun effet si l'essai n'a pas de consigne_interface.
         self.thermostat_capteurs = bool(thermostat_capteurs)
+        self.source_sigma_mm = float(source_sigma_mm)
         bornes_def = self.BORNES_PAR_MODELE[modele]
         if bornes_basses is None:
             bornes_basses = bornes_def[0]
@@ -272,7 +273,8 @@ class Calibrateur:
             # reconstruit l'Essai (source EM incluse) pour ce theta.
             essai = Essai(self.cfg, self.chemin_essai, nx=self.nx, ny=self.ny, nz=self.nz,
                           facteur_couplage=float(facteur), decalage_x=float(decalage_x),
-                          racine=self.racine, thermostat_capteurs=self.thermostat_capteurs)
+                          racine=self.racine, thermostat_capteurs=self.thermostat_capteurs,
+                          source_sigma_mm=self.source_sigma_mm)
 
             solveur, sol = essai.simuler(modele=self.modele)
             series = essai.series_tc(solveur, sol)

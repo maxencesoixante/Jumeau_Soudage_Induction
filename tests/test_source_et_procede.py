@@ -200,3 +200,27 @@ def test_thermostat_capteurs_on_controle_sur_le_max_des_tc(cfg):
     assert e_on._T_ctrl(T, spot, deux_d=True) == pytest.approx(attendu)
     # et c'est bien un MAX -> >= la valeur de n'importe quel TC pris seul
     assert e_on._T_ctrl(T, spot, deux_d=True) >= T.min()
+
+
+# --- lissage de source (délocalisation twill, cf. source_joule._lisser_source) ---
+
+def test_lissage_source_off_est_identite(cfg):
+    """sigma=0 (défaut) : source strictement inchangée (non-régression)."""
+    g = construire_grille(cfg, nx=25, ny=11, nz=9)
+    c = construire_couches(cfg)
+    Q0 = source_spot(g, cfg, c, 250.0, 0.06)
+    Q0b = source_spot(g, cfg, c, 250.0, 0.06, lissage_sigma_mm=0.0)
+    assert np.array_equal(Q0, Q0b)
+
+
+def test_lissage_source_conserve_puissance_et_remplit_centre(cfg):
+    """sigma>0 : puissance totale conservée, œil de boucle rempli, pic abaissé."""
+    g = construire_grille(cfg, nx=61, ny=21, nz=13)
+    c = construire_couches(cfg)
+    Q0 = source_spot(g, cfg, c, 250.0, 0.06)
+    Q6 = source_spot(g, cfg, c, 250.0, 0.06, lissage_sigma_mm=6.0)
+    assert Q6.sum() == pytest.approx(Q0.sum(), rel=1e-6)      # puissance conservée
+    ix = int(np.argmin(np.abs(g.x - 0.06))); iy = g.ny // 2
+    assert Q0[ix, iy, :].sum() < 1.0                           # œil de boucle ~0
+    assert Q6[ix, iy, :].sum() > 100.0 * Q0[ix, iy, :].sum()   # rempli
+    assert Q6.max() < Q0.max()                                 # pic abaissé

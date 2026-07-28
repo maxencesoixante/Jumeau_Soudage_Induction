@@ -118,6 +118,7 @@ convergence géométrique rapide attendue (~5-10 itérations, vérifié).
 from __future__ import annotations
 
 import numpy as np
+from scipy.ndimage import gaussian_filter
 
 from ..geometrie import CoucheConductrice, plan_miroir_cfc, sommets_bobine
 from ..materiaux import Config
@@ -125,6 +126,29 @@ from ..thermique.solveur3d import Grille3D
 from .champ_coil import MU0, bz_plan
 from .foucault import (bz_induit_nappe, densite_joule, densite_joule_complexe,
                        noyau_reaction_k, resoudre_psi, resoudre_psi_complexe)
+
+
+def _lisser_source(Q: np.ndarray, grille: Grille3D, sigma_mm: float) -> np.ndarray:
+    """Étale la source Q dans le plan (x, y) par une gaussienne de longueur
+    ``sigma_mm`` (mm), tranche z par tranche z, en CONSERVANT la puissance de
+    chaque tranche (renormalisation). Représente la DÉLOCALISATION du courant de
+    Foucault dans le twill TISSÉ (résistance de contact aux croisements) — la
+    nappe continue idéalisée met un q≈0 exact à l'« œil de boucle » au centre du
+    spot, que la réalité remplit (cf. resultats_diag_centre_transitoire.log).
+    ``sigma_mm <= 0`` -> identité (chemin historique inchangé)."""
+    if sigma_mm <= 0.0:
+        return Q
+    sig = (sigma_mm * 1e-3) / grille.dx          # en mailles (dx = dy)
+    out = Q.copy()
+    for k in range(Q.shape[2]):
+        s = Q[:, :, k]
+        tot = float(s.sum())
+        if tot <= 0.0:
+            continue
+        sm = gaussian_filter(s, sigma=sig, mode="nearest")
+        ssum = float(sm.sum())
+        out[:, :, k] = sm * (tot / ssum) if ssum > 0.0 else s
+    return out
 
 
 def attenuation_blindage(couche: CoucheConductrice,
@@ -204,6 +228,7 @@ def source_spot(
     facteur_couplage: float = 1.0,
     decalage_x: float = 0.0,
     champ_reaction: bool = False,
+    lissage_sigma_mm: float = 0.0,
 ) -> np.ndarray:
     """Champ source Q (nx, ny, nz) en W/m³ pour la bobine centrée en ``centre_x``.
 
@@ -219,6 +244,12 @@ def source_spot(
     l'atténuation ad hoc ``attenuation_blindage``. Comportement HISTORIQUE
     strictement inchangé si False (chemin non touché, non-régression
     bit-à-bit).
+
+    ``lissage_sigma_mm`` (défaut 0.0 = inchangé) : étale la source dans le plan
+    par une gaussienne de longueur sigma_mm (délocalisation du courant, twill
+    tissé), puissance conservée par tranche z — cf. ``_lisser_source`` et
+    resultats_diag_centre_transitoire.log (remplit l'« œil de boucle » au centre
+    du spot que la nappe continue idéalisée met à zéro).
     """
     omega = 2.0 * np.pi * float(cfg.geometrie["generateur"]["frequence"])
     mu_r = float(cfg.geometrie["cfc"]["mu_r"])
@@ -251,7 +282,7 @@ def source_spot(
                 q = densite_joule(psi, grille.dx, grille.dy, couche.rho_xx, couche.rho_yy)
                 Q[:, :, k] += q * att * poids
 
-        return facteur_couplage * Q
+        return facteur_couplage * _lisser_source(Q, grille, lissage_sigma_mm)
 
     # --- chemin champ de réaction : une nappe équivalente par couche ---
     Bz0_mid = []
@@ -283,4 +314,4 @@ def source_spot(
             q = densite_joule(psi, grille.dx, grille.dy, couche.rho_xx, couche.rho_yy)
             Q[:, :, k] += q * ratio_couche * poids
 
-    return facteur_couplage * Q
+    return facteur_couplage * _lisser_source(Q, grille, lissage_sigma_mm)
