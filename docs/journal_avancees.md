@@ -1,6 +1,6 @@
 # Journal d'avancement — jumeau numérique soudage induction CF/PEKK
 
-**Projet** : simulation de l'empreinte thermique bobine + concentrateur de flux (CFC) sur
+**Projet** : simulation de l'empreinte thermique bobine + concentrateur de flux (MFC) sur
 laminés CF/PEKK, soudage par induction semi-statique (maîtrise, LIPEC / ÉTS).
 **Dépôt** : `Jumeau_Soudage_Induction` (Python) &nbsp;·&nbsp; **Dernière mise à jour** : 2026-07-27.
 
@@ -15,14 +15,14 @@ laminés CF/PEKK, soudage par induction semi-statique (maîtrise, LIPEC / ÉTS).
 ## 1. État actuel en un coup d'œil
 
 **Ce que le modèle fait.** Chaîne EM → thermique : champ magnétique de la bobine hairpin +
-CFC (Biot-Savart + courants images) → courants de Foucault en plaque mince (fonction de
+MFC (Biot-Savart + courants images) → courants de Foucault en plaque mince (fonction de
 courant ψ, Lin 1993) → source Joule par couche → transfert thermique 3D transitoire avec
 fusion (cp apparent). Deux solveurs : **2D lumpé à l'interface** (modèle de travail, ~2-4
 min/essai) et 3D complet (cartes, gradient d'épaisseur, ~30 min/essai). Calibration LHS +
 NLSQ pondérée par le bruit capteur sur **un** essai (A-1), validée en aveugle sur les autres.
 
 **Géométrie de référence** (corrigée, cf. §2) : brins carrés 6 mm, gap 6,35 mm, **entraxe
-12,35 mm**, **hauteur d'axe 5,0 mm** au-dessus du laminé, plan image du CFC au sommet des
+12,35 mm**, **hauteur d'axe 5,0 mm** au-dessus du laminé, plan image du MFC au sommet des
 brins. Fréquence 388 kHz, `k_plan = 3 W/m·K` (physique).
 
 **θ\* de référence** (modèle 2D, calibré sur A-1, grille 31×11) :
@@ -30,7 +30,7 @@ brins. Fréquence 388 kHz, `k_plan = 3 W/m·K` (physique).
 | Paramètre | Valeur | Rôle |
 |---|---|---|
 | `facteur_couplage` | **6,0123** ± 0,07 | échelle de la source Joule |
-| `h_haut` | **30,09** W/m²·K ± 1,3 | perte vers céramique/CFC |
+| `h_haut` | **30,09** W/m²·K ± 1,3 | perte vers céramique/MFC |
 | `h_bas_2d` | **37,42** W/m²·K ± 0,5 | perte vers face opposée/bâti |
 | `decalage_x` | 0 (figé) | position bobine↔spot, non mesurée |
 | `h_bord_x0` | 250 (figé) | puits de bord x=0 — **effectif, pas physique** (§4) |
@@ -74,7 +74,7 @@ Thermostat de coupure sur consigne (« chauffe jusqu'à T_processing »). Figure
 - **Thermostat mixte** point+section (`POIDS_POINT_THERMOSTAT`) pour réduire le dépassement.
 - **Puits de bord `h_bord_x0 = 250`** ajouté au chant x=0 (justifié à l'époque par un
   « bridage » — **depuis infirmé**, cf. §4).
-- Déficit TC1 : auto-échauffement du CFC (0,6-1,4 W) et `decalage_x` **écartés** avec chiffres.
+- Déficit TC1 : auto-échauffement du MFC (0,6-1,4 W) et `decalage_x` **écartés** avec chiffres.
 - Couche IA multi-agents locale (`ai_framework`) posée sur le jumeau (démonstrateur).
 
 ### 21 juillet — Convergence de maillage
@@ -96,14 +96,14 @@ Rapports/slides/mesures régénérés au θ\* corrigé. Diagnostic de la cote `h
 **dérivée du tube faux** (2 + demi-tube 9,5 mm), jamais mesurée.
 
 ### 27 juillet — Cadrage complet de la géométrie EM + réorientation
-- **Plan image du CFC vérifié sur CAO** (coupe + photo de montage) : le concentrateur est bien
+- **Plan image du MFC vérifié sur CAO** (coupe + photo de montage) : le concentrateur est bien
   au-dessus des brins, semelle au sommet des brins — la formule reste inchangée.
 - **Hauteur corrigée 6,8 → 5,0 mm** (cote physique) + recalibration → θ\* de référence courant.
   Arbitrage : la cote juste **dégrade l'écart de pic** — signe que la source est trop
   concentrée, pas une raison de garder une cote fausse.
 - **Diagnostic du profil en « M »** : le champ `Bz` est uniforme en largeur ; le M vient
   **entièrement de l'écrasement du courant de Foucault** (`ψ=0` au bord), pas du champ. Le
-  levier « CFC fini » est donc mal dirigé pour la largeur. Contraste ~2,4×.
+  levier « MFC fini » est donc mal dirigé pour la largeur. Contraste ~2,4×.
 - **Réponses terrain user** intégrées (§4).
 - **Loi thermostat « capteurs »** (couper sur le max des TC d'interface) implémentée derrière
   un flag `--thermostat-capteurs` (défaut off) : recale les pics (B-2 45→23) mais dégrade le
@@ -204,7 +204,7 @@ vrai verrou A/B est la vitesse de chauffe (résidu n°2 ci-dessus).
    procédé coupait sur le max des TC d'interface) ; correctif « capteurs » prêt derrière flag,
    à activer conjointement avec la correction du M. Réf. `journaux/resultats_diag_b2_thermostat_capteurs.log`.
 4. **Déficit de chauffe en surface (TC1).** 5-6× trop lent, mécanisme non identifié ; attaqué
-   par la mesure de la face du CFC (exp 8).
+   par la mesure de la face du MFC (exp 8).
 
 ## 3 bis. Corrections préparées (à intégrer ensemble à la prochaine recalibration)
 
@@ -225,7 +225,7 @@ sont couplées au profil en M).
 - **Twill = 0,20 mm** (mesuré) — config à corriger (0,28 → 0,20).
 - **Les quatre chants latéraux sont à l'air libre** → `h_bord_x0` n'a aucune base physique,
   c'est un paramètre effectif (contredit l'ancien « bridage x=0 »). Contacts verticaux
-  seulement : face inf → céramique (`h_bas`), face sup → céramique d'espacement → CFC (`h_haut`).
+  seulement : face inf → céramique (`h_bas`), face sup → céramique d'espacement → MFC (`h_haut`).
 - **Le thermostat coupait sur le max des TC d'interface** (cahier de labo : « T max interface
   1/3/5 jamais dépassé ~372 °C ») — valide la loi « capteurs ».
 
@@ -268,7 +268,7 @@ Détail archivé dans `docs/releves_resolus.md`.
 - `journaux/resultats_validation_reference_figures.log` — validation au θ\* courant.
 - `journaux/resultats_diag_forme_source.log` — profil en M (source, pas champ).
 - `journaux/resultats_diag_b2_thermostat_capteurs.log` — résidu B-2 + loi capteurs.
-- `journaux/resultats_diag_hauteur_bobine.log` — cote hauteur + plan image CFC (CAO).
+- `journaux/resultats_diag_hauteur_bobine.log` — cote hauteur + plan image MFC (CAO).
 - `journaux/resultats_geometrie_corrigee_recalibration.log` — correction d'entraxe (étape précédente).
 
 **Journaux d'archive (géométrie/θ\* antérieurs — raisonnements valides, chiffres périmés)**

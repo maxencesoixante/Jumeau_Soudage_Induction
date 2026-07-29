@@ -53,11 +53,11 @@ paramètre `h_bord_x0` (puits de chaleur au chant x = 0).
 **Réponse utilisateur.** « Les bords de l'échantillon sont à l'air libre pour les faces
 latérales. La face inférieure (de l'assemblage soudé) est en contact avec le bloc céramique
 du dessous. La face supérieure est en contact avec la céramique d'espacement, au-dessus de
-laquelle se trouve le CFC. »
+laquelle se trouve le MFC. »
 
 **Conséquence modèle.** Les quatre chants latéraux sont **à l'air libre** (aucune bride, aucun
 appui, aucun puits au chant x = 0). Seuls échanges verticaux : face inférieure (bloc céramique
-→ `h_bas`) et face supérieure (céramique d'espacement → CFC → `h_haut`). **`h_bord_x0 = 250`
+→ `h_bas`) et face supérieure (céramique d'espacement → MFC → `h_haut`). **`h_bord_x0 = 250`
 n'a donc AUCUNE base physique** — c'est un paramètre EFFECTIF qui compense autre chose
 (vraisemblablement le bord trop chaud du profil en « M » côté x = 0). Requalifié comme tel
 dans `config/materiaux.yaml`. **Candidat au retrait** à la prochaine recalibration : le tester
@@ -99,12 +99,12 @@ matériau identique en surface), mais comparer à la surface du modèle 3D, pas 
 (2) **retirer la céramique d'espacement ≠ se rapprocher du modèle** — le modèle la représente
 comme le gap bobine-laminé de 2 mm (EM) ET la CL `h_haut` ; la retirer change les deux (source
 EM plus forte, `h_haut` différent). Mode opératoire : spot unique 250/200 A sous Tf, décroissance
-en **x au-delà de l'empreinte du CFC** (la largeur y est masquée par le CFC → TC noyés).
+en **x au-delà de l'empreinte du MFC** (la largeur y est masquée par le MFC → TC noyés).
 
 **Exp 7 — la caméra ne voit pas l'interface.** La cible est le profil **à l'interface** (le
-« M ») ; la caméra de dessus est masquée par le CFC/céramique et ne montre qu'un M atténué en
+« M ») ; la caméra de dessus est masquée par le MFC/céramique et ne montre qu'un M atténué en
 surface. Il faut des **TC noyés à l'interface** aux 5 positions. La caméra reste un complément
-(surface, face CFC).
+(surface, face MFC).
 
 **Mesure 9 (`k_plan` direct).** Appareil de labo (hot-disk/flash laser) sur un échantillon de
 matière : impulsion de chaleur → vitesse d'étalement → `k_plan`. L'exp 6 en est le substitut

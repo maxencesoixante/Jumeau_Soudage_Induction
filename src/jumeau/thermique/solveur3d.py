@@ -8,7 +8,7 @@ Samanis et al. 2026 éq. 2-3) :
 - nœuds intérieurs : ∂T/∂t = [kx·δ²x + ky·δ²y + kz·δ²z]T/(ρ·cp_app) + Q/(ρ·cp_app) ;
 - nœuds de bord : demi-cellule de contrôle, préfacteur 2/d (identique à
   l'éq. 3 du 1D) avec flux surfaciques convection + rayonnement (Kelvin) ;
-- face supérieure (z=0, côté bobine) : sous l'empreinte céramique/CFC ->
+- face supérieure (z=0, côté bobine) : sous l'empreinte céramique/MFC ->
   conductance de contact h_contact vers T_puits (bobine + concentrateur
   refroidis, O'Shaughnessey 2014) ; hors empreinte -> convection + rayonnement ;
 - face inférieure : convection h_bas + rayonnement vers T_amb ;
@@ -97,7 +97,7 @@ class SolveurThermique3D:
     ``source_fn(t) -> ndarray (nx, ny, nz)`` en W/m³ (peut être un champ figé
     par morceaux dans le temps — passes successives du procédé).
     ``masque_ceramique`` : bool (nx, ny) — True là où la face supérieure est
-    en contact avec la céramique/CFC pressés (conductance vers le puits).
+    en contact avec la céramique/MFC pressés (conductance vers le puits).
     Peut être un callable ``t -> masque`` pour suivre le spot actif du
     procédé séquentiel (le concentrateur n'appuie que sur l'empreinte active).
     """

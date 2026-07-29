@@ -75,7 +75,7 @@ hérité et instrumenté par plusieurs générations de travaux (O'Shaughnessey,
 | Élément | Rôle physique | Dimensions / propriétés |
 |---|---|---|
 | **Bobine hairpin (épingle)** | Génère le champ magnétique alternatif | Deux brins de cuivre parallèles, **section carrée de 6 mm**, **gap de 6,35 mm** entre brins, soit un **entraxe centre-à-centre de 12,35 mm** ; axe des brins à **5,0 mm** au-dessus du laminé (céramique 2 mm + demi-tube 3 mm) ; générateur Ambrell EASYHEAT 4,2 kW ; 388 kHz (relevé machine), 200 à 250 A |
-| **Concentrateur de flux (CFC)** | Canalise le flux magnétique vers l'échantillon | Fluxtrol Ferrotron 559H, µr ≈ 16 ; 55 × 31,5 × 12 mm ; grand côté (55 mm) parallèle à la largeur de l'échantillon |
+| **Concentrateur de flux (MFC)** | Canalise le flux magnétique vers l'échantillon | Fluxtrol Ferrotron 559H, µr ≈ 16 ; 55 × 31,5 × 12 mm ; grand côté (55 mm) parallèle à la largeur de l'échantillon |
 | **Céramique d'espacement** | Fixe le gap bobine–laminé ; transparente au champ | Pamitherm, 2 mm ; sert aussi de chemin de pression |
 | **Laminé supérieur** | Adhérent à souder ; porte le suscepteur | CF/PEKK `[45/-45/0/90]₃ₛ`, 120 × 40 × 3,36 mm |
 | **Pli twill (sergé) suscepteur** | Concentre les courants de Foucault à l'interface | Tissu carbone à l'interface de soudure |
@@ -84,7 +84,7 @@ hérité et instrumenté par plusieurs générations de travaux (O'Shaughnessey,
 
 Deux faits géométriques gouvernent tout le comportement thermique.
 
-La bobine et le concentrateur débordent de la largeur de l'échantillon. Le grand côté du CFC
+La bobine et le concentrateur débordent de la largeur de l'échantillon. Le grand côté du MFC
 (55 mm) et les brins de la bobine dépassent des deux côtés du plan de l'échantillon (40 mm de
 large). Le champ magnétique devient alors quasi uniforme sur toute la largeur, une
 configuration qui pèse sur la forme de l'empreinte thermique (section 9).
@@ -129,9 +129,9 @@ circulaire discrétisée en 200 côtés reproduit la formule analytique `B_centr
 10⁻³ près, et le champ sur l'axe reproduit `B = µ₀·I·R² / [2(R² + d²)^{3/2}]` (tests
 `test_champ_coil.py`).
 
-Le concentrateur de flux (CFC) passe par la méthode des courants images. Le bloc de Ferrotron
+Le concentrateur de flux (MFC) passe par la méthode des courants images. Le bloc de Ferrotron
 559H (µr ≈ 16) devient un demi-espace perméable : chaque segment de la bobine se réfléchit à
-travers le plan inférieur du CFC avec un courant `η·I`, où le coefficient de raccord aux
+travers le plan inférieur du MFC avec un courant `η·I`, où le coefficient de raccord aux
 interfaces vaut :
 
 ```
@@ -139,7 +139,7 @@ interfaces vaut :
 ```
 
 Cette approximation capture au premier ordre l'intensification du champ sous l'empreinte du
-concentrateur, l'effet même pour lequel on utilise un CFC. Elle laisse de côté la géométrie
+concentrateur, l'effet même pour lequel on utilise un MFC. Elle laisse de côté la géométrie
 exacte du bloc fini, une limite assumée (section 9).
 
 **Sources.** O'Shaughnessey (2014) établit le principe du concentrateur de flux magnétique et
@@ -149,7 +149,7 @@ COMPAAM (Martin et al., 2024) recommandent de dimensionner le concentrateur plus
 zone de soudure pour limiter les effets de bord. Les propriétés du Ferrotron 559H viennent de
 la fiche technique constructeur (Fluxtrol Inc.).
 
-**Auto-échauffement du concentrateur.** Le modèle laisse de côté les pertes propres du CFC
+**Auto-échauffement du concentrateur.** Le modèle laisse de côté les pertes propres du MFC
 (Joule et hystérésis dans le Ferrotron). Un chiffrage justifie cette omission. À partir de la
 courbe de pertes constructeur (`Pv = 4,1·f^{1,1}·B^{2,5}` W/cm³) et du champ calculé dans le
 volume du bloc à 250 A et 388 kHz, la puissance totale dissipée dans tout le concentrateur
@@ -249,7 +249,7 @@ L'équation de la chaleur résolue s'écrit :
 
 avec les termes de perte aux frontières : convection et rayonnement sur les faces libres (loi
 de Stefan–Boltzmann, en kelvins), et conductance vers un puits thermique sous l'empreinte du
-concentrateur, là où la bobine et le CFC refroidis à l'eau maintiennent une température basse.
+concentrateur, là où la bobine et le MFC refroidis à l'eau maintiennent une température basse.
 Le modèle COMSOL d'O'Shaughnessey (2014) traite cette zone comme une température imposée ; le
 jumeau la représente par une conductance de contact.
 
@@ -302,7 +302,7 @@ Le périmètre exact du jumeau se répartit en trois catégories.
 | Élément | Modélisation |
 |---|---|
 | **La bobine (coil)** | Polyligne de segments de courant ; champ par Biot–Savart. Dimensions mesurées sur la CAO du montage. |
-| **Le concentrateur de flux (CFC)** | Courants images d'un demi-espace perméable (µr = 16), qui intensifient le champ sous l'empreinte. |
+| **Le concentrateur de flux (MFC)** | Courants images d'un demi-espace perméable (µr = 16), qui intensifient le champ sous l'empreinte. |
 | **Le laminé (2 adhérents)** | Milieu conducteur homogénéisé (tenseurs σ et k) pour l'EM et la thermique ; siège de courants de Foucault et de conduction thermique. |
 | **Le pli twill suscepteur** | Couche conductrice distincte à l'interface, la plus conductrice, siège principal de la chaleur. |
 | **La fusion du PEKK** | Capacité thermique apparente (pic gaussien), d'où le degré de fusion. |
@@ -312,8 +312,8 @@ Le périmètre exact du jumeau se répartit en trois catégories.
 
 | Élément | Traitement |
 |---|---|
-| **La céramique d'espacement** | Le modèle ne la traite pas comme un domaine de calcul. Elle reste électromagnétiquement transparente (elle fixe seulement le gap de 2 mm) et n'intervient qu'à travers la conductance de contact vers le puits thermique froid (bobine et CFC refroidis). Ce choix a un fondement physique : la céramique Pamitherm a une perméabilité négligeable et une faible conductivité, et le modèle COMSOL de référence (O'Shaughnessey, 2014) la traite de même. |
-| **Le refroidissement bobine/CFC** | Un puits thermique à température imposée (20 °C) sous l'empreinte le représente. |
+| **La céramique d'espacement** | Le modèle ne la traite pas comme un domaine de calcul. Elle reste électromagnétiquement transparente (elle fixe seulement le gap de 2 mm) et n'intervient qu'à travers la conductance de contact vers le puits thermique froid (bobine et MFC refroidis). Ce choix a un fondement physique : la céramique Pamitherm a une perméabilité négligeable et une faible conductivité, et le modèle COMSOL de référence (O'Shaughnessey, 2014) la traite de même. |
+| **Le refroidissement bobine/MFC** | Un puits thermique à température imposée (20 °C) sous l'empreinte le représente. |
 | **Les pertes de convection/rayonnement** | Coefficients effectifs calibrés (les valeurs de la littérature vont de 5 à 15 W/m²·K). |
 
 **Éléments hors périmètre actuel :**
@@ -375,7 +375,7 @@ la conductance de contact vers le puits froid.
 
 ## 6. Le procédé semi-statique : passes successives et asservissement
 
-Le procédé réel n'enchaîne pas une chauffe unique. L'opérateur indexe la tête (bobine et CFC)
+Le procédé réel n'enchaîne pas une chauffe unique. L'opérateur indexe la tête (bobine et MFC)
 sur quatre empreintes successives le long des 120 mm, avec un pas de 30 mm, chaque empreinte
 restant entièrement sur la zone de soudure. Le générateur coupe entre les passes le temps du
 repositionnement de la table.
@@ -745,7 +745,7 @@ attribution systématique.
   twill (référence la plus proche du montage).
 - **Martin, R., et al. (2024), travaux COMPAAM.** Recommandation de dimensionnement du
   concentrateur (plus étroit que la zone de soudure pour limiter les effets de bord). Source du
-  dimensionnement du CFC.
+  dimensionnement du MFC.
 
 **Propriétés matériaux**
 
@@ -790,11 +790,11 @@ attribution systématique.
 Jumeau_Soudage_Induction/
 ├── config/
 │   ├── materiaux.yaml       ← toutes les propriétés, avec source
-│   ├── geometrie.yaml       ← bobine, CFC, laminé, empreintes
+│   ├── geometrie.yaml       ← bobine, MFC, laminé, empreintes
 │   └── essais/*.yaml        ← un fichier par campagne d'essai
 ├── src/jumeau/
 │   ├── em/                  ← maillons 1-2-3 : champ, Foucault, source Joule
-│   │   ├── champ_coil.py    ← Biot–Savart + courants images du CFC
+│   │   ├── champ_coil.py    ← Biot–Savart + courants images du MFC
 │   │   ├── foucault.py      ← fonction de courant ψ (plaque mince)
 │   │   └── source_joule.py  ← assemblage Q(x,y,z) par couche
 │   ├── thermique/           ← maillon 4 : transfert thermique
@@ -843,7 +843,7 @@ Chaque exécution se journalise dans `journaux/` (`journaux/resultats_*.log`), e
 s'écrivent dans `resultats/`. Journaux de référence pour l'état courant :
 `journaux/resultats_hauteur_5mm_recalibration.log` (correction de hauteur et recalibration courante),
 `journaux/resultats_geometrie_corrigee_recalibration.log` (correction d'entraxe, étape précédente),
-`journaux/resultats_diag_hauteur_bobine.log` (diagnostic hauteur + plan image du CFC vérifié sur CAO),
+`journaux/resultats_diag_hauteur_bobine.log` (diagnostic hauteur + plan image du MFC vérifié sur CAO),
 `journaux/resultats_validation_reference_figures.log` (validation au jeu de paramètres courant) et
 `journaux/resultats_diag_b2_longueur.log` (résidu à basse consigne et correctifs réfutés).
 

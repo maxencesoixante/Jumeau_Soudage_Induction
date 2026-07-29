@@ -44,7 +44,7 @@ chauffe_250A_3TC (2026-07-18/19, modèle 3D) donne corr(facteur_couplage,
 decalage_x) = 0.985 > 0.95 ET decalage_x railé exactement sur sa borne haute
 — signal de quasi-non-identifiabilité (même famille de piège que f_I/r_I). La
 recommandation de calibration.py est de FIGER decalage_x (par ex. au bord
-physique de l'enveloppe bobine/CFC, 0,015 m — une hypothèse, pas une mesure)
+physique de l'enveloppe bobine/MFC, 0,015 m — une hypothèse, pas une mesure)
 et de ne calibrer que [facteur_couplage, p3, p4]. À revérifier indépendamment
 pour chaque (modèle, essai de calibration) — ne pas supposer que la même
 conclusion s'applique en 2D sans regarder la matrice de corrélation affichée.

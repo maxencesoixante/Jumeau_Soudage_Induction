@@ -1,5 +1,5 @@
 # Géométrie du montage semi-statique — source : cahier de laboratoire (vault)
-# §0.1 (indexation des passes), §1.2.3 (générateur/CFC), Série A/B (empilement)
+# §0.1 (indexation des passes), §1.2.3 (générateur/MFC), Série A/B (empilement)
 
 laminate:
   longueur: 0.120            # m — axe x (direction des passes)
@@ -11,11 +11,11 @@ laminate:
 
 coil:
   # Bobine hairpin (épingle) Ambrell — d'après la CAO du montage
-  # (positionnement_CFC+coil.png, échelle = CFC 55 mm) : deux tubes de cuivre
-  # carrés de 6 mm de côté traversant le CFC le long de son grand côté
+  # (positionnement_CFC+coil.png, échelle = MFC 55 mm) : deux tubes de cuivre
+  # carrés de 6 mm de côté traversant le MFC le long de son grand côté
   # (CONFIRMÉ user 2026-07-23 ; l'ancienne valeur ~9,5 mm / 3/8 po était fausse).
   type: hairpin
-  longueur_jambe: 0.055      # m — brins parallèles au grand côté du CFC (55 mm)
+  longueur_jambe: 0.055      # m — brins parallèles au grand côté du MFC (55 mm)
   entraxe_jambes: 0.01235    # m — centre à centre = tube 6 mm + gap 6,35 mm
                              # (CONFIRMÉ user 2026-07-23 ; ancienne valeur 0.019
                              # supposait à tort un tube 9,5 mm)
@@ -26,29 +26,29 @@ coil:
   # l'ancienne valeur 0.0068 était une SÉQUELLE du tube 9,5 mm (2 + 4,76 = 6,76,
   # cf. commit d'origine 55068a6) — pas une mesure. La photo de montage
   # (photo_montage_zoom_coil_lamines.jpg) montre les brins posés au ras de la
-  # céramique. Plan image du CFC (plan_miroir_cfc = hauteur + rayon_tube) reste
+  # céramique. Plan image du MFC (plan_miroir_cfc = hauteur + rayon_tube) reste
   # au sommet des brins, confirmé par la même photo — cf.
   # resultats_diag_hauteur_bobine.log §6.
   hauteur: 0.005             # m
-  # CONFIRMÉ (2026-07-17) : le grand côté 55 mm du CFC est parallèle à la
+  # CONFIRMÉ (2026-07-17) : le grand côté 55 mm du MFC est parallèle à la
   # LARGEUR des échantillons (axe y) => brins du hairpin le long de y.
   orientation: y
   # Décalage du centre de la bobine par rapport au centre_x nominal du spot,
-  # le long de x (m). L'incertitude de positionnement bobine/CFC/thermocouples
+  # le long de x (m). L'incertitude de positionnement bobine/MFC/thermocouples
   # au montage n'est PAS mesurée (cahier §2.1.4, pas de cartographie relative
-  # bobine<->CFC<->TC) : seule la position CAO nominale (decalage_x=0) est
+  # bobine<->MFC<->TC) : seule la position CAO nominale (decalage_x=0) est
   # connue. Le hairpin a un zéro de dissipation exact sur son plan de symétrie
   # (2026-07-18, validation TC2) : un décalage bobine/montage de quelques mm
   # déplace ce zéro et change fortement le taux de chauffe local (5,7 ->
   # 13,2 °C/s au TC2 pour +10 mm, essai chauffe_250A_3TC). Bornes physiques
-  # plausibles ±0,015 m (le CFC fait 31,5 mm le long de x : la bobine ne peut
+  # plausibles ±0,015 m (le MFC fait 31,5 mm le long de x : la bobine ne peut
   # pas sortir de son empreinte). À IDENTIFIER PAR CALIBRATION tant qu'aucune
   # mesure de position n'existe ; ne pas figer arbitrairement à 0.
   decalage_x: 0.0            # m
 
 cfc:
   # Concentrateur de flux Fluxtrol Ferrotron 559H, mu_r ~ 16
-  longueur: 0.055            # m — CFC labo (essais A/B) ; CFC réduit commandé : 0.03175
+  longueur: 0.055            # m — MFC labo (essais A/B) ; MFC réduit commandé : 0.03175
   largeur: 0.0315            # m
   hauteur: 0.012             # m
   mu_r: 16.0

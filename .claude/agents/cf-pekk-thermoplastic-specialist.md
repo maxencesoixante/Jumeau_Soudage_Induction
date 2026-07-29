@@ -43,7 +43,7 @@ thermoplastic-welding counterpart to `composites-engineer` (which owns laminate 
   add T-dependence, keep it monotonic/physical and hand the stiff cp region to
   `thermal-solver-engineer`. Don't invent a T-law the data doesn't support.
 - **µr = 1 for the laminate** (Grouve 2020 / Lionetto 2017) — the permeability enhancement lives in
-  the CFC concentrator, not the composite. Don't give the laminate a magnetic response.
+  the MFC concentrator, not the composite. Don't give the laminate a magnetic response.
 
 ## Working Discipline
 

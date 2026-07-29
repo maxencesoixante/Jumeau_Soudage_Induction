@@ -17,7 +17,7 @@ température en travers de la largeur (le « M »).
 - **Céramique d'espacement** : retirée (entoure) → si retirée, gap bobine-laminé ≈ 0
 - **Système de pression** : retiré
 - **Position de la caméra** : de côté, distance 230mm , lens de 17mm 
-- **Zone imagée** : surface du laminé au-delà de l'empreinte du CFC, côté (x croissant)
+- **Zone imagée** : surface du laminé au-delà de l'empreinte du MFC, côté (x croissant)
 - **Repère spatial** : où est le centre du spot dans l'image (px ou mm) ? échelle mm/px ? Je ne sais pas
 - **Émissivité réglée** : 0.6mm (le carbone/PEKK ~0,9 ; à confirmer)
 - **Température ambiante** : 23°C °C

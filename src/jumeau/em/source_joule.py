@@ -1,7 +1,7 @@
 """Assemblage de la source Joule volumique Q(x, y, z) pour une position de spot.
 
 Chaîne par couche conductrice (twill, laminé sup, laminé inf) :
-1. Bz RMS (Biot-Savart bobine + image CFC), échantillonné à CHAQUE nœud z de
+1. Bz RMS (Biot-Savart bobine + image MFC), échantillonné à CHAQUE nœud z de
    la grille thermique compris dans la couche (et non plus une seule fois au
    plan médian, cf. « limites » ci-dessous) — l'atténuation géométrique est
    portée par la distance à la bobine, et le blindage par les couches
@@ -233,9 +233,9 @@ def source_spot(
     """Champ source Q (nx, ny, nz) en W/m³ pour la bobine centrée en ``centre_x``.
 
     ``decalage_x`` (m) décale le centre EFFECTIF de la bobine par rapport au
-    ``centre_x`` nominal du spot (incertitude de positionnement bobine/CFC au
+    ``centre_x`` nominal du spot (incertitude de positionnement bobine/MFC au
     montage, cf. geometrie.yaml:coil.decalage_x). Seule la bobine bouge : le
-    masque céramique/CFC (masque_empreinte_cfc) reste posé à ``centre_x`` —
+    masque céramique/MFC (masque_empreinte_cfc) reste posé à ``centre_x`` —
     c'est un décalage bobine<->reste du montage, pas un déplacement du spot.
 
     ``champ_reaction`` (défaut False, cf. docstring module) : active la

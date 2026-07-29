@@ -83,6 +83,7 @@ COL_PROCEDE = "#E69F00"
 COL_DEGRAD = "#C1272D"
 
 DATA7 = R / "data" / "exp7_bord-centre_2026-07-28_avec-ceramique"
+DATA9 = R / "data" / "exp9_dissipation-longitudinale_2026-07-28"
 Y_MM = np.array([0, 10, 20, 30, 40])
 
 ESSAIS_VALIDES = {
@@ -196,7 +197,7 @@ def fig2():
     ax.set_xticks(Y_MM)
     ax.set_title("Forme du profil en largeur : mesuré vs modèle (200 A)")
     ax.set_xlabel("Position en largeur $y$ (mm)")
-    ax.set_ylabel("Température normalisée au centre (–)")
+    ax.set_ylabel("Température normalisée (–)")
     legend_right(ax)
     savefig(fig, "fig2_mesure_modele.png")
 
@@ -429,20 +430,26 @@ def fig_essais_5TC_par_courant():
 def fig_dissipation_monospot():
     fig, ax = plt.subplots(figsize=(6.4, 3.4))
     x = np.array([0, 30, 60, 90, 120])
-    modele = np.array([0.013, 0.094, 1.00, 0.094, 0.027])
-    mesure = np.array([0.015, 0.081, 1.00, 0.139, 0.03])
+    # Pics absolus mesurés (°C) — lus dans le relevé exp9 (spot unique, y=0)
+    dfc, amb, _ = clean(load_txt(DATA9 / "200A" / "200A_y0_monospot.txt"))
+    mesure = np.array([dfc[f"TC{i}"].max() for i in range(1, 6)])   # °C absolu
+    # Modèle : forme longitudinale normalisée remise à l'échelle °C via le pic
+    # mesuré au spot (TC3, x=60) ; modele_abs = forme × ΔT_pic + ambiante
+    modele_norm = np.array([0.013, 0.094, 1.00, 0.094, 0.027])
+    modele = modele_norm * (mesure[2] - amb) + amb
     ax.plot(x, modele, "--s", color=C_MODEL, markeredgecolor="white", markeredgewidth=0.5,
-            label="Modèle")
+            label="Modèle (forme × pic mesuré)")
     ax.plot(x, mesure, "-o", color=C150, markeredgecolor="white", markeredgewidth=0.5,
-            label="Mesuré")
+            label="Mesuré (pic)")
     ax.axvline(60, ls=":", color="0.6", lw=0.8, zorder=0)
-    ax.annotate("asymétrie de montage", xy=(90, 0.139), xytext=(96, 0.34),
-                fontsize=8, color="0.25",
+    ax.annotate("spot centré à $x$ = 60 mm\n(centre du coil) → pic ici",
+                xy=(60, mesure[2]), xytext=(66, mesure[2] * 0.86),
+                fontsize=8, color="0.25", ha="left",
                 arrowprops=dict(arrowstyle="-", color="0.4", lw=0.6))
     ax.set_xticks(x)
     ax.set_title("Décroissance longitudinale : mesuré vs modèle (spot unique, $y$=0)")
     ax.set_xlabel("Position en longueur $x$ (mm)")
-    ax.set_ylabel(r"$\Delta T$ au pic, normalisée au spot (–)")
+    ax.set_ylabel("Température de pic atteinte (°C)")
     legend_right(ax)
     savefig(fig, "fig_dissipation_monospot.png")
 
@@ -453,36 +460,43 @@ def fig_dissipation_monospot():
 def fig_dissipation_semistatique():
     fig, axes = plt.subplots(1, 4, figsize=(9.2, 3.0), sharex=True, sharey=True)
     x = np.array([0, 30, 60, 90, 120])
-    modele = {
+    # Élévations modélisées par dwell (ΔT au-dessus de la ligne de base, °C)
+    modele_dT = {
         "d1": np.array([104.2, 91.1, 2.4, 0.2, 0.0]),
-        "d2": np.array([0, 96.5, 107.9, 3.1, 0.1]),
-        "d3": np.array([0, 0, 92.3, 107.5, 5.2]),
-        "d4": np.array([0, 0, 0, 78.1, 156.4]),
+        "d2": np.array([0.0, 96.5, 107.9, 3.1, 0.1]),
+        "d3": np.array([0.0, 0.0, 92.3, 107.5, 5.2]),
+        "d4": np.array([0.0, 0.0, 0.0, 78.1, 156.4]),
     }
-    mesure = {
-        "d1": np.array([169, 209, 11, 1, 5]),
-        "d2": np.array([4, 141, 116, 9, 16]),
-        "d3": np.array([0, 2, 127, 99, 13]),
-        "d4": np.array([0, 0, 2, 117, 110]),
-    }
+    # Températures brutes atteintes (pic absolu, °C) lues dans le relevé exp9
+    # semi-statique, fenêtrées par dwell (spot avançant de 30 mm).
+    dfc, amb, _ = clean(load_txt(DATA9 / "200A" / "200A_y0_semistatique.txt"))
+    t = dfc["t"].to_numpy()
+    fenetres = {"d1": (0, 90), "d2": (90, 190), "d3": (190, 290), "d4": (290, 400)}
+    mesure, base = {}, {}
+    for key, (a, b) in fenetres.items():
+        m = (t >= a) & (t < b)
+        mesure[key] = np.array([dfc[f"TC{i}"].to_numpy()[m].max() for i in range(1, 6)])
+        # ligne de base du dwell = moyenne des 3 premiers points de la fenêtre
+        base[key] = np.array([dfc[f"TC{i}"].to_numpy()[m][:3].mean() for i in range(1, 6)])
+
     labels = "abcd"
     h_model = h_mes = None
     for ax, (key, lab) in zip(axes, zip(["d1", "d2", "d3", "d4"], labels)):
-        m = modele[key] / modele[key].max()
-        me = mesure[key] / mesure[key].max()
-        (h_model,) = ax.plot(x, m, "--s", color=C_MODEL, markeredgecolor="white",
-                             markeredgewidth=0.5, label="Modèle")
-        (h_mes,) = ax.plot(x, me, "-o", color=C150, markeredgecolor="white",
-                           markeredgewidth=0.5, label="Mesuré")
+        # Modèle en °C absolu = ligne de base mesurée + ΔT modélisée du dwell
+        modele_abs = base[key] + modele_dT[key]
+        (h_model,) = ax.plot(x, modele_abs, "--s", color=C_MODEL, markeredgecolor="white",
+                             markeredgewidth=0.5, label="Modèle (base + ΔT)")
+        (h_mes,) = ax.plot(x, mesure[key], "-o", color=C150, markeredgecolor="white",
+                           markeredgewidth=0.5, label="Mesuré (pic)")
         panel_title(ax, f"({lab}) dwell {key[1]}")
         ax.set_xticks(x)
-        ax.set_ylim(-0.05, 1.18)
+    axes[0].set_ylim(0, 260)
     fig.legend(handles=[h_mes, h_model], loc="upper center", ncol=2,
                bbox_to_anchor=(0.5, 0.99), frameon=False, fontsize=10)
     fig.suptitle("Empreinte par dwell : modèle multi-spots vs mesuré",
                  fontsize=12, fontweight="bold", y=1.06)
     fig.supxlabel("Position en longueur $x$ (mm)", fontsize=11, fontweight="bold")
-    fig.supylabel(r"$\Delta T$ du dwell, normalisée (–)", fontsize=11, fontweight="bold")
+    fig.supylabel("Température de pic atteinte (°C)", fontsize=11, fontweight="bold")
     fig.tight_layout(rect=(0.02, 0.03, 1, 0.94))
     savefig(fig, "fig_dissipation_semistatique.png")
 

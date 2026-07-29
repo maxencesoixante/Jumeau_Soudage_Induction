@@ -116,13 +116,13 @@ class ContactCeramique:
 
     O'Shaughnessey 2014 : bobine + concentrateur refroidis à l'eau, fixés à
     20 °C dans le modèle COMSOL ; ici modélisé par une conductance h_contact
-    vers T_puits, appliquée sous l'empreinte de la céramique/CFC.
+    vers T_puits, appliquée sous l'empreinte de la céramique/MFC.
     """
 
     h_contact: float = 50.0
     T_puits: float = 20.0
     # Conductance effective TOP du modèle 2D lumpé dans l'épaisseur
-    # (solveur2d.SolveurThermique2D), sous l'empreinte céramique/CFC active
+    # (solveur2d.SolveurThermique2D), sous l'empreinte céramique/MFC active
     # (même masque que h_contact en 3D) — remplace le rôle de h_contact,
     # mais représente maintenant la conduction à travers TOUT le demi-stack
     # supérieur (laminé sup + twill) vers le puits, plus la conductance de

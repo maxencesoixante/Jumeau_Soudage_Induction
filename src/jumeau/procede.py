@@ -3,7 +3,7 @@
 Un essai (config/essais/*.yaml) définit une liste de ``spots`` avec fenêtres
 temporelles. La source Joule de chaque spot est précalculée une fois (le champ
 EM est quasi statique à l'échelle thermique) puis activée par morceaux ;
-le masque céramique/CFC suit le spot actif (le concentrateur n'appuie que là).
+le masque céramique/MFC suit le spot actif (le concentrateur n'appuie que là).
 Après la dernière passe, la source s'éteint (refroidissement) et le masque du
 dernier spot est conservé (refroidissement sous pression, cf. fiches A/B).
 """

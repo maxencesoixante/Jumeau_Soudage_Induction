@@ -37,12 +37,12 @@ reproduite). Détail : `data/exp9_dissipation-longitudinale_2026-07-28/README.md
 diffusivité `α = k_plan/(ρ·cp·e)`. Échantillons réutilisables (≤ 270 °C). Réalise l'objectif d'Exp 6.
 **Fiche : [`protocole_exp_dissipation_longitudinale.md`](protocole_exp_dissipation_longitudinale.md).**
 
-### 2. Exp 8 — Température de la face active du CFC
+### 2. Exp 8 — Température de la face active du MFC
 
 **Objectif.** Mesurer la température du concentrateur pendant une chauffe (caméra FLIR A700 sur
-la face active, ou TC posé). Vue de dessus idéale ici (la face du CFC est directement visible).
+la face active, ou TC posé). Vue de dessus idéale ici (la face du MFC est directement visible).
 **Résout** : le déficit de chauffe en surface (TC1) — seule mesure qui l'attaque. Comparer la
-montée du CFC à celle de TC1. Un essai.
+montée du MFC à celle de TC1. Un essai.
 
 ### 3. Relevé 1 — Position longitudinale de la bobine
 
@@ -87,7 +87,7 @@ exp 7 étant close, ces corrections ne sont plus bloquées et peuvent être reca
 | # | Mesure | Priorité | Résout |
 |---|---|---|---|
 | **Exp 9** | **Dissipation longitudinale T(x)** — phase 1 (y=0) FAITE, **phase 2 (y=20) à faire** | ★ **haute** | étalement trop lent + `k_plan` |
-| Exp 8 | Température face active du CFC | moyenne | déficit de surface TC1 |
+| Exp 8 | Température face active du MFC | moyenne | déficit de surface TC1 |
 | Relevé 1 | Position longitudinale bobine | basse | `decalage_x` (figé) |
 | Exp 6 | Diffusivité latérale | → couverte par Exp 9 | `k_plan` |
 | Mesure 9 | `k_plan` direct (labo) | basse | `k_plan` sourcé |

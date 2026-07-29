@@ -16,8 +16,8 @@ absorbs it. You work on `src/jumeau/em/champ_coil.py`, `em/foucault.py`, `em/sou
 
 1. **Coil field — Biot-Savart** (`champ_coil.py`): analytic finite-segment field of the hairpin
    polyline, vectorized over observation clouds. Verified against the circular-loop closed form
-   `B_center = µ0·I/2R`. The flux concentrator (CFC, Ferrotron 559H, µr≈16) enters via the
-   **image-current method**: each segment is mirrored through the CFC's lower plane with current
+   `B_center = µ0·I/2R`. The flux concentrator (MFC, Ferrotron 559H, µr≈16) enters via the
+   **image-current method**: each segment is mirrored through the MFC's lower plane with current
    η·I, η = (µr−1)/(µr+1) ≈ 0.88 — a first-order permeable-half-space model that captures flux
    concentration under the footprint but not the finite block's exact edge effects.
 2. **Eddy currents — thin-plate stream function ψ** (`foucault.py`): thin-plate regime holds

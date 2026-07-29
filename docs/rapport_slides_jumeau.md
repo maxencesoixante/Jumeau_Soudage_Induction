@@ -52,16 +52,16 @@ d'interpoler entre eux et d'extrapoler aux configurations non essayées.
 - **Bobine hairpin** : deux brins de **section carrée 6 mm**, séparés d'un **gap de
   6,35 mm** → **entraxe centre-à-centre 12,35 mm** (relevé 2026-07-23 ; cf. slide 13) ;
   axe des brins à **5,0 mm** au-dessus du laminé (céramique 2 mm + demi-tube 3 mm).
-- **Concentrateur de flux (CFC) Fluxtrol Ferrotron 559H** (µr ≈ 16),
+- **Concentrateur de flux (MFC) Fluxtrol Ferrotron 559H** (µr ≈ 16),
   55 × 31,5 × 12 mm, **grand côté 55 mm parallèle à la largeur** de l'échantillon.
 - Générateur **Ambrell EASYHEAT 4,2 kW — 388 kHz relevé machine**, 200 / 250 A.
 - Gap bobine–laminé **2 mm** (céramique d'espacement), pression pneumatique.
 - Procédé **semi-statique : 4 empreintes successives** le long des 120 mm (pas 30 mm).
 
-*Figure* : schéma de la chaîne d'efforts (piston → CFC → céramique → laminé sup →
+*Figure* : schéma de la chaîne d'efforts (piston → MFC → céramique → laminé sup →
 interface → laminé inf) ou photo de montage M2 du cahier.
 
-*À dire* : deux faits géométriques structurent tout le reste — la bobine et le CFC
+*À dire* : deux faits géométriques structurent tout le reste — la bobine et le MFC
 **débordent** de la largeur de 40 mm des deux côtés, et le twill est ~40× plus conducteur
 que le laminé.
 
@@ -70,7 +70,7 @@ que le laminé.
 ## Slide 4 — Architecture du jumeau (vue d'ensemble)
 
 ```
-Bobine hairpin (Biot–Savart)  +  CFC (courants images, µr=16)
+Bobine hairpin (Biot–Savart)  +  MFC (courants images, µr=16)
         │  Bz(x, y) à chaque couche
         ▼
 Courants de Foucault, plaque mince anisotrope   ψ : ∇·(ρ∇ψ) = ω·Bz   (Lin 1993)
@@ -100,13 +100,13 @@ répondre « d'où vient cet écart ? » au lieu de recalibrer aveuglément.
 |---|---|
 | Plaque mince EM, courants plans (δ ≈ 6 mm > 3,36 mm) | Lin 1993 |
 | Laminé homogénéisé, µr = 1 | O'Shaughnessey 2014 ; Grouve 2020 |
-| CFC = demi-espace perméable (courants images) | approximation 1er ordre |
+| MFC = demi-espace perméable (courants images) | approximation 1er ordre |
 | Fusion par cp apparent gaussien (Tf 337 °C, Lf 130 kJ/kg) | Samanis 2026 ; Greco & Maffezzoli |
-| Pertes propres du CFC négligées | **chiffré** : 0,6–1,4 W vs 50–260 W dans le twill (fiche Fluxtrol) |
+| Pertes propres du MFC négligées | **chiffré** : 0,6–1,4 W vs 50–260 W dans le twill (fiche Fluxtrol) |
 | Pertes diélectriques négligées | O'Shaughnessey 2014 §3.1.3 |
 | Fréquence figée à 388 kHz | relevé machine (corrélée au facteur d'échelle) |
 
-*À dire* : insister sur la ligne CFC — c'est une hypothèse qui a été **vérifiée
+*À dire* : insister sur la ligne MFC — c'est une hypothèse qui a été **vérifiée
 numériquement avec la fiche constructeur**, pas supposée. C'est la marque de fabrique du
 travail : chaque hypothèse écartée l'est avec un chiffre.
 
@@ -135,7 +135,7 @@ c'est un choix de modèle adapté à la mesure disponible.
 ## Slide 7 — Ce que le modèle produit : l'empreinte thermique
 
 *Figure* : `resultats/serieA_A-1_empreinte_thermique_fig4_plafonne.png`
-(4 panneaux — carte de température à l'interface à la fin de chaque empreinte, cadre CFC
+(4 panneaux — carte de température à l'interface à la fin de chaque empreinte, cadre MFC
 en pointillés rouges, échelle plafonnée à 480 °C)
 
 - Analogue **semi-statique** de la Fig. 4 de Lionetto *et al.* (2017), qui présentait une
@@ -154,7 +154,7 @@ chauds en y = 0 / 40 mm et le creux central.
 
 - Le modèle prédit **deux lobes chauds sur les chants** et un **creux au centre** de la
   largeur.
-- **Mécanisme, démontré numériquement** : la bobine ET le CFC (55 mm) **débordent** de
+- **Mécanisme, démontré numériquement** : la bobine ET le MFC (55 mm) **débordent** de
   l'échantillon (40 mm) → Bz quasi uniforme sur la largeur → les boucles de courant ne
   peuvent se refermer qu'en longeant les deux bords. C'est le *transverse-flux edge effect*
   classique du chauffage par induction de bandes plus étroites que l'inducteur.
@@ -187,7 +187,7 @@ noire » (Samanis 2026 §2.3).
 | Paramètre | Valeur | Écart-type | Rôle |
 |---|---|---|---|
 | `facteur_couplage` | **6,0123** | ± 0,067 | échelle de la source Joule (blindage, contacts, σ) |
-| `h_haut` | **30,09** W/m²·K | ± 1,30 | perte vers le puits céramique/CFC |
+| `h_haut` | **30,09** W/m²·K | ± 1,30 | perte vers le puits céramique/MFC |
 | `h_bas_2d` | **37,42** W/m²·K | ± 0,51 | perte vers la face opposée / bâti |
 | `decalage_x` | 0 (**figé**) | — | position bobine ↔ montage, non mesurée |
 | `h_bord_x0` | 250 W/m²·K (figé) | — | puits au chant bridé x = 0 |
@@ -293,7 +293,7 @@ Chaque piste a été testée à θ\* figé, chiffrée, et archivée dans le dép
 |---|---|---|
 | Artefacts de **maillage** (lecture TC, nœud de contrôle) | **Confirmée et corrigée** | −77 °C sur le résidu TC4 ; −56 °C sur TC5 |
 | **Géométrie de bobine** (entraxe des brins) | **Confirmée et corrigée** | entraxe faux de 35 % ; pic A-1 46 → 15 °C |
-| **Auto-échauffement du CFC** | Écartée | 0,6–1,4 W, soit 1–2 ordres de grandeur trop faible |
+| **Auto-échauffement du MFC** | Écartée | 0,6–1,4 W, soit 1–2 ordres de grandeur trop faible |
 | **Position de lecture du thermostat** | Écartée | contrôler au bord fait chuter l'écart de +46 à −107 °C |
 | **Décalage de position bobine** `decalage_x` | Écartée pour TC1 | Q(TC1)/Q(TC2) ≤ 0,12 vs 1,71 requis |
 | **Champ de réaction EM** (blindage auto-cohérent) | Implémenté, puis **écarté** | effet réel ~0,2–0,6 %, pas les ~100 % espérés |
@@ -327,7 +327,7 @@ physique, avant d'être attribué à une entrée géométrique erronée.
 - **La hauteur (6,8 → 5,0 mm) était le même piège** : 6,8 était dérivé du tube de 9,5 mm
   (2 + 4,76), pas mesuré ; la photo de montage donne 5,0. La corriger améliore le RMSE mais
   **dégrade l'écart de pic** — on l'assume, car c'est la cote juste, et la régression
-  confirme que la source est trop concentrée (slide 10). Le plan image du CFC, lui, a été
+  confirme que la source est trop concentrée (slide 10). Le plan image du MFC, lui, a été
   **vérifié sur la CAO** et reste inchangé (concentrateur bien au-dessus des brins).
 - Toute une chaîne de diagnostics (`cp`, `k_plan`, source EM, puits d'outillage, blindage
   inter-couches, bloc céramique) poursuivait donc un artefact. **Aucun correctif erroné
@@ -353,11 +353,11 @@ avant tout correctif » a évité de graver l'erreur dans le code.
 - Sur l'essai de chauffe instrumenté en épaisseur, **TC1 chauffe 5–6× trop lentement** dans
   le modèle : 37,7 °C/s mesuré contre ~6,3 °C/s simulé.
 - Trois explications testées et **écartées** : condition limite thermique, diffusion depuis
-  l'interface (τ ≈ 28,5 s ≫ 1 s), auto-échauffement du CFC, décalage de bobine.
+  l'interface (τ ≈ 28,5 s ≫ 1 s), auto-échauffement du MFC, décalage de bobine.
 - Origine suspectée : **répartition de puissance entre couches** (le twill est ~40× plus
   conducteur que le laminé) ou effet de champ proche non capturé par la plaque mince.
 - **Aucune mesure ne permet de trancher aujourd'hui** : aucun essai ne mesure la
-  température du CFC lui-même.
+  température du MFC lui-même.
 
 *À dire* : c'est la limite qu'on assume et qui justifie le passage au modèle 2D — on ne
 prétend pas prédire la surface.
@@ -417,9 +417,9 @@ Trois manips discriminantes, par ordre de rapport valeur/effort :
    modèle** : 717 / 382 / **292** / 382 / 717 °C au pic (contraste bord/centre 2,46×) ; le
    seul point déjà mesuré, le centre à 395 °C, dépasse déjà les 292 prédits → le M est
    vraisemblablement trop creusé. *Manip décrite au cahier §2.1.4.*
-2. **Température du CFC** (thermocouple ou caméra IR sur sa face active pendant une
+2. **Température du MFC** (thermocouple ou caméra IR sur sa face active pendant une
    chauffe). ⟶ seule mesure capable d'attaquer le déficit TC1.
-3. **Relevé métrologique de la position de la tête** (bobine / CFC / thermocouples, surtout
+3. **Relevé métrologique de la position de la tête** (bobine / MFC / thermocouples, surtout
    le décalage longitudinal `decalage_x` aujourd'hui figé). ⟶ les cotes de section, entraxe
    et hauteur des brins sont **déjà corrigées** sur CAO + photo (slide 13) ; ne reste que la
    position à relever pour refermer le sujet géométrie.
@@ -440,7 +440,7 @@ Par ordre de priorité, avec l'incertitude assumée :
    croyait. Un diagnostic (27 juillet) a montré que le champ `Bz` est déjà uniforme en
    largeur : le M vient **entièrement** de l'écrasement du courant de Foucault contre les
    chants libres (`ψ = 0` au bord d'une nappe continue idéalisée), pas de la forme du champ.
-   ⟹ Le **CFC fini** (redistribution du flux) n'y changera rien — il agit sur le profil en
+   ⟹ Le **MFC fini** (redistribution du flux) n'y changera rien — il agit sur le profil en
    **longueur**. Les vrais mécanismes d'adoucissement : courants de retour 3D par l'épaisseur
    près des chants, résistance de contact du tissu twill. **Aucun ne se calibre sans la
    cartographie bord→centre** (slide 17) — d'où la priorité donnée à cette mesure.
@@ -455,7 +455,7 @@ Par ordre de priorité, avec l'incertitude assumée :
    cristallinité, et donnerait un critère de qualité de joint au refroidissement.
 
 *À dire* : le point 1 est le vrai levier restant, mais le diagnostic a corrigé la cible —
-ce n'est pas le CFC fini, c'est l'adoucissement du M en largeur, et il faut la mesure
+ce n'est pas le MFC fini, c'est l'adoucissement du M en largeur, et il faut la mesure
 (slide 17) avant de le coder. Les points 2–4 sont des raffinements. Message d'ensemble :
 la modélisation est désormais **pilotée par la mesure**, pas l'inverse.
 
@@ -466,7 +466,7 @@ la modélisation est désormais **pilotée par la mesure**, pas l'inverse.
 ```
 Aujourd'hui          Court terme                 Objectif
 ────────────         ─────────────               ────────
-Modèle validé   →    CFC fini + σ(T)        →    Plant model fiable
+Modèle validé   →    MFC fini + σ(T)        →    Plant model fiable
 sur 3 essais         + manips discriminantes      ↓
                                                  Contrôle prédictif (MPC)
                                                  du courant en temps réel
@@ -600,7 +600,7 @@ antérieure, il ne reproduit rien.
 Journaux de référence dans `journaux/` :
 `journaux/resultats_hauteur_5mm_recalibration.log` (**correction hauteur + θ\* courant**),
 `journaux/resultats_geometrie_corrigee_recalibration.log` (correction d'entraxe, étape précédente),
-`journaux/resultats_diag_hauteur_bobine.log` (diagnostic hauteur + plan image CFC vérifié sur CAO),
+`journaux/resultats_diag_hauteur_bobine.log` (diagnostic hauteur + plan image MFC vérifié sur CAO),
 `journaux/resultats_validation_reference_figures.log` (validation au θ\* courant, figures associées),
 `journaux/resultats_diag_b2_longueur.log` (résidu B-2 et les trois correctifs réfutés),
 `journaux/resultats_convergence_maillage.log`, `journaux/resultats_diagnostic_profil_M_em.log`,

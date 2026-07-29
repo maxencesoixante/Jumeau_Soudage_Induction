@@ -13,7 +13,7 @@ directement l'interface.
 Bilan par maille (imposé, cf. mission thermal-solver-engineer 2026-07-20) :
 
     (ρcp)_eff · e_eff · ∂T/∂t = ∇·(k_eff · e_eff · ∇T) + P_surf(x,y,t)
-                                 − h_haut·(T − T_puits)·[masque CFC actif]
+                                 − h_haut·(T − T_puits)·[masque MFC actif]
                                  − h_bas·(T − T_amb)
 
 - ``e_eff`` : épaisseur totale du stack (identique à ``Grille3D.epaisseur``) ;
@@ -36,7 +36,7 @@ Bilan par maille (imposé, cf. mission thermal-solver-engineer 2026-07-20) :
   Q_volumique_2D = P_surf / e_eff (W/m³), même rôle que ``Q`` dans le 3D ;
 - ``h_haut`` (NOUVEAU, ``materiaux.ContactCeramique.h_haut``) : perte
   effective vers le puits céramique/concentrateur, active seulement là où le
-  masque CFC l'est (même masque que le 3D) — remplace ``h_contact`` mais
+  masque MFC l'est (même masque que le 3D) — remplace ``h_contact`` mais
   absorbe aussi la conduction à travers le demi-stack supérieur ;
 - ``h_bas`` (NOUVEAU, ``materiaux.Ambiant.h_bas_2d``) : perte effective vers
   la face opposée/ambiant, appliquée PARTOUT (pas de masque) — absorbe

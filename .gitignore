@@ -26,3 +26,6 @@ data/**/*.mp4
 
 # diapos de réunion (volumineux ; garder hors dépôt)
 docs/*.pptx
+
+# vidéos de présentation (lourdes) — hors VCS comme docs/*.pptx
+docs/*.mp4

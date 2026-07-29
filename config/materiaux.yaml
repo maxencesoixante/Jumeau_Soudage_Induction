@@ -41,7 +41,7 @@ ceramique:
   h_contact: 50.0            # W/m2.K, incertain (calibré, modèle 3D)
   T_puits: 20.0              # °C
   # Conductance TOP effective du modèle 2D lumpé dans l'épaisseur
-  # (jumeau.thermique.solveur2d.SolveurThermique2D), sous l'empreinte CFC
+  # (jumeau.thermique.solveur2d.SolveurThermique2D), sous l'empreinte MFC
   # active : remplace le rôle de h_contact mais absorbe aussi la conduction
   # à travers le demi-stack supérieur (plus de résolution en z côté 2D).
   # NOUVEAU (2026-07-20). Point de départ = dernière calibration 3D de

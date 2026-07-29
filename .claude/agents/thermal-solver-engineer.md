@@ -21,7 +21,7 @@ eq. 2-3). Nodal grid x(length) × y(width) × z(full stack: upper laminate + fil
 - **Interior nodes:** ∂T/∂t = [kx·δ²x + ky·δ²y + kz·δ²z]T/(ρ·cp_app) + Q/(ρ·cp_app).
 - **Boundary nodes:** half control cell, prefactor 2/d (same as 1D eq. 3), with surface
   convection + radiation fluxes evaluated in Kelvin (`KELVIN = 273.15`).
-- **Top face (z=0, coil side):** under the ceramic/CFC footprint → contact conductance
+- **Top face (z=0, coil side):** under the ceramic/MFC footprint → contact conductance
   `h_contact` toward `T_puits` (coil + concentrator water-cooled, O'Shaughnessey 2014); outside
   the footprint → convection + radiation.
 - **Bottom face:** convection `h_bas` + radiation to `T_amb`. **Edges (x,y):** convection.
