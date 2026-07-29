@@ -1,0 +1,48 @@
+Analyse de stabilité numérique du solveur thermique 2D
+==============================================================================
+Date : 2026-07-28. Outil : skill `numerical-stability` (HeshamFS, v1.2.2),
+4 scripts exécutés sur les paramètres réels du solveur (src/jumeau/thermique/
+solveur2d.py). Objet : vérifier/documenter les choix numériques (défendabilité).
+
+PARAMÈTRES RÉELS
+----------------
+Schéma      : méthode des lignes + BDF implicite, jacobien creux (scipy solve_ivp).
+Diffusivité : α = k_plan/(ρ·cp) = 3,0/(1600·1200) = 1,5625e-6 m²/s.
+Maillage    : dx = dy = 2 mm (61×21 sur 120×40 mm). Pas de sortie 1 s (BDF adaptatif).
+Pertes      : h_bas/(ρcp·e) ≈ 2,86e-3 /s ; puits de bord x=0 (2/dx)·h_bord/(ρcp·e) ≈ 19,1 /s.
+
+1) CFL / FOURIER (cfl_checker.py)
+---------------------------------
+Fo = α·dt/dx² = 0,391. Limite 2D Fo ≤ 1/(2d) = 0,25.
+ -> schéma EXPLICITE : stable=false (Fo 0,39 > 0,25) ; dt explicite max ≈ 0,64 s.
+ -> schéma IMPLICITE (BDF réel) : limites relâchées (inconditionnellement stable).
+CONCLUSION : à dt = 1 s, un schéma explicite serait INSTABLE ; l'implicite est requis.
+
+2) RAIDEUR (stiffness_detector.py)
+----------------------------------
+λ (diffusion rapide) ≈ -3,125 /s ; λ (pertes lentes) ≈ -2,86e-3 /s.
+real_part_stiffness_ratio = 1093 (> seuil 1000), imag_dominated=false, stiff=TRUE.
+Recommandation de l'outil : « implicit (BDF/Radau) ».
+CONCLUSION : le problème EST raide (décroissance pure, pas oscillatoire) -> BDF justifié.
+
+3) CONDITIONNEMENT (matrix_condition.py sur le jacobien reconstruit 1281×1281)
+-----------------------------------------------------------------------------
+Jacobien = α·Laplacien2D(Neumann) − diag(pertes + puits bord x=0).
+condition_number κ = 6747 ; is_symmetric=true ; status = "ok" (bien conditionné, ≪ 1e8).
+CONCLUSION : jacobien symétrique et bien conditionné -> résolutions creuses saines,
+pas de préconditionnement nécessaire.
+
+INSIGHT NON TRIVIAL
+-------------------
+Le mode le PLUS RAPIDE n'est pas la diffusion (-3,1 /s) mais le PUITS DE BORD
+x=0 (h_bord_x0=250) : -19 à -21 /s aux nœuds x=0. C'est LUI qui fixe la raideur
+réelle (ratio ~6750) et le conditionnement. Comme h_bord_x0 est un paramètre
+EFFECTIF candidat au retrait (chants libres, cf. mesures_a_realiser), le
+supprimer réduirait la raideur d'un facteur ~6 (ratio ~1090). À garder à
+l'esprit lors de cette révision.
+
+VERDICT
+-------
+Les choix numériques du jumeau sont CORRECTS et désormais QUANTIFIÉS :
+implicite BDF obligatoire (raideur ~1090-6750, explicite instable à dt=1 s),
+jacobien creux bien conditionné (κ~6,7e3). Aucune correction requise.
