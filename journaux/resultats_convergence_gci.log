@@ -1,0 +1,41 @@
+Étude de convergence en maillage (GCI / ASME V&V 20) — solveur thermique 2D
+==============================================================================
+Date : 2026-07-28. Outil : skill `convergence-study` (HeshamFS). 3 grilles à
+raffinement CONSTANT r=2, spot unique 200 A (essai chauffe_250A_3TC, θ* de réf).
+QoI = pic temporel d'élévation ΔT à l'interface, à x=60 mm, à 3 positions y.
+
+GRILLES ET QoI (coarse -> fine)
+-------------------------------
+  grille    dx (mm)   run(s)   ΔT_pic y=0    y=10     y=20
+  31×11      4,00       2       422,35      252,82   179,47
+  61×21      2,00       4       447,72      255,54   186,57   <- grille de validation
+  121×41     1,00      16       453,72      256,81   188,02
+
+ORDRE OBSERVÉ (Richardson, h_refinement.py) et GCI (gci_calculator.py)
+----------------------------------------------------------------------
+  QoI            ordre p   verdict                     GCI_fine(121×41)   GCI(61×21)   extrapolé
+  y=0 (chant)    2,08      PASS (<10% de 2,0)          0,51 %             ~2,2 %       455,6 °C
+  y=20 (centre)  2,30      super-convergent (>10%)     0,24 %             ~1,2 %       188,4 °C
+  y=10 (flanc M) 1,10      ordre réduit (gradient)     0,54 %             ~1,2 %       257,9 °C
+Tous : in_asymptotic_range = true.
+
+INTERPRÉTATION
+--------------
+- Sur le QoI LISSE (chant y=0), le schéma spatial est bien d'ORDRE 2 (2,08 ≈ 2,0
+  attendu pour le Laplacien 5 points) -> VÉRIFICATION DE SOLUTION VALIDÉE.
+- La grille de VALIDATION 61×21 porte ~2,2 % d'incertitude de discrétisation (GCI)
+  sur le pic (valeur grille-indépendante ~455,6 °C ; 61×21 donne 447,7, soit -1,7 %).
+  La grille 121×41 réduit à 0,5 %.
+- Les QoI hors-ordre sont liés au GRADIENT, pas à un bug :
+  * y=10 est sur le flanc raide du profil en M (ordre réduit ~1 : classique sur
+    forte pente / point singulier de maillage) ;
+  * y=20 (centre, œil de la boucle) montre une super-convergence (2,3) = annulation
+    d'erreur locale. Ni l'un ni l'autre n'invalide le schéma (cf. mise en garde du
+    skill : ordre trop bas = pré-asymptotique/pente ; trop haut = superconvergence).
+
+VERDICT
+-------
+Schéma spatial d'ordre 2 confirmé (QoI lisse, PASS). La grille 61×21 utilisée en
+validation est justifiée : ~2,2 % d'incertitude de maillage sur le pic, bien plus
+petite que les écarts modèle↔mesure (~10-40 °C). 121×41 disponible si une fidélité
+<1 % est requise. Résultat citable (ASME V&V 20) pour l'article/la thèse.
