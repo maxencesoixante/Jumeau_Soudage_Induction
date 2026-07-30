@@ -69,6 +69,12 @@ MFC_Y = 55.0               # cfc.longueur (grand cote, // y)
 MFC_X = 31.5               # cfc.largeur (// x, direction du deplacement)
 MFC_H = 12.0               # cfc.hauteur
 
+# Les tubes Cu TRAVERSENT le MFC le long de son grand cote (// y) et RESSORTENT
+# de chaque cote. Longueur active = MFC (55 mm) ; on dessine un debord
+# schematique de chaque cote pour montrer que le cuivre sort du concentrateur.
+COIL_OVERHANG = 9.0
+COIL_DRAW_LEN = LEG_LEN + 2 * COIL_OVERHANG   # 73 mm dessines (55 actifs + debords)
+
 # ----------------------------------------------------------------------
 # Hauteurs des vues en COUPE, dessinees a l'ECHELLE 1:1 (mm, positif VERS
 # LE HAUT au-dessus de la surface du lamine). Les tubes Cu (carres 6 mm)
@@ -120,7 +126,7 @@ def coil_legs_patch(ax, xc, yc):
     """Les deux jambes de la bobine hairpin, centrees sur (xc, yc)."""
     for sgn in (-1, 1):
         x_leg = xc + sgn * ENTRAXE / 2 - TUBE / 2
-        rect(ax, x_leg, yc - LEG_LEN / 2, TUBE, LEG_LEN,
+        rect(ax, x_leg, yc - COIL_DRAW_LEN / 2, TUBE, COIL_DRAW_LEN,
              facecolor=C_COIL, edgecolor="0.2", linewidth=0.7, alpha=0.95, zorder=5)
 
 
@@ -259,12 +265,12 @@ def make_exp7():
     # cotes
     cote_h(ax1, 0, L, -13.0, "L = 120 mm", above=False)
     cote_v(ax1, 0, W, -9.0, "l = 40 mm", right=False)
-    cote_h(ax1, xc - ENTRAXE / 2, xc + ENTRAXE / 2, W + 12.0, f"entraxe {ENTRAXE:.2f} mm", fs=6.8)
-    cote_h(ax1, xc - MFC_X / 2, xc + MFC_X / 2, W + 17.0, f"MFC {MFC_X:.1f} mm (x)", fs=6.8)
+    cote_h(ax1, xc - ENTRAXE / 2, xc + ENTRAXE / 2, W + 21.0, f"entraxe {ENTRAXE:.2f} mm", fs=6.8)
+    cote_h(ax1, xc - MFC_X / 2, xc + MFC_X / 2, W + 26.0, f"MFC {MFC_X:.1f} mm (x)", fs=6.8)
     cote_v(ax1, yc - MFC_Y / 2, yc + MFC_Y / 2, L + 8.0, f"MFC {MFC_Y:.0f} mm (y)", fs=6.8)
 
     ax1.set_xlim(-18, L + 20)
-    ax1.set_ylim(-20, W + 24)
+    ax1.set_ylim(-20, W + 33)
     ax1.set_aspect("equal")
     ax1.set_xlabel("x (mm) — longueur du coupon")
     ax1.set_ylabel("y (mm) — largeur")
@@ -282,15 +288,24 @@ def make_exp7():
          alpha=0.35, linewidth=0.9, zorder=3)
     ax2.text(yc, H_MFC_TOP - 2.4, "MFC", ha="center", va="center", fontsize=8,
              bbox=BOXPROPS, zorder=8)
-    # brins vus A TRAVERS le MFC (la coupe y-z a x=60 passe ENTRE les 2 jambes,
-    # qui courent selon y) -> bande cuivre transparente sur toute la longueur
-    # des jambes (55 mm = largeur du MFC ; deborde le coupon de +/-7,5 mm).
-    rect(ax2, yc - LEG_LEN / 2, H_TUBE_BOT, LEG_LEN, TUBE, facecolor=C_COIL,
-         edgecolor="0.3", linewidth=0.9, alpha=0.42, zorder=5, linestyle="--")
-    ax2.annotate("brins ⊥ à la coupe (vus à travers\nle MFC, débordent le coupon)",
-                 xy=(y_hi - 4, H_TUBE_BOT + TUBE / 2),
-                 xytext=(y_hi + 1.5, H_TUBE_TOP + 2.5), fontsize=6.6,
-                 color="0.25", ha="left", va="center", zorder=8, bbox=BOXPROPS,
+    # brins vus A TRAVERS le MFC (coupe y-z a x=60, entre les 2 jambes qui
+    # courent selon y) -> bande cuivre qui TRAVERSE le MFC et RESSORT de chaque
+    # cote (longueur dessinee 73 mm > MFC 55 mm). Les segments hors du MFC sont
+    # opaques (cuivre a l'air), la portion dans le MFC est semi-transparente.
+    z_mid = H_TUBE_BOT
+    rect(ax2, y_lo, z_mid, MFC_Y, TUBE, facecolor=C_COIL, edgecolor="none",
+         alpha=0.45, zorder=5)                                   # portion dans le MFC (vue au travers)
+    for sgn in (-1, 1):                                          # 2 bouts qui ressortent
+        x0 = yc + sgn * MFC_Y / 2 if sgn > 0 else yc - COIL_DRAW_LEN / 2
+        w = COIL_OVERHANG
+        rect(ax2, x0, z_mid, w, TUBE, facecolor=C_COIL, edgecolor="0.2",
+             linewidth=0.7, alpha=0.95, zorder=6)
+    rect(ax2, yc - COIL_DRAW_LEN / 2, z_mid, COIL_DRAW_LEN, TUBE, facecolor="none",
+         edgecolor="0.3", linewidth=0.8, linestyle="--", zorder=6)
+    ax2.annotate("brins Cu traversant le MFC\net ressortant de chaque côté",
+                 xy=(yc - MFC_Y / 2 - COIL_OVERHANG / 2, z_mid + TUBE / 2),
+                 xytext=(y_lo - 2, H_MFC_TOP - 3.0), fontsize=6.6,
+                 color="0.2", ha="left", va="center", zorder=8, bbox=BOXPROPS,
                  arrowprops=dict(arrowstyle="-", color="0.4", lw=0.6))
 
     # TC sur l'interface
@@ -302,9 +317,9 @@ def make_exp7():
     for yb in (0, W):
         ax2.plot([yb, yb], [H_COUPON_BOT, 0], color=C_COUPON, lw=0.9, zorder=4)
 
-    layup_inset(ax2, [0.72, 0.03, 0.25, 0.40], yc)
+    layup_inset(ax2, [0.80, 0.05, 0.20, 0.42], yc)
 
-    ax2.set_xlim(y_lo - 4, y_hi + 22)
+    ax2.set_xlim(yc - COIL_DRAW_LEN / 2 - 3, y_hi + 34)
     ax2.set_ylim(H_COUPON_BOT - 3, H_MFC_TOP + 3)
     ax2.set_aspect("equal")
     ax2.set_xlabel("y (mm) — largeur (coupe à x = 60 mm)")
