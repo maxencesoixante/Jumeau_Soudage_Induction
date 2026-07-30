@@ -200,6 +200,18 @@ Consolidation groupée pilotée par agents (design : `docs/superpowers/specs/202
   spot isolé exp9, `h_bord_x0` libre non nul) — seule voie pour un gain réel sans sur-ajuster un
   régime. Logs : `journaux/resultats_{baseline_phase1,calibration_exp7_200A,phase3}_*.log`.
 
+### 30 juillet (suite) — Calibration jointe multi-familles (faite, non adoptée)
+`scripts/calibrer_joint.py` : fit conjoint bord (exp7 150/200/250 A) + centre (exp9 y=20), vecteur
+`[facteur_couplage, h_bas_2d, k_plan, h_bord_x0]`, `h_haut` figé.
+- **`k_plan` devient identifiable ≈ 7,3 W/m·K** (vs 3,0) grâce à la famille centre → conductivité
+  dans le plan probablement ~2× plus élevée (fort indice physique, à confirmer).
+- Centre nettement amélioré (RMSE 16,9→8,0 ; pic TC3 +40→+14 °C) MAIS bord régresse (h_bas_2d élevé
+  sur-refroidit les transitoires) → **RMSE global 18,5→19,2** → **non adopté** (θ\* réf. inchangé).
+- σ non identifiable en joint (jacobien singulier) → off. `h_bord_x0=0` toujours réfuté.
+- **Verdict** : le résidu du bord est **STRUCTUREL** (contraste spatial du M) — aucun coefficient
+  uniforme ne le corrige. Le vrai levier = **changement de modèle** (adoucir le M en largeur, forme
+  de source), pas la calibration. Logs : `journaux/resultats_calibration_joint_*.log`.
+
 ---
 
 ## 3. Résidus ouverts (par priorité)

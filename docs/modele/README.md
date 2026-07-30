@@ -32,9 +32,22 @@ Rejouer une validation : `python scripts/valider.py --modele 2D --facteur 6.0123
 - Spec de consolidation : `../superpowers/specs/2026-07-29-consolidation-jumeau-design.md`.
 
 ## État & résidu ouvert
-Profil M et dissipation en longueur reproduits. Résidu structurel : au **centre** le modèle
-sur-chauffe le spot (+30 °C) et sous-étale (`k_plan` trop faible, ~6 referme les extrémités mais
-pas le pic). **Prochaine étape** : calibration jointe multi-familles (bord + centre). Prédictions
-à courants non mesurés : `../figures_elsevier/fig_prediction_chauffe_courant.png`.
+Profil M et dissipation en longueur reproduits. Résidu : au **centre** le modèle sur-chauffe le
+spot et sous-étale ; au **bord** le profil M est trop contrasté (lobes intermédiaires
+sous-estimés, chants sur-estimés).
+
+**Calibration jointe multi-familles (2026-07-30, `scripts/calibrer_joint.py`) — faite, NON
+adoptée.** Fit conjoint bord (exp7) + centre (exp9 y=20). Résultats :
+- ✅ **`k_plan` devient identifiable ≈ 7,3 W/m·K** (vs 3,0 en config) grâce à la famille centre —
+  la conductivité dans le plan est probablement ~2× plus élevée. Fort indice physique.
+- ✅ Famille CENTRE nettement améliorée (RMSE 16,9 → 8,0 ; pic TC3 +40 → +14 °C).
+- ❌ Famille BORD régresse (le `h_bas_2d` élevé sur-refroidit les transitoires du bord) → **RMSE
+  global 18,5 → 19,2** (régression) → non adopté (θ\* de référence inchangé).
+- **Conclusion** : le résidu du bord est **structurel** (contraste spatial du M), qu'aucun
+  coefficient uniforme ne corrige. Logs : `../../journaux/resultats_calibration_joint_*.log`.
+
+**Prochaine étape (vrai levier)** : changement de MODÈLE — adoucir le contraste du profil en M en
+largeur (forme de la source / écrasement du courant de Foucault au bord), puis réévaluer un θ\*
+joint + `k_plan≈7,3`. Prédictions courants non mesurés : `../figures_elsevier/fig_prediction_chauffe_courant.png`.
 
 > Côté **labo** (mesures, données brutes) : voir [`../labo/README.md`](../labo/README.md).
