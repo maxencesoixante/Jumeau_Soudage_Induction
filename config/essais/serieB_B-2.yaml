@@ -1,7 +1,7 @@
 # Essai B-2 — 250 A, 25 N, consigne 360 °C (validation croisée)
 # TC5 défaillant (cahier §2.1.4) — exclu.
 nom: serieB_B-2
-fichier_mesures: data/serieB_B-2_250A_25N_360C_2026-07-08.csv
+fichier_mesures: data/Serie B/serieB_B-2_250A_25N_360C_2026-07-08.csv
 courant: 250.0
 consigne_interface: 360.0    # °C — consigne explicite de l'essai B-2
 duree_chauffe: 227.0         # s CUMULÉS de chauffe effective (4 impulsions détectées)

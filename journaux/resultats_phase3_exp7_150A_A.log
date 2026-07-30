@@ -1,0 +1,10 @@
+
+=== exp7_150A [2D] ===
+     rmse  T_max_sim  T_max_mes  delta_T_max  taux_sim  taux_mes
+TC                                                              
+TC1  18.5      317.4      271.2         46.2      10.3      13.9
+TC2  15.8      261.3      252.7          8.6       6.0       7.3
+TC3  13.9      210.1      194.3         15.9       3.9       4.3
+TC4  21.4      261.3      209.8         51.5       6.0       5.9
+TC5  18.4      317.4      271.3         46.1      10.3      12.9
+RMSE moyen : 17.6 °C ; écart T_max moyen : 33.6 °C

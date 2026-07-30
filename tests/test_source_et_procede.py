@@ -123,14 +123,15 @@ def test_essai_decalage_x_augmente_taux_chauffe_tc2(cfg):
     décalage bobine de +10 mm sort du zéro et accélère la chauffe locale
     (grille 31x11x13, facteur_couplage=3.85).
 
-    VALEURS MISES À JOUR 2026-07-27 (2e correction de géométrie bobine : hauteur
-    0.0068 -> 0.005 m, source ~1.34x plus forte, cf.
-    resultats_hauteur_5mm_recalibration.log ; succède à la correction d'entraxe
-    du 2026-07-23) : taux_sim TC2 = 5.43 °C/s à decalage_x=0, 14.16 à +10 mm.
-    Les brins plus rapprochés + plus bas rendent le décalage PLUS sensible
-    (×2.6) — le zéro de symétrie se place différemment. L'effet reste
-    QUALITATIVEMENT le même (le décalage augmente le taux) ; decalage_x est de
-    toute façon figé à 0 dans le θ* de référence."""
+    VALEURS RECALÉES 2026-07-29 (twill_suscepteur.epaisseur 0.28 -> 0.20 mm,
+    mesure user ; la source Joule concentrée sur une nappe plus fine change la
+    répartition de puissance par couche et donc les deux taux, cf. consolidation
+    2026-07-29) : taux_sim TC2 = 4.64 °C/s à decalage_x=0, 7.61 à +10 mm (ratio
+    ~1.64, contre 2.6 sous l'ancien twill 0.28). Le sens de l'effet est
+    invariant au twill : le décalage sort TC2 du zéro de symétrie du hairpin
+    et AUGMENTE le taux dans les deux régimes ; c'est cette intention
+    (monotonie), pas les valeurs elles-mêmes, que le test doit garantir.
+    decalage_x est de toute façon figé à 0 dans le θ* de référence."""
     from jumeau.validation.confrontation import taux_de_chauffe
 
     chemin = RACINE / "config" / "essais" / "chauffe_250A_3TC.yaml"
@@ -148,9 +149,9 @@ def test_essai_decalage_x_augmente_taux_chauffe_tc2(cfg):
     taux0 = taux_de_chauffe(sol0.t, essai0.series_tc(solveur0, sol0)["TC2"])
     taux_d = taux_de_chauffe(sol_d.t, essai_decale.series_tc(solveur_d, sol_d)["TC2"])
 
-    assert taux0 == pytest.approx(5.43, abs=0.3)
-    assert taux_d == pytest.approx(14.16, abs=0.6)
-    assert taux_d > taux0          # le décalage augmente le taux (×2.6, cf. docstring)
+    assert taux0 == pytest.approx(4.64, abs=0.3)
+    assert taux_d == pytest.approx(7.61, abs=0.4)
+    assert taux_d > taux0          # le décalage augmente le taux (invariant au twill, cf. docstring)
 
 
 # --- loi thermostat 'capteurs' (défaut off, cf. Essai.thermostat_capteurs) ---
@@ -224,3 +225,85 @@ def test_lissage_source_conserve_puissance_et_remplit_centre(cfg):
     assert Q0[ix, iy, :].sum() < 1.0                           # œil de boucle ~0
     assert Q6[ix, iy, :].sum() > 100.0 * Q0[ix, iy, :].sum()   # rempli
     assert Q6.max() < Q0.max()                                 # pic abaissé
+
+
+# --- bilan de conservation d'énergie (θ* de référence, essai réaliste) ---
+
+def test_bilan_energie_exp7_200A_theta_reference(cfg):
+    """Bilan énergie/puissance (AGENTS.md §Conservation checks) au θ* de
+    référence 2D canonique (facteur_couplage=6.0123 -- argument runtime, PAS
+    en config, cf. consolidation 2026-07-29 ; h_haut/h_bas_2d/h_bord_x0 sont
+    les défauts de config/materiaux.yaml depuis cette même consolidation),
+    twill 0.20 mm, sur l'essai exp7_200A (représentatif, 5 TC bord->centre,
+    AVEC céramique) : énergie stockée (intégrale d'enthalpie, cp apparent) =
+    énergie déposée (source Joule) - pertes cumulées (h_haut masque MFC +
+    h_bas_2d + convection/rayonnement/h_bord_x0 aux 4 chants réels), TOUS
+    calculés en post-traitement à partir de sol (pas depuis l'intérieur du
+    RHS) -- vérifie donc aussi que solve_ivp (BDF) ne laisse pas fuir
+    d'énergie au-delà de la tolérance demandée.
+
+    Durée écourtée à 40 s (chauffe 18 s + refroidissement court, au lieu des
+    115 s mesurés) et grille allégée (25x9x9) pour rester un test rapide
+    (<10 s) ; ``dt_sortie=0.1`` (au lieu du défaut 1.0 s de scripts/valider.py)
+    est nécessaire pour ne pas biaiser la quadrature trapézoïdale en temps
+    sur le créneau raide de coupure de source à t=18 s (vérifié séparément :
+    résidu 5.1 % à dt_sortie=1.0 vs 0.6 % à 0.1 sur la grille de production
+    61x21x15 -- c'est un artefact de quadrature documenté, pas une fuite du
+    solveur, cf. rapport de vérification 2026-07-29). Tolérance 1 % ici
+    (obtenu : ~0.2 % sur cette grille allégée) -- généreuse pour absorber le
+    résidu de quadrature restant, pas un nombre à sur-interpréter comme
+    "convergé" (grille volontairement grossière, cf. AGENTS.md)."""
+    from scipy.integrate import quad
+
+    from jumeau.thermique.solveur3d import KELVIN
+
+    FACTEUR_COUPLAGE = 6.0123     # θ* de référence 2D (runtime, pas en config)
+
+    chemin = RACINE / "config" / "essais" / "exp7_200A.yaml"
+    e = Essai(cfg, chemin, nx=25, ny=9, nz=9, facteur_couplage=FACTEUR_COUPLAGE, racine=RACINE)
+    e.spec["duree_totale"] = 40.0
+    solveur, sol = e.simuler(dt_sortie=0.1, modele="2D")
+
+    g, mat, amb, contact = solveur.g, solveur.mat, solveur.amb, solveur.contact
+    e_eff = solveur.e_eff
+
+    wx = np.full(g.nx, g.dx); wx[0] = g.dx / 2.0; wx[-1] = g.dx / 2.0
+    wy = np.full(g.ny, g.dy); wy[0] = g.dy / 2.0; wy[-1] = g.dy / 2.0
+    W = np.outer(wx, wy)
+
+    nt = sol.t.size
+    P_dep = np.zeros(nt); P_haut = np.zeros(nt); P_bas = np.zeros(nt); P_chants = np.zeros(nt)
+    Ta_K = amb.T_amb + KELVIN
+
+    for k in range(nt):
+        t = sol.t[k]
+        T = sol.y[:, k].reshape(g.nx, g.ny)
+        P_dep[k] = np.sum(e.source_fn_2d(t, T) * W)
+        masque = solveur.masque_ceramique(t) if callable(solveur.masque_ceramique) else solveur.masque_ceramique
+        P_haut[k] = np.sum(np.where(masque, contact.h_haut * (contact.T_puits - T), 0.0) * W)
+        P_bas[k] = np.sum(amb.h_bas_2d * (amb.T_amb - T) * W)
+        # chants réels (x=0, x=L, y=0, y=W) : flux physique [W/m2] * longueur
+        # d'arête pondérée trapèze * e_eff (PAS le préfacteur 2/d volumique du
+        # RHS -- ici on veut le flux physique direct, indépendant du maillage).
+        flux_x0 = (amb.h_convection * (amb.T_amb - T[0, :])
+                   + mat.emissivite * amb.stefan_boltzmann * (Ta_K**4 - (T[0, :] + KELVIN)**4)
+                   + amb.h_bord_x0 * (amb.T_amb - T[0, :]))
+        flux_xL = (amb.h_convection * (amb.T_amb - T[-1, :])
+                   + mat.emissivite * amb.stefan_boltzmann * (Ta_K**4 - (T[-1, :] + KELVIN)**4))
+        flux_y0 = (amb.h_convection * (amb.T_amb - T[:, 0])
+                   + mat.emissivite * amb.stefan_boltzmann * (Ta_K**4 - (T[:, 0] + KELVIN)**4))
+        flux_yW = (amb.h_convection * (amb.T_amb - T[:, -1])
+                   + mat.emissivite * amb.stefan_boltzmann * (Ta_K**4 - (T[:, -1] + KELVIN)**4))
+        P_chants[k] = (np.sum(flux_x0 * wy) + np.sum(flux_xL * wy)
+                       + np.sum(flux_y0 * wx) + np.sum(flux_yW * wx)) * e_eff
+
+    energie_apportee = np.trapezoid(P_dep + P_haut + P_bas + P_chants, sol.t)
+
+    T0 = amb.T_amb
+    Tf = sol.y[:, -1].reshape(g.nx, g.ny)
+    enthalpie = np.vectorize(lambda Tn: quad(lambda TT: mat.cp_apparent(TT), T0, Tn, limit=200)[0])
+    energie_stockee = np.sum(mat.densite * enthalpie(Tf) * e_eff * W)
+
+    assert energie_apportee > 0.0                       # sanity : la source a bien chauffé
+    residu_relatif = abs(energie_stockee - energie_apportee) / energie_apportee
+    assert residu_relatif < 0.01

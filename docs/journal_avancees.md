@@ -2,7 +2,7 @@
 
 **Projet** : simulation de l'empreinte thermique bobine + concentrateur de flux (MFC) sur
 laminés CF/PEKK, soudage par induction semi-statique (maîtrise, LIPEC / ÉTS).
-**Dépôt** : `Jumeau_Soudage_Induction` (Python) &nbsp;·&nbsp; **Dernière mise à jour** : 2026-07-27.
+**Dépôt** : `Jumeau_Soudage_Induction` (Python) &nbsp;·&nbsp; **Dernière mise à jour** : 2026-07-30.
 
 > **But de ce document** : point d'entrée unique. Sa lecture donne l'état complet du projet —
 > ce que fait le modèle, où il en est, ce qui a été fait et pourquoi, ce qui reste ouvert, et
@@ -23,9 +23,11 @@ NLSQ pondérée par le bruit capteur sur **un** essai (A-1), validée en aveugle
 
 **Géométrie de référence** (corrigée, cf. §2) : brins carrés 6 mm, gap 6,35 mm, **entraxe
 12,35 mm**, **hauteur d'axe 5,0 mm** au-dessus du laminé, plan image du MFC au sommet des
-brins. Fréquence 388 kHz, `k_plan = 3 W/m·K` (physique).
+brins. Fréquence 388 kHz, `k_plan = 3 W/m·K` (physique), twill suscepteur **0,20 mm** (mesuré).
 
-**θ\* de référence** (modèle 2D, calibré sur A-1, grille 31×11) :
+**θ\* de référence** (modèle 2D, calibré sur A-1, grille 31×11) — **désormais écrit dans
+`config/materiaux.yaml`** (canonique, consolidation 2026-07-30 ; `facteur_couplage` reste un
+argument runtime par modèle×essai) :
 
 | Paramètre | Valeur | Rôle |
 |---|---|---|
@@ -35,23 +37,31 @@ brins. Fréquence 388 kHz, `k_plan = 3 W/m·K` (physique).
 | `decalage_x` | 0 (figé) | position bobine↔spot, non mesurée |
 | `h_bord_x0` | 250 (figé) | puits de bord x=0 — **effectif, pas physique** (§4) |
 
-**Validation croisée** (grille 61×21, sans recalibrage) — RMSE / |ΔT_max| moyen (°C) :
+**Validation croisée** (grille 61×21, θ\* de référence + twill 0,20 mm, sans recalibrage) —
+RMSE / |ΔT_max| moyen (°C), 7 essais formels (`config/essais/`) :
 
-| Essai | Conditions | RMSE | \|ΔT_max\| |
+| Essai | Rôle / conditions | RMSE | \|ΔT_max\| |
 |---|---|---|---|
-| **A-1** (calibration) | 250 A, coupure 400 °C | 35,8 | 25,9 |
-| **A-3** (aveugle) | 200 A, coupure 400 °C | 31,7 | 41,3 |
-| **B-2** (aveugle) | 250 A, coupure 360 °C | 65,3 | 45,2 |
+| **exp7 150 A** | validation, profil M en largeur (5 TC) | 25,4 | 36,4 |
+| **exp7 200 A** | validation, profil M en largeur (5 TC) | 21,8 | 40,7 |
+| **exp7 250 A** | validation, profil M en largeur (5 TC) | 22,6 | 51,4 |
+| **exp9 200 A** | validation, dissipation longitudinale (spot fixe) | 12,1 | 15,9 |
+| **A-1** | calibration, 250 A coupure 400 °C | 36,3 | 20,8 |
+| **A-3** | validation aveugle, 200 A coupure 400 °C | 33,0 | 48,9 |
+| **B-2** | validation, 250 A coupure 360 °C (loi capteurs) | 72,3 | 14,2 |
 
-Le modèle **ordonne et explique** les niveaux de température (séquence spatio-temporelle
-juste, transfert à 200 A sans retouche) mais ne pilote pas encore au degré près.
-**38 tests** automatisés verts (~2 min).
+Le modèle **ordonne et explique** les niveaux de température (profil M validé, dissipation
+longitudinale reproduite, séquence spatio-temporelle juste) mais ne pilote pas encore au degré
+près ; le résidu du RMSE reste **structurel** (profil M trop contrasté hors-spot, cf. §3). La
+**recalibration groupée (2026-07-30) a confirmé ce θ\* comme optimum** : aucun recalibrage sur
+un seul essai (exp7 200 A) ne le bat sur le jeu tenu à l'écart ; `h_bord_x0=0` réfuté
+(emballement +200 °C au chant série A) et lissage σ sur-ajuste un seul régime (cf. §2, 30 juil.).
+**39 tests** automatisés verts (~4-5 min ; dont un bilan d'énergie 2D, résidu 0,6 %).
 
-**Reproduire** :
+**Reproduire** (les `h` sont maintenant les défauts de `config/materiaux.yaml`) :
 ```bash
-python scripts/calibrer.py --modele 2D --essai serieA_A-1 --n-lhs 25 --figer-decalage-x 0
 python scripts/valider.py --modele 2D --facteur 6.0123 --decalage-x 0 \
-    --h-haut 30.087 --h-bas-2d 37.424 --h-bord-x0 250
+    --essais exp7_200A exp9_200A_monospot serieA_A-1 serieA_A-3 serieB_B-2
 ```
 
 ---
@@ -171,6 +181,25 @@ superposent en une seule courbe** (0,02 / 0,08 / 1,00 / 0,14 / 0,03) : la **form
 longueur est INVARIANTE avec le courant**, et le modèle (forme symétrique) la reproduit. Figure de
 présentation refondue en 2 panneaux (absolu °C + normalisé) : `docs/figures_elsevier/fig_dissipation_monospot.png`.
 
+### 30 juillet — Consolidation du jumeau (θ\* canonique, essais labo formels)
+Consolidation groupée pilotée par agents (design : `docs/superpowers/specs/2026-07-29-consolidation-jumeau-design.md`).
+- **Campagnes labo intégrées au pipeline formel** : `config/essais/exp7_{150,200,250}A.yaml` et
+  `exp9_200A_monospot.yaml` (schéma calqué sur série A) → confrontables directement par
+  `valider.py`. Correction annexe : 3 chemins `fichier_mesures` périmés (série A/B) réparés.
+- **Twill 0,20 mm** (mesuré) appliqué en config ; le test épinglé du taux TC2 recalé à ce régime
+  (intention `taux_d > taux0` préservée).
+- **θ\* de référence 2D écrit dans `config/materiaux.yaml`** (`h_haut=30.087`, `h_bas_2d=37.424`,
+  `h_bord_x0=250`) : fin de la divergence config↔scripts, un seul θ\* canonique.
+- **Recalibration groupée → θ\* actuel confirmé optimum.** Recalibrer sur exp7 200 A seul gagne
+  sur cet essai (RMSE 21,8→8,2) mais **régresse sur tout le jeu tenu à l'écart** (RMSE moyen
+  33,6→35,8) → non adopté (garde-fou « calibrer sur un, valider sur les autres »). Diagnostics :
+  `h_bord_x0=0` **réfuté** (exp7 ne peut pas le contraindre — TC à 60 mm du chant ; et il cause
+  +200 °C d'emballement au chant série A) ; lissage σ améliore le profil M mais **sur-ajuste**
+  (dégrade le spot isolé exp9). Non-identifiabilité `h_haut`×`h_bas_2d` (corr 0,98) confirmée.
+- **Prochaine expérience recommandée** : calibration **jointe multi-familles** (profil M exp7 +
+  spot isolé exp9, `h_bord_x0` libre non nul) — seule voie pour un gain réel sans sur-ajuster un
+  régime. Logs : `journaux/resultats_{baseline_phase1,calibration_exp7_200A,phase3}_*.log`.
+
 ---
 
 ## 3. Résidus ouverts (par priorité)
@@ -217,13 +246,14 @@ vrai verrou A/B est la vitesse de chauffe (résidu n°2 ci-dessus).
 
 | Correction | Source | Statut |
 |---|---|---|
-| Loi thermostat « capteurs » | cahier de labo + données B-2 | flag prêt (défaut off) |
-| Épaisseur twill 0,28 → **0,20 mm** | mesure user | préparée (commentaire config) |
-| Retrait/révision `h_bord_x0` | chants libres (user) | requalifié effectif, à retravailler |
+| Épaisseur twill 0,28 → **0,20 mm** | mesure user | **APPLIQUÉE en config** (2026-07-30), test recalé |
+| `h_bord_x0` | chants libres (user) | **gardé effectif = 250** ; `h_bord_x0=0` **réfuté** (emballement +200 °C au chant série A, 2026-07-30) |
+| Loi thermostat « capteurs » | cahier de labo + données B-2 | flag prêt (défaut off) ; utilisé pour valider B-2 |
+| Lissage source σ (centre-fill) | diag centre transitoire | flag prêt (défaut off) ; **sur-ajuste** (améliore M, dégrade spot isolé) — à recalibrer conjointement |
 | ~~Fréquence par essai (383 kHz A-3)~~ | ~~relevé user~~ | **ABANDONNÉE** : mesure 5 courants = 388±2 kHz constante (2026-07-28), ancien 383 infirmé |
 
-Ces trois se recalibrent **ensemble**, idéalement après la cartographie bord→centre (elles
-sont couplées au profil en M).
+Restant : le **recalage vraiment gagnant** passe par une **calibration jointe multi-familles**
+(profil M exp7 + spot isolé exp9, `h_bord_x0` libre) — cf. §2, 30 juillet.
 
 ---
 

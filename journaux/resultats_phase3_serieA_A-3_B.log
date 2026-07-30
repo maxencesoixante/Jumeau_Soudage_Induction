@@ -1,0 +1,10 @@
+
+=== serieA_A-3 [2D] ===
+     rmse  T_max_sim  T_max_mes  delta_T_max  taux_sim  taux_mes
+TC                                                              
+TC1  47.9      531.3      399.6        131.7      13.0      13.4
+TC2  44.4      294.3      399.6       -105.3       4.9       6.9
+TC3  43.0      335.4      367.5        -32.1       5.6       0.4
+TC4  47.1      335.7      379.2        -43.5       5.7       0.4
+TC5  43.2      397.7      391.3          6.4       6.8       0.4
+RMSE moyen : 45.1 °C ; écart T_max moyen : 63.8 °C

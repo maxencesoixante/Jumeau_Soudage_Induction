@@ -53,3 +53,15 @@ dans la config **seulement si** la validation croisée montre une amélioration 
   décision (phase 3). Les agents rapportent ; l'orchestrateur adopte.
 - Un seul agent modifie la config à la fois (pas de calibration parallèle).
 - Chaque phase = un livrable vérifiable ; on s'arrête si une phase régresse sans explication.
+
+---
+
+## Résultat (2026-07-30)
+**Exécuté via agents (validation-data-engineer, calibration-uq-specialist, simulation-verification-engineer).**
+- ✅ exp7 (150/200/250 A) + exp9 (200 A) intégrés en essais formels ; 3 chemins CSV série A/B réparés.
+- ✅ twill 0,20 mm appliqué ; test épinglé du taux TC2 recalé (intention préservée).
+- ✅ θ\* de référence 2D écrit en config (`h_haut=30.087`, `h_bas_2d=37.424`, `h_bord_x0=250`) → un seul θ\* canonique.
+- ✅ bilan d'énergie 2D vérifié (résidu 0,6 %, artefact de quadrature) ; **39 tests verts**.
+- ⛔ **Recalibration NON adoptée** : gagne sur exp7 200 A (calib) mais régresse sur le held-out
+  (RMSE moyen 33,6→35,8) → garde-fou respecté, θ\* actuel confirmé optimum.
+- 🔬 `h_bord_x0=0` réfuté ; σ sur-ajuste un régime. **Suite** : calibration jointe multi-familles.

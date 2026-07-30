@@ -1,0 +1,86 @@
+
+======================================================================
+VARIANTE: main_h0_sigma0 (h_bord_x0=0.0, source_sigma_mm=0.0)
+======================================================================
+TC valides: ['TC1', 'TC2', 'TC3', 'TC4', 'TC5'] | sigmas bruit: {'TC1': 4.635, 'TC2': 3.225, 'TC3': 1.846, 'TC4': 2.578, 'TC5': 4.509}
+Bornes: lo=[0.05, 0.0, 1.0, 2.0] hi=[30.0, 0.015, 50.0, 300.0]
+Paramètres figés (non calibrés) : {'decalage_x': 0.0} — calibration réduite à ('facteur_couplage', 'h_haut', 'h_bas_2d').
+  LHS 1/20 : θ=[18.5636, 34.639, 165.2895] coût=837044.5
+  LHS 2/20 : θ=[9.0102, 13.7075, 182.0999] coût=37192.9
+  LHS 3/20 : θ=[26.0966, 11.4627, 262.1] coût=1599365.6
+  LHS 4/20 : θ=[1.6447, 18.6012, 136.0592] coût=397234.5
+  LHS 5/20 : θ=[19.731, 3.3677, 6.0281] coût=4003706.2
+  LHS 6/20 : θ=[5.777, 23.3852, 23.7322] coût=43192.0
+  LHS 7/20 : θ=[28.0537, 46.5144, 76.078] coût=4176766.1
+  LHS 8/20 : θ=[23.8239, 16.507, 275.4569] coût=1147585.5
+  LHS 9/20 : θ=[12.606, 27.01, 210.6416] coût=140020.1
+  LHS 10/20 : θ=[28.5312, 36.0704, 290.3082] coût=1675629.2
+  LHS 11/20 : θ=[9.5016, 44.1471, 119.1871] coût=58743.4
+  LHS 12/20 : θ=[21.4321, 38.9129, 42.0774] coût=2908140.0
+  LHS 13/20 : θ=[24.78, 3.7208, 77.4828] coût=4013734.5
+  LHS 14/20 : θ=[11.4942, 9.3998, 101.5041] coût=290901.6
+  LHS 15/20 : θ=[6.6475, 7.5221, 55.7649] coût=43678.5
+  LHS 16/20 : θ=[13.6918, 22.4935, 201.3145] coût=223360.3
+  LHS 17/20 : θ=[4.4167, 30.81, 243.5722] coût=207389.0
+  LHS 18/20 : θ=[16.164, 40.5026, 239.5273] coût=322180.8
+  LHS 19/20 : θ=[1.0442, 30.0318, 144.2899] coût=484001.5
+  LHS 20/20 : θ=[16.8275, 49.4349, 180.0249] coût=493160.3
+NLSQ [2D] : démarrage à θ0=[9.0102, 13.7075, 182.0999] (coût LHS=37192.9) — 50 évaluations max.
+  NLSQ éval 1 : θ=[9.01025, 13.70749, 182.09994] (('facteur_couplage', 'h_haut', 'h_bas_2d')) coût=37192.9 (1.0s)
+  NLSQ éval 2 : θ=[9.46076, 13.70749, 182.09994] (('facteur_couplage', 'h_haut', 'h_bas_2d')) coût=44961.9 (0.8s)
+  NLSQ éval 3 : θ=[9.01025, 14.39286, 182.09994] (('facteur_couplage', 'h_haut', 'h_bas_2d')) coût=36829.9 (0.8s)
+  NLSQ éval 4 : θ=[9.01025, 13.70749, 191.20494] (('facteur_couplage', 'h_haut', 'h_bas_2d')) coût=37099.1 (0.9s)
+  NLSQ éval 5 : θ=[7.8335, 18.85563, 135.59581] (('facteur_couplage', 'h_haut', 'h_bas_2d')) coût=27281.5 (0.7s)
+  NLSQ éval 6 : θ=[8.22517, 18.85563, 135.59581] (('facteur_couplage', 'h_haut', 'h_bas_2d')) coût=30578.3 (0.6s)
+  NLSQ éval 7 : θ=[7.8335, 19.79841, 135.59581] (('facteur_couplage', 'h_haut', 'h_bas_2d')) coût=26997.5 (0.8s)
+  NLSQ éval 8 : θ=[7.8335, 18.85563, 142.3756] (('facteur_couplage', 'h_haut', 'h_bas_2d')) coût=27341.2 (0.5s)
+  NLSQ éval 9 : θ=[7.58086, 27.89785, 108.61836] (('facteur_couplage', 'h_haut', 'h_bas_2d')) coût=26607.6 (0.6s)
+  NLSQ éval 10 : θ=[7.9599, 27.89785, 108.61836] (('facteur_couplage', 'h_haut', 'h_bas_2d')) coût=31422.8 (0.6s)
+  NLSQ éval 11 : θ=[7.58086, 29.29274, 108.61836] (('facteur_couplage', 'h_haut', 'h_bas_2d')) coût=26485.8 (0.8s)
+  NLSQ éval 12 : θ=[7.58086, 27.89785, 114.04927] (('facteur_couplage', 'h_haut', 'h_bas_2d')) coût=26058.7 (0.7s)
+  NLSQ éval 13 : θ=[7.28036, 20.66194, 116.0544] (('facteur_couplage', 'h_haut', 'h_bas_2d')) coût=25313.3 (0.6s)
+  NLSQ éval 14 : θ=[7.64437, 20.66194, 116.0544] (('facteur_couplage', 'h_haut', 'h_bas_2d')) coût=27589.3 (0.6s)
+  NLSQ éval 15 : θ=[7.28036, 21.69503, 116.0544] (('facteur_couplage', 'h_haut', 'h_bas_2d')) coût=25301.2 (0.6s)
+  NLSQ éval 16 : θ=[7.28036, 20.66194, 121.85712] (('facteur_couplage', 'h_haut', 'h_bas_2d')) coût=25441.5 (0.6s)
+  NLSQ éval 17 : θ=[7.15495, 29.76745, 104.13246] (('facteur_couplage', 'h_haut', 'h_bas_2d')) coût=25245.4 (0.5s)
+  NLSQ éval 18 : θ=[7.5127, 29.76745, 104.13246] (('facteur_couplage', 'h_haut', 'h_bas_2d')) coût=26418.6 (0.6s)
+  NLSQ éval 19 : θ=[7.15495, 31.25583, 104.13246] (('facteur_couplage', 'h_haut', 'h_bas_2d')) coût=25301.1 (0.6s)
+  NLSQ éval 20 : θ=[7.15495, 29.76745, 109.33909] (('facteur_couplage', 'h_haut', 'h_bas_2d')) coût=25432.8 (0.5s)
+  NLSQ éval 21 : θ=[7.28915, 10.93578, 119.35538] (('facteur_couplage', 'h_haut', 'h_bas_2d')) coût=25551.4 (0.6s)
+  NLSQ éval 22 : θ=[7.2064, 24.94445, 107.38557] (('facteur_couplage', 'h_haut', 'h_bas_2d')) coût=25338.6 (0.6s)
+  NLSQ éval 23 : θ=[7.19057, 28.52048, 104.67795] (('facteur_couplage', 'h_haut', 'h_bas_2d')) coût=25266.3 (0.8s)
+  NLSQ éval 24 : θ=[7.18996, 29.4524, 104.21063] (('facteur_couplage', 'h_haut', 'h_bas_2d')) coût=25217.8 (0.7s)
+  NLSQ éval 25 : θ=[7.54946, 29.4524, 104.21063] (('facteur_couplage', 'h_haut', 'h_bas_2d')) coût=26831.0 (1.0s)
+  NLSQ éval 26 : θ=[7.18996, 30.92502, 104.21063] (('facteur_couplage', 'h_haut', 'h_bas_2d')) coût=25220.0 (0.7s)
+  NLSQ éval 27 : θ=[7.18996, 29.4524, 109.42116] (('facteur_couplage', 'h_haut', 'h_bas_2d')) coût=25348.7 (0.5s)
+  NLSQ éval 28 : θ=[7.16352, 29.69406, 103.13521] (('facteur_couplage', 'h_haut', 'h_bas_2d')) coût=25165.3 (0.4s)
+  NLSQ éval 29 : θ=[7.52169, 29.69406, 103.13521] (('facteur_couplage', 'h_haut', 'h_bas_2d')) coût=26725.8 (0.8s)
+  NLSQ éval 30 : θ=[7.16352, 31.17876, 103.13521] (('facteur_couplage', 'h_haut', 'h_bas_2d')) coût=25259.8 (0.6s)
+  NLSQ éval 31 : θ=[7.16352, 29.69406, 108.29197] (('facteur_couplage', 'h_haut', 'h_bas_2d')) coût=25353.0 (0.6s)
+  NLSQ éval 32 : θ=[7.18452, 28.41813, 103.29903] (('facteur_couplage', 'h_haut', 'h_bas_2d')) coût=25250.5 (0.6s)
+  NLSQ éval 33 : θ=[7.17986, 29.37481, 103.13088] (('facteur_couplage', 'h_haut', 'h_bas_2d')) coût=25128.6 (0.6s)
+  NLSQ éval 34 : θ=[7.53886, 29.37481, 103.13088] (('facteur_couplage', 'h_haut', 'h_bas_2d')) coût=27033.7 (0.7s)
+  NLSQ éval 35 : θ=[7.17986, 30.84355, 103.13088] (('facteur_couplage', 'h_haut', 'h_bas_2d')) coût=25199.6 (0.5s)
+  NLSQ éval 36 : θ=[7.17986, 29.37481, 108.28742] (('facteur_couplage', 'h_haut', 'h_bas_2d')) coût=25324.1 (0.5s)
+  NLSQ éval 37 : θ=[7.16047, 28.90487, 102.32516] (('facteur_couplage', 'h_haut', 'h_bas_2d')) coût=25277.0 (0.7s)
+  NLSQ éval 38 : θ=[7.16775, 29.26266, 102.92305] (('facteur_couplage', 'h_haut', 'h_bas_2d')) coût=25249.3 (0.6s)
+  NLSQ éval 39 : θ=[7.17111, 29.34941, 103.08349] (('facteur_couplage', 'h_haut', 'h_bas_2d')) coût=25169.9 (0.5s)
+  NLSQ éval 40 : θ=[7.17578, 29.37071, 103.12343] (('facteur_couplage', 'h_haut', 'h_bas_2d')) coût=25243.5 (0.5s)
+NLSQ terminé après 40 évaluations : succès=True — `xtol` termination condition is satisfied.
+  paramètres (calibrés + figés) = {'facteur_couplage': np.float64(7.179862462432517), 'h_haut': np.float64(29.37480970517253), 'h_bas_2d': np.float64(103.1308803118955), 'decalage_x': 0.0}
+  coût = 25128.6
+  écarts-types = {'facteur_couplage': 0.1168, 'h_haut': 26.41142, 'h_bas_2d': 25.18801}
+  corrélations (ordre ('facteur_couplage', 'h_haut', 'h_bas_2d')) =
+[[ 1.    -0.803  0.855]
+ [-0.803  1.    -0.982]
+ [ 0.855 -0.982  1.   ]]
+  ATTENTION : |corr(h_haut, h_bas_2d)| = 0.982 > 0.95 — quasi-non-identifiabilité, à ne pas calibrer conjointement sans figer l'un des deux.
+--- Résumé main_h0_sigma0 (52.5s) ---
+succes=True nfev=40 cout=25128.6 message=`xtol` termination condition is satisfied.
+parametres={'facteur_couplage': np.float64(7.179862462432517), 'h_haut': np.float64(29.37480970517253), 'h_bas_2d': np.float64(103.1308803118955), 'decalage_x': 0.0}
+erreurs_std={'facteur_couplage': 0.1168, 'h_haut': 26.41142, 'h_bas_2d': 25.18801}
+noms_calibres=('facteur_couplage', 'h_haut', 'h_bas_2d')
+correlation=
+[[ 1.     -0.803   0.8551]
+ [-0.803   1.     -0.9821]
+ [ 0.8551 -0.9821  1.    ]]
