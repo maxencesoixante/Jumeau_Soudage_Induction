@@ -266,7 +266,7 @@ Restant : le **recalage vraiment gagnant** passe par une **calibration jointe mu
 - **Le thermostat coupait sur le max des TC d'interface** (cahier de labo : « T max interface
   1/3/5 jamais dépassé ~372 °C ») — valide la loi « capteurs ».
 
-Détail archivé dans `docs/releves_resolus.md`.
+Détail archivé dans `docs/labo/releves_resolus.md`.
 
 ---
 
@@ -289,16 +289,23 @@ Détail archivé dans `docs/releves_resolus.md`.
 
 ## 6. Carte des documents et journaux
 
+**Organisation en deux parties** (2026-07-30) : `docs/labo/` = côté mesures ;
+`docs/modele/` = côté simulation. Voir `docs/README.md`, `docs/labo/README.md`,
+`docs/modele/README.md`.
+
 **Documents (`docs/`)**
-- `journal_avancees.md` — **ce document** (point d'entrée).
-- `rapport_directrice_jumeau.md` / `.docx` — rapport complet pour la direction.
-- `rapport_slides_jumeau.md` — trame de présentation (slides).
-- `mesures_a_realiser.md` / `.docx` — mesures encore À FAIRE.
-- `releves_resolus.md` — relevés terrain déjà tranchés (archive).
-- `etat_art_induction.md` — revue de littérature.
-- `figures_presentation/` — figures de présentation exp 7 (fig1 profil M aux 3 courants, fig2
-  mesuré vs modèle, fig3 dynamique centre-vs-chant, fig4 courbes brutes 5 TC, fig5 loi
-  taux-courant I^2,4) en PNG + PDF, pour la directrice.
+- `journal_avancees.md` — **ce document** (point d'entrée, transverse).
+- `etat_art_induction.md` — revue de littérature (transverse).
+- **`docs/labo/`** (résultats labo / mesures) :
+  - `labo/protocole_exp_dissipation_longitudinale.md` — fiche protocole exp 9.
+  - `labo/mesures_a_realiser.md` — mesures encore À FAIRE.
+  - `labo/releves_resolus.md` — relevés terrain déjà tranchés (archive).
+- **`docs/modele/`** (résultats modèle numérique) :
+  - `modele/rapport_directrice_jumeau.md` — rapport complet pour la direction.
+  - `modele/rapport_slides_jumeau.md` — trame de présentation (slides).
+  - `modele/figures_catalogue.md` — catalogue des figures.
+- `figures_elsevier/` , `figures_presentation/` — figures (modèle + mesures), en place
+  (référencées par les scripts ; PNG 600 dpi).
 
 **Journaux de référence (`journaux/resultats_*.log`) — état courant**
 - `journaux/resultats_hauteur_5mm_recalibration.log` — correction hauteur + θ\* courant.
