@@ -73,6 +73,14 @@ C200 = "#E69F00"
 C250 = "#009E73"
 C_MODEL = "#555555"
 COURANT_COLOR = {150: C150, 176: "#56B4E9", 200: C200, 225: "#D55E00", 250: C250}
+# Palette dédiée aux 4 courants de la campagne dissipation exp9 (monospot)
+DISSIP_COLOR = {175: "#56B4E9", 200: "#E69F00", 226: "#D55E00", 250: "#009E73"}
+DISSIP_FILES = {
+    175: "175A/175A_y0_monospot.txt",
+    200: "200A/200A_y0_monospot.txt",
+    226: "226A/226A_y0_monospot.txt",
+    250: "250A/250a_y0_monospot.txt",   # nom de fichier en minuscule
+}
 
 # Reference temperature lines (PEKK) — same convention as the reference figure
 T_FUSION = 337.0      # °C — fusion PEKK (config/materiaux.yaml)
@@ -280,7 +288,7 @@ def fig5():
     GRP = {150: ("150A", ["150A_v1.txt", "150A_v2.txt", "150A_v3.txt"]),
            176: ("176A", ["176A_v1.txt"]),
            200: ("200A", ["200A_v4_TC1ok.txt", "200A_v5.txt", "200A_v6.txt"]),
-           225: ("225A", ["225A_v1.txt"]),
+           225: ("226A", ["225A_v1.txt"]),
            250: ("250A", ["250A_v1.txt", "250A_v2.txt", "250A_v3.txt"])}
 
     def _rate(sub, fname):
@@ -428,29 +436,54 @@ def fig_essais_5TC_par_courant():
 # fig_dissipation_monospot
 # ========================================================================
 def fig_dissipation_monospot():
-    fig, ax = plt.subplots(figsize=(6.4, 3.4))
+    """Décroissance longitudinale (spot unique fixe à x=60, y=0), 4 courants.
+
+    Les essais sont tous coupés au même pic (~270 °C au spot, échantillon
+    réutilisable) → panneau (a) : pics absolus atteints par courant ; panneau
+    (b) : profils normalisés au spot, qui se superposent en une seule courbe =
+    forme de la source en longueur INVARIANTE avec le courant.
+    """
+    fig, (axa, axb) = plt.subplots(1, 2, figsize=(9.4, 3.5))
     x = np.array([0, 30, 60, 90, 120])
-    # Pics absolus mesurés (°C) — lus dans le relevé exp9 (spot unique, y=0)
-    dfc, amb, _ = clean(load_txt(DATA9 / "200A" / "200A_y0_monospot.txt"))
-    mesure = np.array([dfc[f"TC{i}"].max() for i in range(1, 6)])   # °C absolu
-    # Modèle : forme longitudinale normalisée remise à l'échelle °C via le pic
-    # mesuré au spot (TC3, x=60) ; modele_abs = forme × ΔT_pic + ambiante
-    modele_norm = np.array([0.013, 0.094, 1.00, 0.094, 0.027])
-    modele = modele_norm * (mesure[2] - amb) + amb
-    ax.plot(x, modele, "--s", color=C_MODEL, markeredgecolor="white", markeredgewidth=0.5,
-            label="Modèle (forme × pic mesuré)")
-    ax.plot(x, mesure, "-o", color=C150, markeredgecolor="white", markeredgewidth=0.5,
-            label="Mesuré (pic)")
-    ax.axvline(60, ls=":", color="0.6", lw=0.8, zorder=0)
-    ax.annotate("spot centré à $x$ = 60 mm\n(centre du coil) → pic ici",
-                xy=(60, mesure[2]), xytext=(66, mesure[2] * 0.86),
-                fontsize=8, color="0.25", ha="left",
-                arrowprops=dict(arrowstyle="-", color="0.4", lw=0.6))
-    ax.set_xticks(x)
-    ax.set_title("Décroissance longitudinale : mesuré vs modèle (spot unique, $y$=0)")
-    ax.set_xlabel("Position en longueur $x$ (mm)")
-    ax.set_ylabel("Température de pic atteinte (°C)")
-    legend_right(ax)
+    modele_norm = np.array([0.013, 0.094, 1.00, 0.094, 0.027])   # forme modèle (symétrique)
+
+    pics_dT = []      # ΔT au pic par courant (pour le modèle absolu de référence)
+    for I, rel in DISSIP_FILES.items():
+        dfc, amb, _ = clean(load_txt(DATA9 / rel))
+        mesure = np.array([dfc[f"TC{i}"].max() for i in range(1, 6)])   # °C absolu
+        dT = mesure - amb
+        pics_dT.append(dT[2])
+        col = DISSIP_COLOR[I]
+        # (a) absolu °C
+        axa.plot(x, mesure, "-o", color=col, markeredgecolor="white", markeredgewidth=0.5,
+                 label=f"{I} A", zorder=3)
+        # (b) normalisé au spot
+        axb.plot(x, dT / dT[2], "-o", color=col, markeredgecolor="white", markeredgewidth=0.5,
+                 label=f"{I} A", zorder=3)
+
+    # Modèle : forme normalisée, remise à l'échelle absolue via le pic moyen mesuré
+    dT_ref = float(np.mean(pics_dT))
+    axa.plot(x, modele_norm * dT_ref + 25.0, "--s", color=C_MODEL, markeredgecolor="white",
+             markeredgewidth=0.5, label="Modèle (forme)", zorder=2)
+    axb.plot(x, modele_norm, "--s", color=C_MODEL, markeredgecolor="white",
+             markeredgewidth=0.5, label="Modèle (forme)", zorder=2)
+
+    for ax in (axa, axb):
+        ax.axvline(60, ls=":", color="0.6", lw=0.8, zorder=0)
+        ax.set_xticks(x)
+        ax.set_xlabel("Position en longueur $x$ (mm)")
+    axa.annotate("spot centré à $x$ = 60 mm\n(centre du coil) → pic ici",
+                 xy=(60, dT_ref + 25.0), xytext=(64, (dT_ref + 25.0) * 0.80),
+                 fontsize=8, color="0.25", ha="left",
+                 arrowprops=dict(arrowstyle="-", color="0.4", lw=0.6))
+    axa.set_ylabel("Température de pic atteinte (°C)")
+    axb.set_ylabel("Profil normalisé au spot (–)")
+    panel_title(axa, "(a) pics absolus — 4 courants")
+    panel_title(axb, "(b) normalisé : forme invariante en courant")
+    axb.legend(loc="upper left", ncol=1, frameon=False, fontsize=8.5)
+    fig.suptitle("Décroissance longitudinale : mesuré vs modèle (spot unique, $y$=0)",
+                 fontsize=12, fontweight="bold", y=1.02)
+    fig.tight_layout()
     savefig(fig, "fig_dissipation_monospot.png")
 
 

@@ -164,6 +164,13 @@ alignés en **longueur** à x=0/30/60/90/120 mm (pas 30 mm), y=0. Deux essais 20
   = **phase 2 à y=20 (centre, dominé par la conduction)** → probe direct de `k_plan`. À venir (+
   autres courants). Figures : `data/exp9_dissipation-longitudinale_2026-07-28/200A/analyse_*.png`.
 
+### 29 juillet — Exp 9 monospot étendu à 4 courants (bord y=0)
+Ajout des monospots **175 / 226 / 250 A** (+ 175 A semi-statique) à côté du 200 A. Tous coupés au
+même pic (~270 °C au spot, échantillons réutilisables) → les **profils normalisés au spot se
+superposent en une seule courbe** (0,02 / 0,08 / 1,00 / 0,14 / 0,03) : la **forme de la source en
+longueur est INVARIANTE avec le courant**, et le modèle (forme symétrique) la reproduit. Figure de
+présentation refondue en 2 panneaux (absolu °C + normalisé) : `docs/figures_elsevier/fig_dissipation_monospot.png`.
+
 ---
 
 ## 3. Résidus ouverts (par priorité)

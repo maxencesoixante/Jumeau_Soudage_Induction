@@ -82,6 +82,25 @@ forme de la source en longueur (au bord, y=0, dominé par la source) est validé
 résidu d'étalement est la **phase 2 (y=20, centre, dominé par la conduction)**, à venir. Figure :
 `200A/analyse_200A_y0_monospot_vs_modele.png`.
 
+### `175A/` , `226A/` , `250A/` — monospot à d'autres courants (spot fixe x=60, y=0) ✔
+Mêmes conditions que le monospot 200 A, à 175, 226 et 250 A (175 A a aussi un semi-statique).
+Chaque essai est **coupé au même pic** (~270 °C au spot TC3, échantillon réutilisable), donc
+l'absolu ne trace pas la loi en I² (bridé par l'arrêt manuel) — l'intérêt est la **forme
+longitudinale**.
+
+**Pics absolus atteints (°C) et profil normalisé au spot** :
+
+| I (A) | ambiant | TC1 (x=0) | TC2 (x=30) | **TC3 (x=60)** | TC4 (x=90) | TC5 (x=120) | normalisé (÷ TC3) |
+|---|---|---|---|---|---|---|---|
+| 175 | 26,4 | 31,4 | 46,8 | **274,5** | 62,4 | 33,7 | 0,02 / 0,08 / 1,00 / 0,14 / 0,03 |
+| 200 | 30,7 | 33,4 | 49,1 | **265,4** | 64,7 | 39,5 | 0,01 / 0,08 / 1,00 / 0,14 / 0,04 |
+| 226 | 21,0 | 26,8 | 42,4 | **272,1** | 55,7 | 29,4 | 0,02 / 0,08 / 1,00 / 0,14 / 0,03 |
+| 250 | 28,6 | 31,4 | 47,2 | **268,3** | 59,2 | 39,7 | 0,01 / 0,08 / 1,00 / 0,13 / 0,05 |
+
+→ **Forme de la source en longueur invariante avec le courant** : les 4 profils normalisés se
+superposent (décroissance raide, asymétrie +x systématique = artefact de montage). Figure de
+présentation 2 panneaux : `docs/figures_elsevier/fig_dissipation_monospot.png`.
+
 ### (à venir) phase 2 — ligne au **centre (y=20)** : conduction quasi pure (source ≈ 0), probe direct de `k_plan`.
 
 ## Exploitation prévue

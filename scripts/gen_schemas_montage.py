@@ -3,6 +3,11 @@ article (style docs/figures_elsevier, cf. scripts/gen_figures_elsevier.py).
 
 Les deux vues sont disposees COTE A COTE (vue de dessus | vue en coupe).
 
+Les vues en COUPE sont dessinees a l'ECHELLE 1:1 (aspect equal), avec un
+ENCART ZOOM sur le spot (MFC + tubes carres 6 mm + empilement) pour la
+lisibilite. Les tubes Cu TRAVERSENT le MFC (config/geometrie.yaml) : face
+inferieure au ras du bas du MFC, reposant sur la ceramique.
+
 Geometrie prise EXCLUSIVEMENT dans config/geometrie.yaml et
 config/materiaux.yaml (valeurs recopiees en tete de script, avec la source).
 
@@ -64,16 +69,26 @@ MFC_Y = 55.0               # cfc.longueur (grand cote, // y)
 MFC_X = 31.5               # cfc.largeur (// x, direction du deplacement)
 MFC_H = 12.0               # cfc.hauteur
 
-# z (mm), convention config: z=0 surface superieure, z croit vers le bas
-Z_TUBE_BOT = -GAP_CERAM                    # -2   (repose sur la ceramique)
-Z_TUBE_TOP = -(GAP_CERAM + TUBE)           # -8
-Z_MFC_BOT = -(COIL_AXIS_H + TUBE / 2)      # -8   (plan image = sommet des brins)
-Z_MFC_TOP = Z_MFC_BOT - MFC_H              # -20
+# ----------------------------------------------------------------------
+# Hauteurs des vues en COUPE, dessinees a l'ECHELLE 1:1 (mm, positif VERS
+# LE HAUT au-dessus de la surface du lamine). Les tubes Cu (carres 6 mm)
+# TRAVERSENT le MFC (config/geometrie.yaml : "tubes carres 6 mm traversant
+# le MFC") : leur face INFERIEURE est au ras de la face inferieure du MFC,
+# et ils reposent sur la ceramique. Le MFC forme un canal autour d'eux.
+# ----------------------------------------------------------------------
+H_CERAM_TOP = GAP_CERAM               # +2  (sommet ceramique = appui des tubes)
+H_TUBE_BOT = GAP_CERAM                # +2
+H_TUBE_TOP = GAP_CERAM + TUBE         # +8
+H_MFC_BOT = GAP_CERAM                 # +2  (bas du MFC au ras du bas des tubes)
+H_MFC_TOP = H_MFC_BOT + MFC_H         # +14
+# empilement du coupon (sous la surface, negatif)
+H_INTERFACE = -E_SUP                  # -3.36  (pli twill + TC)
+H_FILM_TOP = -E_SUP                   # -3.36
+H_FILM_BOT = -(E_SUP + E_FILM)        # -3.46
+H_COUPON_BOT = -L_INF                 # -6.82
 
 # Empreintes (cahier / config)
 CENTRES_DWELL = [15.875, 45.875, 75.875, 105.875]   # empreintes.centres_pas30 (mm)
-
-Z_SCALE = 2.6   # exageration de l'echelle z dans les vues en coupe
 
 
 # ----------------------------------------------------------------------
@@ -140,7 +155,7 @@ LEGEND_HANDLES = [
 
 def epaisseurs_box(ax, x, y, avec_tube=True):
     lignes = [
-        "Épaisseurs (échelle z dilatée) :",
+        "Épaisseurs :",
         f"céramique {GAP_CERAM:.2f} mm",
         f"laminé sup. {E_SUP:.2f} mm",
         f"film PEKK {E_FILM:.2f} mm",
@@ -148,9 +163,74 @@ def epaisseurs_box(ax, x, y, avec_tube=True):
     ]
     if avec_tube:
         lignes.append(f"tube Cu (brin) {TUBE:.0f}×{TUBE:.0f} mm")
+        lignes.append(f"MFC {MFC_H:.0f} mm (haut.)")
     txt = "\n".join(lignes)
     ax.text(x, y, txt, fontsize=6.9, color="0.2", ha="left", va="center",
             bbox=dict(facecolor="white", edgecolor="0.6", linewidth=0.6, pad=4.0), zorder=20)
+
+
+# ----------------------------------------------------------------------
+# Empilement du coupon + ceramique, a l'echelle 1:1 (hauteur en mm, +haut).
+# ----------------------------------------------------------------------
+def draw_stack_1to1(ax, a, b, interface_label=True):
+    """Coupon (lamine + film + interface) + ceramique sur l'intervalle [a, b]
+    (x ou y selon la coupe), dessine a l'echelle reelle (mm, +haut)."""
+    # laminate sup / film / laminate inf
+    rect(ax, a, H_FILM_TOP, b - a, -H_FILM_TOP, facecolor=C_COUPON, alpha=0.22,
+         edgecolor="none", zorder=2)                      # sup: -3.36 -> 0
+    rect(ax, a, H_FILM_BOT, b - a, H_FILM_TOP - H_FILM_BOT, facecolor=C_FILM,
+         edgecolor="none", zorder=2)                       # film 0.1 mm
+    rect(ax, a, H_COUPON_BOT, b - a, H_FILM_BOT - H_COUPON_BOT, facecolor=C_COUPON,
+         alpha=0.22, edgecolor="none", zorder=2)          # inf
+    # ceramique 0 -> +2
+    rect(ax, a, 0.0, b - a, H_CERAM_TOP, facecolor=C_CERAM, edgecolor="0.3",
+         linewidth=0.6, zorder=2)
+    # contours
+    rect(ax, a, H_COUPON_BOT, b - a, -H_COUPON_BOT, facecolor="none", edgecolor=C_COUPON,
+         linewidth=1.0, zorder=4)
+    # interface soudure (twill + TC)
+    ax.plot([a, b], [H_INTERFACE, H_INTERFACE], color=C_COUPON, linewidth=2.0,
+            zorder=6, solid_capstyle="butt")
+
+
+def coupe_axis_cosmetics(ax):
+    """Axe z visible (comm. directrice), spines propres."""
+    ax.set_yticks([H_COUPON_BOT, H_INTERFACE, 0, H_TUBE_TOP, H_MFC_TOP])
+    ax.set_yticklabels(["−6,8", "−3,4", "0", "+8", "+14"])
+    ax.tick_params(length=3, labelsize=8)
+    for s in ("top", "right"):
+        ax.spines[s].set_visible(False)
+
+
+# ----------------------------------------------------------------------
+# Encart zoom de l'INTERFACE (empilement fin : film 0,1 mm + pli twill + TC),
+# echelle z dilatee pour la lisibilite des couches minces.
+# ----------------------------------------------------------------------
+def layup_inset(ax_parent, rect_frac, xc):
+    """Encart compact (auto-contenu) : zoom z sur l'empilement fin autour de
+    l'interface (lamine sup / film 0,1 mm / pli twill + TC / lamine inf)."""
+    axi = ax_parent.inset_axes(rect_frac)
+    a, b = xc - 6, xc + 6
+    top, bot = -2.4, -4.5
+    rect(axi, a, H_FILM_TOP, b - a, top - H_FILM_TOP, facecolor=C_COUPON, alpha=0.22, edgecolor="none")
+    rect(axi, a, H_FILM_BOT, b - a, H_FILM_TOP - H_FILM_BOT, facecolor=C_FILM, edgecolor="0.55", linewidth=0.5)
+    rect(axi, a, bot, b - a, H_FILM_BOT - bot, facecolor=C_COUPON, alpha=0.22, edgecolor="none")
+    axi.plot([a, b], [H_INTERFACE, H_INTERFACE], color=C_COUPON, linewidth=2.6, solid_capstyle="butt", zorder=5)
+    axi.scatter([xc], [H_INTERFACE], s=18, marker="o", color=C_TC, edgecolor="black", linewidth=0.4, zorder=6)
+    axi.text(a + 0.4, (H_FILM_TOP + top) / 2, "laminé sup.", fontsize=5.6, color="0.35", va="center")
+    axi.text(a + 0.4, bot + 0.5, "laminé inf.", fontsize=5.6, color="0.35", va="bottom")
+    axi.annotate("film 0,10 mm", xy=(b - 0.5, (H_FILM_TOP + H_FILM_BOT) / 2),
+                 xytext=(xc - 1.0, H_FILM_BOT - 0.55), fontsize=5.6, color="0.3", va="top", ha="left",
+                 arrowprops=dict(arrowstyle="-", color="0.5", lw=0.5))
+    axi.set_xlim(a, b)
+    axi.set_ylim(bot, top)
+    axi.set_xticks([])
+    axi.set_yticks([])
+    for s in axi.spines.values():
+        s.set_edgecolor("0.5")
+        s.set_linewidth(0.8)
+    axi.set_title("détail interface\n(pli twill + TC, zoom z)", fontsize=6.0, pad=1.5)
+    return axi
 
 
 # ========================================================================
@@ -158,8 +238,8 @@ def epaisseurs_box(ax, x, y, avec_tube=True):
 # ========================================================================
 def make_exp7():
     fig = plt.figure(figsize=(15.0, 6.4))
-    gs = fig.add_gridspec(1, 2, width_ratios=[1.0, 1.15], wspace=0.16,
-                          top=0.86, bottom=0.16, left=0.055, right=0.985)
+    gs = fig.add_gridspec(1, 2, width_ratios=[1.0, 1.1], wspace=0.16,
+                          top=0.84, bottom=0.18, left=0.055, right=0.985)
     ax1 = fig.add_subplot(gs[0])
     ax2 = fig.add_subplot(gs[1])
 
@@ -182,85 +262,55 @@ def make_exp7():
     cote_h(ax1, xc - ENTRAXE / 2, xc + ENTRAXE / 2, W + 12.0, f"entraxe {ENTRAXE:.2f} mm", fs=6.8)
     cote_h(ax1, xc - MFC_X / 2, xc + MFC_X / 2, W + 17.0, f"MFC {MFC_X:.1f} mm (x)", fs=6.8)
     cote_v(ax1, yc - MFC_Y / 2, yc + MFC_Y / 2, L + 8.0, f"MFC {MFC_Y:.0f} mm (y)", fs=6.8)
-    ax1.text(xc, -20.5, "Spot d'induction centré (x=60, y=20) — bobine + MFC centrés",
-             ha="center", va="top", fontsize=7.6, color="0.25", style="italic")
 
     ax1.set_xlim(-18, L + 20)
-    ax1.set_ylim(-27, W + 24)
+    ax1.set_ylim(-20, W + 24)
     ax1.set_aspect("equal")
     ax1.set_xlabel("x (mm) — longueur du coupon")
     ax1.set_ylabel("y (mm) — largeur")
-    ax1.set_title("Vue de dessus (plan x–y)\nempreinte bobine/MFC et 5 TC bord→centre",
-                  fontsize=9.6)
+    ax1.set_title("Vue de dessus (plan x–y)", fontsize=10)
     ax1.tick_params(length=3)
     for s in ("top", "right"):
         ax1.spines[s].set_visible(False)
 
-    # --- Panneau 2 : coupe y-z a x = 60 mm (plan du spot) -----------------
-    def zz(z):
-        return -z * Z_SCALE
+    # --- Panneau 2 : coupe y-z a x = 60 mm (1:1) --------------------------
+    # Contenu centre sur le coupon (y 0..40) ; le MFC (55 mm) va de -7,5 a 47,5.
+    y_lo, y_hi = yc - MFC_Y / 2, yc + MFC_Y / 2   # -7,5 .. 47,5
+    draw_stack_1to1(ax2, 0, W)
+    # MFC (deborde la largeur : 55 > 40) — canal a l'echelle reelle
+    rect(ax2, y_lo, H_MFC_BOT, MFC_Y, MFC_H, facecolor=C_MFC, edgecolor="0.2",
+         alpha=0.35, linewidth=0.9, zorder=3)
+    ax2.text(yc, H_MFC_TOP - 2.4, "MFC", ha="center", va="center", fontsize=8,
+             bbox=BOXPROPS, zorder=8)
+    # brins vus A TRAVERS le MFC (la coupe y-z a x=60 passe ENTRE les 2 jambes,
+    # qui courent selon y) -> bande cuivre transparente sur toute la longueur
+    # des jambes (55 mm = largeur du MFC ; deborde le coupon de +/-7,5 mm).
+    rect(ax2, yc - LEG_LEN / 2, H_TUBE_BOT, LEG_LEN, TUBE, facecolor=C_COIL,
+         edgecolor="0.3", linewidth=0.9, alpha=0.42, zorder=5, linestyle="--")
+    ax2.annotate("brins ⊥ à la coupe (vus à travers\nle MFC, débordent le coupon)",
+                 xy=(y_hi - 4, H_TUBE_BOT + TUBE / 2),
+                 xytext=(y_hi + 1.5, H_TUBE_TOP + 2.5), fontsize=6.6,
+                 color="0.25", ha="left", va="center", zorder=8, bbox=BOXPROPS,
+                 arrowprops=dict(arrowstyle="-", color="0.4", lw=0.6))
 
-    y0c, y1c = -W * 0.30, W * 1.30  # marge pour montrer le debord du MFC (55>40)
-
-    # MFC (plein, coupe au niveau du spot, deborde la largeur)
-    rect(ax2, yc - MFC_Y / 2, zz(Z_MFC_TOP), MFC_Y, zz(Z_MFC_BOT) - zz(Z_MFC_TOP),
-         facecolor=C_MFC, edgecolor="0.2", alpha=0.35, linewidth=0.9, zorder=3)
-    ax2.text(yc, zz((Z_MFC_TOP + Z_MFC_BOT) / 2), "MFC (µr≈16)", ha="center", va="center",
-             fontsize=7.4, bbox=BOXPROPS, zorder=6)
-
-    # ceramique
-    rect(ax2, 0, zz(0), W, zz(-GAP_CERAM) - zz(0), facecolor=C_CERAM, edgecolor="0.3",
-         linewidth=0.7, zorder=2)
-
-    # laminate sup / twill-interface / film / laminate inf
-    rect(ax2, 0, zz(0), W, zz(E_SUP) - zz(0), facecolor=C_COUPON, alpha=0.22,
-         edgecolor="none", zorder=2)
-    rect(ax2, 0, zz(E_SUP), W, zz(E_SUP + E_FILM) - zz(E_SUP), facecolor=C_FILM,
-         edgecolor="none", zorder=2)
-    rect(ax2, 0, zz(E_SUP + E_FILM), W, zz(L_INF) - zz(E_SUP + E_FILM),
-         facecolor=C_COUPON, alpha=0.22, edgecolor="none", zorder=2)
-    ax2.plot([0, W], [zz(Z_INTERFACE), zz(Z_INTERFACE)], color=C_COUPON, linewidth=2.4,
-             zorder=6, solid_capstyle="butt")
-
-    # contour general du stack laminate + ceramique
-    rect(ax2, 0, zz(0), W, zz(-GAP_CERAM) - zz(0), facecolor="none", edgecolor="0.3",
-         linewidth=0.7, zorder=4)
-    rect(ax2, 0, zz(L_INF), W, zz(0) - zz(L_INF), facecolor="none", edgecolor=C_COUPON,
-         linewidth=1.0, zorder=4)
-
-    # bord du coupon (0 et W) marque explicitement (le MFC deborde)
-    ax2.plot([0, 0], [zz(-GAP_CERAM), zz(L_INF)], color=C_COUPON, linewidth=1.0, zorder=4)
-    ax2.plot([W, W], [zz(-GAP_CERAM), zz(L_INF)], color=C_COUPON, linewidth=1.0, zorder=4)
-
-    # note brins hors coupe (coupe a x=60, les brins sont en x=53,8 / 66,2)
-    ax2.text(y0c + 1.0, zz(Z_TUBE_TOP + (Z_TUBE_BOT - Z_TUBE_TOP) / 2),
-             "brins bobine\nhors coupe\n(x=53,8 / 66,2 mm)", fontsize=6.4, color=C_COIL,
-             ha="left", va="center", style="italic")
-
-    # TC (a l'interface, sur la coupe)
+    # TC sur l'interface
     for i, y in enumerate(ys_tc, start=1):
-        tc_marker(ax2, y, zz(Z_INTERFACE), f"TC{i}", dxlab=0, dylab=zz(0) - zz(1.7),
-                  fs=7.0, ha="center", va="bottom")
+        tc_marker(ax2, y, H_INTERFACE, f"TC{i}", dxlab=0, dylab=-2.4, fs=6.6,
+                  ha="center", va="top")
 
-    # legende interface + boite epaisseurs, toutes deux SOUS le stack (zone libre)
-    y_bottom_stack = zz(L_INF)
-    ax2.text(W / 2, y_bottom_stack - 3.0,
-             f"Interface soudure — pli twill (susceptible) ≈{E_TWILL_NOM:.2f} mm — "
-             f"z = {Z_INTERFACE:.2f} mm (plan des TC)",
-             fontsize=7.2, color=C_COUPON, ha="center", va="top", fontweight="bold")
+    # bord du coupon marque
+    for yb in (0, W):
+        ax2.plot([yb, yb], [H_COUPON_BOT, 0], color=C_COUPON, lw=0.9, zorder=4)
 
-    epaisseurs_box(ax2, W + 6.0, zz(L_INF / 2), avec_tube=True)
+    layup_inset(ax2, [0.72, 0.03, 0.25, 0.40], yc)
 
-    ax2.set_xlim(y0c, y1c + 30)
-    ax2.set_ylim(y_bottom_stack - 9, zz(Z_MFC_TOP) + 4)
+    ax2.set_xlim(y_lo - 4, y_hi + 22)
+    ax2.set_ylim(H_COUPON_BOT - 3, H_MFC_TOP + 3)
+    ax2.set_aspect("equal")
     ax2.set_xlabel("y (mm) — largeur (coupe à x = 60 mm)")
-    ax2.set_ylabel("(coupe verticale, échelle z dilatée ×2,6)")
-    ax2.set_title("Vue en coupe (plan y–z, x = 60 mm)\nempilement et TC à l'interface",
-                  fontsize=9.6)
-    ax2.set_yticks([])
-    for s in ("top", "right", "left"):
-        ax2.spines[s].set_visible(False)
-    ax2.tick_params(length=3)
+    ax2.set_ylabel("z (mm) — hauteur / profondeur\n(0 = surface, + vers le haut)")
+    ax2.set_title("Vue en coupe (plan y–z, x = 60 mm) — échelle 1:1", fontsize=10)
+    coupe_axis_cosmetics(ax2)
 
     fig.legend(handles=LEGEND_HANDLES, loc="lower center", ncol=4, frameon=False,
                bbox_to_anchor=(0.5, 0.005), fontsize=8.0)
@@ -275,9 +325,9 @@ def make_exp7():
 # FIGURE exp9 -- dissipation LONGITUDINALE
 # ========================================================================
 def make_exp9():
-    fig = plt.figure(figsize=(15.6, 6.2))
-    gs = fig.add_gridspec(1, 2, width_ratios=[1.0, 1.28], wspace=0.14,
-                          top=0.85, bottom=0.16, left=0.045, right=0.99)
+    fig = plt.figure(figsize=(15.6, 6.4))
+    gs = fig.add_gridspec(1, 2, width_ratios=[1.0, 1.32], wspace=0.14,
+                          top=0.84, bottom=0.17, left=0.045, right=0.99)
     ax1 = fig.add_subplot(gs[0])
     ax2 = fig.add_subplot(gs[1])
 
@@ -287,23 +337,17 @@ def make_exp9():
     # --- Panneau 1 : vue de dessus (x-y) ----------------------------------
     rect(ax1, 0, 0, L, W, facecolor=C_COUPON, edgecolor=C_COUPON, alpha=0.20,
          linewidth=1.4, zorder=1)
-
-    # mode (a) spot unique -- MFC + bobine, trait plein
     mfc_patch(ax1, xc_spot, yc, style="solid")
     coil_legs_patch(ax1, xc_spot, yc)
-
-    # mode (b) 4 positions de dwell -- MFC en pointille
     for j, xd in enumerate(CENTRES_DWELL, start=1):
         mfc_patch(ax1, xd, yc, style="dotted")
         ax1.text(xd, yc - MFC_Y / 2 - 2.0, f"d{j}", ha="center", va="top",
                  fontsize=6.6, color="0.30", fontweight="bold")
 
-    # TC au bord y=0 (rangee bien sous l'empreinte MFC, qui deborde jusqu'a y=-7.5)
     xs_tc = [0, 30, 60, 90, 120]
     for i, x in enumerate(xs_tc, start=1):
         tc_marker(ax1, x, 0, f"TC{i}\n({x}, 0)", dxlab=0, dylab=-11.0, fs=7.0, ha="center", va="top")
 
-    # fleche d'avance du spot (mode b) -- rangee sous les tags d1..d4 et les TC
     y_arrow = -25.0
     ax1.annotate("", xy=(CENTRES_DWELL[-1], y_arrow), xytext=(CENTRES_DWELL[0], y_arrow),
                  arrowprops=dict(arrowstyle="->", color="0.15", lw=1.3))
@@ -321,85 +365,49 @@ def make_exp9():
     ax1.set_aspect("equal")
     ax1.set_xlabel("x (mm) — longueur du coupon")
     ax1.set_ylabel("y (mm) — largeur")
-    ax1.set_title("Vue de dessus (plan x–y) — 5 TC au bord (y=0)\n"
-                  "(a) spot unique centré x=60   (b) 4 dwells, avance 30 mm",
-                  fontsize=9.4)
+    ax1.set_title("Vue de dessus (plan x–y) — 5 TC au bord (y = 0)", fontsize=10)
     ax1.tick_params(length=3)
     for s in ("top", "right"):
         ax1.spines[s].set_visible(False)
 
-    # --- Panneau 2 : coupe x-z a y = 0 mm (ligne des TC) -------------------
-    def zz(z):
-        return -z * Z_SCALE
-
-    x0c, x1c = -10.0, L + 55.0
-
-    # laminate sup / interface / film / laminate inf, sur toute la longueur
-    rect(ax2, 0, zz(0), L, zz(E_SUP) - zz(0), facecolor=C_COUPON, alpha=0.22,
-         edgecolor="none", zorder=2)
-    rect(ax2, 0, zz(E_SUP), L, zz(E_SUP + E_FILM) - zz(E_SUP), facecolor=C_FILM,
-         edgecolor="none", zorder=2)
-    rect(ax2, 0, zz(E_SUP + E_FILM), L, zz(L_INF) - zz(E_SUP + E_FILM),
-         facecolor=C_COUPON, alpha=0.22, edgecolor="none", zorder=2)
-    ax2.plot([0, L], [zz(Z_INTERFACE), zz(Z_INTERFACE)], color=C_COUPON, linewidth=2.2,
-             zorder=6, solid_capstyle="butt")
-    rect(ax2, 0, zz(L_INF), L, zz(0) - zz(L_INF), facecolor="none", edgecolor=C_COUPON,
-         linewidth=1.0, zorder=4)
-
-    # ceramique, sur toute la longueur
-    rect(ax2, 0, zz(0), L, zz(-GAP_CERAM) - zz(0), facecolor=C_CERAM, edgecolor="0.3",
-         linewidth=0.7, zorder=2)
-
-    # MFC dwell (pointille) -- 4 positions, pas de bobine (pour lisibilite)
-    for xd in CENTRES_DWELL:
-        rect(ax2, xd - MFC_X / 2, zz(Z_MFC_TOP), MFC_X, zz(Z_MFC_BOT) - zz(Z_MFC_TOP),
-             facecolor="none", edgecolor="0.35", linewidth=0.9, linestyle=":", zorder=3)
-
-    # MFC + bobine spot unique (trait plein / cuivre), cut a y=0 => dans l'empreinte
-    rect(ax2, xc_spot - MFC_X / 2, zz(Z_MFC_TOP), MFC_X, zz(Z_MFC_BOT) - zz(Z_MFC_TOP),
-         facecolor=C_MFC, edgecolor="0.2", alpha=0.35, linewidth=1.0, zorder=4)
-    ax2.text(xc_spot, zz((Z_MFC_TOP + Z_MFC_BOT) / 2 - 1.6), "MFC\n(spot unique)", ha="center",
-             va="center", fontsize=7.0, bbox=BOXPROPS, zorder=7)
-    # 2 brins Cu = carres 6 mm, bord INFERIEUR colle au bord inferieur du MFC
-    # (les tubes traversent le MFC ; leur face basse coincide avec le plan image).
-    z_sq_bot = Z_MFC_BOT           # -8  (bas du carre = bas du MFC)
-    z_sq_top = Z_MFC_BOT - TUBE    # -14 (haut du carre, dans le MFC)
+    # --- Panneau 2 : coupe x-z a y = 0, ZOOM 1:1 sur le spot --------------
+    # La vue de dessus porte deja le contexte pleine longueur (5 TC + 4 dwells).
+    # La coupe se concentre sur le spot (x=60) pour montrer la geometrie reelle
+    # (tubes carres, MFC) a l'echelle 1:1. Fenetre x=[28, 92] : TC2/TC3/TC4.
+    x_lo, x_hi = 28.0, 92.0
+    draw_stack_1to1(ax2, -8, L + 8)         # empilement dessine large, clipe par xlim
+    # MFC spot (plein) + 2 tubes carres traversant (coupe ⊥ aux tubes -> carres)
+    rect(ax2, xc_spot - MFC_X / 2, H_MFC_BOT, MFC_X, MFC_H, facecolor=C_MFC,
+         edgecolor="0.2", alpha=0.35, linewidth=0.9, zorder=4)
     for sgn in (-1, 1):
         xt = xc_spot + sgn * ENTRAXE / 2 - TUBE / 2
-        rect(ax2, xt, zz(z_sq_bot), TUBE, zz(z_sq_top) - zz(z_sq_bot),
-             facecolor=C_COIL, edgecolor="0.2", linewidth=0.8, zorder=6)
-    ax2.annotate("2 brins Cu 6×6 mm\n(bord bas au ras du MFC)",
-                 xy=(xc_spot + ENTRAXE / 2 + TUBE / 2, zz((z_sq_top + z_sq_bot) / 2)),
-                 xytext=(xc_spot + ENTRAXE / 2 + TUBE / 2 + 7,
-                         zz((z_sq_top + z_sq_bot) / 2)),
-                 fontsize=6.8, color="0.2", ha="left", va="center", zorder=7,
-                 bbox=BOXPROPS,
+        rect(ax2, xt, H_TUBE_BOT, TUBE, TUBE, facecolor=C_COIL, edgecolor="0.15",
+             linewidth=0.8, alpha=0.92, zorder=6)
+    ax2.text(xc_spot, H_MFC_TOP - 2.4, "MFC (spot)", ha="center", va="center",
+             fontsize=7.6, bbox=BOXPROPS, zorder=8)
+    ax2.annotate("2 tubes Cu 6×6 mm traversant le MFC\n(face basse au ras du bas du MFC)",
+                 xy=(xc_spot + ENTRAXE / 2 + TUBE / 2, H_TUBE_BOT + TUBE / 2),
+                 xytext=(xc_spot + 12, H_TUBE_TOP + 3.5), fontsize=6.6, color="0.2",
+                 ha="left", va="center", zorder=8, bbox=BOXPROPS,
                  arrowprops=dict(arrowstyle="-", color="0.4", lw=0.6))
 
-    # TC sur l'interface, x = 0/30/60/90/120 (coupe exacte a y=0)
+    # TC visibles dans la fenetre (30/60/90)
     for i, x in enumerate(xs_tc, start=1):
-        tc_marker(ax2, x, zz(Z_INTERFACE), f"TC{i}", dxlab=0, dylab=zz(0) - zz(1.7),
-                  fs=7.0, ha="center", va="bottom")
+        if x_lo - 2 <= x <= x_hi + 2:
+            tc_marker(ax2, x, H_INTERFACE, f"TC{i}", dxlab=0, dylab=-2.4, fs=6.8,
+                      ha="center", va="top")
+    ax2.text(x_hi - 1, H_INTERFACE - 5.6, "TC espacés de 30 mm (cf. vue de dessus)",
+             ha="right", va="top", fontsize=6.4, color="0.4", style="italic")
 
-    # legende interface + boite epaisseurs, toutes deux SOUS le stack (zone libre)
-    y_bottom_stack = zz(L_INF)
-    ax2.text(L / 2, y_bottom_stack - 3.0,
-             f"Interface soudure — pli twill (susceptible) ≈{E_TWILL_NOM:.2f} mm — "
-             f"z = {Z_INTERFACE:.2f} mm — bord y=0 (ligne des TC)",
-             fontsize=7.2, color=C_COUPON, ha="center", va="top", fontweight="bold")
+    layup_inset(ax2, [0.015, 0.55, 0.22, 0.40], xc_spot)
 
-    epaisseurs_box(ax2, L + 8.0, zz(L_INF / 2), avec_tube=False)
-
-    ax2.set_xlim(x0c, x1c)
-    ax2.set_ylim(y_bottom_stack - 9, zz(Z_MFC_TOP) + 4)
+    ax2.set_xlim(x_lo, x_hi + 6)
+    ax2.set_ylim(H_COUPON_BOT - 6, H_MFC_TOP + 3)
+    ax2.set_aspect("equal")
     ax2.set_xlabel("x (mm) — longueur (coupe au bord y = 0, ligne des TC)")
-    ax2.set_ylabel("(coupe verticale, échelle z dilatée ×2,6)")
-    ax2.set_title("Vue en coupe (plan x–z, y = 0)\nempilement, spot unique et 4 dwells",
-                  fontsize=9.4)
-    ax2.set_yticks([])
-    for s in ("top", "right", "left"):
-        ax2.spines[s].set_visible(False)
-    ax2.tick_params(length=3)
+    ax2.set_ylabel("z (mm) — hauteur / profondeur\n(0 = surface, + vers le haut)")
+    ax2.set_title("Vue en coupe (plan x–z, y = 0) — zoom spot, échelle 1:1", fontsize=10)
+    coupe_axis_cosmetics(ax2)
 
     fig.legend(handles=LEGEND_HANDLES, loc="lower center", ncol=4, frameon=False,
                bbox_to_anchor=(0.5, 0.003), fontsize=8.0)
