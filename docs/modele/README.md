@@ -54,10 +54,25 @@ mais n'est **pas conservatif en puissance** → ne débloque pas un θ\* joint g
 **⚠️ Contraste réel du M** : le modèle **sur-contraste de ~50 %** (chant/centre **~3,15** vs mesuré
 **~2,09**, exp7 200 A). L'ancienne `fig2` affichait 2,43/2,18 (codé en dur, périmé) — corrigée.
 
-**Prochaine investigation = déficit de taux de chauffe / transitoire.** Deux résidus structurels
-distincts subsistent : (1) sur-contraste du M (compris, non conservatif) ; (2) un déficit de taux
-de chauffe indépendant qui bloque le θ\* joint. La calibration scalaire et la forme de source sont
-épuisées ; le prochain levier est la dynamique (dépôt de puissance instantané / masse thermique).
+**Investigation taux de chauffe (2026-07-31) — RÉSULTAT UNIFIANT.** Le déficit de dT/dt n'est ni
+sous le spot (source OK, +14 %), ni un effet de masse thermique/cp (écartés), ni du lumping
+d'épaisseur : **test décisif 2D vs 3D → le 3D ne ferme PAS le déficit** (TC3 centre-œil −40 % en
+2D comme en 3D). Le déficit croît avec la distance au spot (centre-œil −22 %, hors-spot longitudinal
+**−67 %**) = un déficit de **conduction dans le plan (in-plane)**. `k_plan` est le levier dominant
+mais **aucune valeur scalaire** ne ferme les 3 régimes (k≈6 ferme le hors-spot mais sur-corrige le
+sous-spot). → **Taux, pic et contraste du M sont TROIS symptômes du MÊME défaut** : l'étalement
+in-plane est piloté par un `k_plan` scalaire qui ne peut être à la fois bas (sous-spot) et haut
+(hors-spot/centre). Logs : `../../journaux/resultats_diag_{taux_dTdt_sous_hors_spot,sensibilite_taux_leviers,2d_vs_3d_taux_exp7_200A}.log`.
+
+**Conclusion & options.** Le 3D est écarté (gain nul, coût ×10). Deux voies :
+- **A) `k_plan` anisotrope/variable** (kx≠ky) — physiquement justifié (laminé CF/PEKK anisotrope ;
+  le M est en largeur y, la dissipation en longueur x) : dernier levier prometteur, à prototyper
+  derrière flag.
+- **B) accepter et documenter la limite** — le 2D lumpé + `k_plan=3,0` physique reste valide pour
+  le régime **pic/plateau** ; le transitoire hors-spot rapide est **hors du domaine de validité
+  caractérisé**.
+
+Prédictions courants non mesurés : `../figures_elsevier/fig_prediction_chauffe_courant.png`.
 
 Prédictions courants non mesurés : `../figures_elsevier/fig_prediction_chauffe_courant.png`.
 

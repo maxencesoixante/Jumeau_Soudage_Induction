@@ -1,0 +1,11 @@
+Test decisif -- taux dT/dt : 2D lumpe vs 3D complet vs mesure
+==============================================================================
+Essai : exp7_200A ; fenetre 0-22.0s ; theta* de reference 2D (facteur=6.0123, h_haut=30.087, h_bas_2d=37.424, h_bord_x0=250.0) ; 3D non calibre (h_contact/h_bas/T_puits = config par defaut).
+Maillage : 2D 61x21x15 ; 3D 31x11x13 (reduit, cout ~15s/run).
+
+ TC                          regime  taux_mes  taux_2D  taux_3D  deficit_2D_%  deficit_3D_%  pic_mes(@22s)  pic_2D(@22s)  pic_3D(@22s)
+TC1   sous-spot (chant y=0, lobe M)     15.12    16.90    16.59          11.8           9.7          274.1         324.7         415.1
+TC2       lobe intermediaire (y=10)     10.21     8.04     8.66         -21.3         -15.2          216.0         162.7         189.7
+TC3 centre-oeil (y=20, courant nul)      6.67     4.03     3.96         -39.6         -40.7          142.6          99.5          97.1
+TC4       lobe intermediaire (y=30)      7.90     8.04     8.66           1.8           9.7          178.6         162.7         189.7
+TC5  sous-spot (chant y=40, lobe M)     14.83    16.90    16.59          13.9          11.8          269.0         324.7         415.1

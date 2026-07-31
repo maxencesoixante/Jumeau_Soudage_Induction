@@ -1,0 +1,38 @@
+Diagnostic -- deficit dT/dt sous-spot vs hors-spot (theta* de reference)
+==============================================================================
+facteur=6.0123 h_haut=30.087 h_bas_2d=37.424 h_bord_x0=250.0 k_plan=config twill=config, modele 2D 61x21x15
+
+                 essai  TC                                                regime  t_lo  t_hi  taux_mes (degC/s)  taux_sim (degC/s)  deficit_%
+             exp7_150A TC1                         sous-spot (chant y=0, lobe M)   5.0  25.0               5.82               6.95       19.4
+             exp7_150A TC2                             lobe intermediaire (y=10)   8.0  32.0               4.41               4.29       -2.8
+             exp7_150A TC3                       centre-oeil (y=20, courant nul)  11.0  36.0               3.26               2.96       -9.1
+             exp7_150A TC4                             lobe intermediaire (y=30)   8.0  32.0               3.52               4.29       21.9
+             exp7_150A TC5                        sous-spot (chant y=40, lobe M)   6.0  26.0               5.43               6.68       22.9
+             exp7_200A TC1                         sous-spot (chant y=0, lobe M)   4.0  11.0              15.12              16.90       11.8
+             exp7_200A TC2                             lobe intermediaire (y=10)   4.0  13.0              10.21               8.04      -21.3
+             exp7_200A TC3                       centre-oeil (y=20, courant nul)   6.0  14.0               6.67               4.14      -38.0
+             exp7_200A TC4                             lobe intermediaire (y=30)   4.0  13.0               7.90               8.04        1.8
+             exp7_200A TC5                        sous-spot (chant y=40, lobe M)   4.0  11.0              14.83              16.90       13.9
+             exp7_250A TC1                         sous-spot (chant y=0, lobe M)   3.0   7.0              26.95              30.78       14.2
+             exp7_250A TC2                             lobe intermediaire (y=10)   3.0   8.0              17.21              11.93      -30.7
+             exp7_250A TC3                       centre-oeil (y=20, courant nul)   4.0   9.0              10.83               5.22      -51.8
+             exp7_250A TC4                             lobe intermediaire (y=30)   3.0   8.0              15.24              11.93      -21.7
+             exp7_250A TC5                        sous-spot (chant y=40, lobe M)   2.0   7.0              27.38              32.17       17.5
+    exp9_200A_monospot TC1                         hors-spot (x=0, 60mm du spot)   NaN   NaN                NaN                NaN        NaN
+    exp9_200A_monospot TC2                        hors-spot (x=30, 30mm du spot)   3.0   9.0               1.58               0.09      -94.1
+    exp9_200A_monospot TC3                  sous-spot (x=60,y=0 : spot ET chant)   2.0   8.0              20.38              19.98       -2.0
+    exp9_200A_monospot TC4                        hors-spot (x=90, 30mm du spot)   4.0  10.0               2.63               0.11      -95.7
+    exp9_200A_monospot TC5                       hors-spot (x=120, 60mm du spot)   1.0   8.0               0.11               0.00      -96.3
+exp9_200A_y20_monospot TC1                       hors-spot (x=0, centre largeur)  29.0 129.0               0.06               0.03      -58.2
+exp9_200A_y20_monospot TC2                      hors-spot (x=30, centre largeur)  15.0  34.0               0.74               0.68       -8.3
+exp9_200A_y20_monospot TC3 centre-oeil (x=60,y=20 : spot en x, courant nul en y)   7.0  22.0               4.20               4.73       12.6
+exp9_200A_y20_monospot TC4                      hors-spot (x=90, centre largeur)  12.0  29.0               1.43               0.61      -57.5
+exp9_200A_y20_monospot TC5                     hors-spot (x=120, centre largeur)  22.0 117.0               0.08               0.03      -57.5
+
+Résumé par famille (déficit % moyen) :
+                    deficit_%  n
+famille                         
+CENTRE-OEIL             -21.6  4
+HORS-SPOT               -66.8  8
+LOBE-INTERMEDIAIRE       -8.8  6
+SOUS-SPOT                14.0  7

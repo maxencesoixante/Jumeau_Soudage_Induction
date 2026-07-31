@@ -235,6 +235,22 @@ Suite de la calibration jointe : on s'attaque à la FORME du M.
   transitoire** (dépôt de puissance instantané, masse thermique effective, dynamique de source) —
   hors calibration scalaire.
 
+### 31 juillet (suite) — Taux de chauffe : UN SEUL défaut d'étalement in-plane (3D écarté)
+Investigation dédiée (`scripts/diag_taux_dTdt_sous_hors_spot.py`, `diag_sensibilite_taux_leviers.py`,
+`diag_2d_vs_3d_taux_exp7_200A.py`). Déficit de dT/dt par régime : **sous-spot +14 %** (pas de
+déficit, source OK), lobes −9 %, **centre-œil −22 %**, **hors-spot longitudinal −67 %** → croît avec
+la distance au spot = déficit d'**étalement in-plane**, pas de dépôt.
+- **Test décisif 2D vs 3D** (exp7_200A) : le 3D **ne ferme PAS** le déficit (TC3 −40 % en 2D comme
+  en 3D) → ce n'est **PAS** un effet de lumping d'épaisseur / 3D. cp, e_eff, h : écartés.
+- `k_plan` = levier dominant sur le taux aussi, mais **aucune valeur scalaire** ne ferme les 3
+  régimes (k≈6 ferme le hors-spot, sur-corrige le sous-spot).
+- **UNIFICATION** : taux, pic et contraste du M = **trois symptômes du même défaut** — l'étalement
+  in-plane piloté par un `k_plan` scalaire, incapable d'être bas (sous-spot) ET haut (hors-spot).
+  Le 3D est écarté (gain nul, coût ×10).
+- **Options** : A) `k_plan` **anisotrope** (kx≠ky, physiquement justifié : M en y, dissipation en x)
+  — dernier levier, à prototyper derrière flag ; B) accepter/documenter la limite (2D lumpé +
+  k_plan=3,0 valide en pic/plateau ; transitoire hors-spot rapide = hors domaine de validité).
+
 ---
 
 ## 3. Résidus ouverts (par priorité)
