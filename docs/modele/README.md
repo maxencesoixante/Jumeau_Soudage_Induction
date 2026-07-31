@@ -64,15 +64,33 @@ sous-spot). → **Taux, pic et contraste du M sont TROIS symptômes du MÊME dé
 in-plane est piloté par un `k_plan` scalaire qui ne peut être à la fois bas (sous-spot) et haut
 (hors-spot/centre). Logs : `../../journaux/resultats_diag_{taux_dTdt_sous_hors_spot,sensibilite_taux_leviers,2d_vs_3d_taux_exp7_200A}.log`.
 
-**Conclusion & options.** Le 3D est écarté (gain nul, coût ×10). Deux voies :
-- **A) `k_plan` anisotrope/variable** (kx≠ky) — physiquement justifié (laminé CF/PEKK anisotrope ;
-  le M est en largeur y, la dissipation en longueur x) : dernier levier prometteur, à prototyper
-  derrière flag.
-- **B) accepter et documenter la limite** — le 2D lumpé + `k_plan=3,0` physique reste valide pour
-  le régime **pic/plateau** ; le transitoire hors-spot rapide est **hors du domaine de validité
-  caractérisé**.
+**`k_plan` anisotrope (kx≠ky) — prototype 2026-07-31, flag OFF, NON adopté.** Dernière piste
+testée (`solveur2d.py`/`materiaux.py` `k_plan_x`/`k_plan_y`, défaut isotrope, 45 tests verts ;
+`calibrer_joint.py --anisotrope`). Le fit trouve `kx≈7,4` (= le `k_plan≈7,3` déjà connu, ferme le
+longitudinal) mais l'objectif est **multimodal en `ky`** avec deux optima physiquement OPPOSÉS (l'un
+bat le RMSE en **aggravant** le contraste M à 3,63, l'autre rapproche le contraste 2,50 mais **rate**
+le RMSE) → l'anisotropie **relocalise le conflit** au lieu de le résoudre. Verdict : **NON**. Logs :
+`../../journaux/resultats_calibration_joint_anisotrope*.log`.
 
-Prédictions courants non mesurés : `../figures_elsevier/fig_prediction_chauffe_courant.png`.
+---
+
+## Domaine de validité du jumeau (bilan, 2026-07-31)
+
+Tous les leviers du modèle actuel ont été testés et **documentés** (calibration scalaire jointe,
+adoucissement de source `lambda_bord`, 3D complet, `k_plan` anisotrope) : aucun ne réduit le résidu
+sans en casser un autre. Le résidu est **compris, quantifié et irréductible** par ces leviers.
+
+**✅ Valide** (le 2D lumpé + θ\* de référence reproduit bien) :
+- le régime **pic / plateau** (température d'équilibre — ce qui compte pour la soudure) ;
+- la **forme spatiale** de la source, en longueur (dissipation exp9) et en largeur (M, forme) ;
+- l'**ordre spatio-temporel** et la **loi en I²** (transfert entre courants, interpolation fiable).
+
+**⚠️ Limite caractérisée** (hors domaine de validité) — un seul défaut, deux symptômes :
+- l'**amplitude du contraste du M** est sur-estimée (~3,15 vs ~2,09 mesuré) ;
+- le **transitoire hors-spot rapide** (dT/dt loin du spot) est sous-estimé (jusqu'à −67 %).
+- Cause unique : **étalement in-plane trop lent, piloté par un `k_plan` scalaire** (ne peut être bas
+  sous-spot ET haut hors-spot). Le corriger exigerait un modèle d'étalement in-plane non scalaire
+  physiquement fondé — non disponible/justifié à ce jour. `k_plan=3,0` (physique) reste la référence.
 
 Prédictions courants non mesurés : `../figures_elsevier/fig_prediction_chauffe_courant.png`.
 

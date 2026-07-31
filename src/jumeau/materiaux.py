@@ -35,6 +35,17 @@ class Materiau:
     sigma_90: float = 0.0
     sigma_z: float = 0.0
     T_glass: float = 159.0
+    # Conductivité in-plane ANISOTROPE (kx != ky), prototype 2026-07-31
+    # (mission thermal-solver-engineer — dernier levier du résidu « M »/
+    # centre-fill, cf. docs/modele/README.md § État & résidu ouvert). ``None``
+    # (défaut) => isotrope, ``kx = ky = k_plan`` : comportement STRICTEMENT
+    # inchangé tant que ces deux champs ne sont pas renseignés explicitement
+    # (config YAML optionnelle ou réglage runtime par
+    # ``scripts/calibrer_joint.py``). Ne PAS renseigner par défaut dans
+    # ``config/materiaux.yaml`` — cf. mission : flag OFF par défaut, verdict
+    # d'adoption laissé à l'orchestrateur.
+    k_plan_x: float | None = None
+    k_plan_y: float | None = None
 
     @classmethod
     def depuis_config(cls, cfg: dict) -> "Materiau":
@@ -42,8 +53,21 @@ class Materiau:
         champs = {k: float(cfg[k]) for k in (
             "densite", "cp_base", "T_fusion", "delta_T_fusion", "chaleur_latente",
             "k_plan", "k_z", "emissivite", "sigma_0", "sigma_90", "sigma_z", "T_glass",
+            "k_plan_x", "k_plan_y",
         ) if k in cfg}
         return cls(**champs)
+
+    def k_plan_xy(self) -> tuple[float, float]:
+        """(kx, ky) in-plane — isotrope par défaut (``k_plan_x``/``k_plan_y``
+        non renseignés => renvoie ``(k_plan, k_plan)``, comportement
+        historique bit-identique). Utilisé par
+        ``thermique.solveur2d.SolveurThermique2D`` pour séparer les flux de
+        conduction en x (longueur, dissipation longitudinale) et en y
+        (largeur, profil « M ») — cf. docs/modele/README.md § résidu ouvert,
+        option (A) anisotropie."""
+        kx = self.k_plan_x if self.k_plan_x is not None else self.k_plan
+        ky = self.k_plan_y if self.k_plan_y is not None else self.k_plan
+        return float(kx), float(ky)
 
     def cp_apparent(self, T: np.ndarray) -> np.ndarray:
         """Capacité thermique effective incluant la chaleur latente de fusion.

@@ -251,6 +251,20 @@ la distance au spot = déficit d'**étalement in-plane**, pas de dépôt.
   — dernier levier, à prototyper derrière flag ; B) accepter/documenter la limite (2D lumpé +
   k_plan=3,0 valide en pic/plateau ; transitoire hors-spot rapide = hors domaine de validité).
 
+### 31 juillet (fin) — `k_plan` anisotrope testé (NON) → domaine de validité acté
+Option A prototypée (`k_plan_x`/`k_plan_y` dans `solveur2d.py`/`materiaux.py`, flag défaut isotrope,
+45 tests verts ; `calibrer_joint.py --anisotrope`). Le fit donne `kx≈7,4` (= le `k_plan≈7,3` déjà
+connu) mais l'objectif est **multimodal en `ky`** (2 optima opposés : l'un bat le RMSE en aggravant
+le contraste M à 3,63, l'autre rapproche 2,50 mais rate le RMSE) → l'anisotropie **relocalise** le
+conflit, ne le résout pas. **Verdict : NON adopté** (flag off). Logs :
+`journaux/resultats_calibration_joint_anisotrope*.log`.
+
+**→ Arc modèle CLOS (option B).** Tous les leviers testés/documentés (calib scalaire jointe,
+`lambda_bord`, 3D, anisotropie) : le résidu est **irréductible** par le modèle actuel. **Domaine de
+validité acté** (cf. `docs/modele/README.md`) : **valide** en pic/plateau + forme de source + loi
+I² ; **limite caractérisée** = amplitude du contraste M (~3,15 vs ~2,09) et transitoire hors-spot
+rapide (−67 %), un seul défaut = étalement in-plane scalaire. `k_plan=3,0` reste la référence.
+
 ---
 
 ## 3. Résidus ouverts (par priorité)

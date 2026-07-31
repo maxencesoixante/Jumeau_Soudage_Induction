@@ -75,10 +75,18 @@ from jumeau.procede import Essai
 from jumeau.validation.chargement import charger_mesures, recaler_a_la_chauffe
 from jumeau.validation.confrontation import rapport_essai
 
-# theta = [facteur_couplage, h_bas_2d, k_plan, h_bord_x0, (source_sigma_mm)]
+# theta (isotrope, historique) = [facteur_couplage, h_bas_2d, k_plan, h_bord_x0, (source_sigma_mm)]
 NOMS_BASE = ("facteur_couplage", "h_bas_2d", "k_plan", "h_bord_x0")
 BORNES_BASSES_BASE = (0.5, 2.0, 2.0, 50.0)   # k_plan/h_bord_x0 bornés par la mission (~[2,12], ~[50,400])
 BORNES_HAUTES_BASE = (30.0, 300.0, 12.0, 400.0)
+
+# theta (ANISOTROPE, --anisotrope, prototype 2026-07-31) = [facteur_couplage,
+# h_bas_2d, kx, ky, h_bord_x0, (source_sigma_mm)] -- kx/ky remplacent k_plan
+# scalaire (materiaux.Materiau.k_plan_x/k_plan_y, cf. thermique/solveur2d.py).
+NOMS_BASE_ANISO = ("facteur_couplage", "h_bas_2d", "kx", "ky", "h_bord_x0")
+BORNES_BASSES_ANISO = (0.5, 2.0, 2.0, 2.0, 50.0)   # kx,ky bornés ~[2,12] W/m.K (mission)
+BORNES_HAUTES_ANISO = (30.0, 300.0, 12.0, 12.0, 400.0)
+
 H_HAUT_FIGE = 30.087  # figé (non-identifiable, corr 0.98 avec h_bas_2d -- phase 2 consolidation)
 
 PENALITE_RESIDU = 100.0
@@ -158,6 +166,7 @@ class CalibrateurJoint:
     def __init__(self, essais: list[EssaiCalibre], calibrer_sigma: bool = False,
                  source_sigma_mm_fige: float = 0.0,
                  lambda_bord_mm_fige: float = 0.0,
+                 anisotrope: bool = False,
                  bornes_basses=None, bornes_hautes=None):
         self.essais = essais
         self.calibrer_sigma = calibrer_sigma
@@ -168,25 +177,39 @@ class CalibrateurJoint:
         # un axe de calibration à part entière (2 leviers de forme couplés
         # rendraient le fit sous-déterminé sans plus de données de forme).
         self.lambda_bord_mm_fige = float(lambda_bord_mm_fige)
+        # anisotrope (prototype 2026-07-31, mission thermal-solver-engineer) :
+        # remplace le k_plan SCALAIRE par (kx, ky) -- cf. NOMS_BASE_ANISO.
+        self.anisotrope = bool(anisotrope)
+        noms_base = NOMS_BASE_ANISO if self.anisotrope else NOMS_BASE
+        bornes_basses_defaut = BORNES_BASSES_ANISO if self.anisotrope else BORNES_BASSES_BASE
+        bornes_hautes_defaut = BORNES_HAUTES_ANISO if self.anisotrope else BORNES_HAUTES_BASE
         if calibrer_sigma:
-            self.noms = NOMS_BASE + ("source_sigma_mm",)
-            lo = list(bornes_basses or BORNES_BASSES_BASE) + [0.0]
-            hi = list(bornes_hautes or BORNES_HAUTES_BASE) + [3.0]
+            self.noms = noms_base + ("source_sigma_mm",)
+            lo = list(bornes_basses or bornes_basses_defaut) + [0.0]
+            hi = list(bornes_hautes or bornes_hautes_defaut) + [3.0]
         else:
-            self.noms = NOMS_BASE
-            lo = list(bornes_basses or BORNES_BASSES_BASE)
-            hi = list(bornes_hautes or BORNES_HAUTES_BASE)
+            self.noms = noms_base
+            lo = list(bornes_basses or bornes_basses_defaut)
+            hi = list(bornes_hautes or bornes_hautes_defaut)
         self.bornes = (np.array(lo, float), np.array(hi, float))
         self.cfg = Config.charger(RACINE / "config")
         self.cfg.contact.h_haut = H_HAUT_FIGE
         self._taille_totale = sum(e.taille_residu for e in self.essais)
 
     def _appliquer(self, theta):
-        facteur, h_bas_2d, k_plan, h_bord_x0 = theta[:4]
-        sigma_mm = theta[4] if self.calibrer_sigma else self.source_sigma_mm_fige
-        self.cfg.ambiant.h_bas_2d = float(h_bas_2d)
-        self.cfg.materiau.k_plan = float(k_plan)
-        self.cfg.ambiant.h_bord_x0 = float(h_bord_x0)
+        if self.anisotrope:
+            facteur, h_bas_2d, kx, ky, h_bord_x0 = theta[:5]
+            sigma_mm = theta[5] if self.calibrer_sigma else self.source_sigma_mm_fige
+            self.cfg.ambiant.h_bas_2d = float(h_bas_2d)
+            self.cfg.materiau.k_plan_x = float(kx)
+            self.cfg.materiau.k_plan_y = float(ky)
+            self.cfg.ambiant.h_bord_x0 = float(h_bord_x0)
+        else:
+            facteur, h_bas_2d, k_plan, h_bord_x0 = theta[:4]
+            sigma_mm = theta[4] if self.calibrer_sigma else self.source_sigma_mm_fige
+            self.cfg.ambiant.h_bas_2d = float(h_bas_2d)
+            self.cfg.materiau.k_plan = float(k_plan)
+            self.cfg.ambiant.h_bord_x0 = float(h_bord_x0)
         return float(facteur), float(sigma_mm)
 
     def residus(self, theta) -> np.ndarray:
@@ -326,14 +349,19 @@ def principale():
                          "FIGÉ (pas calibré) -- applique le MEME lambda_bord_mm au theta* "
                          "de reference ET au theta* new du fit, pour comparer a forme de "
                          "source egale (defaut 0 = chemin historique)")
-    # θ* de référence (config/materiaux.yaml, consolidation 2026-07-30)
+    ap.add_argument("--anisotrope", action="store_true",
+                    help="remplace k_plan SCALAIRE par kx/ky LIBRES et INDEPENDANTS "
+                         "(materiaux.Materiau.k_plan_x/k_plan_y, cf. thermique/solveur2d.py) "
+                         "-- prototype 2026-07-31, mission thermal-solver-engineer, flag OFF par defaut")
+    # θ* de référence (config/materiaux.yaml, consolidation 2026-07-30) -- TOUJOURS
+    # isotrope (k_plan=3.0) : c'est la référence documentée à battre, anisotrope ou pas.
     ap.add_argument("--facteur-ref", type=float, default=6.0123)
     ap.add_argument("--h-bas-2d-ref", type=float, default=37.424)
     ap.add_argument("--k-plan-ref", type=float, default=3.0)
     ap.add_argument("--h-bord-x0-ref", type=float, default=250.0)
     ap.add_argument("--figer", nargs="+", default=[], metavar="NOM=VALEUR",
                     help="fige un ou plusieurs paramètres (parmi facteur_couplage, "
-                         "h_bas_2d, k_plan, h_bord_x0, [source_sigma_mm]) à VALEUR "
+                         "h_bas_2d, k_plan|kx/ky, h_bord_x0, [source_sigma_mm]) à VALEUR "
                          "-- diagnostic de sensibilité/famille, ex. --figer h_bas_2d=37.424")
     args = ap.parse_args()
 
@@ -349,7 +377,8 @@ def principale():
 
     calib = CalibrateurJoint(essais_joint, calibrer_sigma=args.calibrer_sigma,
                              source_sigma_mm_fige=args.source_sigma_mm_fige,
-                             lambda_bord_mm_fige=args.lambda_bord_mm_fige)
+                             lambda_bord_mm_fige=args.lambda_bord_mm_fige,
+                             anisotrope=args.anisotrope)
     print(f"Paramètres calibrés : {calib.noms}")
     print(f"Bornes basses : {calib.bornes[0].tolist()}")
     print(f"Bornes hautes : {calib.bornes[1].tolist()}")
@@ -380,18 +409,24 @@ def principale():
     # --- table de comparaison ref vs new, sur essais joint + holdout ---
     theta = resultat["theta"]
     facteur_new = theta[0]
-    sigma_new = theta[4] if args.calibrer_sigma else args.source_sigma_mm_fige
+    idx_sigma = 5 if args.anisotrope else 4
+    sigma_new = theta[idx_sigma] if args.calibrer_sigma else args.source_sigma_mm_fige
     cfg_ref = Config.charger(RACINE / "config")
     cfg_ref.contact.h_haut = H_HAUT_FIGE
     cfg_ref.ambiant.h_bas_2d = args.h_bas_2d_ref
-    cfg_ref.materiau.k_plan = args.k_plan_ref
+    cfg_ref.materiau.k_plan = args.k_plan_ref   # référence TOUJOURS isotrope
     cfg_ref.ambiant.h_bord_x0 = args.h_bord_x0_ref
 
     cfg_new = Config.charger(RACINE / "config")
     cfg_new.contact.h_haut = H_HAUT_FIGE
     cfg_new.ambiant.h_bas_2d = theta[1]
-    cfg_new.materiau.k_plan = theta[2]
-    cfg_new.ambiant.h_bord_x0 = theta[3]
+    if args.anisotrope:
+        cfg_new.materiau.k_plan_x = theta[2]
+        cfg_new.materiau.k_plan_y = theta[3]
+        cfg_new.ambiant.h_bord_x0 = theta[4]
+    else:
+        cfg_new.materiau.k_plan = theta[2]
+        cfg_new.ambiant.h_bord_x0 = theta[3]
 
     print("\n=== Table de comparaison (essais JOINT) ===")
     tbl_joint = table_comparaison(essais_joint, cfg_ref, args.facteur_ref, cfg_new, facteur_new, sigma_new,
@@ -420,14 +455,18 @@ def principale():
     print(f"\nRMSE moyen GLOBAL (tous essais rapportés) : réf={tbl_all['rmse_ref'].mean():.1f} °C "
           f"vs new={tbl_all['rmse_new'].mean():.1f} °C")
 
+    h_bord_x0_new = theta[4] if args.anisotrope else theta[3]
     print("\nValidation croisée manuelle (2D) :")
     print(f"  python scripts/valider.py --modele 2D --facteur {facteur_new:.5g} --decalage-x 0 "
-          f"--h-haut {H_HAUT_FIGE:.5g} --h-bas-2d {theta[1]:.5g} --h-bord-x0 {theta[3]:.5g} "
+          f"--h-haut {H_HAUT_FIGE:.5g} --h-bas-2d {theta[1]:.5g} --h-bord-x0 {h_bord_x0_new:.5g} "
           f"--essais {' '.join(args.essais + args.essais_holdout)}"
           + (f" --source-sigma-mm {sigma_new:.5g}" if sigma_new else "")
           + (f" --lambda-bord-mm {args.lambda_bord_mm_fige:.5g}" if args.lambda_bord_mm_fige else "")
-          + "\n  (NB : k_plan n'est pas un flag de valider.py -- l'appliquer via "
-            "config/materiaux.yaml:cf_pekk.k_plan avant de rejouer, ou utiliser ce script.)")
+          + ("\n  (NB : kx/ky ne sont pas des flags de valider.py -- l'appliquer via "
+             "materiaux.Materiau.k_plan_x/k_plan_y avant de rejouer, ou utiliser ce script.)"
+             if args.anisotrope else
+             "\n  (NB : k_plan n'est pas un flag de valider.py -- l'appliquer via "
+             "config/materiaux.yaml:cf_pekk.k_plan avant de rejouer, ou utiliser ce script.)"))
 
 
 if __name__ == "__main__":

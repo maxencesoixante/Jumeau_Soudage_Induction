@@ -30,6 +30,14 @@ Bilan par maille (imposé, cf. mission thermal-solver-engineer 2026-07-20) :
   dans le terme de conduction, ``e_eff`` se simplifie exactement de part et
   d'autre (∇·(k·e·∇T) / (ρcp·e) = k·∇²T / (ρcp)), donc le terme de conduction
   a la MÊME forme que le 3D (kx/rc, ky/rc), indépendamment de e_eff ;
+- ``k_eff`` ANISOTROPE (prototype 2026-07-31, flag OFF par défaut) : ``kx``,
+  ``ky`` proviennent de ``mat.k_plan_xy()`` (``materiaux.Materiau.k_plan_x``/
+  ``k_plan_y``, ``None`` => isotrope, ``kx = ky = k_plan``, comportement
+  historique bit-identique). Justification physique : le laminé CF/PEKK
+  quasi-iso [45/-45/0/90]3s n'a pas de raison stricte d'être isotrope dans le
+  plan une fois homogénéisé avec la géométrie du process (profil « M » en y,
+  dissipation longitudinale en x) — cf. docs/modele/README.md § résidu
+  ouvert, option (A) ;
 - ``P_surf(x, y, t)`` : puissance Joule TOTALE intégrée sur l'épaisseur
   (W/m²), construite en sommant sur z le champ ``source_spot`` 3D existant
   (``jumeau.procede.Essai.source_fn_2d`` fait cette somme une fois par spot) ;
@@ -118,7 +126,7 @@ class SolveurThermique2D:
         rc = mat.densite * cp                       # (ρ·cp)_eff, J/m3.K
         dT = np.zeros_like(T)
 
-        kx = ky = mat.k_plan
+        kx, ky = mat.k_plan_xy()  # isotrope par défaut (kx=ky=k_plan) sauf k_plan_x/y renseignés
 
         # --- conduction dans le plan : différences secondes intérieures,
         # demi-cellule aux bords (identique au 3D — e_eff se simplifie du
