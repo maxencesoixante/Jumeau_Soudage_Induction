@@ -195,17 +195,41 @@ def fig1():
 # FIG 2 — forme normalisée
 # ========================================================================
 def fig2():
+    """Forme du profil en largeur (normalisée au centre) — mesuré vs modèle, 200 A.
+
+    Valeurs CALCULÉES en direct (fin du hardcode périmé) : mesuré = pics exp7_200A ;
+    modèle = simulation 2D au θ* de référence (config). Le modèle SUR-CONTRASTE le M
+    (~3,15 vs ~2,09 mesuré) — la forme est bonne, l'amplitude du contraste non.
+    """
     fig, ax = plt.subplots(figsize=(6.4, 3.4))
-    mesure = np.array([2.18, 1.65, 1.00, 1.31, 2.09])
-    modele = np.array([2.43, 1.38, 1.00, 1.38, 2.43])
+    # --- mesuré : pics ΔT par TC en largeur (exp7 200 A), normalisés au centre (TC3) ---
+    dfc, amb, _ = clean(load_txt(DATA7 / "200A" / "200A_v6.txt"))
+    mes = np.array([dfc[f"TC{i}"].max() for i in range(1, 6)]) - amb
+    mesure = mes / mes[2]
+    # --- modèle : simulation 2D au θ* de référence, pics ΔT aux 5 positions y ---
+    from jumeau.materiaux import Config
+    from jumeau.procede import Essai
+    cfg = Config.charger(R / "config")
+    e = Essai(cfg, R / "config" / "essais" / "exp7_200A.yaml", nx=61, ny=21, nz=15,
+              facteur_couplage=6.0123, decalage_x=0.0, racine=R)
+    sv, sol = e.simuler(modele="2D")
+    mod = np.array([sv.serie_temporelle(sol, 0.060, y, "interface").max()
+                    for y in (0.0, 0.010, 0.020, 0.030, 0.040)])
+    amb_m = float(sv.serie_temporelle(sol, 0.060, 0.020, "interface")[0])
+    modele = (mod - amb_m) / (mod[2] - amb_m)
+    c_mes = (mesure[0] + mesure[4]) / 2
+    c_mod = (modele[0] + modele[4]) / 2
     ax.plot(Y_MM, mesure, "-o", color=C200, markeredgecolor="white", markeredgewidth=0.5,
-            label="Mesuré (contraste 2,18)")
+            label=f"Mesuré (contraste {c_mes:.2f})".replace(".", ","))
     ax.plot(Y_MM, modele, "--s", color=C_MODEL, markeredgecolor="white", markeredgewidth=0.5,
-            label="Modèle (contraste 2,43)")
+            label=f"Modèle (contraste {c_mod:.2f})".replace(".", ","))
     ax.set_xticks(Y_MM)
     ax.set_title("Forme du profil en largeur : mesuré vs modèle (200 A)")
     ax.set_xlabel("Position en largeur $y$ (mm)")
     ax.set_ylabel("Température normalisée (–)")
+    ax.annotate("le modèle sur-contraste\nle M (chants trop chauds)",
+                xy=(0, modele[0]), xytext=(9, modele[0] - 0.1), fontsize=8, color="0.35",
+                ha="left", va="top", arrowprops=dict(arrowstyle="-", color="0.55", lw=0.6))
     legend_right(ax)
     savefig(fig, "fig2_mesure_modele.png")
 
