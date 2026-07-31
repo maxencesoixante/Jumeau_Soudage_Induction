@@ -1,0 +1,222 @@
+Diagnostic + prototype EM — adoucissement du contraste chant/centre du profil
+en "M" (largeur), agent EM (2026-07-30)
+================================================================================
+
+MANDAT : la calibration jointe (resultats_calibration_joint_2026-07-30.log)
+montre que le résidu de bord (exp7, profil en largeur) est STRUCTUREL : aucun
+coefficient uniforme (facteur_couplage, h_bas_2d, k_plan, h_bord_x0) ne le
+corrige. Diagnostiquer la source du sur-contraste et prototyper un
+adoucissement physiquement motivé de la BC psi=0, DERRIÈRE UN FLAG (défaut
+OFF), sans bouger theta* de référence.
+
+
+(a) DIAGNOSTIC — où et pourquoi le modèle sur-contraste le "M"
+--------------------------------------------------------------
+Mécanisme déjà établi (resultats_diag_forme_source.log, 2026-07-27) : Bz(y)
+est UNIFORME sur la largeur (bobine+MFC 55 mm > largeur échantillon 40 mm) ;
+le "M" vient ENTIÈREMENT de l'écrasement du courant de Foucault contre les
+chants dans foucault.resoudre_psi (psi=0 exact au bord -> Jx=dpsi/dy maximal
+au bord -> q=rho.J^2 pique aux chants).
+
+Cette BC psi=0 exacte est la physique correcte pour une nappe de courant
+CONTINUE isotrope. Mais le twill suscepteur (siège principal des courants de
+Foucault, cf. geometrie.construire_couches) est un TISSU à pas fini (boucles
+fermées natives du sergé), et le laminé homogénéisé masque de même la maille
+discrète des plis. A l'échelle du pas de tissage, imposer psi=0 EXACTEMENT au
+nœud du bord géométrique n'a plus de sens physique fin -> le courant de
+retour réel peut encore emprunter des boucles partiellement coupées / des
+contacts fibre-fibre juste au-delà du bord idéal avant de s'annuler
+réellement (option 1 de la mission : "condition de bord psi moins raide").
+
+RE-VÉRIFICATION DU CHIFFRE DE RÉFÉRENCE — IMPORTANT (mesh-dépendance) :
+le contraste "modèle 2,43" cité dans le brief est le contraste de la SOURCE
+EM intégrée (Q(y), pas la température), reproduit ICI EXACTEMENT sur la
+grille de calibration (nx=31,ny=11,nz=13, dy=4 mm) : contraste Q(y=0)/Q(y=20)
+= 2,447 (cf. section (c)). MAIS le contraste THERMIQUE réel (T_max simulé
+aux positions des 5 TC, avec la config ACTUELLE post-corrections twill
+0,20 mm + hauteur bobine 5,0 mm, theta* de référence 2D canonique) est
+NETTEMENT plus élevé : ~3,13 (coarse grid) à ~3,16 (grille fine ny=41),
+PAS 2,43. Cause : un TC au chant (y=0/40) n'a qu'UN SEUL voisin de conduction
+latérale en y (bord de domaine), contre deux pour un nœud intérieur -> il
+retient plus d'énergie par unité de puissance locale déposée -> amplifie le
+contraste apparent au-delà du contraste de la seule source. Le "2,43"
+(diag_forme_source.log, 2026-07-27) date d'AVANT les corrections géométrie
+(twill 0,20 mm appliqué 2026-07-29, hauteur bobine 5,0 mm) et n'a
+apparemment pas été régénéré depuis (scripts/gen_figures_elsevier.py fig2 a
+des tableaux mesure/modele CODÉS EN DUR, pas recalculés) -> À SIGNALER,
+possible donnée stale dans les figures de présentation (fig2_mesure_modele).
+Le contraste MESURÉ (à partir des pics de exp7_200A.yaml, ambiant 20°C
+modèle) est 2,04-2,18 selon la répétition -- cf. (c).
+
+
+(b) ADOUCISSEMENT RETENU — implémentation
+------------------------------------------
+Mécanisme : longueur d'extrapolation ("technique de la frontière étendue",
+analogue du problème de Milne en théorie de la diffusion à frontière
+mésoscopique/discrète) — on résout la MÊME EDP psi (mêmes rho, même Bz
+échantillonné, foucault.py INTACT) sur une grille en y étendue de
+lambda_bord_mm de part et d'autre du domaine physique ; psi=0 est imposé sur
+cette frontière ÉTENDUE, pas sur le bord physique réel (qui devient un nœud
+INTÉRIEUR libre). AUCUNE matière conductrice n'est ajoutée physiquement hors
+de l'échantillon : c'est un DISPOSITIF DE CONDITION AUX LIMITES qui adoucit
+le gradient de psi (donc J, donc q) au voisinage du bord réel.
+
+Code (VERSIONNÉ, flag défaut OFF = comportement historique bit-à-bit) :
+  - src/jumeau/em/source_joule.py
+      * _grille_y_etendue(grille, lambda_bord_mm)            [nouvelle fonction]
+      * source_spot(..., lambda_bord_mm: float = 0.0)        [nouveau paramètre]
+      * docstring module, section "Adoucissement du bord"    [physique + limites]
+      * chemin champ_reaction=True + lambda_bord_mm>0 -> ValueError explicite
+        (combinaison non explorée, hors mandat)
+  - src/jumeau/procede.py : Essai(..., lambda_bord_mm: float = 0.0), propagé
+    à source_spot pour chaque spot.
+  - scripts/valider.py : --lambda-bord-mm (défaut 0.0)
+  - scripts/calibrer_joint.py : --lambda-bord-mm-fige (défaut 0.0, FIGÉ, pas
+    un axe de calibration libre — 2 leviers de forme couplés [sigma+lambda]
+    seraient sous-déterminés sans plus de données de forme).
+  - tests/test_source_et_procede.py : 4 nouveaux tests (bit-identité à 0,
+    décroissance monotone du contraste avec lambda_bord_mm, symétrie y
+    préservée, incompatibilité avec champ_reaction, propagation via Essai).
+    39 -> 43 tests, tous verts (pytest tests/ -q).
+
+lambda_bord_mm est un paramètre d'ÉCHELLE physiquement motivé mais NON
+MESURÉ (le pas de tissage du sergé n'est pas caractérisé au cahier) — à
+traiter comme calibrable, au même titre que lissage_sigma_mm.
+
+
+(c) CONTRASTE + RMSE — référence vs adouci
+-------------------------------------------
+Méthodologie : grille de calibration (nx=31, ny=11, nz=13, modèle 2D lumpé),
+theta* de référence 2D canonique (facteur_couplage=6.0123, h_haut=30.087,
+h_bas_2d=37.424, h_bord_x0=250, k_plan=3.0, config/materiaux.yaml), essais
+exp7_150A/200A/250A (famille bord) + exp9_200A_y20_monospot (famille centre,
+JOINT) + exp9_200A_monospot (HOLD-OUT). RMSE/dTmax identiques aux valeurs de
+resultats_calibration_joint_2026-07-30.log (vérifié ligne à ligne, ex.
+exp7_200A TC1 rmse=14.1 dans les deux) -> méthodologie cohérente.
+
+Contraste source Q(y=0)/Q(y=20mm), grille calibration, spot 200A x=0,060 :
+  lambda=0.0 mm : 2,447   (≈ 2,43 cité dans le brief — confirmé sur CETTE grille)
+  lambda=2.0 mm : 1,471
+  lambda=4.0 mm : 1,471   (même n_pad=1 que lambda=2..4 sur cette grille grossière,
+                            dy=4 mm -> lambda_bord_mm est quantifié par pas de dy)
+  lambda=5.0 mm : 1,171   (n_pad=2)
+
+Contraste THERMIQUE (T_max_sim - 20°C) au TC1/TC3, exp7_200A, grille fine
+(nx=61, ny=41, dy=1mm, meilleure résolution de la couche limite de bord) :
+  lambda=0.0 mm : 3,162   (mesuré exp7_200A : 2,04-2,18 selon répétition)
+  lambda=2.0 mm : 2,591
+  lambda=4.0 mm : 2,138   <- cible atteinte (mesuré ~2,04-2,18)
+  lambda=6.0 mm : 1,820
+  lambda=8.0 mm : 1,599
+
+  Même métrique, grille de calibration (nx=31,ny=11) :
+  lambda=0.0 mm : 3,13
+  lambda=4.0 mm : 2,08    <- cohérent avec la grille fine
+
+  => lambda_bord_mm ~ 4 mm ramène le contraste THERMIQUE modèle de ~3,1-3,2
+     à ~2,1-2,14, ALIGNÉ sur le contraste mesuré (2,04-2,18). Le mécanisme
+     "adoucissement de bord" est QUANTITATIVEMENT capable de corriger la
+     forme du "M" en largeur.
+
+RMSE / |dTmax| moyens, THETA* DE RÉFÉRENCE INCHANGÉ (comparaison à forme de
+source égale, sans recalibrer) :
+                              RMSE bord   RMSE centre   RMSE holdout  RMSE global  |dTmax| global
+  REF  (lambda=0, k_plan=3.0)     21.0        16.9           12.7        18.5          30.8
+  lambda=4mm, k_plan=3.0          26.9        16.8           15.1        22.6          35.6
+  lambda=4mm, k_plan=7.36         30.0        12.9           14.2        23.4          45.5
+  lambda=4mm + theta* joint       31.5         8.3           15.7        23.7          43.0
+   (k_plan=7.36,h_bas_2d=78.8,
+    h_bord_x0=73.7,facteur=6.43)
+
+=> À theta* figé, activer lambda_bord_mm=4mm SEUL dégrade le RMSE global
+   (18.5 -> 22.6) malgré la forme corrigée : la puissance totale déposée
+   change avec lambda_bord_mm (n'est PAS un fudge multiplicatif conservatif,
+   cf. (d)), donc l'ancien theta* n'est plus adapté.
+
+Recalibration JOINTE avec lambda_bord_mm=4mm FIGÉ (scripts/calibrer_joint.py
+--lambda-bord-mm-fige 4.0, n_lhs=10, max_nfev=40, 4 paramètres libres
+facteur_couplage/h_bas_2d/k_plan/h_bord_x0) :
+  theta*_new = facteur_couplage=5.740, h_bas_2d=74.51, k_plan=6.831,
+               h_bord_x0=75.98
+  RMSE moyen (JOINT, bord+centre) : réf(lambda=4,theta_ref)=24.4 vs new=29.9
+  RMSE moyen (HOLD-OUT)           : réf=15.1 vs new=17.0
+  RMSE moyen GLOBAL               : réf=24.4->29.9 (worse), et 18.5 (vraie
+                                      référence historique lambda=0) -> 27.3
+                                      TOUS ESSAIS.
+  => la recalibration jointe NE RÉCUPÈRE PAS le residuel : elle est PIRE que
+     theta* historique (18.5) ET pire que le fit joint sans lambda_bord
+     (19.6, resultats_calibration_joint_2026-07-30.log).
+
+Recalibration à facteur_couplage SEUL libre (h_bas_2d/k_plan/h_bord_x0 figés
+aux valeurs de référence, lambda_bord_mm=4mm figé) :
+  facteur_couplage*_new = 5.355 (vs 6.0123 référence, -11%)
+  RMSE moyen GLOBAL : réf(lambda=4,theta_ref)=24.4 -> new=25.0 (quasi
+  identique, toujours nettement > 18.5 historique).
+
+=> Aucune recalibration testée (facteur seul, ou jointe à 4 paramètres) ne
+   ramène le RMSE global sous la référence historique 18.5°C une fois
+   lambda_bord_mm=4mm actif.
+
+
+(d) VERDICT
+------------
+1. Le contraste modèle en largeur SE RAPPROCHE bien de la cible mesurée
+   (2,04-2,18) avec lambda_bord_mm≈4 mm — le mécanisme (longueur
+   d'extrapolation psi au bord, motivé par la maille de tissage) EST le bon
+   type de levier pour la FORME du "M" : diagnostic confirmé, adoucissement
+   fonctionnel.
+2. Mais le softening n'est PAS un facteur d'échelle conservatif : il change
+   la puissance totale déposée (redistribution non isotrope de J^2), donc
+   change TOUS les absolus, pas seulement la forme relative. À theta* figé,
+   RMSE global se dégrade (18,5 -> 22,6-23,7 selon k_plan).
+3. Un theta* joint (facteur_couplage, h_bas_2d, k_plan, h_bord_x0) avec
+   lambda_bord_mm=4mm FIGÉ NE REDEVIENT PAS gagnant : RMSE global 27,3 (pire
+   que 18,5 historique ET que 19,6 du fit joint sans adoucissement de bord,
+   resultats_calibration_joint_2026-07-30.log). Le blocage RMSE (vitesse de
+   chauffe ~2x trop lente, cf. docs/modele/README.md) n'est donc PAS résolu
+   par ce levier : la forme du "M" et le niveau absolu de RMSE sont deux
+   problèmes DIFFÉRENTS, seul le premier est corrigé ici.
+4. RECOMMANDATION : NE PAS adopter lambda_bord_mm en défaut ni le combiner
+   avec k_plan≈7,3 par défaut (cohérent avec la contrainte de la mission :
+   flag OFF, theta* de référence inchangé — confirmé par les 43 tests
+   verts). Garder le mécanisme en archive/prototype (utile si une future
+   campagne de mesure isole mieux la forme ET les absolus séparément, ou si
+   un theta* incluant un vrai déficit de vitesse de chauffe est trouvé par
+   ailleurs, ce qui pourrait changer l'équilibre du fit joint).
+5. À signaler séparément (hors mandat EM) : le chiffre "modèle 2,43" utilisé
+   dans les figures de présentation (scripts/gen_figures_elsevier.py fig2,
+   docs/figures_presentation) semble être une valeur codée en dur, calculée
+   AVANT les corrections géométrie du 2026-07-29 (twill 0,20mm, hauteur
+   5,0mm) — le contraste THERMIQUE recalculé avec la config actuelle est
+   ~3,1-3,2, pas 2,43 (le contraste de la SEULE source EM, lui, reproduit
+   bien 2,43-2,45 sur la grille de calibration). À vérifier/régénérer par
+   qui maintient ces figures.
+
+
+(e) CHEMINS
+------------
+Code (versionné, non commité par cet agent — laissé à l'orchestrateur pour
+revue) :
+  src/jumeau/em/source_joule.py   (_grille_y_etendue, lambda_bord_mm)
+  src/jumeau/procede.py           (Essai.lambda_bord_mm)
+  scripts/valider.py              (--lambda-bord-mm)
+  scripts/calibrer_joint.py       (--lambda-bord-mm-fige)
+  tests/test_source_et_procede.py (4 nouveaux tests lambda_bord)
+
+Scripts de diagnostic (scratchpad, non versionnés) :
+  diag_lambda_bord.py   — contraste Q(y) vs lambda_bord_mm (grilles fine+coarse)
+  eval_lambda_shape.py  — contraste thermique T_max(y) vs lambda_bord_mm (grille fine)
+  eval_lambda_bord.py   — RMSE/dTmax multi-essais vs lambda_bord_mm (grille calibration)
+  eval_final.py         — table de synthèse contraste+RMSE (section (c) ci-dessus)
+  (chemin : /private/tmp/claude-501/.../scratchpad/ — session-local, à
+  recréer si besoin, logique reproduite dans ce log)
+
+Log de recalibration jointe brute (lambda_bord_mm=4mm figé, 4 paramètres
+libres) : sortie complète de
+  python scripts/calibrer_joint.py --lambda-bord-mm-fige 4.0 --n-lhs 10 --max-nfev 40
+reproduite/résumée en section (c) ci-dessus (non sauvegardée en fichier
+séparé — à rejouer si besoin, ~2 min sur cette machine).
+
+Référence croisée : docs/modele/README.md § État & résidu ouvert ;
+journaux/resultats_calibration_joint_2026-07-30.log ;
+journaux/resultats_diag_forme_source.log.

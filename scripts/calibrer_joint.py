@@ -121,17 +121,20 @@ class EssaiCalibre:
             self.sigmas[tc] = max(float(bruit), 0.1)
         self.taille_residu = len(self.tc_valides) * len(self.t_mes)
 
-    def simuler(self, cfg: Config, facteur_couplage: float, source_sigma_mm: float):
+    def simuler(self, cfg: Config, facteur_couplage: float, source_sigma_mm: float,
+               lambda_bord_mm: float = 0.0):
         essai = Essai(cfg, self.chemin, nx=self.nx, ny=self.ny, nz=self.nz,
                       facteur_couplage=facteur_couplage, decalage_x=0.0,
-                      racine=self.racine, source_sigma_mm=source_sigma_mm)
+                      racine=self.racine, source_sigma_mm=source_sigma_mm,
+                      lambda_bord_mm=lambda_bord_mm)
         solveur, sol = essai.simuler(modele="2D")
         series = essai.series_tc(solveur, sol)
         return essai, solveur, sol, series
 
-    def residus(self, cfg: Config, facteur_couplage: float, source_sigma_mm: float) -> np.ndarray:
+    def residus(self, cfg: Config, facteur_couplage: float, source_sigma_mm: float,
+               lambda_bord_mm: float = 0.0) -> np.ndarray:
         try:
-            _, _, sol, series = self.simuler(cfg, facteur_couplage, source_sigma_mm)
+            _, _, sol, series = self.simuler(cfg, facteur_couplage, source_sigma_mm, lambda_bord_mm)
             res = []
             for tc in self.tc_valides:
                 T_sim = np.interp(self.t_mes, sol.t, series[tc])
@@ -145,18 +148,26 @@ class EssaiCalibre:
             res = np.where(np.isfinite(res), res, PENALITE_RESIDU)
         return res
 
-    def rapport(self, cfg: Config, facteur_couplage: float, source_sigma_mm: float) -> pd.DataFrame:
-        _, _, sol, series = self.simuler(cfg, facteur_couplage, source_sigma_mm)
+    def rapport(self, cfg: Config, facteur_couplage: float, source_sigma_mm: float,
+               lambda_bord_mm: float = 0.0) -> pd.DataFrame:
+        _, _, sol, series = self.simuler(cfg, facteur_couplage, source_sigma_mm, lambda_bord_mm)
         return rapport_essai(series, sol.t, self.df, self.tc_valides)
 
 
 class CalibrateurJoint:
     def __init__(self, essais: list[EssaiCalibre], calibrer_sigma: bool = False,
                  source_sigma_mm_fige: float = 0.0,
+                 lambda_bord_mm_fige: float = 0.0,
                  bornes_basses=None, bornes_hautes=None):
         self.essais = essais
         self.calibrer_sigma = calibrer_sigma
         self.source_sigma_mm_fige = float(source_sigma_mm_fige)
+        # lambda_bord_mm (adoucissement du bord, cf. jumeau.em.source_joule) :
+        # FIGÉ ici (pas un paramètre libre du fit), comme source_sigma_mm par
+        # défaut -- diagnostic/prototype (mission EM 2026-07-30), pas encore
+        # un axe de calibration à part entière (2 leviers de forme couplés
+        # rendraient le fit sous-déterminé sans plus de données de forme).
+        self.lambda_bord_mm_fige = float(lambda_bord_mm_fige)
         if calibrer_sigma:
             self.noms = NOMS_BASE + ("source_sigma_mm",)
             lo = list(bornes_basses or BORNES_BASSES_BASE) + [0.0]
@@ -180,7 +191,8 @@ class CalibrateurJoint:
 
     def residus(self, theta) -> np.ndarray:
         facteur, sigma_mm = self._appliquer(theta)
-        morceaux = [e.residus(self.cfg, facteur, sigma_mm) for e in self.essais]
+        morceaux = [e.residus(self.cfg, facteur, sigma_mm, self.lambda_bord_mm_fige)
+                   for e in self.essais]
         return np.concatenate(morceaux)
 
     def calibrer(self, n_lhs=12, seed=0, max_nfev=60, verbose=True, figer: dict | None = None):
@@ -277,11 +289,12 @@ class CalibrateurJoint:
 
 
 def table_comparaison(essais: list[EssaiCalibre], cfg_ref: Config, facteur_ref: float,
-                      cfg_new: Config, facteur_new: float, sigma_new: float = 0.0):
+                      cfg_new: Config, facteur_new: float, sigma_new: float = 0.0,
+                      lambda_bord_ref: float = 0.0, lambda_bord_new: float = 0.0):
     lignes = []
     for e in essais:
-        rap_ref = e.rapport(cfg_ref, facteur_ref, 0.0)
-        rap_new = e.rapport(cfg_new, facteur_new, sigma_new)
+        rap_ref = e.rapport(cfg_ref, facteur_ref, 0.0, lambda_bord_ref)
+        rap_new = e.rapport(cfg_new, facteur_new, sigma_new, lambda_bord_new)
         for tc in e.tc_valides:
             lignes.append({
                 "essai": e.nom, "TC": tc,
@@ -308,6 +321,11 @@ def principale():
                     help="ajoute source_sigma_mm comme 5e paramètre LIBRE (défaut : figé à 0)")
     ap.add_argument("--source-sigma-mm-fige", type=float, default=0.0,
                     help="valeur figée de source_sigma_mm si --calibrer-sigma absent")
+    ap.add_argument("--lambda-bord-mm-fige", type=float, default=0.0,
+                    help="adoucissement du bord (jumeau.em.source_joule.lambda_bord_mm), "
+                         "FIGÉ (pas calibré) -- applique le MEME lambda_bord_mm au theta* "
+                         "de reference ET au theta* new du fit, pour comparer a forme de "
+                         "source egale (defaut 0 = chemin historique)")
     # θ* de référence (config/materiaux.yaml, consolidation 2026-07-30)
     ap.add_argument("--facteur-ref", type=float, default=6.0123)
     ap.add_argument("--h-bas-2d-ref", type=float, default=37.424)
@@ -330,7 +348,8 @@ def principale():
     essais_holdout = [EssaiCalibre(nom, args.nx, args.ny, args.nz) for nom in args.essais_holdout]
 
     calib = CalibrateurJoint(essais_joint, calibrer_sigma=args.calibrer_sigma,
-                             source_sigma_mm_fige=args.source_sigma_mm_fige)
+                             source_sigma_mm_fige=args.source_sigma_mm_fige,
+                             lambda_bord_mm_fige=args.lambda_bord_mm_fige)
     print(f"Paramètres calibrés : {calib.noms}")
     print(f"Bornes basses : {calib.bornes[0].tolist()}")
     print(f"Bornes hautes : {calib.bornes[1].tolist()}")
@@ -375,7 +394,9 @@ def principale():
     cfg_new.ambiant.h_bord_x0 = theta[3]
 
     print("\n=== Table de comparaison (essais JOINT) ===")
-    tbl_joint = table_comparaison(essais_joint, cfg_ref, args.facteur_ref, cfg_new, facteur_new, sigma_new)
+    tbl_joint = table_comparaison(essais_joint, cfg_ref, args.facteur_ref, cfg_new, facteur_new, sigma_new,
+                                  lambda_bord_ref=args.lambda_bord_mm_fige,
+                                  lambda_bord_new=args.lambda_bord_mm_fige)
     print(tbl_joint.round(1).to_string(index=False))
     print(f"\nRMSE moyen (JOINT) : réf={tbl_joint['rmse_ref'].mean():.1f} °C "
           f"vs new={tbl_joint['rmse_new'].mean():.1f} °C")
@@ -384,7 +405,9 @@ def principale():
 
     if essais_holdout:
         print("\n=== Table de comparaison (essais HOLD-OUT, non vus par le fit) ===")
-        tbl_hold = table_comparaison(essais_holdout, cfg_ref, args.facteur_ref, cfg_new, facteur_new, sigma_new)
+        tbl_hold = table_comparaison(essais_holdout, cfg_ref, args.facteur_ref, cfg_new, facteur_new, sigma_new,
+                                     lambda_bord_ref=args.lambda_bord_mm_fige,
+                                     lambda_bord_new=args.lambda_bord_mm_fige)
         print(tbl_hold.round(1).to_string(index=False))
         print(f"\nRMSE moyen (HOLD-OUT) : réf={tbl_hold['rmse_ref'].mean():.1f} °C "
               f"vs new={tbl_hold['rmse_new'].mean():.1f} °C")
@@ -402,6 +425,7 @@ def principale():
           f"--h-haut {H_HAUT_FIGE:.5g} --h-bas-2d {theta[1]:.5g} --h-bord-x0 {theta[3]:.5g} "
           f"--essais {' '.join(args.essais + args.essais_holdout)}"
           + (f" --source-sigma-mm {sigma_new:.5g}" if sigma_new else "")
+          + (f" --lambda-bord-mm {args.lambda_bord_mm_fige:.5g}" if args.lambda_bord_mm_fige else "")
           + "\n  (NB : k_plan n'est pas un flag de valider.py -- l'appliquer via "
             "config/materiaux.yaml:cf_pekk.k_plan avant de rejouer, ou utiliser ce script.)")
 

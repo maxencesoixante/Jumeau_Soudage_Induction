@@ -227,6 +227,62 @@ def test_lissage_source_conserve_puissance_et_remplit_centre(cfg):
     assert Q6.max() < Q0.max()                                 # pic abaissé
 
 
+# --- adoucissement du bord (psi=0 repoussé, cf. source_joule.lambda_bord_mm) ---
+
+def test_lambda_bord_off_est_identite(cfg):
+    """lambda_bord_mm=0 (défaut) : source strictement inchangée (non-régression)."""
+    g = construire_grille(cfg, nx=25, ny=11, nz=9)
+    c = construire_couches(cfg)
+    Q0 = source_spot(g, cfg, c, 250.0, 0.06)
+    Q0b = source_spot(g, cfg, c, 250.0, 0.06, lambda_bord_mm=0.0)
+    assert np.array_equal(Q0, Q0b)
+
+
+def test_lambda_bord_adoucit_le_contraste_chant_centre(cfg):
+    """lambda_bord_mm>0 : le contraste bord/centre du profil en y (largeur)
+    DIMINUE avec lambda_bord_mm croissant -- adoucissement du "M" (cf.
+    docstring module source_joule.py, section "Adoucissement du bord"). Le
+    bord (y=0, ψ=0 repoussé) est un nœud EXACT de la grille -> comparaison
+    directe sans interpolation."""
+    g = construire_grille(cfg, nx=31, ny=21, nz=9)
+    c = construire_couches(cfg)
+    iy_centre = g.ny // 2
+    contrastes = []
+    for lam in (0.0, 2.0, 4.0, 6.0, 8.0):
+        Q = source_spot(g, cfg, c, 200.0, 0.06, lambda_bord_mm=lam)
+        prof_y = Q.sum(axis=(0, 2))
+        contrastes.append(prof_y[0] / prof_y[iy_centre])
+    # strictement décroissant
+    assert all(c1 > c2 for c1, c2 in zip(contrastes, contrastes[1:])), contrastes
+    # symétrie y -> centre_y = largeur/2 conservée par construction (le pad
+    # est symétrique de part et d'autre)
+    Q4 = source_spot(g, cfg, c, 200.0, 0.06, lambda_bord_mm=4.0)
+    prof_y4 = Q4.sum(axis=(0, 2))
+    assert np.allclose(prof_y4, prof_y4[::-1], rtol=1e-9)
+
+
+def test_lambda_bord_incompatible_champ_reaction(cfg):
+    """lambda_bord_mm>0 + champ_reaction=True : combinaison non explorée,
+    ValueError explicite (cf. docstring module)."""
+    g = construire_grille(cfg, nx=15, ny=9, nz=7)
+    c = construire_couches(cfg)
+    with pytest.raises(ValueError):
+        source_spot(g, cfg, c, 200.0, 0.06, lambda_bord_mm=4.0, champ_reaction=True)
+
+
+def test_essai_lambda_bord_defaut_et_surcharge(cfg):
+    """Essai(..., lambda_bord_mm=...) : défaut 0.0 identique au chemin
+    historique, surcharge propagée à la source EM (non-régression du même
+    style que decalage_x/source_sigma_mm)."""
+    chemin = RACINE / "config" / "essais" / "exp7_200A.yaml"
+    e_off = Essai(cfg, chemin, nx=15, ny=9, nz=7, racine=RACINE)
+    e_off2 = Essai(cfg, chemin, nx=15, ny=9, nz=7, racine=RACINE, lambda_bord_mm=0.0)
+    assert np.array_equal(e_off._Q_spots[0], e_off2._Q_spots[0])
+    e_on = Essai(cfg, chemin, nx=15, ny=9, nz=7, racine=RACINE, lambda_bord_mm=4.0)
+    assert not np.array_equal(e_off._Q_spots[0], e_on._Q_spots[0])
+    assert e_on._Q_spots[0].sum() > 0.0
+
+
 # --- bilan de conservation d'énergie (θ* de référence, essai réaliste) ---
 
 def test_bilan_energie_exp7_200A_theta_reference(cfg):

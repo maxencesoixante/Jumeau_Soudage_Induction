@@ -46,8 +46,19 @@ adoptée.** Fit conjoint bord (exp7) + centre (exp9 y=20). Résultats :
 - **Conclusion** : le résidu du bord est **structurel** (contraste spatial du M), qu'aucun
   coefficient uniforme ne corrige. Logs : `../../journaux/resultats_calibration_joint_*.log`.
 
-**Prochaine étape (vrai levier)** : changement de MODÈLE — adoucir le contraste du profil en M en
-largeur (forme de la source / écrasement du courant de Foucault au bord), puis réévaluer un θ\*
-joint + `k_plan≈7,3`. Prédictions courants non mesurés : `../figures_elsevier/fig_prediction_chauffe_courant.png`.
+**Forme du M — prototype `lambda_bord_mm` (2026-07-31, flag OFF, non adopté).** Le sur-contraste
+vient de la CL `ψ=0` au chant (`em/foucault.py`), trop raide pour un twill à maille finie.
+`lambda_bord_mm` (longueur d'extrapolation de bord) ramène le contraste **3,15 → ~2,1** (= mesuré)
+mais n'est **pas conservatif en puissance** → ne débloque pas un θ\* joint gagnant. Archivé/testé.
+
+**⚠️ Contraste réel du M** : le modèle **sur-contraste de ~50 %** (chant/centre **~3,15** vs mesuré
+**~2,09**, exp7 200 A). L'ancienne `fig2` affichait 2,43/2,18 (codé en dur, périmé) — corrigée.
+
+**Prochaine investigation = déficit de taux de chauffe / transitoire.** Deux résidus structurels
+distincts subsistent : (1) sur-contraste du M (compris, non conservatif) ; (2) un déficit de taux
+de chauffe indépendant qui bloque le θ\* joint. La calibration scalaire et la forme de source sont
+épuisées ; le prochain levier est la dynamique (dépôt de puissance instantané / masse thermique).
+
+Prédictions courants non mesurés : `../figures_elsevier/fig_prediction_chauffe_courant.png`.
 
 > Côté **labo** (mesures, données brutes) : voir [`../labo/README.md`](../labo/README.md).

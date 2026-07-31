@@ -58,7 +58,8 @@ class Essai:
                  interp_ctrl: bool = True,
                  champ_reaction: bool = False,
                  thermostat_capteurs: bool = False,
-                 source_sigma_mm: float = 0.0):
+                 source_sigma_mm: float = 0.0,
+                 lambda_bord_mm: float = 0.0):
         self.cfg = cfg
         self.spec = charger_yaml(chemin_essai)
         self.racine = Path(racine) if racine else Path(chemin_essai).resolve().parents[2]
@@ -131,6 +132,13 @@ class Essai:
         # plus tôt (résidu transitoire mesuré exp 7 avec céramique). NE PAS
         # activer sans recalibrer θ*. Défaut 0.0 -> non-régression bit-à-bit.
         self.source_sigma_mm = float(source_sigma_mm)
+        # lambda_bord_mm (défaut 0.0 = inchangé) : repousse la BC psi=0 de
+        # lambda_bord_mm au-delà du bord physique en largeur (adoucit le
+        # contraste chant/centre du profil en "M"), cf.
+        # jumeau.em.source_joule (docstring module, section "Adoucissement du
+        # bord") et resultats_diag_lambda_bord_em.log. NE PAS activer sans
+        # recalibrer theta*. Défaut 0.0 -> non-régression bit-à-bit.
+        self.lambda_bord_mm = float(lambda_bord_mm)
 
         courant = float(self.spec["courant"])
         self.spots = self.spec["spots"]
@@ -138,7 +146,8 @@ class Essai:
             source_spot(self.grille, cfg, self.couches, courant,
                         float(s["centre_x"]), facteur_couplage=facteur_couplage,
                         decalage_x=self.decalage_x, champ_reaction=self.champ_reaction,
-                        lissage_sigma_mm=self.source_sigma_mm)
+                        lissage_sigma_mm=self.source_sigma_mm,
+                        lambda_bord_mm=self.lambda_bord_mm)
             for s in self.spots
         ]
         self._masques = [

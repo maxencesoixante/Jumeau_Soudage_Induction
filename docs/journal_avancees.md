@@ -212,6 +212,29 @@ Consolidation groupée pilotée par agents (design : `docs/superpowers/specs/202
   uniforme ne le corrige. Le vrai levier = **changement de modèle** (adoucir le M en largeur, forme
   de source), pas la calibration. Logs : `journaux/resultats_calibration_joint_*.log`.
 
+### 31 juillet — Forme du M (lambda_bord), contraste réel, piste taux-de-chauffe
+Suite de la calibration jointe : on s'attaque à la FORME du M.
+- **Le sur-contraste vient de la CL `ψ=0` au chant** (`em/foucault.py`) — exacte pour une nappe
+  continue, fausse pour le twill à maille finie (le continuum casse au bord). Prototype
+  **`lambda_bord_mm`** (longueur d'extrapolation de bord, analogie du problème de Milne) derrière
+  **flag défaut OFF** (`source_spot`/`Essai`/`valider.py`/`calibrer_joint.py`, `lambda=0`
+  bit-identique). `lambda≈4 mm` ramène le contraste **3,15 → ~2,1** (= mesuré) → **corrige la
+  forme**. MAIS non conservatif en puissance → à θ\* fixe le RMSE global monte (18,5→~23) et un
+  θ\* joint avec `lambda=4` reste perdant (27,3). → **prototype archivé, NON adopté**.
+  Log : `journaux/resultats_diag_lambda_bord_em.log`.
+- **Correction d'une figure périmée** : `fig2` (« mesuré vs modèle », slide 9) affichait un
+  contraste **modèle 2,43 ≈ mesuré 2,18** codé EN DUR, d'avant les corrections twill/hauteur. Le
+  **vrai** contraste du modèle actuel est **~3,15** (mesuré ~2,09) : le modèle **sur-contraste le M
+  de ~50 %**, ce n'est PAS l'accord serré affiché. `fig2` recalculée en direct (mesuré+modèle) ;
+  texte de la slide 9 corrigé. ⚠️ Revise partiellement le « M validé » : la FORME est bonne mais
+  l'AMPLITUDE du contraste est sur-estimée.
+- **Résidu(s) restant(s) — leviers épuisés côté calibration/forme.** Deux déficits STRUCTURELS
+  distincts : (1) sur-contraste du M en largeur (compris, corrigeable via `lambda_bord` mais non
+  conservatif) ; (2) **déficit de taux de chauffe / transitoire** (indépendant), qui bloque un θ\*
+  joint gagnant même une fois le M adouci. **Prochaine investigation = le taux de chauffe /
+  transitoire** (dépôt de puissance instantané, masse thermique effective, dynamique de source) —
+  hors calibration scalaire.
+
 ---
 
 ## 3. Résidus ouverts (par priorité)
