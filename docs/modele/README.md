@@ -92,6 +92,14 @@ sans en casser un autre. Le résidu est **compris, quantifié et irréductible**
   sous-spot ET haut hors-spot). Le corriger exigerait un modèle d'étalement in-plane non scalaire
   physiquement fondé — non disponible/justifié à ce jour. `k_plan=3,0` (physique) reste la référence.
 
-Prédictions courants non mesurés : `../figures_elsevier/fig_prediction_chauffe_courant.png`.
+## Exploitation (domaine validé)
+- **Prédictions T(t) à courants non mesurés** : `../figures_elsevier/fig_prediction_chauffe_courant.png`
+  (`scripts/gen_prediction_courant.py`).
+- **Fenêtre de soudage — abaque opératoire** (courant × durée) : `../figures_elsevier/fig_fenetre_soudage.png`
+  (`scripts/gen_fenetre_soudage.py`). Point chaud (lobe M) : zones sous-chauffe / soudage
+  (337-450 °C) / dégradation. Enseignements : **soudage impossible sous ~180 A** avec un spot fixe
+  (le point chaud n'atteint pas la fusion) ; la **fenêtre se resserre quand le courant monte** (200 A :
+  ~21-39 s ; 300 A : ~7-11 s) ; le centre du M ne soude jamais à spot fixe → d'où le procédé
+  **semi-statique** (balayage). Frontière dégradation conservatrice (modèle sur-estime le bord ~50 °C).
 
 > Côté **labo** (mesures, données brutes) : voir [`../labo/README.md`](../labo/README.md).
