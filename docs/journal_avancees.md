@@ -265,6 +265,17 @@ validité acté** (cf. `docs/modele/README.md`) : **valide** en pic/plateau + fo
 I² ; **limite caractérisée** = amplitude du contraste M (~3,15 vs ~2,09) et transitoire hors-spot
 rapide (−67 %), un seul défaut = étalement in-plane scalaire. `k_plan=3,0` reste la référence.
 
+### 31 juillet — Exploitation (abaques procédé) + MFC réduit
+- **5 exploitations** du domaine validé (scripts versionnés + figures) : prédictions T(t) multi-courant,
+  **fenêtre de soudage**, empreinte, **procédé semi-statique** (soudure en 2 rails le long des chants,
+  centre non soudé), **loi de réglage** (t ≈ 9,6·10⁵/I²). Slide deck « Exploitation » ajoutée.
+- **MFC réduit (31,75 mm)** : le modèle standard n'en voit pas l'effet (MFC = plan image + `mu_r` +
+  masque de PERTES, pas la source). Flag **`masque_source_mfc`** (défaut OFF, no-op MFC labo,
+  48 tests) confinant la source à l'empreinte MFC. Prédiction : contraste **4,10 → 1,69**, points
+  chauds vers l'intérieur — mais masque dur = **puissance tronquée** → pics effondrés (0 % soudé),
+  centre encore froid. **Signal qualitatif** (M adouci) ; absolu biaisé bas → **à mesurer au banc**.
+  `scripts/gen_mfc_reduit.py`, `fig_mfc_reduit.png`.
+
 ---
 
 ## 3. Résidus ouverts (par priorité)

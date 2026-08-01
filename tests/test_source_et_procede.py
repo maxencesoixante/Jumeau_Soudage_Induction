@@ -283,6 +283,70 @@ def test_essai_lambda_bord_defaut_et_surcharge(cfg):
     assert e_on._Q_spots[0].sum() > 0.0
 
 
+# --- masque de source à l'empreinte MFC (défaut off, cf. Essai.masque_source_mfc) ---
+
+def test_masque_source_mfc_off_est_non_regression(cfg):
+    """Flag off (défaut, explicite ou implicite) : source strictement
+    inchangée, bit-à-bit -- non-régression."""
+    chemin = RACINE / "config" / "essais" / "exp7_200A.yaml"
+    e_defaut = Essai(cfg, chemin, nx=25, ny=17, nz=9, racine=RACINE)
+    e_off = Essai(cfg, chemin, nx=25, ny=17, nz=9, racine=RACINE, masque_source_mfc=False)
+    assert e_defaut.masque_source_mfc is False
+    assert np.array_equal(e_defaut._Q_spots[0], e_off._Q_spots[0])
+    assert np.array_equal(e_defaut._P_spots_2d[0], e_off._P_spots_2d[0])
+
+
+def test_masque_source_mfc_on_confine_hors_empreinte(cfg):
+    """Flag on (MFC labo, cfc.largeur=31.5 mm le long de x) : la source est
+    EXACTEMENT nulle hors de l'empreinte en x (au-delà de centre_x ±
+    largeur/2), et là où elle est non nulle elle vaut EXACTEMENT Q_off*masque
+    (masque dur, pas de redistribution) -- puissance totale RÉDUITE (pas
+    conservée, cf. docstring Essai.masque_source_mfc : simple troncature, pas
+    une concentration par conservation)."""
+    chemin = RACINE / "config" / "essais" / "exp7_200A.yaml"
+    e_off = Essai(cfg, chemin, nx=61, ny=21, nz=9, racine=RACINE)
+    e_on = Essai(cfg, chemin, nx=61, ny=21, nz=9, racine=RACINE, masque_source_mfc=True)
+    Q_off, Q_on = e_off._Q_spots[0], e_on._Q_spots[0]
+    masque = e_on._masques[0]
+    assert np.array_equal(Q_on, Q_off * masque[:, :, None])
+    assert np.all(Q_on[~masque] == 0.0)
+    assert Q_on.sum() < Q_off.sum()
+    # empreinte MFC labo (55 mm) déborde largement la largeur 40 mm de
+    # l'échantillon -> masque toujours vrai en y ; seule la troncature en x
+    # (31.5 mm, plus étroite que le halo de diffusion EM) réduit la puissance
+    ratio = Q_on.sum() / Q_off.sum()
+    assert 0.80 < ratio < 0.95
+
+
+def test_masque_source_mfc_reduit_confine_les_chants(cfg):
+    """MFC réduit (cfc.longueur 0.055 -> 0.03175 m, override EN MÉMOIRE,
+    PAS en config -- cf. brief) : l'empreinte ne couvre plus toute la largeur
+    de l'échantillon -> la source est nulle EXACTEMENT aux chants (y=0 et
+    y=largeur), contrairement au MFC labo (test précédent, où l'empreinte
+    déborde la largeur donc y=0/largeur restent non masqués)."""
+    import copy
+    cfg_reduit = copy.deepcopy(cfg)
+    cfg_reduit.geometrie["cfc"]["longueur"] = 0.03175
+
+    chemin = RACINE / "config" / "essais" / "exp7_200A.yaml"
+    e_labo_on = Essai(cfg, chemin, nx=25, ny=21, nz=9, racine=RACINE, masque_source_mfc=True)
+    e_reduit_on = Essai(cfg_reduit, chemin, nx=25, ny=21, nz=9, racine=RACINE,
+                        masque_source_mfc=True)
+
+    Q_labo = e_labo_on._Q_spots[0]
+    Q_reduit = e_reduit_on._Q_spots[0]
+    # MFC labo : empreinte déborde -> chants non masqués (source non nulle)
+    assert Q_labo[:, 0, :].sum() > 0.0
+    assert Q_labo[:, -1, :].sum() > 0.0
+    # MFC réduit : empreinte plus courte que la largeur -> chants masqués (nuls)
+    assert Q_reduit[:, 0, :].sum() == 0.0
+    assert Q_reduit[:, -1, :].sum() == 0.0
+    # la puissance totale confinée par le MFC réduit est nettement plus petite
+    assert Q_reduit.sum() < 0.6 * Q_labo.sum()
+    # cfg (fixture module-scope) non muté par l'override en mémoire
+    assert cfg.geometrie["cfc"]["longueur"] == 0.055
+
+
 # --- bilan de conservation d'énergie (θ* de référence, essai réaliste) ---
 
 def test_bilan_energie_exp7_200A_theta_reference(cfg):

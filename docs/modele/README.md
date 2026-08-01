@@ -110,5 +110,15 @@ sans en casser un autre. Le résidu est **compris, quantifié et irréductible**
   (`scripts/gen_loi_reglage.py`). Durée recommandée (cible 390 °C) + fenêtre + ajustement
   `t ≈ 9,6·10⁵/I²` (taux ∝ I²) + table (200 A→30 s, 250 A→15 s, 300 A→9 s).
 - Frontière dégradation conservatrice partout (modèle sur-estime le bord ~50 °C).
+- **MFC réduit (31,75 mm) — prédiction exploratoire** : `../figures_elsevier/fig_mfc_reduit.png`
+  (`scripts/gen_mfc_reduit.py`). Le modèle standard **ne voit pas** l'effet d'un MFC plus petit (le
+  MFC n'entre que via le plan image + `mu_r` + un masque de PERTES, pas la source). Flag
+  **`Essai(masque_source_mfc=True)`** (défaut OFF, no-op sur le MFC labo validé) qui confine la
+  source à l'empreinte MFC. Résultat MFC réduit : le contraste s'adoucit (**4,10 → 1,69**), les
+  points chauds se déplacent des chants vers l'intérieur (y=0 → y~7 mm) — **mais** le masque dur
+  **tronque** la puissance (pas de redistribution) → pics effondrés (0 % soudé au réglage testé) et
+  le **centre reste le point froid**. **Signal fiable = qualitatif** (M adouci) ; l'absolu est
+  biaisé bas. → à **mesurer au banc** dès réception du MFC réduit (le modèle EM image-current ne
+  fait pas dépendre le champ des dimensions du MFC — extrapolation non validée).
 
 > Côté **labo** (mesures, données brutes) : voir [`../labo/README.md`](../labo/README.md).

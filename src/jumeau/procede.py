@@ -59,7 +59,8 @@ class Essai:
                  champ_reaction: bool = False,
                  thermostat_capteurs: bool = False,
                  source_sigma_mm: float = 0.0,
-                 lambda_bord_mm: float = 0.0):
+                 lambda_bord_mm: float = 0.0,
+                 masque_source_mfc: bool = False):
         self.cfg = cfg
         self.spec = charger_yaml(chemin_essai)
         self.racine = Path(racine) if racine else Path(chemin_essai).resolve().parents[2]
@@ -139,6 +140,29 @@ class Essai:
         # bord") et resultats_diag_lambda_bord_em.log. NE PAS activer sans
         # recalibrer theta*. Défaut 0.0 -> non-régression bit-à-bit.
         self.lambda_bord_mm = float(lambda_bord_mm)
+        # masque_source_mfc (défaut False = inchangé, bit-à-bit) : masque la
+        # source Joule PAR SPOT à l'empreinte du MFC (masque_empreinte_cfc),
+        # au lieu de la laisser rayonner sur tout le domaine résolu par
+        # foucault.py. Motivation physique : le MFC (Ferrotron 559H, µr≈16)
+        # concentre le flux SOUS son empreinte -- aujourd'hui son seul effet
+        # sur la source est indirect (image-current sur Bz, cf. champ_coil.py
+        # et plan_miroir_cfc) ; hors empreinte, aucune concentration de flux
+        # n'est physiquement attendue. Le masque actuel (masque_fn, appliqué
+        # à h_haut dans solveur2d) ne coupe QUE les pertes convectives sous
+        # céramique, pas la source elle-même -- un MFC réduit (empreinte plus
+        # petite que le coupon) ne changeait donc quasiment rien au profil
+        # simulé (vérifié : cfc.longueur 0.055->0.03175 laisse le contraste
+        # bord/centre ~inchangé, 5.4->5.5), ce qui est physiquement suspect.
+        # APPROXIMATION DE 1er ORDRE (à documenter comme telle) : un masque
+        # DUR (0/1, pas de frange/diffusion du champ proche à la lisière du
+        # bloc MFC) ; le courant hors empreinte n'est pas redistribué à
+        # l'intérieur (la puissance totale déposée DIMINUE quand on masque,
+        # elle n'est pas concentrée par conservation -- cf. docstring module
+        # source_joule.py pour la distinction avec le blindage/couplage
+        # inter-couches). NE PAS activer sans recalibrer facteur_couplage (la
+        # puissance totale change). Défaut False -> non-régression bit-à-bit
+        # (cf. tests test_masque_source_mfc_off_est_identite).
+        self.masque_source_mfc = bool(masque_source_mfc)
 
         courant = float(self.spec["courant"])
         self.spots = self.spec["spots"]
@@ -154,6 +178,15 @@ class Essai:
             masque_empreinte_cfc(self.grille, cfg, float(s["centre_x"]))
             for s in self.spots
         ]
+        if self.masque_source_mfc:
+            # même masque (empreinte MFC posée au spot) que celui déjà utilisé
+            # pour les pertes convectives (masque_fn/h_haut) : réutilisé ici
+            # pour la source, PAS un nouveau masque indépendant -- garantit
+            # que "où la céramique appuie" et "où le flux est concentré"
+            # restent le même rectangle géométrique par construction.
+            self._Q_spots = [
+                Q * m[:, :, None] for Q, m in zip(self._Q_spots, self._masques)
+            ]
         self._Q_nul = np.zeros_like(self._Q_spots[0])
         # nœuds de contrôle du thermostat (asservissement de source_fn à T) —
         # un jeu de nœuds PAR SPOT : toute la colonne en y à l'abscisse du
