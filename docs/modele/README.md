@@ -97,9 +97,18 @@ sans en casser un autre. Le résidu est **compris, quantifié et irréductible**
   (`scripts/gen_prediction_courant.py`).
 - **Fenêtre de soudage — abaque opératoire** (courant × durée) : `../figures_elsevier/fig_fenetre_soudage.png`
   (`scripts/gen_fenetre_soudage.py`). Point chaud (lobe M) : zones sous-chauffe / soudage
-  (337-450 °C) / dégradation. Enseignements : **soudage impossible sous ~180 A** avec un spot fixe
-  (le point chaud n'atteint pas la fusion) ; la **fenêtre se resserre quand le courant monte** (200 A :
-  ~21-39 s ; 300 A : ~7-11 s) ; le centre du M ne soude jamais à spot fixe → d'où le procédé
-  **semi-statique** (balayage). Frontière dégradation conservatrice (modèle sur-estime le bord ~50 °C).
+  (337-450 °C) / dégradation. Enseignements : **soudage impossible sous ~180 A** avec un spot fixe ;
+  la **fenêtre se resserre quand le courant monte** (200 A : ~21-39 s ; 300 A : ~7-11 s).
+- **Empreinte de soudure** (carte T(x,y) interface) : `../figures_elsevier/fig_empreinte_soudure.png`
+  (`scripts/gen_empreinte_soudure.py`). À spot fixe, **seuls les 2 lobes du M (bords) fondent**
+  (~1-2 % de l'interface), le centre reste froid.
+- **Procédé semi-statique** (4 dwells, pas 30 mm) : `../figures_elsevier/fig_procede_semistatique.png`
+  (`scripts/gen_procede_semistatique.py`). La soudure se forme en **deux rails le long des chants**
+  sur toute la longueur ; **le centre ne soude jamais** (spot fixe en largeur) — enseignement procédé
+  (il faudrait élargir/adoucir le M pour souder pleine largeur).
+- **Loi de réglage atelier** (durée vs courant) : `../figures_elsevier/fig_loi_reglage.png`
+  (`scripts/gen_loi_reglage.py`). Durée recommandée (cible 390 °C) + fenêtre + ajustement
+  `t ≈ 9,6·10⁵/I²` (taux ∝ I²) + table (200 A→30 s, 250 A→15 s, 300 A→9 s).
+- Frontière dégradation conservatrice partout (modèle sur-estime le bord ~50 °C).
 
 > Côté **labo** (mesures, données brutes) : voir [`../labo/README.md`](../labo/README.md).
