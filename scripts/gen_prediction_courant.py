@@ -165,7 +165,7 @@ def main():
     for I in sorted(COURANTS_PREDITS):
         t, T_chant = resultats[I]
         ax.plot(t, T_chant, "-", color=COLOR_PRED[I], lw=1.6,
-                label=f"{I} A (prédiction)")
+                label=f"{I} A — modèle (prédiction, non testé)")
     couleurs_mes = {150: "#333333", 200: "#777777", 250: "#000000"}
     marqueurs_mes = {150: "o", 200: "s", 250: "^"}
     for I in (150, 200, 250):
@@ -173,7 +173,7 @@ def main():
         m = (t_m >= 0) & (t_m <= 25.0)
         ax.plot(t_m[m], chant_m[m], ls=(0, (2, 1.5)), color=couleurs_mes[I],
                 marker=marqueurs_mes[I], markevery=8, markersize=4,
-                lw=1.1, label=f"{I} A (mesuré)")
+                lw=1.1, label=f"{I} A — mesuré (exp7)")
 
     add_temp_lines(ax, lines=("fusion", "procede", "degrad"))
     ax.set_xlim(0, 25)

@@ -63,10 +63,10 @@ A = np.nanmedian(tp[ok] * COURANTS[ok] ** 2)
 tfit = A / COURANTS ** 2
 
 fig, ax = plt.subplots(figsize=(8.4, 5.2))
-ax.fill_between(COURANTS, tw, td, color="#B7E4C7", alpha=0.75, label="Fenêtre de soudage (337–450 °C)")
-ax.plot(COURANTS, tp, "-o", color="#1B7837", lw=2.2, ms=5, label="Durée recommandée (cible 390 °C)")
-ax.plot(COURANTS, tw, "-", color="#0072B2", lw=1.3, label="Borne basse (fusion 337 °C)")
-ax.plot(COURANTS, td, "-", color="#C1272D", lw=1.3, label="Borne haute (dégradation 450 °C)")
+ax.fill_between(COURANTS, tw, td, color="#B7E4C7", alpha=0.75, label="Fenêtre de soudage — point chaud 337-450 °C")
+ax.plot(COURANTS, tp, "-o", color="#1B7837", lw=2.2, ms=5, label="Durée recommandée — cible procédé 390 °C (point chaud)")
+ax.plot(COURANTS, tw, "-", color="#0072B2", lw=1.3, label="Borne basse — fusion 337 °C (point chaud)")
+ax.plot(COURANTS, td, "-", color="#C1272D", lw=1.3, label="Borne haute — dégradation 450 °C (point chaud)")
 ax.plot(COURANTS, tfit, ":", color="0.35", lw=1.8, label=f"Ajustement $t = {A:.0f}/I^2$ (taux ∝ I²)")
 
 # petit tableau de réglage

@@ -179,7 +179,7 @@ def fig1():
             dfc, amb, tc_cols = clean(load_txt(DATA7 / f"{I}A" / fname))
             peaks.append(dfc[tc_cols].max().to_numpy() - amb)
         peaks = np.array(peaks)
-        ax.plot(Y_MM, peaks.mean(axis=0), "-o", color=colors[I], label=f"{I} A",
+        ax.plot(Y_MM, peaks.mean(axis=0), "-o", color=colors[I], label=f"{I} A (mesuré)",
                 markeredgecolor="white", markeredgewidth=0.5)
         ax.fill_between(Y_MM, peaks.min(axis=0), peaks.max(axis=0),
                         color=colors[I], alpha=0.15, lw=0)
@@ -220,9 +220,9 @@ def fig2():
     c_mes = (mesure[0] + mesure[4]) / 2
     c_mod = (modele[0] + modele[4]) / 2
     ax.plot(Y_MM, mesure, "-o", color=C200, markeredgecolor="white", markeredgewidth=0.5,
-            label=f"Mesuré (contraste {c_mes:.2f})".replace(".", ","))
+            label=f"Mesuré — exp7, 200 A (contraste {c_mes:.2f})".replace(".", ","))
     ax.plot(Y_MM, modele, "--s", color=C_MODEL, markeredgecolor="white", markeredgewidth=0.5,
-            label=f"Modèle (contraste {c_mod:.2f})".replace(".", ","))
+            label=f"Modèle 2D, θ* réf. (contraste {c_mod:.2f})".replace(".", ","))
     ax.set_xticks(Y_MM)
     ax.set_title("Forme du profil en largeur : mesuré vs modèle (200 A)")
     ax.set_xlabel("Position en largeur $y$ (mm)")
@@ -289,11 +289,11 @@ def fig4():
     t = dfc["t"].to_numpy() - dfc["t"].to_numpy()[onset]
     mask = (t >= 0) & (t <= 72)
     ts = t[mask]
-    ax.plot(ts, dfc["TC1"].to_numpy()[mask], "-", color=C150, label="Chants (TC1/TC5)")
+    ax.plot(ts, dfc["TC1"].to_numpy()[mask], "-", color=C150, label="Chants — TC1/TC5 (bord, y=0/40 mm)")
     ax.plot(ts, dfc["TC5"].to_numpy()[mask], "--", color=C150)
-    ax.plot(ts, dfc["TC2"].to_numpy()[mask], "-", color=C200, label="Intermédiaires (TC2/TC4)")
+    ax.plot(ts, dfc["TC2"].to_numpy()[mask], "-", color=C200, label="Intermédiaires — TC2/TC4 (y=10/30 mm)")
     ax.plot(ts, dfc["TC4"].to_numpy()[mask], "--", color=C200)
-    ax.plot(ts, dfc["TC3"].to_numpy()[mask], "-", color=C250, label="Centre (TC3)")
+    ax.plot(ts, dfc["TC3"].to_numpy()[mask], "-", color=C250, label="Centre — TC3 (y=20 mm)")
     add_temp_lines(ax)
     ax.set_xlim(0, 72)
     ax.set_ylim(0, 470)
@@ -312,7 +312,7 @@ def fig5():
     GRP = {150: ("150A", ["150A_v1.txt", "150A_v2.txt", "150A_v3.txt"]),
            176: ("176A", ["176A_v1.txt"]),
            200: ("200A", ["200A_v4_TC1ok.txt", "200A_v5.txt", "200A_v6.txt"]),
-           225: ("226A", ["225A_v1.txt"]),
+           225: ("225A", ["225A_v1.txt"]),
            250: ("250A", ["250A_v1.txt", "250A_v2.txt", "250A_v3.txt"])}
 
     def _rate(sub, fname):
@@ -337,7 +337,7 @@ def fig5():
     yerr = np.vstack([Rt - np.array(LO), np.array(HI) - Rt])
     ax.errorbar(I, Rt, yerr=yerr, fmt="o", color=C150, ecolor=C150, elinewidth=1.0,
                 capsize=3, markeredgecolor="white", markeredgewidth=0.5,
-                label="Mesuré (min–max)", zorder=3)
+                label="Mesuré — taux au chant (min–max, 5 courants)", zorder=3)
     for Ival, Rv in zip(I, Rt):
         ax.annotate(f"{int(Ival)} A", (Ival, Rv), textcoords="offset points",
                     xytext=(7, -11), fontsize=8, color="0.35")
@@ -369,7 +369,7 @@ def fig_essais_chant_superpose():
             chant = np.maximum(dfc["TC1"], dfc["TC5"]).to_numpy()
             mask = (t >= 0) & (t <= 72)
             ax.plot(t[mask], chant[mask], "-", color=color_map[I], lw=1.2,
-                    label=f"{I} A" if first else None)
+                    label=f"{I} A (mesuré)" if first else None)
             first = False
     add_temp_lines(ax)
     ax.set_xlim(0, 72)
@@ -480,17 +480,17 @@ def fig_dissipation_monospot():
         col = DISSIP_COLOR[I]
         # (a) absolu °C
         axa.plot(x, mesure, "-o", color=col, markeredgecolor="white", markeredgewidth=0.5,
-                 label=f"{I} A", zorder=3)
+                 label=f"{I} A (mesuré)", zorder=3)
         # (b) normalisé au spot
         axb.plot(x, dT / dT[2], "-o", color=col, markeredgecolor="white", markeredgewidth=0.5,
-                 label=f"{I} A", zorder=3)
+                 label=f"{I} A (mesuré)", zorder=3)
 
     # Modèle : forme normalisée, remise à l'échelle absolue via le pic moyen mesuré
     dT_ref = float(np.mean(pics_dT))
     axa.plot(x, modele_norm * dT_ref + 25.0, "--s", color=C_MODEL, markeredgecolor="white",
-             markeredgewidth=0.5, label="Modèle (forme)", zorder=2)
+             markeredgewidth=0.5, label="Modèle 2D (forme × pic)", zorder=2)
     axb.plot(x, modele_norm, "--s", color=C_MODEL, markeredgecolor="white",
-             markeredgewidth=0.5, label="Modèle (forme)", zorder=2)
+             markeredgewidth=0.5, label="Modèle 2D (forme normalisée)", zorder=2)
 
     for ax in (axa, axb):
         ax.axvline(60, ls=":", color="0.6", lw=0.8, zorder=0)
@@ -542,9 +542,9 @@ def fig_dissipation_semistatique():
         # Modèle en °C absolu = ligne de base mesurée + ΔT modélisée du dwell
         modele_abs = base[key] + modele_dT[key]
         (h_model,) = ax.plot(x, modele_abs, "--s", color=C_MODEL, markeredgecolor="white",
-                             markeredgewidth=0.5, label="Modèle (base + ΔT)")
+                             markeredgewidth=0.5, label="Modèle 2D (base + ΔT par dwell)")
         (h_mes,) = ax.plot(x, mesure[key], "-o", color=C150, markeredgecolor="white",
-                           markeredgewidth=0.5, label="Mesuré (pic)")
+                           markeredgewidth=0.5, label="Mesuré (pic par dwell)")
         panel_title(ax, f"({lab}) dwell {key[1]}")
         ax.set_xticks(x)
     axes[0].set_ylim(0, 260)

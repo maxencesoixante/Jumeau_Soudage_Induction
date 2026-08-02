@@ -95,15 +95,15 @@ ax.fill_betweenx(COURANTS, tw, td, color="#B7E4C7", zorder=0)       # soudage
 ax.fill_betweenx(COURANTS, td, tmax, color="#F4C7C3", zorder=0)     # dégradation
 
 # frontières (courbes)
-ax.plot(t_weld, COURANTS, "-o", color="#0072B2", lw=2, ms=4, label="Point chaud atteint la fusion (337 °C) → soudage")
-ax.plot(t_proc, COURANTS, "--", color="#1B7837", lw=1.6, label="Point chaud atteint la cible procédé (390 °C)")
-ax.plot(t_degrade, COURANTS, "-s", color="#C1272D", lw=2, ms=4, label="Point chaud atteint la dégradation (450 °C)")
+ax.plot(t_weld, COURANTS, "-o", color="#0072B2", lw=2, ms=4, label="Point chaud (lobe M, bord) → fusion 337 °C : début soudage")
+ax.plot(t_proc, COURANTS, "--", color="#1B7837", lw=1.6, label="Point chaud → cible procédé 390 °C")
+ax.plot(t_degrade, COURANTS, "-s", color="#C1272D", lw=2, ms=4, label="Point chaud → dégradation PEKK 450 °C")
 
 # ancrages mesurés (pics réels exp7) — durée de chauffe mesurée ~ approx.
 anchors = {150: 57, 200: 18, 250: 10}   # durée de chauffe mesurée (README exp7 / baseline)
 for I, tt in anchors.items():
     ax.scatter([tt], [I], marker="*", s=180, color="k", zorder=5,
-               label="Essais réalisés (150/200/250 A)" if I == 150 else None)
+               label="Essais réalisés exp7 (coupés sous fusion, réutilisables)" if I == 150 else None)
 
 ax.text(2, 285, "SOUS-CHAUFFE", color="#2166AC", fontsize=9, fontweight="bold")
 ax.text(0.40 * tmax, 150, "SOUDAGE", color="#1B7837", fontsize=11, fontweight="bold", rotation=8)
