@@ -106,8 +106,9 @@ PENALITE_RESIDU = 100.0
 class EssaiCalibre:
     """Un essai préchargé (mesures, TC valides, sigma) pour la liste jointe."""
 
-    def __init__(self, nom: str, nx: int, ny: int, nz: int):
+    def __init__(self, nom: str, nx: int, ny: int, nz: int, thermostat_capteurs: bool = False):
         self.nom = nom
+        self.thermostat_capteurs = bool(thermostat_capteurs)
         self.chemin = RACINE / "config" / "essais" / f"{nom}.yaml"
         # sonde une première fois (facteur_couplage=1.0, non utilisé pour les
         # résidus) uniquement pour récupérer spec/racine/mesures.
@@ -141,11 +142,13 @@ class EssaiCalibre:
         self.taille_residu = len(self.tc_valides) * len(self.t_mes)
 
     def simuler(self, cfg: Config, facteur_couplage: float, source_sigma_mm: float,
-               lambda_bord_mm: float = 0.0):
+               lambda_bord_mm: float = 0.0, thermostat_capteurs: bool | None = None):
+        thermo = self.thermostat_capteurs if thermostat_capteurs is None else bool(thermostat_capteurs)
         essai = Essai(cfg, self.chemin, nx=self.nx, ny=self.ny, nz=self.nz,
                       facteur_couplage=facteur_couplage, decalage_x=0.0,
                       racine=self.racine, source_sigma_mm=source_sigma_mm,
-                      lambda_bord_mm=lambda_bord_mm)
+                      lambda_bord_mm=lambda_bord_mm,
+                      thermostat_capteurs=thermo)
         solveur, sol = essai.simuler(modele="2D")
         series = essai.series_tc(solveur, sol)
         return essai, solveur, sol, series
@@ -168,8 +171,9 @@ class EssaiCalibre:
         return res
 
     def rapport(self, cfg: Config, facteur_couplage: float, source_sigma_mm: float,
-               lambda_bord_mm: float = 0.0) -> pd.DataFrame:
-        _, _, sol, series = self.simuler(cfg, facteur_couplage, source_sigma_mm, lambda_bord_mm)
+               lambda_bord_mm: float = 0.0, thermostat_capteurs: bool | None = None) -> pd.DataFrame:
+        _, _, sol, series = self.simuler(cfg, facteur_couplage, source_sigma_mm, lambda_bord_mm,
+                                         thermostat_capteurs=thermostat_capteurs)
         return rapport_essai(series, sol.t, self.df, self.tc_valides)
 
 
@@ -340,11 +344,12 @@ class CalibrateurJoint:
 
 def table_comparaison(essais: list[EssaiCalibre], cfg_ref: Config, facteur_ref: float,
                       cfg_new: Config, facteur_new: float, sigma_new: float = 0.0,
-                      lambda_bord_ref: float = 0.0, lambda_bord_new: float = 0.0):
+                      lambda_bord_ref: float = 0.0, lambda_bord_new: float = 0.0,
+                      thermo_ref: bool = False, thermo_new: bool = False):
     lignes = []
     for e in essais:
-        rap_ref = e.rapport(cfg_ref, facteur_ref, 0.0, lambda_bord_ref)
-        rap_new = e.rapport(cfg_new, facteur_new, sigma_new, lambda_bord_new)
+        rap_ref = e.rapport(cfg_ref, facteur_ref, 0.0, lambda_bord_ref, thermostat_capteurs=thermo_ref)
+        rap_new = e.rapport(cfg_new, facteur_new, sigma_new, lambda_bord_new, thermostat_capteurs=thermo_new)
         for tc in e.tc_valides:
             lignes.append({
                 "essai": e.nom, "TC": tc,
@@ -380,6 +385,11 @@ def principale():
                     help="remplace k_plan SCALAIRE par kx/ky LIBRES et INDEPENDANTS "
                          "(materiaux.Materiau.k_plan_x/k_plan_y, cf. thermique/solveur2d.py) "
                          "-- prototype 2026-07-31, mission thermal-solver-engineer, flag OFF par defaut")
+    ap.add_argument("--thermostat-capteurs", action="store_true",
+                    help="loi thermostat 'capteurs' (coupe sur le MAX de T aux positions TC "
+                         "d'interface, cf. procede.py) pendant le FIT et la colonne 'new' ; la "
+                         "colonne 'ref' (theta* documente) reste thermostat OFF pour comparer a "
+                         "la production actuelle. No-op sur les essais SANS consigne (exp7/exp9).")
     ap.add_argument("--kT", action="store_true",
                     help="remplace k_plan SCALAIRE par k_cold/k_hot LIBRES = table k(T) a 2 "
                          f"points ({KT_T_LO}/{KT_T_HI} °C, materiaux.Materiau.k_plan_T) -- piste "
@@ -403,9 +413,11 @@ def principale():
         figer[nom] = float(val)
 
     print(f"Chargement des essais joints : {args.essais}")
-    essais_joint = [EssaiCalibre(nom, args.nx, args.ny, args.nz) for nom in args.essais]
+    essais_joint = [EssaiCalibre(nom, args.nx, args.ny, args.nz,
+                                 thermostat_capteurs=args.thermostat_capteurs) for nom in args.essais]
     print(f"Chargement des essais held-out : {args.essais_holdout}")
-    essais_holdout = [EssaiCalibre(nom, args.nx, args.ny, args.nz) for nom in args.essais_holdout]
+    essais_holdout = [EssaiCalibre(nom, args.nx, args.ny, args.nz,
+                                   thermostat_capteurs=args.thermostat_capteurs) for nom in args.essais_holdout]
 
     calib = CalibrateurJoint(essais_joint, calibrer_sigma=args.calibrer_sigma,
                              source_sigma_mm_fige=args.source_sigma_mm_fige,
@@ -472,7 +484,8 @@ def principale():
     print("\n=== Table de comparaison (essais JOINT) ===")
     tbl_joint = table_comparaison(essais_joint, cfg_ref, args.facteur_ref, cfg_new, facteur_new, sigma_new,
                                   lambda_bord_ref=args.lambda_bord_mm_fige,
-                                  lambda_bord_new=args.lambda_bord_mm_fige)
+                                  lambda_bord_new=args.lambda_bord_mm_fige,
+                                  thermo_ref=False, thermo_new=args.thermostat_capteurs)
     print(tbl_joint.round(1).to_string(index=False))
     print(f"\nRMSE moyen (JOINT) : réf={tbl_joint['rmse_ref'].mean():.1f} °C "
           f"vs new={tbl_joint['rmse_new'].mean():.1f} °C")
@@ -483,7 +496,8 @@ def principale():
         print("\n=== Table de comparaison (essais HOLD-OUT, non vus par le fit) ===")
         tbl_hold = table_comparaison(essais_holdout, cfg_ref, args.facteur_ref, cfg_new, facteur_new, sigma_new,
                                      lambda_bord_ref=args.lambda_bord_mm_fige,
-                                     lambda_bord_new=args.lambda_bord_mm_fige)
+                                     lambda_bord_new=args.lambda_bord_mm_fige,
+                                     thermo_ref=False, thermo_new=args.thermostat_capteurs)
         print(tbl_hold.round(1).to_string(index=False))
         print(f"\nRMSE moyen (HOLD-OUT) : réf={tbl_hold['rmse_ref'].mean():.1f} °C "
               f"vs new={tbl_hold['rmse_new'].mean():.1f} °C")

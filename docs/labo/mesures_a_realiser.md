@@ -112,14 +112,18 @@ au-delà des points TC. Complètent Exp 9 (qui reste la mesure décisive de `k_p
 
 ---
 
-## Corrections modèle en attente (à intégrer ENSEMBLE à la prochaine recalibration)
+## Corrections modèle — TOUTES RÉSOLUES (clôture 2026-08-03)
 
-Découlent des réponses terrain (détail : [`releves_resolus.md`](releves_resolus.md)). La reprise
-exp 7 étant close, ces corrections ne sont plus bloquées et peuvent être recalibrées ensemble :
+Découlaient des réponses terrain (détail : [`releves_resolus.md`](releves_resolus.md)). La recalibration
+est **close** : aucune correction en attente ne survit au garde-fou held-out.
 
-- **Loi thermostat « capteurs »** — flag prêt (`--thermostat-capteurs`, défaut off).
-- **Épaisseur twill 0,28 → 0,20 mm** — préparée (commentaire config).
-- **`h_bord_x0`** — requalifié effectif (chants libres) ; candidat au retrait.
+- **Épaisseur twill 0,28 → 0,20 mm** — ✅ **appliqué** en config ; θ\* déjà recalibré à cette valeur (consolidation 30/07).
+- **`h_bord_x0=0`** — ❌ **réfuté** (emballement +200 °C au chant ; exp7 ne peut pas le contraindre). Garder 250 (effectif).
+- **Loi thermostat « capteurs »** — ❌ **rejetée (2026-08-03)** : fit joint pleine famille dédié
+  (`calibrer_joint.py --thermostat-capteurs`, essais exp7+exp9+serieB_B-2, held-out serieA_A-1/A-3)
+  → **PIRE** que la référence OFF sur fit (31,6→42,2), held-out (30,0→41,2) et global (30,8→41,7) :
+  le refit divise le facteur par ~2 et raile k_plan à 9,9 → pics effondrés. Le θ\* actuel (thermostat
+  OFF) reste l'optimum. Log : `journaux/resultats_calibration_joint_thermostat.log`.
 - ~~**Fréquence A-3 (200 A) 388 → 383 kHz**~~ — **abandonnée** : mesure 5 courants (2026-07-28)
   = 388±2 kHz constante, ancien relevé 383 infirmé ; une seule valeur globale suffit.
 - **Lissage de source** (`--source-sigma-mm`, défaut off) — testé exp 7 : remplit le centre mais
