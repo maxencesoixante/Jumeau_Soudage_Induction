@@ -46,6 +46,18 @@ class Materiau:
     # d'adoption laissé à l'orchestrateur.
     k_plan_x: float | None = None
     k_plan_y: float | None = None
+    # Conductivité thermique DÉPENDANTE DE T (Lionetto et al. 2017, éq. 5 :
+    # ∂x(kx ∂xT)+… avec k = k(T) ; cf. docs/modele/audit_lionetto_2017.md §3.1
+    # et §4.3). Table ``[[T_°C, k_W/mK], …]`` ou ``None``. ``None`` (défaut) =>
+    # k CONSTANT (``k_plan`` / ``k_z``), comportement historique bit-identique
+    # (le solveur reste sur son chemin à k scalaire). Renseigner une table
+    # active la forme flux-conservative à k variable dans les solveurs
+    # (``solveur3d``/``solveur2d``). PARAMÈTRE incertain/CALIBRABLE : ne PAS
+    # renseigner par défaut dans ``config/materiaux.yaml`` (flag OFF), comme le
+    # prototype ``k_plan_x``/``k_plan_y``. NON combinable avec l'anisotropie
+    # ``k_plan_x``/``k_plan_y`` (les solveurs lèvent une ``ValueError``).
+    k_plan_T: list | None = None
+    k_z_T: list | None = None
 
     @classmethod
     def depuis_config(cls, cfg: dict) -> "Materiau":
@@ -55,6 +67,11 @@ class Materiau:
             "k_plan", "k_z", "emissivite", "sigma_0", "sigma_90", "sigma_z", "T_glass",
             "k_plan_x", "k_plan_y",
         ) if k in cfg}
+        # tables k(T) : listes [[T, k], …] gardées telles quelles (pas de float()
+        # scalaire — ``k_plan_field``/``k_z_field`` les castent en tableau).
+        for key in ("k_plan_T", "k_z_T"):
+            if cfg.get(key) is not None:
+                champs[key] = cfg[key]
         return cls(**champs)
 
     def k_plan_xy(self) -> tuple[float, float]:
@@ -68,6 +85,39 @@ class Materiau:
         kx = self.k_plan_x if self.k_plan_x is not None else self.k_plan
         ky = self.k_plan_y if self.k_plan_y is not None else self.k_plan
         return float(kx), float(ky)
+
+    def a_k_variable(self) -> bool:
+        """True si une table k(T) (``k_plan_T`` ou ``k_z_T``) est renseignée =>
+        les solveurs basculent sur la forme flux-conservative à k variable
+        (Lionetto éq. 5). False (défaut) => k scalaire constant, chemin
+        historique bit-identique."""
+        return self.k_plan_T is not None or self.k_z_T is not None
+
+    @staticmethod
+    def _k_field(T: np.ndarray, table: list | None, k_const: float) -> np.ndarray:
+        """k(T) évalué sur le champ ``T`` (même forme que ``T``) : interpolation
+        linéaire de la table ``[[T, k], …]`` (extrapolation plate hors bornes,
+        cf. ``np.interp``). ``table=None`` => constante ``k_const`` broadcastée.
+        Même patron que ``cp_apparent`` (propriété fonction de T évaluée à
+        chaque pas dans le RHS du solveur)."""
+        T = np.asarray(T, float)
+        if table is None:
+            return np.full(T.shape, float(k_const))
+        arr = np.asarray(table, float)
+        ordre = np.argsort(arr[:, 0])
+        return np.interp(T, arr[ordre, 0], arr[ordre, 1])
+
+    def k_plan_field(self, T: np.ndarray) -> np.ndarray:
+        """Conductivité DANS LE PLAN k(T) (W/m·K), tableau de la forme de ``T``.
+        Table ``k_plan_T`` si présente, sinon ``k_plan`` constant. Isotrope en
+        plan (kx=ky) : l'anisotropie ``k_plan_x``/``k_plan_y`` n'est PAS combinée
+        avec la dépendance en T (cf. ``a_k_variable`` et garde des solveurs)."""
+        return self._k_field(T, self.k_plan_T, self.k_plan)
+
+    def k_z_field(self, T: np.ndarray) -> np.ndarray:
+        """Conductivité TRANSVERSE k_z(T) (W/m·K), tableau de la forme de ``T``.
+        Table ``k_z_T`` si présente, sinon ``k_z`` constant."""
+        return self._k_field(T, self.k_z_T, self.k_z)
 
     def cp_apparent(self, T: np.ndarray) -> np.ndarray:
         """Capacité thermique effective incluant la chaleur latente de fusion.

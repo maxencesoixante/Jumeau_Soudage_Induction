@@ -14,6 +14,24 @@ cf_pekk:
   # Conductivité thermique du laminé homogénéisé quasi-iso [45/-45/0/90]3s
   k_plan: 3.0                # W/m.K — dans le plan (homogénéisé quasi-iso), incertain
   k_z: 0.64                  # W/m.K — transverse (Buser / CLAUDE.md vault)
+  # Conductivité thermique DÉPENDANTE DE T (Lionetto et al. 2017, éq. 5 :
+  # k = k(T) ; cf. docs/modele/audit_lionetto_2017.md §3.1/§4.3). Table
+  # [[T_°C, k_W/mK], ...], interpolée linéairement (extrapolation plate hors
+  # bornes). FLAG OFF PAR DÉFAUT : laissé EN COMMENTAIRE => k constant
+  # ci-dessus (comportement historique bit-identique). Décommenter active la
+  # forme flux-conservative à k variable dans les solveurs. Valeurs = ORDRE DE
+  # GRANDEUR sourcé littérature CF/PAEK (courbe k vs T, réfs Lionetto [46,47,63]
+  # / Grouve) — INCERTAIN / CALIBRABLE, PAS une mesure du PEKK réel ; à ne pas
+  # adopter sans évaluation held-out (mandat calibration-uq-specialist). NON
+  # combinable avec k_plan_x/k_plan_y (les solveurs lèvent une ValueError).
+  # k_plan_T:
+  #   - [20,  3.0]
+  #   - [150, 3.3]
+  #   - [340, 3.9]
+  # k_z_T:
+  #   - [20,  0.64]
+  #   - [150, 0.70]
+  #   - [340, 0.80]
   # Conductivités électriques d'un pli UD (Grouve 2020 Table 1, Solvay)
   sigma_0: 2.2e+4            # S/m — sens fibre
   sigma_90: 3.4              # S/m — travers fibre (intra-pli)

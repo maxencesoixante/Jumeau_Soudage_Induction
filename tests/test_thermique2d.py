@@ -114,6 +114,43 @@ def test_masque_h_haut_refroidit():
     assert Tf[4, 2] < Tf[0, 0] - 5.0
 
 
+def test_k_variable_constante_egale_scalaire_2d():
+    """Chemin conservatif à k(T) CONSTANT == chemin scalaire (k_plan_xy), à la
+    précision machine. Comparaison DIRECTE du RHS sur un champ T non trivial,
+    avec convection + rayonnement + puits h_bord_x0 actifs pour couvrir tous
+    les termes de bord."""
+    g = _grille(nx=15, ny=9, nz=5)
+    amb = Ambiant(h_convection=10.0, h_bas=0.0, h_bas_2d=8.0, h_bord_x0=100.0)
+    contact = ContactCeramique(h_haut=20.0, T_puits=20.0)
+    masque = np.zeros((g.nx, g.ny), dtype=bool)
+    masque[5:9, 3:6] = True
+
+    mat_scal = _materiau(latente=130000.0); mat_scal.emissivite = 0.96
+    mat_var = _materiau(latente=130000.0); mat_var.emissivite = 0.96
+    mat_var.k_plan_T = [[0.0, 3.0], [500.0, 3.0]]     # k_plan constant = 3.0
+    assert mat_var.a_k_variable() and not mat_scal.a_k_variable()
+
+    s_scal = SolveurThermique2D(g, mat_scal, amb, contact, masque_ceramique=masque)
+    s_var = SolveurThermique2D(g, mat_var, amb, contact, masque_ceramique=masque)
+
+    rng = np.random.default_rng(1)
+    T = (20.0 + 300.0 * rng.random(g.nx * g.ny)).astype(float)
+    source = lambda t, TT: np.full((g.nx, g.ny), 3.0e4)
+    r_scal = s_scal._rhs(0.0, T, source)
+    r_var = s_var._rhs(0.0, T, source)
+    assert np.allclose(r_scal, r_var, rtol=1e-11, atol=1e-12)
+
+
+def test_k_variable_et_anisotrope_incompatibles_2d():
+    """k(T) et anisotropie k_plan_x/y ne se combinent pas (garde __init__)."""
+    mat = _materiau()
+    mat.k_plan_T = [[0.0, 3.0], [400.0, 4.0]]
+    mat.k_plan_y = 3.0
+    g = _grille()
+    with pytest.raises(ValueError):
+        SolveurThermique2D(g, mat, Ambiant(), ContactCeramique())
+
+
 def test_serie_temporelle_rejette_z_non_interface():
     """z='surface'/'opposee' n'a pas de sens dans le modèle lumpé (une seule
     maille dans l'épaisseur) : erreur explicite plutôt qu'un résultat
