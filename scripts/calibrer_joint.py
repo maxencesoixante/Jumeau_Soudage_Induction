@@ -87,6 +87,17 @@ NOMS_BASE_ANISO = ("facteur_couplage", "h_bas_2d", "kx", "ky", "h_bord_x0")
 BORNES_BASSES_ANISO = (0.5, 2.0, 2.0, 2.0, 50.0)   # kx,ky bornés ~[2,12] W/m.K (mission)
 BORNES_HAUTES_ANISO = (30.0, 300.0, 12.0, 12.0, 400.0)
 
+# theta (k(T), --kT, piste 2026-08-03) = [facteur_couplage, h_bas_2d, k_cold,
+# k_hot, h_bord_x0, (source_sigma_mm)] -- k_cold/k_hot = conductivité in-plane
+# aux deux ancrages de température KT_T_LO/KT_T_HI, interpolée linéairement
+# (materiaux.Materiau.k_plan_T ; forme flux-conservative, cf. thermique/solveur2d.py).
+# Le fit N'IMPOSE PAS k_cold >= k_hot : si l'optimum est croissant, l'hypothèse
+# "k(T) décroissant ferme le résidu" est FALSIFIÉE par la donnée (test honnête).
+NOMS_BASE_KT = ("facteur_couplage", "h_bas_2d", "k_cold", "k_hot", "h_bord_x0")
+BORNES_BASSES_KT = (0.5, 2.0, 2.0, 2.0, 50.0)     # k_cold,k_hot ~[2,12] W/m.K
+BORNES_HAUTES_KT = (30.0, 300.0, 12.0, 12.0, 400.0)
+KT_T_LO, KT_T_HI = 20.0, 340.0   # ancrages T (°C) de la table k(T) à 2 points
+
 H_HAUT_FIGE = 30.087  # figé (non-identifiable, corr 0.98 avec h_bas_2d -- phase 2 consolidation)
 
 PENALITE_RESIDU = 100.0
@@ -166,7 +177,7 @@ class CalibrateurJoint:
     def __init__(self, essais: list[EssaiCalibre], calibrer_sigma: bool = False,
                  source_sigma_mm_fige: float = 0.0,
                  lambda_bord_mm_fige: float = 0.0,
-                 anisotrope: bool = False,
+                 anisotrope: bool = False, kT: bool = False,
                  bornes_basses=None, bornes_hautes=None):
         self.essais = essais
         self.calibrer_sigma = calibrer_sigma
@@ -180,9 +191,18 @@ class CalibrateurJoint:
         # anisotrope (prototype 2026-07-31, mission thermal-solver-engineer) :
         # remplace le k_plan SCALAIRE par (kx, ky) -- cf. NOMS_BASE_ANISO.
         self.anisotrope = bool(anisotrope)
-        noms_base = NOMS_BASE_ANISO if self.anisotrope else NOMS_BASE
-        bornes_basses_defaut = BORNES_BASSES_ANISO if self.anisotrope else BORNES_BASSES_BASE
-        bornes_hautes_defaut = BORNES_HAUTES_ANISO if self.anisotrope else BORNES_HAUTES_BASE
+        self.kT = bool(kT)
+        if self.anisotrope and self.kT:
+            raise ValueError("--anisotrope et --kT sont mutuellement exclusifs.")
+        if self.anisotrope:
+            noms_base, bornes_basses_defaut, bornes_hautes_defaut = (
+                NOMS_BASE_ANISO, BORNES_BASSES_ANISO, BORNES_HAUTES_ANISO)
+        elif self.kT:
+            noms_base, bornes_basses_defaut, bornes_hautes_defaut = (
+                NOMS_BASE_KT, BORNES_BASSES_KT, BORNES_HAUTES_KT)
+        else:
+            noms_base, bornes_basses_defaut, bornes_hautes_defaut = (
+                NOMS_BASE, BORNES_BASSES_BASE, BORNES_HAUTES_BASE)
         if calibrer_sigma:
             self.noms = noms_base + ("source_sigma_mm",)
             lo = list(bornes_basses or bornes_basses_defaut) + [0.0]
@@ -203,6 +223,13 @@ class CalibrateurJoint:
             self.cfg.ambiant.h_bas_2d = float(h_bas_2d)
             self.cfg.materiau.k_plan_x = float(kx)
             self.cfg.materiau.k_plan_y = float(ky)
+            self.cfg.ambiant.h_bord_x0 = float(h_bord_x0)
+        elif self.kT:
+            facteur, h_bas_2d, k_cold, k_hot, h_bord_x0 = theta[:5]
+            sigma_mm = theta[5] if self.calibrer_sigma else self.source_sigma_mm_fige
+            self.cfg.ambiant.h_bas_2d = float(h_bas_2d)
+            self.cfg.materiau.k_plan_x = self.cfg.materiau.k_plan_y = None
+            self.cfg.materiau.k_plan_T = [[KT_T_LO, float(k_cold)], [KT_T_HI, float(k_hot)]]
             self.cfg.ambiant.h_bord_x0 = float(h_bord_x0)
         else:
             facteur, h_bas_2d, k_plan, h_bord_x0 = theta[:4]
@@ -353,6 +380,11 @@ def principale():
                     help="remplace k_plan SCALAIRE par kx/ky LIBRES et INDEPENDANTS "
                          "(materiaux.Materiau.k_plan_x/k_plan_y, cf. thermique/solveur2d.py) "
                          "-- prototype 2026-07-31, mission thermal-solver-engineer, flag OFF par defaut")
+    ap.add_argument("--kT", action="store_true",
+                    help="remplace k_plan SCALAIRE par k_cold/k_hot LIBRES = table k(T) a 2 "
+                         f"points ({KT_T_LO}/{KT_T_HI} °C, materiaux.Materiau.k_plan_T) -- piste "
+                         "2026-08-03 (residu structurel). Le fit N'IMPOSE PAS la decroissance : "
+                         "un optimum croissant FALSIFIE l'hypothese. Exclusif avec --anisotrope.")
     # θ* de référence (config/materiaux.yaml, consolidation 2026-07-30) -- TOUJOURS
     # isotrope (k_plan=3.0) : c'est la référence documentée à battre, anisotrope ou pas.
     ap.add_argument("--facteur-ref", type=float, default=6.0123)
@@ -378,7 +410,7 @@ def principale():
     calib = CalibrateurJoint(essais_joint, calibrer_sigma=args.calibrer_sigma,
                              source_sigma_mm_fige=args.source_sigma_mm_fige,
                              lambda_bord_mm_fige=args.lambda_bord_mm_fige,
-                             anisotrope=args.anisotrope)
+                             anisotrope=args.anisotrope, kT=args.kT)
     print(f"Paramètres calibrés : {calib.noms}")
     print(f"Bornes basses : {calib.bornes[0].tolist()}")
     print(f"Bornes hautes : {calib.bornes[1].tolist()}")
@@ -409,7 +441,13 @@ def principale():
     # --- table de comparaison ref vs new, sur essais joint + holdout ---
     theta = resultat["theta"]
     facteur_new = theta[0]
-    idx_sigma = 5 if args.anisotrope else 4
+    if args.kT:
+        kc, kh = theta[2], theta[3]
+        sens = ("DÉCROISSANT — hypothèse k(T) soutenue" if kc > kh
+                else "CROISSANT/plat — hypothèse k(T) décroissant FALSIFIÉE par la donnée")
+        print(f"\nk(T) ajusté : k_cold({KT_T_LO:.0f}°C)={kc:.2f} → k_hot({KT_T_HI:.0f}°C)={kh:.2f} "
+              f"W/m·K  →  {sens}")
+    idx_sigma = 5 if (args.anisotrope or args.kT) else 4
     sigma_new = theta[idx_sigma] if args.calibrer_sigma else args.source_sigma_mm_fige
     cfg_ref = Config.charger(RACINE / "config")
     cfg_ref.contact.h_haut = H_HAUT_FIGE
@@ -423,6 +461,9 @@ def principale():
     if args.anisotrope:
         cfg_new.materiau.k_plan_x = theta[2]
         cfg_new.materiau.k_plan_y = theta[3]
+        cfg_new.ambiant.h_bord_x0 = theta[4]
+    elif args.kT:
+        cfg_new.materiau.k_plan_T = [[KT_T_LO, theta[2]], [KT_T_HI, theta[3]]]
         cfg_new.ambiant.h_bord_x0 = theta[4]
     else:
         cfg_new.materiau.k_plan = theta[2]
@@ -455,18 +496,24 @@ def principale():
     print(f"\nRMSE moyen GLOBAL (tous essais rapportés) : réf={tbl_all['rmse_ref'].mean():.1f} °C "
           f"vs new={tbl_all['rmse_new'].mean():.1f} °C")
 
-    h_bord_x0_new = theta[4] if args.anisotrope else theta[3]
+    h_bord_x0_new = theta[4] if (args.anisotrope or args.kT) else theta[3]
+    if args.anisotrope:
+        note_k = ("\n  (NB : kx/ky ne sont pas des flags de valider.py -- l'appliquer via "
+                  "materiaux.Materiau.k_plan_x/k_plan_y avant de rejouer, ou utiliser ce script.)")
+    elif args.kT:
+        note_k = (f"\n  (NB : k(T) n'est pas un flag de valider.py -- l'appliquer via "
+                  f"materiaux.Materiau.k_plan_T=[[{KT_T_LO:.0f},{theta[2]:.3g}],[{KT_T_HI:.0f},{theta[3]:.3g}]] "
+                  "avant de rejouer, ou utiliser ce script.)")
+    else:
+        note_k = ("\n  (NB : k_plan n'est pas un flag de valider.py -- l'appliquer via "
+                  "config/materiaux.yaml:cf_pekk.k_plan avant de rejouer, ou utiliser ce script.)")
     print("\nValidation croisée manuelle (2D) :")
     print(f"  python scripts/valider.py --modele 2D --facteur {facteur_new:.5g} --decalage-x 0 "
           f"--h-haut {H_HAUT_FIGE:.5g} --h-bas-2d {theta[1]:.5g} --h-bord-x0 {h_bord_x0_new:.5g} "
           f"--essais {' '.join(args.essais + args.essais_holdout)}"
           + (f" --source-sigma-mm {sigma_new:.5g}" if sigma_new else "")
           + (f" --lambda-bord-mm {args.lambda_bord_mm_fige:.5g}" if args.lambda_bord_mm_fige else "")
-          + ("\n  (NB : kx/ky ne sont pas des flags de valider.py -- l'appliquer via "
-             "materiaux.Materiau.k_plan_x/k_plan_y avant de rejouer, ou utiliser ce script.)"
-             if args.anisotrope else
-             "\n  (NB : k_plan n'est pas un flag de valider.py -- l'appliquer via "
-             "config/materiaux.yaml:cf_pekk.k_plan avant de rejouer, ou utiliser ce script.)"))
+          + note_k)
 
 
 if __name__ == "__main__":

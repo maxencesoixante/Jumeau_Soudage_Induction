@@ -23,7 +23,7 @@ Rejouer une validation : `python scripts/valider.py --modele 2D --facteur 6.0123
 |---|---|---|
 | **Sorties de simulation** | `resultats/` (gitignoré, régénérable) | courbes/cartes de validation + `*_series_sim.csv` par essai. |
 | **Journaux** | `journaux/resultats_*.log` | validation, calibration (`_calibration_exp7_200A_*`, `_phase3_*`), diagnostics, convergence/MMS. Cf. §6 du journal pour référence vs archive. |
-| **Figures** | `../figures_elsevier/`, `../figures_presentation/` | figures modèle+mesures (PNG 600 dpi), générées par `scripts/gen_figures_elsevier.py`, `gen_schemas_montage.py`, `gen_prediction_courant.py`, `gen_animation_chauffe.py`. |
+| **Figures** | `../figures/` | dossier UNIQUE (jeu de référence + variantes `presentation_*`), PNG 600 dpi, générées par `scripts/gen_figures_elsevier.py`, `gen_schemas_montage.py`, `gen_prediction_courant.py`, `gen_animation_chauffe.py`. |
 
 ## Documents modèle
 - [`rapport_directrice_jumeau.md`](rapport_directrice_jumeau.md) — rapport complet pour la direction.
@@ -72,6 +72,48 @@ bat le RMSE en **aggravant** le contraste M à 3,63, l'autre rapproche le contra
 le RMSE) → l'anisotropie **relocalise le conflit** au lieu de le résoudre. Verdict : **NON**. Logs :
 `../../journaux/resultats_calibration_joint_anisotrope*.log`.
 
+**`k_plan(T)` décroissant — piste 2026-08-03, améliore les DEUX symptômes (candidat sérieux).**
+Après implémentation de la capacité **k(T)** (conduction flux-conservative à k dépendant de T,
+flag `k_plan_T`/`k_z_T`, cf. `audit_lionetto_2017.md` §3.1), un `k_plan(T)` **décroissant**
+(testé 7,3→3,0 W/m·K, borné par le k≈7,3 identifié en calibration jointe côté froid, le k=3
+config côté chaud) fournit le **modèle d'étalement in-plane non scalaire** que le résidu réclamait.
+À θ\* de référence **figé** (`scripts/diag_kT_residu.py`) il améliore **SIMULTANÉMENT** :
+- le **contraste du M** (exp7 200 A) : réf 3,13 → **2,46** (mesuré 2,08) ;
+- le **déficit hors-spot** (exp9 centre y=20) : extrémités TC1 norm 0,03 → **0,09** (= mesuré),
+  RMSE moyen 16,9 → **11,0**.
+
+Mécanisme : k **bas là où c'est chaud** (lobes/sous-spot), **haut là où c'est froid** (creux
+central, extrémités) — un seul champ réconcilie les deux régimes que le scalaire ne pouvait pas,
+et que l'anisotropie relocalisait sans résoudre. **Correction de FORME, pas d'échelle** : le
+contraste est ~invariant au `facteur_couplage` (il s'annule dans le ratio) et robuste à la pente ;
+l'amplitude se restaure séparément par `facteur_couplage`.
+
+**Limites (non adopté à ce stade) :** (1) ne ferme pas TOUT — contraste résiduel ~2,4 vs 2,08, le
+reste = vraisemblablement la raideur de source au chant (ingrédient `lambda_bord`). (2) La courbe
+k(T) est une **HYPOTHÈSE de forme** ; la mesure indépendante (Mesure 9, k_plan(T)) **ne sera pas
+réalisée** → sa seule validation possible est une **calibration jointe avec k(T) actif évaluée en
+HELD-OUT** (garde-fou anti-overfitting — la barre que l'anisotropie a ratée).
+
+**Calibration jointe avec k(T) faite (2026-08-03, `calibrer_joint.py --kT`, held-out exp7_250A +
+exp9 bord) — direction confirmée, held-out PAS franchi.** Le fit (pente LIBRE, non contrainte)
+choisit une courbe **décroissante** k_cold(20°C)=8,52 → k_hot(340°C)=2,00 (k_hot raile la borne)
+— `k_cold≈8,5` recoupe le `k≈7,3` scalaire → **`k_plan` réel ≈3× le config et décroissant : acquis
+physique**. Mais RMSE **JOINT 19,8→15,7 (mieux)** vs **HELD-OUT 16,5→17,2 (régresse)** : k(T)
+sur-étale le pic source-dominé du bord (exp9 bord TC3 11,4→25,3) et le fit gonfle `h_bas_2d` (37→83).
+Même schéma que tous les leviers → **NON adopté**. Le résidu a deux ingrédients (conduction in-plane
+= k(T) ; raideur de source au chant = `lambda_bord`) que k(T) seul ne peut porter.
+
+**Test de contrôle `--figer h_bas_2d=37.424` (2026-08-03) — CLÔTURE de la piste.** Figer `h_bas_2d`
+à la référence NE sauve PAS k(T) : tout empire (JOINT 19,8→22,0, HELD-OUT 16,5→**22,8**), les pics
+source-dominés s'effondrent → l'échec held-out est **intrinsèque à k(T)**, pas un artefact de
+`h_bas_2d`. La pente décroissante est robuste (k_cold=7,71 vs 8,52 libre vs 7,3 scalaire).
+**Verdict final : le résidu est irréductible par TOUT modèle de `k_plan`** (scalaire, anisotrope,
+T-dépendant — les 3 réfutés) : monter la conduction in-plane sur-étale toujours les pics. **Acquis
+positif** : `k_plan` réel ≈ 7,5–8,5 W/m·K (≈2,5–3× le config 3,0) et décroissant, corroboré 3× —
+correction de *propriété* défendable, pas un correctif de résidu adoptable. `k_plan=3,0` reste la
+référence. Logs : `../../journaux/resultats_calibration_joint_kT{,_hbasfige}.log` ; mémoire :
+`kt-residu-structurel-piste`.
+
 ---
 
 ## Domaine de validité du jumeau (bilan, 2026-07-31)
@@ -89,28 +131,30 @@ sans en casser un autre. Le résidu est **compris, quantifié et irréductible**
 - l'**amplitude du contraste du M** est sur-estimée (~3,15 vs ~2,09 mesuré) ;
 - le **transitoire hors-spot rapide** (dT/dt loin du spot) est sous-estimé (jusqu'à −67 %).
 - Cause unique : **étalement in-plane trop lent, piloté par un `k_plan` scalaire** (ne peut être bas
-  sous-spot ET haut hors-spot). Le corriger exigerait un modèle d'étalement in-plane non scalaire
-  physiquement fondé — non disponible/justifié à ce jour. `k_plan=3,0` (physique) reste la référence.
+  sous-spot ET haut hors-spot). **MAJ 2026-08-03** : le modèle d'étalement non scalaire requis
+  existe désormais — un **`k_plan(T)` décroissant** (cf. §résidu ci-dessus) améliore les deux
+  symptômes à la fois. **Candidat** en cours de validation par calibration jointe held-out (Mesure 9
+  non réalisée) ; tant qu'il n'a pas battu la référence hors échantillon, `k_plan=3,0` reste la référence.
 
 ## Exploitation (domaine validé)
-- **Prédictions T(t) à courants non mesurés** : `../figures_elsevier/fig_prediction_chauffe_courant.png`
+- **Prédictions T(t) à courants non mesurés** : `../figures/fig_prediction_chauffe_courant.png`
   (`scripts/gen_prediction_courant.py`).
-- **Fenêtre de soudage — abaque opératoire** (courant × durée) : `../figures_elsevier/fig_fenetre_soudage.png`
+- **Fenêtre de soudage — abaque opératoire** (courant × durée) : `../figures/fig_fenetre_soudage.png`
   (`scripts/gen_fenetre_soudage.py`). Point chaud (lobe M) : zones sous-chauffe / soudage
   (337-450 °C) / dégradation. Enseignements : **soudage impossible sous ~180 A** avec un spot fixe ;
   la **fenêtre se resserre quand le courant monte** (200 A : ~21-39 s ; 300 A : ~7-11 s).
-- **Empreinte de soudure** (carte T(x,y) interface) : `../figures_elsevier/fig_empreinte_soudure.png`
+- **Empreinte de soudure** (carte T(x,y) interface) : `../figures/fig_empreinte_soudure.png`
   (`scripts/gen_empreinte_soudure.py`). À spot fixe, **seuls les 2 lobes du M (bords) fondent**
   (~1-2 % de l'interface), le centre reste froid.
-- **Procédé semi-statique** (4 dwells, pas 30 mm) : `../figures_elsevier/fig_procede_semistatique.png`
+- **Procédé semi-statique** (4 dwells, pas 30 mm) : `../figures/fig_procede_semistatique.png`
   (`scripts/gen_procede_semistatique.py`). La soudure se forme en **deux rails le long des chants**
   sur toute la longueur ; **le centre ne soude jamais** (spot fixe en largeur) — enseignement procédé
   (il faudrait élargir/adoucir le M pour souder pleine largeur).
-- **Loi de réglage atelier** (durée vs courant) : `../figures_elsevier/fig_loi_reglage.png`
+- **Loi de réglage atelier** (durée vs courant) : `../figures/fig_loi_reglage.png`
   (`scripts/gen_loi_reglage.py`). Durée recommandée (cible 390 °C) + fenêtre + ajustement
   `t ≈ 9,6·10⁵/I²` (taux ∝ I²) + table (200 A→30 s, 250 A→15 s, 300 A→9 s).
 - Frontière dégradation conservatrice partout (modèle sur-estime le bord ~50 °C).
-- **MFC réduit (31,75 mm) — prédiction exploratoire** : `../figures_elsevier/fig_mfc_reduit.png`
+- **MFC réduit (31,75 mm) — prédiction exploratoire** : `../figures/fig_mfc_reduit.png`
   (`scripts/gen_mfc_reduit.py`). Le modèle standard **ne voit pas** l'effet d'un MFC plus petit (le
   MFC n'entre que via le plan image + `mu_r` + un masque de PERTES, pas la source). Flag
   **`Essai(masque_source_mfc=True)`** (défaut OFF, no-op sur le MFC labo validé) qui confine la
