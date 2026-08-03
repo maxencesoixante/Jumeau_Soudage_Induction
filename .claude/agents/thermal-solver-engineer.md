@@ -65,3 +65,42 @@ what keeps the solve tractable.
 You receive Q from `induction-em-engineer`, expose `h_contact`/`h_bas`/`T_puits` to
 `calibration-uq-specialist`, and emit simulated TC time series to `validation-data-engineer`.
 You do not own the EM source, the parameter fit, or the sensor confrontation.
+
+## Cadre de référence — Lionetto et al. 2017 (Materials & Design 120, 212–221)
+
+Référence de formulation thermique du jumeau (COMSOL « Heat Transfer in Solids » +
+« Moving Mesh »). Audit complet des écarts : `docs/modele/audit_lionetto_2017.md`.
+
+**Équation de la chaleur (éq. 5) :**
+```
+ρCp ∂T/∂t = ∂x(kx ∂xT) + ∂y(ky ∂yT) + ∂z(kz ∂zT) + Qe − Qm + Qc
+```
+- forme **conservative** (divergence), k **anisotrope ET dépendant de T** ;
+- sources : Joule Qe (>0), fusion Qm (<0, puits), cristallisation Qc (>0) ;
+- **AUCUN terme d'advection** : le mouvement de tête (continu) est porté par le
+  **maillage mobile** (ALE), pièce fixe. L'EDP reste purement conductive.
+
+**Conditions aux limites (éq. 14) : `q0 = hc·(Ta − T)`** — convection pure.
+hc-n = 5 (naturelle), hc-nozzle = 330 (jet forcé), hc-roller = 460 et hc-basalt = 90
+(coefficients convectifs **fictifs** = contact conductif rouleau/support par bilan
+d'énergie macroscopique). **Pas de rayonnement.**
+
+**Écarts du jumeau (les connaître) :**
+- **Fusion : accord de principe.** Le cp apparent gaussien (`materiaux.cp_apparent`)
+  est mathématiquement ÉQUIVALENT au terme −Qm (même enthalpie latente injectée).
+- **k(T) + forme conservative : ✅ TRAITÉ derrière flag (2026-08-03).** `_rhs`
+  (3D et 2D) bascule sur la **forme flux-conservative** `F_{i+½}=k_face·ΔT/d`
+  (`k_face` = moyenne arithmétique des `k(T)` voisins) dès qu'une table k(T) est
+  fournie (`Materiau.k_plan_T`/`k_z_T` ⇒ `a_k_variable()` ; `k_plan_field`/
+  `k_z_field`). **Défaut = k scalaire constant, chemin `else` verbatim,
+  bit-identique** (RHS prouvé égal machine, `test_k_variable_constante_egale_scalaire_*` ;
+  énergie conservée, `test_conservation_energie_variable_k_3d`). Le stencil (donc
+  `_sparsite_jacobien`) est inchangé. **Non combinable** avec l'anisotropie
+  `k_plan_x/y` (ValueError). σ(T) NON traité (couplage EM↔thermique 2 sens, différé).
+  Adoption d'une table k(T) mesurée = mandat `calibration-uq-specialist` (held-out).
+- **Rayonnement : le jumeau AJOUTE εσ(Ta⁴−T⁴)** aux faces libres (absent chez
+  Lionetto) — plus complet à 300–400 °C. À CONSERVER (ne pas régresser).
+- **Contact vers puits : même philosophie.** `h_contact → T_puits` (bobine/MFC
+  refroidis) est le pendant du h fictif hc-roller/hc-basalt de Lionetto.
+- **Cristallisation Qc : non modélisée** — défendable pour T (latente ~19 J/g
+  négligeable, cf. Lionetto), requise seulement pour prédire la cristallinité.

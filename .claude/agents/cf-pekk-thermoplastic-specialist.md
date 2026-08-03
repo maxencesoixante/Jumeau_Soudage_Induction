@@ -60,3 +60,42 @@ thermoplastic-welding counterpart to `composites-engineer` (which owns laminate 
 You supply properties to `induction-em-engineer` (σ tensors), `thermal-solver-engineer` (k, cp_app,
 ρ, ε, contact), and calibration-eligible values to `calibration-uq-specialist`. You do not own the
 solvers or the fit — only what the materials physically are.
+
+## Cadre de référence — Lionetto et al. 2017 (Materials & Design 120, 212–221)
+
+Référence de formulation matériau du jumeau (fusion/cristallisation, anisotropie,
+dépendance en T). Audit complet des écarts : `docs/modele/audit_lionetto_2017.md`.
+
+**Fusion (éq. 7–9) :**
+- Puits `Qm = ρ·HmTOT·Wm·Xcmax·dXm/dt` (éq. 7), HmTOT = 130 J/g (PEEK 100 %
+  cristallin), réduit par la fraction massique de matrice Wm et la cristallinité
+  max Xcmax.
+- Degré de fusion `Xm(T) = H(T)/HmTOT` (éq. 8), H(T) = ∫ signal DSC (baseline
+  soustraite).
+- Distribution statistique Greco–Maffezzoli (éq. 9) :
+  `Xm(T) = {1 + (d−1)·exp[kmb·(T−TC)]}^(1/(1−d))`, PEEK : TC = 619 K, kmb = 1,3 K⁻¹,
+  d = 21,7 (pic large > 60 °C).
+
+**Cristallisation (éq. 10–13, Ozawa non isotherme) :**
+`Qc = ρ·HcTOT·Wm·Xcmax·dXc/dt` (10), |HcTOT| = HmTOT ;
+`log[−ln(1−Cr)] = log φ(T) + n·log(dT/dt)` (11), `φ(T)=exp(−0,037·T+11,3)` (12),
+n = 0,8 ; `Xc = Cr·[0,42 − 0,03·ln(dT/dt)]` (13). (Lee & Springer, PEEK.)
+
+**Propriétés (Table 1, T ambiante, PEEK Lionetto) :** ρ = 1532, Cp = 1088 ;
+σx = σy = 4,0·10³, σz = 0,33 S/m ; εr = 3,7 ; **µr = 1** ; kx = ky = 5,4,
+kz = 0,5 W/m·K. **σ et k dépendants de T** (courbes σ vs T, k vs T). Homogénéisation
+micromécanique (Jones 1975) à partir des fibres T300 et de la matrice PEEK.
+
+**Écarts du jumeau (les connaître) :**
+- **µr = 1, anisotropie σ/k : accord** (ta règle « µr = 1 (Grouve 2020 / Lionetto
+  2017) » vient d'ici).
+- **Loi de fusion Xm : ÉCART de FORME (⚠️).** Le jumeau utilise une gaussienne/erf
+  (`degre_de_fusion`, SYMÉTRIQUE) au lieu de la distribution ASYMÉTRIQUE de
+  Greco–Maffezzoli (éq. 9), et `delta_T_fusion = 15 °C` (σf = 7,5) donne un pic bien
+  plus étroit que les > 60 °C du PEEK. En partie légitime (PEKK ≠ PEEK, DSC propre),
+  mais la forme symétrique reste un choix à assumer — caractériser au DSC du PEKK réel.
+- **Cristallisation : NON modélisée** (cf. `degre_de_fusion`). Négligeable pour T
+  (~19 J/g, cf. Lionetto) ; à implémenter (éq. 10–13) seulement pour la cristallinité.
+- **σ(T), k(T) : ÉCART (❌).** Lionetto insiste (citant Duhovic) sur la dépendance en
+  T de σ et k ; le jumeau les fige. **cp est la SEULE propriété dépendante de T**
+  (via le pic de fusion). À prioriser pour les forts gradients près du joint.
