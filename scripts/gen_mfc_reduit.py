@@ -24,7 +24,7 @@ docstring jumeau.procede.Essai.masque_source_mfc. Extrapolation à une
 géométrie MFC neuve, non mesurée -- à confirmer expérimentalement (le MFC
 réduit est commandé, cf. config/geometrie.yaml:cfc).
 
-Sortie : docs/figures_elsevier/fig_mfc_reduit.png
+Sortie : docs/figures/fig_mfc_reduit.png
 """
 import copy
 import sys
@@ -47,7 +47,7 @@ from jumeau.materiaux import Config
 from jumeau.procede import Essai
 from jumeau.em.source_joule import source_spot
 
-OUT = R / "docs" / "figures_elsevier" / "fig_mfc_reduit.png"
+OUT = R / "docs" / "figures" / "fig_mfc_reduit.png"
 FACTEUR = 6.0123           # θ* de référence (facteur_couplage, argument runtime -- NON recalibré ici)
 T_FUSION, T_PROCEDE, T_DEGRAD = 337.0, 390.0, 450.0
 COURANT, DUREE = 250.0, 15.0   # A, s -- réglage dans la fenêtre de soudage (cf. fig_loi_reglage : 250 A -> 15 s)

@@ -6,7 +6,7 @@ le POINT CHAUD (lobe du M) à la cible procédé 390 °C, encadrée par la fusio
 (loi validée), la durée pour atteindre une température ∝ 1/I² : on ajuste
 t(I) = A / I² et on donne un petit tableau de réglage.
 
-Sortie : docs/figures_elsevier/fig_loi_reglage.png
+Sortie : docs/figures/fig_loi_reglage.png
 """
 import sys
 from pathlib import Path
@@ -26,7 +26,7 @@ from jumeau.materiaux import Config
 from jumeau.procede import Essai
 from jumeau.em.source_joule import source_spot
 
-OUT = R / "docs" / "figures_elsevier" / "fig_loi_reglage.png"
+OUT = R / "docs" / "figures" / "fig_loi_reglage.png"
 FACTEUR = 6.0123
 T_FUSION, T_PROCEDE, T_DEGRAD = 337.0, 390.0, 450.0
 T_HEAT = 45.0

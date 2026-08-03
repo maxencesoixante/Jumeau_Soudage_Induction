@@ -23,7 +23,7 @@ from pptx.enum.shapes import MSO_SHAPE_TYPE
 
 R = Path("/Users/maxencedubois/PycharmProjects/Jumeau_Soudage_Induction")
 DECK = R / "docs" / "Point d'avancement hebdomadaire — LIPeC  ÉTS.pptx"
-FIG = R / "docs" / "figures_elsevier"
+FIG = R / "docs" / "figures"
 BODY = RGBColor(0x3A, 0x3A, 0x3A)
 GREY = RGBColor(0x9A, 0x9A, 0x9A)
 ACCENT = RGBColor(0xC1, 0x27, 0x2D)

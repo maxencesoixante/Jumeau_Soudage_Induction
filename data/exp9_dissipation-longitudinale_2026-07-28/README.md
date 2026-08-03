@@ -99,7 +99,7 @@ longitudinale**.
 
 → **Forme de la source en longueur invariante avec le courant** : les 4 profils normalisés se
 superposent (décroissance raide, asymétrie +x systématique = artefact de montage). Figure de
-présentation 2 panneaux : `docs/figures_elsevier/fig_dissipation_monospot.png`.
+présentation 2 panneaux : `docs/figures/fig_dissipation_monospot.png`.
 
 ### (à venir) phase 2 — ligne au **centre (y=20)** : conduction quasi pure (source ≈ 0), probe direct de `k_plan`.
 

@@ -8,7 +8,7 @@ séries tracées, essais/données sources, méthode de calcul, lignes de référ
 
 ## 0. Format commun (référence `serieA_A-2_250A_2026-06-09.png`)
 
-Depuis la refonte du **2026-07-29**, tout le jeu `docs/figures_elsevier/` suit le **format de
+Depuis la refonte du **2026-07-29**, tout le jeu `docs/figures/` suit le **format de
 référence** de `serieA_A-2_250A_2026-06-09.png` :
 
 | Élément | Convention |
@@ -42,19 +42,21 @@ Le **début de chauffe** (`heating_onset_idx`) est le dernier point ambiant avan
 TC dépasse ambiante + 2 °C ; les axes temporels sont recalés sur cet instant.
 
 **Reproductibilité** : `scripts/gen_figures_elsevier.py` régénère l'intégralité du jeu (variable
-d'environnement `FIGOUT` pour la destination ; sans argument → `docs/figures_elsevier/`).
+d'environnement `FIGOUT` pour la destination ; sans argument → `docs/figures/`).
 Arguments positionnels optionnels pour ne régénérer qu'une figure :
 `fig1 fig2 fig3 fig4 fig5 chant par 5tc mono semi`.
 
-**Jeux de figures existants**
-- **`docs/figures_elsevier/`** — jeu de référence (le présent catalogue). 10 figures + la figure
-  de référence `serieA_A-2_250A_2026-06-09.png`.
-- **`docs/figures_presentation/`** — variantes « slides » de fig1–5, **même format de référence**
-  avec polices agrandies pour la projection (§ C).
+**Jeux de figures — dossier UNIQUE `docs/figures/`** (consolidé le 2026-08-03 ;
+les anciens `figures_elsevier/` et `figures_presentation/` ont fusionné) :
+- **Jeu de référence** — 10 figures + les figures dérivées + la figure de référence
+  `serieA_A-2_250A_2026-06-09.png`. Noms inchangés (`fig1_profil_M.png`, …).
+- **Variantes « slides »** de fig1–5 (§ C) — **même format de référence** avec polices
+  agrandies pour la projection, préfixées **`presentation_`** (`presentation_fig1_profil_M_3courants.png`,
+  …) pour cohabiter sans collision avec le jeu de référence dans le même dossier.
 - **`data/exp9_dissipation-longitudinale_2026-07-28/200A/`** — figures d'analyse brute (§ B).
 
 > L'ancien jeu `docs/figures_article/` (sans titre incrusté) a été **supprimé** le 2026-07-29 :
-> il faisait doublon avec `figures_elsevier/` désormais que ce dernier porte des titres.
+> il faisait doublon avec le jeu de référence désormais que ce dernier porte des titres.
 
 ---
 
@@ -257,13 +259,16 @@ Figures de travail (non article), conservées pour traçabilité :
 
 ---
 
-## C. Variantes présentation (`docs/figures_presentation/`)
+## C. Variantes présentation (`docs/figures/`)
 
-`fig1_profil_M_3courants`, `fig2_mesure_vs_modele`, `fig3_centre_dynamique`, `fig4_courbes_brutes`,
-`fig5_loi_courant` — mêmes contenus que la section A (fig1–5), pour l'oral (présentation
-directrice). À ne pas soumettre en article.
+`presentation_fig1_profil_M_3courants`, `presentation_fig2_mesure_vs_modele`,
+`presentation_fig3_centre_dynamique`, `presentation_fig4_courbes_brutes`,
+`presentation_fig5_loi_courant` — mêmes contenus que la section A (fig1–5), pour l'oral
+(présentation directrice). À ne pas soumettre en article.
 
 > **Format** : réalignées sur le format de référence (§ 0) le 2026-07-29 — mêmes titre / labels
 > gras / légende hors cadre / lignes T°, avec **polices agrandies** pour la projection (canevas
-> mis à l'échelle en conséquence). Régénération : `PRESET=presentation FIGOUT=docs/figures_presentation
-> .venv/bin/python scripts/gen_figures_elsevier.py fig1 fig2 fig3 fig4 fig5`.
+> mis à l'échelle en conséquence). Depuis le 2026-08-03 le preset écrit directement dans le
+> dossier unique `docs/figures/` avec le préfixe `presentation_` (plus besoin de `FIGOUT`).
+> Régénération : `PRESET=presentation .venv/bin/python scripts/gen_figures_elsevier.py
+> fig1 fig2 fig3 fig4 fig5`.

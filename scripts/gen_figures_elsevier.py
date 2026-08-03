@@ -6,7 +6,7 @@ serieA_A-2_250A_2026-06-09.png:
   - horizontal temperature reference lines (fusion / procédé / dégradation)
     on the absolute-temperature figures, labelled in whitespace.
 
-Output dir via env FIGOUT (default docs/figures_elsevier).
+Output dir via env FIGOUT (default docs/figures).
 """
 import os
 import sys
@@ -20,7 +20,7 @@ from scipy.signal import medfilt
 
 R = Path("/Users/maxencedubois/PycharmProjects/Jumeau_Soudage_Induction")
 sys.path.insert(0, str(R / "src"))
-OUT = Path(os.environ.get("FIGOUT", str(R / "docs" / "figures_elsevier")))
+OUT = Path(os.environ.get("FIGOUT", str(R / "docs" / "figures")))
 OUT.mkdir(parents=True, exist_ok=True)
 
 # ----------------------------------------------------------------------
@@ -39,15 +39,18 @@ mpl.rcParams.update({
 
 # ----------------------------------------------------------------------
 # Presets: "elsevier" (default) or "presentation" (slides — bigger fonts,
-# only fig1..fig5, remapped to the presentation filenames).
+# only fig1..fig5). Depuis 2026-08-03, tout est dans le dossier UNIQUE
+# docs/figures/ ; les variantes présentation portent le préfixe
+# ``presentation_`` pour éviter la collision avec le jeu de référence
+# (cf. docs/modele/figures_catalogue.md).
 # ----------------------------------------------------------------------
 PRESET = os.environ.get("PRESET", "elsevier")
 PRES_NAMES = {
-    "fig1_profil_M.png": "fig1_profil_M_3courants.png",
-    "fig2_mesure_modele.png": "fig2_mesure_vs_modele.png",
-    "fig3_dynamique_centre.png": "fig3_centre_dynamique.png",
-    "fig4_courbes_brutes.png": "fig4_courbes_brutes.png",
-    "fig5_loi_courant.png": "fig5_loi_courant.png",
+    "fig1_profil_M.png": "presentation_fig1_profil_M_3courants.png",
+    "fig2_mesure_modele.png": "presentation_fig2_mesure_vs_modele.png",
+    "fig3_dynamique_centre.png": "presentation_fig3_centre_dynamique.png",
+    "fig4_courbes_brutes.png": "presentation_fig4_courbes_brutes.png",
+    "fig5_loi_courant.png": "presentation_fig5_loi_courant.png",
 }
 if PRESET == "presentation":
     mpl.rcParams.update({

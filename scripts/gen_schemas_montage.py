@@ -1,5 +1,5 @@
 """Schemas de montage exp7 / exp9 -- deux vues (plan x-y + coupe), format
-article (style docs/figures_elsevier, cf. scripts/gen_figures_elsevier.py).
+article (style docs/figures, cf. scripts/gen_figures_elsevier.py).
 
 Les deux vues sont disposees COTE A COTE (vue de dessus | vue en coupe).
 
@@ -19,7 +19,7 @@ from matplotlib.patches import Rectangle
 from matplotlib.lines import Line2D
 from pathlib import Path
 
-OUT = Path("/Users/maxencedubois/PycharmProjects/Jumeau_Soudage_Induction/docs/figures_elsevier")
+OUT = Path("/Users/maxencedubois/PycharmProjects/Jumeau_Soudage_Induction/docs/figures")
 
 # ----------------------------------------------------------------------
 # rcParams -- meme style que gen_figures_elsevier.py (police sans-serif,

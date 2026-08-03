@@ -14,6 +14,6 @@ La documentation est organisée en **deux parties** :
 - [`etat_art_induction.md`](etat_art_induction.md) — revue de littérature.
 
 ## Livrables volumineux (en place, gitignorés)
-- `figures_elsevier/`, `figures_presentation/` — figures (référencées par les scripts).
+- `figures/` — dossier UNIQUE des figures (jeu de référence + variantes `presentation_*`), référencées par les scripts.
 - `Point d'avancement hebdomadaire — LIPeC  ÉTS.pptx` (+ `.backup.pptx`) — deck de réunion.
 - `chauffe_surface_exp7_200A.mp4` — animation de chauffe.

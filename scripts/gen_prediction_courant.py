@@ -12,7 +12,7 @@ courant constant pendant une duree FIXE (DUREE_CHAUFFE=20 s), puis court
 refroidissement jusqu'a DUREE_TOTALE=25 s (seul le courant varie -> compare
 la DYNAMIQUE, tout le reste egal).
 
-Sortie : docs/figures_elsevier/fig_prediction_chauffe_courant.png
+Sortie : docs/figures/fig_prediction_chauffe_courant.png
 
 N'utilise QUE l'essai exp7_200A.yaml comme gabarit geometrique (spots,
 thermocouples) ; la source est reconstruite a chaque courant via

@@ -10,7 +10,7 @@ Enseignement attendu : chaque dwell soude les DEUX bords (lobes du M) à sa
 position → la piste soudée est constituée de deux RAILS le long des chants, le
 centre restant froid (cohérent avec l'empreinte à spot fixe).
 
-Sortie : docs/figures_elsevier/fig_procede_semistatique.png
+Sortie : docs/figures/fig_procede_semistatique.png
 """
 import sys
 from pathlib import Path
@@ -30,7 +30,7 @@ from jumeau.materiaux import Config
 from jumeau.procede import Essai
 from jumeau.em.source_joule import source_spot
 
-OUT = R / "docs" / "figures_elsevier" / "fig_procede_semistatique.png"
+OUT = R / "docs" / "figures" / "fig_procede_semistatique.png"
 FACTEUR = 6.0123
 COURANT = 250.0
 DWELL = 15.0                          # durée par dwell (s) — dans la fenêtre de soudage

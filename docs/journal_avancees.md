@@ -145,7 +145,7 @@ Rapports/slides/mesures régénérés au θ\* corrigé. Diagnostic de la cote `h
   confirme le mécanisme (le lumping supprime une partie du taux hors-spot : TC2 7,8 → 11,0 °C/s)
   mais **surchauffe l'interface** (TC1 682 vs 398 °C) et exigerait sa propre recalibration → **le
   2D lumpé reste le modèle de travail, limite centre-fill/hors-spot documentée**. **Figures de
-  présentation** pour la directrice : `docs/figures_presentation/` (profil M aux 3 courants ;
+  présentation** pour la directrice : `docs/figures/` (profil M aux 3 courants ;
   mesuré vs modèle ; dynamique centre-vs-chant). Détail :
   `data/exp7_bord-centre_2026-07-28_avec-ceramique/README.md`.
 - **Campagne densifiée à 5 courants (ajout 176 et 225 A, 1 essai chacun) → loi taux-courant :
@@ -179,7 +179,7 @@ Ajout des monospots **175 / 226 / 250 A** (+ 175 A semi-statique) à côté du 2
 même pic (~270 °C au spot, échantillons réutilisables) → les **profils normalisés au spot se
 superposent en une seule courbe** (0,02 / 0,08 / 1,00 / 0,14 / 0,03) : la **forme de la source en
 longueur est INVARIANTE avec le courant**, et le modèle (forme symétrique) la reproduit. Figure de
-présentation refondue en 2 panneaux (absolu °C + normalisé) : `docs/figures_elsevier/fig_dissipation_monospot.png`.
+présentation refondue en 2 panneaux (absolu °C + normalisé) : `docs/figures/fig_dissipation_monospot.png`.
 
 ### 30 juillet — Consolidation du jumeau (θ\* canonique, essais labo formels)
 Consolidation groupée pilotée par agents (design : `docs/superpowers/specs/2026-07-29-consolidation-jumeau-design.md`).
@@ -380,7 +380,7 @@ Détail archivé dans `docs/labo/releves_resolus.md`.
   - `modele/rapport_directrice_jumeau.md` — rapport complet pour la direction.
   - `modele/rapport_slides_jumeau.md` — trame de présentation (slides).
   - `modele/figures_catalogue.md` — catalogue des figures.
-- `figures_elsevier/` , `figures_presentation/` — figures (modèle + mesures), en place
+- `figures/` — dossier unique des figures (modèle + mesures ; variantes `presentation_*`), en place
   (référencées par les scripts ; PNG 600 dpi).
 
 **Journaux de référence (`journaux/resultats_*.log`) — état courant**
