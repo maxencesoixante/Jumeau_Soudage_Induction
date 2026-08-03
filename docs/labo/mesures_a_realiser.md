@@ -1,5 +1,5 @@
 **Projet** : jumeau numérique du soudage par induction CF/PEKK &nbsp;·&nbsp; **Objet** : mesures
-**encore À FAIRE** &nbsp;·&nbsp; **Mis à jour** : 2026-07-28
+**encore À FAIRE** &nbsp;·&nbsp; **Mis à jour** : 2026-08-03
 
 > Ce fichier ne liste que **ce qui reste à faire**. Les réponses terrain, précisions et
 > résultats des manips déjà réalisées sont dans **[`releves_resolus.md`](releves_resolus.md)**
@@ -14,7 +14,7 @@
 > documentée. **Loi taux-courant** : la source suit **I²** (modèle `R=k·I²−L`, R²=0,999) ; la
 > fréquence mesurée est constante (388±2 kHz sur 5 courants) → couplage fréquence↔courant écarté.
 > Détail :
-> `data/exp7_bord-centre_2026-07-28_avec-ceramique/README.md`. Figures : `docs/figures_presentation/`
+> `data/exp7_bord-centre_2026-07-28_avec-ceramique/README.md`. Figures : `docs/figures/`
 > (fig1-5).
 
 ---
@@ -58,11 +58,57 @@ directe par Exp 9** (ligne de TC en longueur, phase centre = conduction pure). G
 comme rappel de l'option « caméra » (protocole détaillé dans l'archive) si l'on préfère l'imagerie
 aux thermocouples.
 
-### 5. Mesures de propriété au labo (optionnel, si les niveaux 1-4 ne suffisent pas)
+### 5. Mesures de propriété matériau au labo — ferment les propriétés GELÉES du modèle
 
-- **Mesure 9 — `k_plan` direct** : hot-disk ou flash laser sur un échantillon de laminé.
-- **Mesure 10 — σ(T)** : conductivité électrique en fonction de T (4 pointes en montée) ; le
-  modèle prend σ constante aujourd'hui. La plus lourde des dix.
+> **Contexte (2026-08-03, suite audit Lionetto — [`../modele/audit_lionetto_2017.md`](../modele/audit_lionetto_2017.md)).**
+> L'audit a montré que σ et k sont **figés** dans le jumeau (seul cp dépend de T), là où
+> Lionetto (2017) prend σ(T) et k(T). La **capacité k(T)** vient d'être implémentée (forme
+> flux-conservative derrière flag `k_plan_T`/`k_z_T`, défaut off) : ces mesures la transforment
+> en **courbe mesurée**, évaluable en held-out. Elles **cassent aussi les corrélations de
+> calibration** (σ ↔ `facteur_couplage`), première cause d'overfitting.
+
+- **Mesure 9 — k_plan(T) et k_z(T)** (hot-disk ou flash laser sur un échantillon de laminé, à
+  25 / 150 / 250 / 340 °C). **Alimente directement le flag k(T) implémenté** (audit §3.1) : la
+  courbe mesurée passe le levier de « estimation littérature » à « donnée ». *Priorité relevée
+  (feature prête).*
+- **Mesure 10 — σ indépendant (twill + laminé), en plan ET vs T** (4 pointes / van der Pauw en
+  montée). Verrouille `twill_suscepteur.sigma_plan` et `sigma_0/90` (« incertain ») et
+  **découple σ ↔ `facteur_couplage` ↔ f** — f étant déjà mesurée (388 kHz), σ est le dernier
+  inconnu corrélé au facteur d'échelle. Donne la courbe σ(T) de l'audit §2.3. **La plus
+  structurante côté source EM.**
+- **Mesure 11 — DSC du PEKK réel** (chauffe + refroidissement, 2-3 rampes). Donne la **forme du
+  pic de fusion** (remplace la gaussienne symétrique `delta_T_fusion=15 °C` par la loi
+  Greco–Maffezzoli, audit §4.1 / éq. 9), la cinétique de cristallisation (éq. 10-13), et Tf, Lf
+  mesurés. *Peu coûteux, échantillon de matière.*
+- **Mesure 12 — Émissivité de surface** (mesure IR à T connue). Verrouille `emissivite=0.96`
+  supposée, qui pilote le rayonnement — terme que le jumeau inclut au-delà de Lionetto.
+
+### 6. Validation de la FORME de source & des hypothèses structurelles — propositions 2026-08-03
+
+Attaquent les résidus/hypothèses encore ouverts (profil « M », siège des courants, plaque mince),
+au-delà des points TC. Complètent Exp 9 (qui reste la mesure décisive de `k_plan` par conduction).
+
+- **Mesure 13 — ★ Thermographie IR plein champ en chauffe statique.** Le **champ 2D complet** de
+  température de surface (pas 3-5 TC), confronté pixel-à-pixel au modèle → juge direct du profil
+  « M » et du **résidu d'étalement in-plane**. Upgrade naturel des scans bord→centre (exp 7) :
+  soit il confirme la limite structurelle, soit il révèle un biais de forme corrigible. **Haute
+  valeur.** (Réutilise la FLIR A700 déjà prévue pour Exp 8.)
+- **Mesure 14 — ★ Test décisif twill / sans-twill.** Même chauffe, un échantillon **avec** vs
+  **sans** pli twill à l'interface. Valide (ou infirme) l'hypothèse « twill = siège **principal**
+  des courants de Foucault » (Série A), fondation de toute la répartition de puissance
+  inter-couches — et donc du déficit de chauffe TC1/surface.
+- **Mesure 15 — Gradient dans l'épaisseur** (TC surface / interface / face opposée, même spot).
+  Teste l'hypothèse **plaque mince** à 388 kHz (décroissance de Bz dans l'épaisseur, audit §2.1 —
+  la validité « δ vs épaisseur » restait explicitement non re-vérifiée à cette fréquence).
+- **Mesure 16 — Exploitation des traînées de refroidissement** (★ *gratuit, sur les essais
+  déjà réalisés*). Ajuster la décroissance **après coupure de la source** sépare proprement
+  `h_bas` / rayonnement / conduction support de la source — identification de coefficients de
+  perte sans nouveau matériel.
+- **Mesure 17 — Balayage de pression de contact MFC/céramique** → `h_contact` / `h_haut`
+  (placeholders calibrés) et leur dépendance à la pression du procédé.
+- **Mesure 18 — Campagne de répétabilité** (même essai nominal ×5-8) → **modèle de bruit
+  capteur/procédé** : fixe le plancher RMSE sous lequel une amélioration = ajustement de bruit
+  (garde-fou anti-overfitting pour `calibration-uq-specialist`).
 
 ---
 
@@ -87,11 +133,19 @@ exp 7 étant close, ces corrections ne sont plus bloquées et peuvent être reca
 | # | Mesure | Priorité | Résout |
 |---|---|---|---|
 | **Exp 9** | **Dissipation longitudinale T(x)** — phase 1 (y=0) FAITE, **phase 2 (y=20) à faire** | ★ **haute** | étalement trop lent + `k_plan` |
+| **Mesure 13** | **Thermographie IR plein champ** (chauffe statique) | ★ **haute** | profil « M » / résidu d'étalement (champ 2D) |
+| **Mesure 14** | **Twill / sans-twill** (test décisif) | ★ **haute** | hypothèse siège des courants (Série A), déficit TC1 |
+| Mesure 16 | Traînées de refroidissement (essais existants) | moyenne (gratuit) | `h_bas` / rayonnement / conduction support |
 | Exp 8 | Température face active du MFC | moyenne | déficit de surface TC1 |
+| Mesure 9 | k_plan(T), k_z(T) direct (labo) | moyenne (flag prêt) | alimente le flag k(T) implémenté |
+| Mesure 10 | σ indépendant (twill+laminé), σ(T) | moyenne | découple σ↔`facteur_couplage` ; σ(T) |
+| Mesure 11 | DSC PEKK (fusion + cristallisation) | moyenne | loi Xm réelle (éq. 9), Tf/Lf |
+| Mesure 15 | Gradient dans l'épaisseur | moyenne | hypothèse plaque mince à 388 kHz |
+| Mesure 12 | Émissivité de surface | basse | `emissivite` (rayonnement) |
+| Mesure 17 | Pression de contact MFC/céramique | basse | `h_contact` / `h_haut` |
+| Mesure 18 | Répétabilité (×5-8) | basse (méta) | modèle de bruit / plancher RMSE |
 | Relevé 1 | Position longitudinale bobine | basse | `decalage_x` (figé) |
 | Exp 6 | Diffusivité latérale | → couverte par Exp 9 | `k_plan` |
-| Mesure 9 | `k_plan` direct (labo) | basse | `k_plan` sourcé |
-| Mesure 10 | σ(T) (labo) | basse | dépendance σ(T) |
 
 *Items résolus (relevés 2-5, **exp 7**) et résultats des manips déjà faites : voir
 [`releves_resolus.md`](releves_resolus.md) et les `data/exp*/README.md`.*
