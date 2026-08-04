@@ -116,6 +116,10 @@ class Essai:
         # derrière ce flag pour archivage/ablation, en attendant la cartographie
         # bord->centre qui doit corriger le M conjointement. Cf.
         # resultats_diag_b2_thermostat_capteurs.log.
+        # VERDICT (issue #9) : loi thermostat_capteurs REJETÉE définitivement le
+        # 2026-08-03 — fit joint pleine famille pire partout (le gain B-2 ne
+        # survit pas au partage du facteur inter-familles). Conservée derrière
+        # flag (repro + registre). Cf. docs/modele/leviers_refutes.md.
         self.thermostat_capteurs = bool(thermostat_capteurs)
         # positions (x, y) des TC d'interface valides (loi thermostat_capteurs) :
         # brackets bilinéaires précalculés une fois.
@@ -139,6 +143,9 @@ class Essai:
         # jumeau.em.source_joule (docstring module, section "Adoucissement du
         # bord") et resultats_diag_lambda_bord_em.log. NE PAS activer sans
         # recalibrer theta*. Défaut 0.0 -> non-régression bit-à-bit.
+        # VERDICT (issue #9) : RÉFUTÉ le 2026-07-31 — adoucit le M mais NON
+        # conservatif en puissance (aucun θ* joint gagnant) ; la CL ψ=0 correcte
+        # est corroborée par eppy. Conservé (repro). Cf. docs/modele/leviers_refutes.md.
         self.lambda_bord_mm = float(lambda_bord_mm)
         # masque_source_mfc (défaut False = inchangé, bit-à-bit) : masque la
         # source Joule PAR SPOT à l'empreinte du MFC (masque_empreinte_cfc),
