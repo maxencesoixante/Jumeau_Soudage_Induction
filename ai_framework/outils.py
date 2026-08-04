@@ -30,13 +30,15 @@ RESULTATS = RACINE / "resultats"
 # sous Windows. Lancer app.py avec le python du venv suffit.
 PYTHON = sys.executable
 
-# Paramètres du modèle 2D calibrés (positions TC corrigées, 2026-07-20).
-# Voir resultats_calibration.log — entrée « POSITIONS CORRIGEES ».
-FACTEUR_COUPLAGE = 4.3139
+# θ* de référence 2D CANONIQUE (config/materiaux.yaml, « ADOPTÉ 2026-07-29 »,
+# recalibré à h_bobine=5,0 mm — issue #6). Resynchronisé le 2026-08-04 (issue #7) :
+# les anciennes valeurs (4.3139 / 2.4269 / 66.662) dataient des positions TC
+# corrigées du 2026-07-20 et étaient périmées.
+FACTEUR_COUPLAGE = 6.0123
 DECALAGE_X = 0.0
-H_HAUT = 2.4269
-H_BAS_2D = 66.662
-H_BORD_X0 = 250.0  # puits de bord (montage bridé x=0), calibré 2026-07-20
+H_HAUT = 30.087
+H_BAS_2D = 37.424
+H_BORD_X0 = 250.0  # puits de bord (montage bridé x=0), θ* canonique
 
 # Collecteur des images produites pendant un tour de conversation. app.py le vide
 # au début de chaque message utilisateur puis affiche ce qui s'y trouve.
