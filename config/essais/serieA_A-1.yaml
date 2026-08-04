@@ -1,6 +1,8 @@
 # Essai A-1 — baseline squeeze-out, 250 A, 70 N, 4 empreintes séquentielles
-# Source : cahier de labo §1.3 (fiche A-1) ; TC1 = Surface, TC2-TC5 = Interface
-# (convention du notebook tracer_courbes_thermocouples).
+# Source : cahier de labo §1.3 (fiche A-1). Les 5 TC sont à l'INTERFACE ; TC1 au
+# centre de largeur (y=20 mm) et au bord de longueur (x=0), TC2-TC5 au bord de
+# largeur (y=0). Position TC1 confirmée terrain le 2026-08-04 (issue #8). L'ancien
+# en-tête « TC1 = Surface » était erroné (cf. bloc thermocouples ci-dessous).
 nom: serieA_A-1
 fichier_mesures: data/Serie A/serieA_A-1_250A_2026-06-05.csv
 courant: 250.0               # A

@@ -71,7 +71,13 @@ coupe (échelle 1:1). Coupon **120 × 40 mm**, MFC Ferrotron 559H **31,5 mm (x)
   (2026-07-20) : les 5 TC sont TOUS à l'interface (repère cahier origine-milieu
   converti au repère modèle origine-coin) — TC1 au bord de longueur / centre de
   largeur (x=0, y=20 mm), TC2–TC5 au bord de largeur (y=0). Remplace l'ancienne
-  hypothèse « TC1 surface / TC alignés sur les spots ».
+  hypothèse « TC1 surface / TC alignés sur les spots ». **Position TC1 re-confirmée
+  terrain le 2026-08-04 (issue #8) : y=20 mm, centre de largeur.** L'hypothèse
+  « TC1 au coin y=0 » (que la donnée *simulée* semblait favoriser, coin plus froid ≈
+  mesuré) est **rejetée** : elle n'aurait fait que *fitter* l'erreur de profil en M.
+  La surestimation du pic TC1 (A-1 : 671 simulé vs 398 mesuré au centre de largeur)
+  est donc un **vrai déficit modèle** (M en largeur trop contrasté, cf. étalement
+  in-plane), pas un artefact de position.
 - **Puits de bord `h_bord_x0` (montage bridé x=0)** : le modèle 2D lumpé
   surchauffait TC1 (+185 à +273 °C au pic) car la chaleur du spot 1 (~16 mm du
   bord x=0) restait piégée contre le chant quasi-adiabatique. Un puits conductif
