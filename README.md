@@ -6,6 +6,22 @@ du montage semi-statique (maîtrise, LIPEC/ÉTS). Le modèle produit une **carte
 de température 3D** (plan 120×40 mm × épaisseur du stack) confrontée aux
 mesures thermocouples des essais (Séries A/B + essais de chauffe).
 
+## Montage & géométrie
+
+Cotes du montage (coupon CF/PEKK, concentrateur MFC, bobine hairpin) et
+positions des thermocouples à l'interface, vues de dessus (plan x–y) et en
+coupe (échelle 1:1). Coupon **120 × 40 mm**, MFC Ferrotron 559H **31,5 mm (x)
+× 55 mm (y)**, bobine hairpin en tube Cu **6 × 6 mm**, entraxe brins
+**12,35 mm**, interface à **z = 3,36 mm**, film twill 0,10 mm.
+
+**exp7 — cartographie en largeur (profil « M »), 5 TC à x = 60 mm, y = 0/10/20/30/40 mm :**
+
+![Montage exp7 — cartographie en largeur](docs/figures/schema_montage_exp7.png)
+
+**exp9 — dissipation longitudinale, 5 TC au bord (y = 0), x = 0/30/60/90/120 mm :**
+
+![Montage exp9 — dissipation longitudinale](docs/figures/schema_montage_exp9.png)
+
 ## Chaîne physique
 
 1. **Champ magnétique** — Biot-Savart analytique de la bobine hairpin
