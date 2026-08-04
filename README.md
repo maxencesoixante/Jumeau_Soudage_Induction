@@ -47,7 +47,7 @@ coupe (échelle 1:1). Coupon **120 × 40 mm**, MFC Ferrotron 559H **31,5 mm (x)
 | Hypothèse | Source / justification |
 |---|---|
 | Plaque mince EM, courants plans | Lin 1993 ; δ(300 kHz, σ0) ≈ 6 mm > 3,36 mm |
-| Champ de réaction (blindage) négligé | absorbé par `facteur_couplage` calibré |
+| Champ de réaction (blindage) négligé | absorbé par `facteur_couplage` ; **justifié quantitativement** par vérif croisée `eppy` : réaction ≤ 0,03 % du contraste au régime twill (`docs/modele/verification_croisee_eppy.md`) |
 | MFC = demi-espace perméable (images) | approx. 1er ordre de la concentration de flux |
 | Laminé homogénéisé (σ, k quasi-iso plan) | O'Shaughnessey 2014 (Annexes I-II) ; Grouve 2020 |
 | µr = 1 pour le laminé | Grouve 2020 (Lionetto 2017) |
@@ -152,6 +152,13 @@ coupe (échelle 1:1). Coupon **120 × 40 mm**, MFC Ferrotron 559H **31,5 mm (x)
   un modèle de MFC fini n'y changera rien (il vaut pour le profil en longueur) ;
   les leviers d'adoucissement sont les courants de retour 3D et la résistance de
   contact du twill tissé — non calibrables sans mesure.
+  **Vérification croisée EM 2026-08-04** (`docs/modele/verification_croisee_eppy.md`) :
+  un second solveur indépendant (`eppy`, Grouve/Nagel 2019, isotrope, sans MFC) reproduit
+  le **même contraste** (~3,0 ≈ notre 3,15) → le M sur-contrasté est de la **vraie physique
+  plaque-mince** (écrasement du courant au chant), **pas** un artefact de notre anisotropie,
+  des images MFC ni de la discrétisation. L'écart au contraste mesuré (2,09, réduction requise
+  ~ −34 %) est la limite d'**étalement in-plane** documentée, pas un bug EM. Code vendoré :
+  `third_party/eppy/`.
   **Test expérimental direct : la cartographie bord→centre** (5 TC d'interface à
   y = 0/10/20/30/40 mm, x = 60 mm), cible chiffrée 717/382/292/382/717 °C au pic.
 - **TC1 (surface côté bobine) chauffe 5–6× trop lentement dans le modèle** (diagnostic thermal-solver-engineer, 2026-07-18/20 : 37,7 °C/s mesuré vs ~6,3 °C/s simulé, essai `chauffe_250A_3TC`). Trois explications ont été testées et **écartées** :
@@ -200,6 +207,12 @@ TC2 = interface (tissu PW), TC3 = face opposée (README essais_chauffe).
 - Van Otterloo — « How isotropic are quasi-isotropic laminates » : anisotropie in-plane
   des quasi-iso (piste `k_plan` anisotrope).
 - Lin 1993 — différences finies 2D, courants dans les fibres, plaque mince.
+- Grouve — solveur **`eppy`** (github.com/wjbg/eppy, MIT, commit épinglé `62f0030`, validé
+  contre **Nagel 2019** fig. 6) : 2ᵉ solveur EM plaque mince indépendant (potentiel vecteur
+  électrique `T` ≡ notre `ψ`), **vendoré** sous `third_party/eppy/` (copie MIT patchée
+  numpy ≥ 2, provenance `third_party/eppy/NOTICE.md`) pour la vérification croisée code-à-code
+  de `em/foucault.py` (`docs/modele/verification_croisee_eppy.md`, script
+  `scripts/verif_eppy_reaction.py`).
 - Duhovic 2012 — skin depth, ≥2 éléments dans la peau, convection.
 - Fluxtrol Inc. — *Ferrotron 559H* datasheet (rev. 06/02/15, fluxtrol.com) — propriétés matériau constructeur (µᵢ=16, ρ>15 kΩ·cm, courbe de pertes Pv=4,1·f¹·¹·B²·⁵) utilisée le 2026-07-20 pour chiffrer l'auto-échauffement du MFC (négligeable, cf. tableau des hypothèses).
 - Samanis et al. 2026 — méthode des lignes 1D, identification, test black-box.
