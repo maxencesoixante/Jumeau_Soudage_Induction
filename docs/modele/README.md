@@ -29,6 +29,7 @@ Rejouer une validation : `python scripts/valider.py --modele 2D --facteur 6.0123
 - [`rapport_directrice_jumeau.md`](rapport_directrice_jumeau.md) — rapport complet pour la direction.
 - [`rapport_slides_jumeau.md`](rapport_slides_jumeau.md) — trame de présentation.
 - [`figures_catalogue.md`](figures_catalogue.md) — catalogue des figures.
+- [`verification_croisee_eppy.md`](verification_croisee_eppy.md) — vérification code-à-code du solveur EM contre `eppy` (Grouve, Nagel 2019) : contraste M ~3 reproduit par un code indépendant ; champ de réaction négligeable au régime du jumeau.
 - Spec de consolidation : `../superpowers/specs/2026-07-29-consolidation-jumeau-design.md`.
 
 ## État & résidu ouvert
