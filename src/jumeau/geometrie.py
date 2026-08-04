@@ -1,4 +1,4 @@
-"""Construction de la scène : grille thermique, couches conductrices, bobine, CFC."""
+"""Construction de la scène : grille thermique, couches conductrices, bobine, MFC."""
 
 from __future__ import annotations
 
@@ -86,19 +86,19 @@ def sommets_bobine(cfg: Config, centre_x: float, centre_y: float | None = None) 
 
 
 def plan_miroir_cfc(cfg: Config) -> float:
-    """Altitude du plan image du CFC (face inférieure du bloc, ~sommet du tube)."""
+    """Altitude du plan image du MFC (face inférieure du bloc, ~sommet du tube)."""
     c = cfg.geometrie["coil"]
     return c["hauteur"] + c["rayon_tube"]
 
 
 def masque_empreinte_cfc(grille: Grille3D, cfg: Config, centre_x: float,
                          centre_y: float | None = None) -> np.ndarray:
-    """Masque bool (nx, ny) de l'empreinte CFC posée au spot ``centre_x``."""
+    """Masque bool (nx, ny) de l'empreinte MFC posée au spot ``centre_x``."""
     cfc = cfg.geometrie["cfc"]
     if centre_y is None:
         centre_y = grille.largeur / 2.0
     X, Y = np.meshgrid(grille.x, grille.y, indexing="ij")
-    # orientation à confirmer (cahier §1.2.3) : ici 'largeur' CFC le long de x
+    # orientation à confirmer (cahier §1.2.3) : ici 'largeur' MFC le long de x
     demi_x = cfc["largeur"] / 2.0
     demi_y = cfc["longueur"] / 2.0
     return (np.abs(X - centre_x) <= demi_x) & (np.abs(Y - centre_y) <= demi_y)

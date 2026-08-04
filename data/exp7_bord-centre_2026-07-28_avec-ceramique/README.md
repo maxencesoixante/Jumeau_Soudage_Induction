@@ -75,8 +75,8 @@ modèle **`R = k·I² − L`** (source en I² moins une perte thermique ~constan
 surtout, la **fréquence mesurée est CONSTANTE** (388±2 kHz sur 150-250 A, cf. relevé user
 2026-07-28), ce qui **écarte** le couplage fréquence↔courant. → **La source suit bien la loi en
 I² du modèle** ; l'écart apparent venait des pertes, pas de la source. Cf.
-`docs/figures_presentation/fig5`.
+`docs/figures/presentation_fig5`.
 
-**Figures de présentation** (`docs/figures_presentation/`) : `fig1` profil M aux 3 courants ·
+**Figures de présentation** (`docs/figures/`) : `fig1` profil M aux 3 courants ·
 `fig2` mesuré vs modèle · `fig3` dynamique centre-vs-chant · `fig4` courbes brutes 5 TC d'un
 essai · `fig5` loi taux-courant (I^2,4).

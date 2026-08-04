@@ -1,7 +1,7 @@
 """Assemblage de la source Joule volumique Q(x, y, z) pour une position de spot.
 
 Chaîne par couche conductrice (twill, laminé sup, laminé inf) :
-1. Bz RMS (Biot-Savart bobine + image CFC), échantillonné à CHAQUE nœud z de
+1. Bz RMS (Biot-Savart bobine + image MFC), échantillonné à CHAQUE nœud z de
    la grille thermique compris dans la couche (et non plus une seule fois au
    plan médian, cf. « limites » ci-dessous) — l'atténuation géométrique est
    portée par la distance à la bobine, et le blindage par les couches
@@ -108,6 +108,54 @@ ATTENTION calibration — DEUX effets à ne pas confondre :
    (NE RECALIBRE RIEN, cf. brief). Cf. rapport dédié pour les chiffres sur
    les 3 essais à θ* figé.
 
+Adoucissement du bord (``lambda_bord_mm``, 2026-07-30) — DERRIÈRE UN FLAG
+--------------------------------------------------------------------------
+Diagnostic (cf. journaux/resultats_diag_forme_source.log,
+docs/modele/README.md « État & résidu ouvert ») : la BC ``psi=0`` exacte au
+chant est la physique correcte pour une nappe de courant CONTINUE et
+idéalement homogène (aucun courant ne traverse un conducteur isolé isotrope
+à son bord). Mais le twill suscepteur (siège principal des courants de
+Foucault, cf. ``geometrie.construire_couches``) n'est PAS un continuum : les
+boucles fermées natives sont portées par un tissage à pas fini (mailles du
+sergé) et le laminé homogénéisé masque de la même façon la maille discrète
+des plis/torons. À l'échelle du pas de tissage/pli, l'hypothèse « nappe
+continue plane, psi=0 exactement AU nœud du bord géométrique » n'a plus de
+sens physique fin : le dernier « barreau » de boucles fermées avant la
+coupe du chant est décalé de l'ordre d'un pas de maille par rapport au bord
+géométrique exact, et le courant de retour peut encore emprunter des
+boucles partiellement coupées / des contacts fibre-fibre juste au-delà du
+bord idéal avant de s'annuler réellement -- cf. option 1 de la mission
+(« condition de bord psi moins raide »).
+
+On modélise ceci par une longueur de relaxation ``lambda_bord_mm`` (mm) :
+au lieu de résoudre l'EDP ``psi=0`` exactement aux indices (0, ny-1) de la
+grille PHYSIQUE en y (largeur), on résout la MÊME EDP (mêmes rho, même Bz
+échantillonné, aucune approximation supplémentaire dans ``foucault.py``,
+qui reste intouché) sur une grille en y ÉTENDUE de ``lambda_bord_mm`` de
+part et d'autre (``_grille_y_etendue``), ``psi=0`` étant repoussé sur cette
+frontière étendue -- PAS au chant réel de l'échantillon, qui devient un
+nœud INTÉRIEUR libre de prendre une valeur non nulle. C'est la technique
+classique de la « longueur d'extrapolation » des problèmes de diffusion à
+frontière discrète/mésoscopique (analogue du problème de Milne en théorie
+du transport : la frontière effective d'un milieu diffusif discret est
+repoussée d'une fraction du libre parcours moyen au-delà de la frontière
+géométrique) -- ici appliquée par analogie au pas de maille du tissage
+plutôt qu'à un libre parcours de transport. AUCUNE matière conductrice
+n'est ajoutée physiquement hors de l'échantillon : c'est un DISPOSITIF DE
+CONDITION AUX LIMITES qui adoucit le gradient de psi (donc de J=rot(psi),
+donc de q=rho.J^2) au voisinage immédiat du bord réel, sans toucher au
+reste du domaine (n_pad mailles seulement, cf. ``_grille_y_etendue``).
+
+``lambda_bord_mm=0`` (défaut) reproduit EXACTEMENT (bit-à-bit) le chemin
+historique ``psi=0`` au bord géométrique -- non-régression garantie. Non
+supporté avec ``champ_reaction=True`` (interaction non explorée, hors
+mandat -- ``ValueError`` explicite si les deux sont actifs). ``lambda_bord_mm``
+est un paramètre d'ÉCHELLE PHYSIQUEMENT MOTIVÉ mais NON MESURÉ (le pas de
+tissage du sergé n'est pas caractérisé au cahier) : à traiter comme
+CALIBRABLE au même titre que ``lissage_sigma_mm``, PAS comme une valeur
+figée par une mesure indépendante -- cf. rapport dédié pour la valeur
+prototypée et son effet sur le contraste bord/centre et le RMSE.
+
 Convergence : itération de point fixe (Picard) jusqu'à
 ``max(|Δψ|)/max(|ψ|) < tol`` (défaut 1e-6) ou ``RuntimeError`` si non atteint
 en ``max_iter`` (défaut 50) itérations — le rayon spectral de l'itération est
@@ -149,6 +197,18 @@ def _lisser_source(Q: np.ndarray, grille: Grille3D, sigma_mm: float) -> np.ndarr
         ssum = float(sm.sum())
         out[:, :, k] = sm * (tot / ssum) if ssum > 0.0 else s
     return out
+
+
+def _grille_y_etendue(grille: Grille3D, lambda_bord_mm: float) -> tuple[np.ndarray, int]:
+    """Grille en y étendue de ``lambda_bord_mm`` (mm) de part et d'autre du
+    domaine physique, même pas ``grille.dy`` (cf. docstring module,
+    ``lambda_bord_mm``). Renvoie ``(y_etendu, n_pad)`` -- ``n_pad`` mailles
+    ajoutées de chaque côté (``psi=0`` sera imposé sur cette frontière
+    étendue, PAS sur le bord physique)."""
+    n_pad = max(1, int(np.ceil((lambda_bord_mm * 1.0e-3) / grille.dy)))
+    y_bas = grille.y[0] - grille.dy * np.arange(n_pad, 0, -1)
+    y_haut = grille.y[-1] + grille.dy * np.arange(1, n_pad + 1)
+    return np.concatenate([y_bas, grille.y, y_haut]), n_pad
 
 
 def attenuation_blindage(couche: CoucheConductrice,
@@ -229,13 +289,14 @@ def source_spot(
     decalage_x: float = 0.0,
     champ_reaction: bool = False,
     lissage_sigma_mm: float = 0.0,
+    lambda_bord_mm: float = 0.0,
 ) -> np.ndarray:
     """Champ source Q (nx, ny, nz) en W/m³ pour la bobine centrée en ``centre_x``.
 
     ``decalage_x`` (m) décale le centre EFFECTIF de la bobine par rapport au
-    ``centre_x`` nominal du spot (incertitude de positionnement bobine/CFC au
+    ``centre_x`` nominal du spot (incertitude de positionnement bobine/MFC au
     montage, cf. geometrie.yaml:coil.decalage_x). Seule la bobine bouge : le
-    masque céramique/CFC (masque_empreinte_cfc) reste posé à ``centre_x`` —
+    masque céramique/MFC (masque_empreinte_cfc) reste posé à ``centre_x`` —
     c'est un décalage bobine<->reste du montage, pas un déplacement du spot.
 
     ``champ_reaction`` (défaut False, cf. docstring module) : active la
@@ -250,12 +311,31 @@ def source_spot(
     tissé), puissance conservée par tranche z — cf. ``_lisser_source`` et
     resultats_diag_centre_transitoire.log (remplit l'« œil de boucle » au centre
     du spot que la nappe continue idéalisée met à zéro).
+
+    ``lambda_bord_mm`` (défaut 0.0 = inchangé, BIT-À-BIT) : repousse la BC
+    ``psi=0`` de ``lambda_bord_mm`` au-delà du bord physique en y (largeur),
+    au lieu de l'imposer exactement au chant — cf. docstring module, section
+    « Adoucissement du bord ». Adoucit le contraste chant/centre du profil en
+    « M » sans toucher au reste du domaine ni à ``foucault.py``. Incompatible
+    avec ``champ_reaction=True`` (``ValueError`` explicite, interaction non
+    explorée).
     """
+    if lambda_bord_mm > 0.0 and champ_reaction:
+        raise ValueError(
+            "lambda_bord_mm > 0 avec champ_reaction=True : combinaison non "
+            "explorée (cf. docstring module) -- désactiver l'un des deux."
+        )
+
     omega = 2.0 * np.pi * float(cfg.geometrie["generateur"]["frequence"])
     mu_r = float(cfg.geometrie["cfc"]["mu_r"])
     z_miroir = plan_miroir_cfc(cfg)
     sommets = sommets_bobine(cfg, centre_x + decalage_x)
     X, Y = np.meshgrid(grille.x, grille.y, indexing="ij")
+
+    bord_souple = lambda_bord_mm > 0.0
+    if bord_souple:
+        y_ext, n_pad = _grille_y_etendue(grille, lambda_bord_mm)
+        X_ext, Y_ext = np.meshgrid(grille.x, y_ext, indexing="ij")
 
     Q = np.zeros((grille.nx, grille.ny, grille.nz))
 
@@ -275,10 +355,22 @@ def source_spot(
             # nœuds sur lesquels Bz varie significativement (cf. docstring module).
             for k in iz:
                 z_k = grille.z[k] if len(iz) > 1 else couche.z_mid
-                Bz = bz_plan(sommets, courant, X, Y, z_plan=-z_k,
-                            mu_r_cfc=mu_r, z_miroir=z_miroir)
-                psi = resoudre_psi(Bz, grille.dx, grille.dy,
-                                   couche.rho_xx, couche.rho_yy, omega)
+                if bord_souple:
+                    # BC psi=0 repoussée de lambda_bord_mm au-delà du bord
+                    # physique en y (cf. docstring module, "Adoucissement du
+                    # bord") ; ρ, ω, Bz échantillonné exactement comme le
+                    # chemin historique, seule la frontière du domaine résolu
+                    # change -- foucault.resoudre_psi non modifié.
+                    Bz_ext = bz_plan(sommets, courant, X_ext, Y_ext, z_plan=-z_k,
+                                     mu_r_cfc=mu_r, z_miroir=z_miroir)
+                    psi_ext = resoudre_psi(Bz_ext, grille.dx, grille.dy,
+                                           couche.rho_xx, couche.rho_yy, omega)
+                    psi = psi_ext[:, n_pad:n_pad + grille.ny]
+                else:
+                    Bz = bz_plan(sommets, courant, X, Y, z_plan=-z_k,
+                                mu_r_cfc=mu_r, z_miroir=z_miroir)
+                    psi = resoudre_psi(Bz, grille.dx, grille.dy,
+                                       couche.rho_xx, couche.rho_yy, omega)
                 q = densite_joule(psi, grille.dx, grille.dy, couche.rho_xx, couche.rho_yy)
                 Q[:, :, k] += q * att * poids
 

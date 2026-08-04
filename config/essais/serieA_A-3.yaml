@@ -1,6 +1,6 @@
 # Essai A-3 — 200 A, 70 N (test de la loi en courant, validation croisée)
 nom: serieA_A-3
-fichier_mesures: data/serieA_A-3_200A_2026-06-05.csv
+fichier_mesures: data/Serie A/serieA_A-3_200A_2026-06-05.csv
 courant: 200.0
 # HYPOTHÈSE : même consigne que A-1 (fiche A-3 : T max interface 400 °C).
 consigne_interface: 400.0    # °C

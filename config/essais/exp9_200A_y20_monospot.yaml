@@ -1,0 +1,52 @@
+# Essai exp9_200A_y20_monospot — dissipation longitudinale, spot unique fixe,
+# 200 A, ligne du CENTRE de largeur (y=0.020). Phase 2 de la campagne exp9_dissipation-longitudinale_2026-07-30
+# (phase 1 = y=0, cf. exp9_200A_monospot.yaml).
+#
+# ⚠️ GABARIT PRÉPARÉ AVANT ACQUISITION — le fichier de mesures n'existe pas
+# encore. À faire après l'essai :
+#   1. déposer le relevé sous le chemin `fichier_mesures` ci-dessous ;
+#   2. recaler `duree_chauffe` / `t_fin` sur la fenêtre de chauffe détectée
+#      (charger_mesures + recaler_a_la_chauffe, seuil dT/dt≈1 °C/s) et
+#      `duree_totale` sur la fin de fichier (refroidissement inclus).
+#   Les valeurs de timing ci-dessous sont des PLACEHOLDERS repris de la
+#   phase 1 (y=0) — à ajuster (la montée au centre est plus LENTE, donc
+#   `duree_chauffe` sera vraisemblablement > 13 s).
+#
+# Physique — pourquoi ce relevé est décisif :
+#   Le spot (bobine + MFC) est centré en largeur (y=0.020 = largeur/2, NON
+#   configurable — seul centre_x l'est). La ligne de TC au CENTRE (y=0.020)
+#   tombe donc dans le CREUX du profil en « M » (courant de Foucault minimal
+#   au centre) : la température y vient surtout de la CONDUCTION longitudinale,
+#   pas de la source. => test direct de `k_plan` et du résidu d'étalement /
+#   centre-fill (le modèle sous-estime historiquement le remplissage du
+#   centre). Complète la phase 1 (y=0, dominée par la source) et fournit la
+#   famille « spot isolé / conduction » manquante pour la calibration jointe.
+#
+# Sécurité échantillon — les TC étant au point FROID (centre), les BORDS
+# (y=0 / y=40, non mesurés) sont plus chauds d'un facteur de contraste
+# C≈2,1 (mesuré) à 2,43 (modèle). Pour ne PAS souder les bords (fusion PEKK
+# 337 °C), plafonner le pic au centre (TC3, x=60) à ~150 °C ; ~125 °C pour
+# garder l'échantillon réutilisable (bords ≤ ~270 °C). Recommandé : 1 TC
+# témoin au bord (y=0, x=60) pendant l'essai pour mesurer C réel et piloter
+# l'arrêt.
+nom: exp9_200A_y20_monospot
+fichier_mesures: data/exp9_dissipation-longitudinale_2026-07-30/200A/200A_y20_monospot.txt
+courant: 200.0                # A
+duree_chauffe: 34.0             # s — fenêtre détectée (onset t≈14.9s, pic combiné +34s ; montée + lente qu'au bord)
+duree_totale: 188.0             # s — après recalage à l'onset (fin de fichier, refroidissement inclus)
+# Pics mesurés (°C, ambiant ≈ 24.9) : TC1=36.8 TC2=52.1 TC3=165.4 (spot) TC4=74.0 TC5=39.8
+# Profil long. normalisé au spot : 0.09 / 0.19 / 1.00 / 0.35 / 0.11 — nettement PLUS LARGE
+# qu'au bord (0.02/0.08/1/0.14/0.03) : étalement longitudinal accru (conduction / k_plan).
+spots:
+  # Spot UNIQUE fixe, centré en longueur x=0.060 (= centre du coil) ; centré
+  # en largeur y=0.020 par construction du modèle.
+  - {centre_x: 0.060, t_debut: 0.0, t_fin: 34.0}
+thermocouples:
+  # 5 TC en LONGUEUR à y=0.020 (ligne du CENTRE de largeur), tous à l'interface.
+  # x=0 / 30 / 60 (spot) / 90 / 120 mm.
+  TC1: {x: 0.000, y: 0.020, z: interface}
+  TC2: {x: 0.030, y: 0.020, z: interface}
+  TC3: {x: 0.060, y: 0.020, z: interface}   # au spot (centre x ET centre largeur)
+  TC4: {x: 0.090, y: 0.020, z: interface}
+  TC5: {x: 0.120, y: 0.020, z: interface}
+tc_valides: [TC1, TC2, TC3, TC4, TC5]

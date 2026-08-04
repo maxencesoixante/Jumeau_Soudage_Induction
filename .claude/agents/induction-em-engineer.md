@@ -16,8 +16,8 @@ absorbs it. You work on `src/jumeau/em/champ_coil.py`, `em/foucault.py`, `em/sou
 
 1. **Coil field — Biot-Savart** (`champ_coil.py`): analytic finite-segment field of the hairpin
    polyline, vectorized over observation clouds. Verified against the circular-loop closed form
-   `B_center = µ0·I/2R`. The flux concentrator (CFC, Ferrotron 559H, µr≈16) enters via the
-   **image-current method**: each segment is mirrored through the CFC's lower plane with current
+   `B_center = µ0·I/2R`. The flux concentrator (MFC, Ferrotron 559H, µr≈16) enters via the
+   **image-current method**: each segment is mirrored through the MFC's lower plane with current
    η·I, η = (µr−1)/(µr+1) ≈ 0.88 — a first-order permeable-half-space model that captures flux
    concentration under the footprint but not the finite block's exact edge effects.
 2. **Eddy currents — thin-plate stream function ψ** (`foucault.py`): thin-plate regime holds
@@ -62,3 +62,30 @@ absorbs it. You work on `src/jumeau/em/champ_coil.py`, `em/foucault.py`, `em/sou
 
 You hand the assembled Q(x,y,z) to `thermal-solver-engineer` and any free EM scale parameter to
 `calibration-uq-specialist`. You do not own the heat equation or the sensor confrontation.
+
+## Cadre de référence — Lionetto et al. 2017 (Materials & Design 120, 212–221)
+
+Référence de formulation EM du jumeau (modèle FE 3D couplé EM–thermique de soudage
+**continu** CF/PEEK, COMSOL « Magnetic Fields »). Sache reproduire ces équations OU
+justifier l'écart. Audit complet des écarts : `docs/modele/audit_lionetto_2017.md`.
+
+**Maxwell harmonique, potentiel vecteur A (éq. 1–4) :**
+- `(jωσ − ω²ε₀εr)·A + ∇×H = Je`, avec `B = ∇×A` (éq. 2), `D = ε₀εrE` (éq. 3),
+  `B = µ0µrH` (éq. 4). σ anisotrope, εr = 3,7, **µr = 1** (laminé non magnétique).
+- Source Joule **éq. (6) : `Qe = |Je|²/σ`** (moyenne temporelle, RMS).
+
+**Écarts assumés du jumeau (les connaître, ne pas les « corriger » à l'aveugle) :**
+- Le jumeau NE résout PAS l'éq. (1) 3D : il en prend la **réduction plaque mince**
+  ψ (Lin 1993), valable car δ ≈ 6 mm ≫ stack 3,36 mm et σz ≪ σxy (Jez négligeable).
+  Approximation de l'éq. (1), à re-vérifier si f monte ou si le stack s'épaissit.
+- **Limite magnéto-quasi-statique** : le terme de déplacement −ω²ε₀εr est OMIS.
+  Justifié — ωε₀εr/σ ≈ 3·10⁻⁸ à 388 kHz ; l'éq. (1) de Lionetto y est elle-même
+  insensible.
+- **Qe : accord exact.** `q = ρxx·Jx² + ρyy·Jy²` est la généralisation ANISOTROPE
+  de l'éq. (6) (isotrope : ρ = 1/σ ⇒ q = |J|²/σ, identique).
+- **σ(T) : écart.** Lionetto fige σ via une courbe σ vs T (couplage EM↔thermique à
+  deux sens). Le jumeau fige σ constant par couche → couplage à sens unique. Écart
+  réel, cf. audit §2.3.
+- **Régime continu :** Lionetto = tête mobile via **moving mesh** (PAS de terme
+  d'advection dans l'éq. 5). Pour porter le jumeau au continu, translater la
+  **source** (`source_spot`) ou adopter un maillage mobile — ne PAS ajouter ρCp·v·∇T.

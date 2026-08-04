@@ -1,0 +1,180 @@
+Phase 2 — recalibration 2D + UQ sur exp7_200A (calibration-uq-specialist, 2026-07-29)
+========================================================================================
+Essai de calibration : config/essais/exp7_200A.yaml (200 A, 5 TC interface bord->centre,
+profil M, twill=0.00020 m post-phase1, duree simulee 115 s, sigma bruit capteur par TC :
+TC1=4.635 TC2=3.225 TC3=1.846 TC4=2.578 TC5=4.509 deg C, cf. Calibrateur.sigmas).
+
+Config NON modifiee (config/materiaux.yaml intact hormis la correction twill de phase 1).
+theta de travail (point de depart, NON canonique) : facteur_couplage=6.0123,
+h_haut=30.087, h_bas_2d=37.424, h_bord_x0=250.0, decalage_x=0.
+
+BASELINE reproduite (valider.py --modele 2D --essais exp7_200A --facteur 6.0123
+--decalage-x 0 --h-haut 30.087 --h-bas-2d 37.424 --h-bord-x0 250) :
+  TC1 rmse=19.4 dTmax=+50.6 | TC2 rmse=25.5 dTmax=-53.2 | TC3 rmse=23.7 dTmax=-28.0
+  TC4 rmse=18.8 dTmax=-15.9 | TC5 rmse=21.8 dTmax=+55.7
+  RMSE moyen 21.8 C, |dTmax| moyen 40.7 C -- reproduit exactement les chiffres fournis
+  par l'orchestrateur (confirme la chaine de bout en bout avant recalibration).
+
+--- ETAPE 0 : diagnostics d'identifiabilite prealables (grille de calibration 31x11x13) ---
+
+(a) decalage_x : theta=[6.0123, dx, 30.087, 37.424], cout pondere
+      dx=0.000 -> cout=35482.3
+      dx=0.003 -> cout=29419.1   (ameliore -17%)
+      dx=0.008 -> cout=34412.9
+      dx=0.015 -> cout=152518.9 (railement, tres mauvais)
+    decalage_x N'EST PAS plat sur exp7_200A (contrairement a chauffe_250A_3TC) car
+    h_bord_x0 casse la symetrie x=0/x=L -> le signe/l'amplitude devient en principe
+    identifiable. Neanmoins HORS PERIMETRE des 4 parametres demandes par le design
+    (facteur_couplage, h_haut, h_bas_2d, h_bord_x0) -> laisse FIGE a 0 comme dans le
+    theta de travail ; sensibilite documentee ici pour une investigation future
+    (risque de confusion avec la forme de source / sigma, a ne pas ouvrir sans
+    diagnostic dedie).
+
+(b) h_bord_x0 : theta=[6.0123, 0, 30.087, 37.424], h_bord_x0 in {0,50,100,150,200,
+    250,300,400,500} -> COUT STRICTEMENT IDENTIQUE (35482.3) a TOUTES les valeurs
+    testees, y compris a la grille de validation fine 61x21x15 (confirme avec le
+    theta* final, sigma variant : RMSE/dTmax identiques par TC a h_bord_x0=0 et 250).
+    EXPLICATION PHYSIQUE : h_bord_x0 agit seulement sur le chant x=0 (cf.
+    solveur2d.py L130-143) ; tous les TC d'exp7_200A sont a x=0.060 m, soit 60 mm du
+    chant x=0 (longueur totale 120 mm). Longueur de diffusion thermique en 115 s :
+    sqrt(4*alpha*t) avec alpha=k_plan/(rho*cp)=3/(1600*1200)=1.56e-6 m2/s ->
+    sqrt(4*1.56e-6*115) = 27 mm << 60 mm. La perturbation du chant x=0 n'a
+    physiquement PAS le temps d'atteindre les TC dans la fenetre simulee.
+    => h_bord_x0 est TOTALEMENT NON IDENTIFIABLE depuis exp7_200A (contraste au sens
+    strict, pas juste une correlation elevee). Consequence directe pour la variante 3
+    demandee : h_bord_x0=0 EST INDISCERNABLE de h_bord_x0=250 (ou toute autre valeur)
+    sur cet essai -> recommandation h_bord_x0=0 (retrait du fudge non physique, cf.
+    materiaux.yaml commentaire) VALIDE pour exp7_200A, mais la decision definitive
+    revient a la validation croisee phase 3 sur serieA_A-1/A-3 (spot pres du chant,
+    16 mm, ou h_bord_x0 avait ete introduit et calibre a 250).
+
+(c) h_haut vs h_bas_2d : fit joint 3 parametres libres (facteur_couplage, h_haut,
+    h_bas_2d ; decalage_x fige 0 ; h_bord_x0=0 ; sigma=0), n_lhs=20 max_nfev=50 :
+      facteur_couplage=7.1799 +/- 0.117 ; h_haut=29.375 +/- 26.41 ; h_bas_2d=103.13
+      +/- 25.19 ; cout=25128.6, succes=True.
+      Correlation(h_haut,h_bas_2d) = -0.982 > 0.95 -> ATTENTION quasi-non-identifiabilite
+      affichee automatiquement par Calibrateur (meme famille de piege que f/facteur).
+    Profil de cout a h_haut FIGE (facteur_couplage,h_bas_2d libres, sigma=0) :
+      h_haut= 1 -> facteur=7.19 h_bas_2d=131.2 cout=25197.0
+      h_haut= 5 -> facteur=7.17 h_bas_2d=126.6 cout=25162.8
+      h_haut=15 -> facteur=7.20 h_bas_2d=119.1 cout=25173.0
+      h_haut=30 -> facteur=7.25 h_bas_2d=106.3 cout=25155.7
+      h_haut=50 -> facteur=7.22 h_bas_2d= 87.0 cout=25172.8
+    COUT QUASI PLAT (<0.2% de variation) sur toute la borne [1,50] : h_haut n'est PAS
+    identifiable depuis exp7_200A (spot unique statique 18 s, pas de contraste
+    temporel suffisant entre le puits "sous MFC" et le puits "partout" contrairement
+    aux essais sequentiels Series A/B). Meme constat reproduit a sigma=6.5mm (voir
+    plus bas) : cout quasi plat 3842-3966 pour h_haut in {5,30.087,50}.
+    DECISION (regle AGENTS.md "ne pas calibrer des parametres correles ensemble") :
+    FIGER h_haut a sa valeur de travail (30.087, hypothese, pas une estimation) et
+    calibrer seulement (facteur_couplage, h_bas_2d) sur exp7_200A. h_haut devra etre
+    identifie par un essai a contraste temporel/mask MFC (Series A/B, spots
+    sequentiels) en phase 3, PAS par exp7_200A seul.
+
+--- ETAPE 1 : calibration principale (facteur_couplage, h_bas_2d ; h_haut=30.087 fige,
+    decalage_x=0 fige, h_bord_x0=0, sigma=0) ---
+n_lhs=16 seed=0, max_nfev=40 (log complet : journaux/resultats_calibration_exp7_200A_main.log)
+  facteur_couplage = 7.2275 +/- 0.0803  (SE, jacobien NLSQ)
+  h_bas_2d         = 108.564 +/- 4.917 W/m2.K
+  correlation(facteur_couplage,h_bas_2d) = 0.691 (sous le seuil 0.95, acceptable)
+  cout = 25219.0, succes=True, 18 evaluations NLSQ, message="xtol satisfied"
+  Reproductibilite (seed=42, meme budget) : facteur=7.246 h_bas_2d=105.9 cout=25161
+  -> memes bassin/ordre de grandeur, fit robuste au tirage LHS.
+
+Validation fine (nx=61,ny=21,nz=15) :
+  TC1 rmse=29.7 dTmax=+66.9 | TC2 rmse=17.8 dTmax=-36.5 | TC3 rmse=18.1 dTmax=-24.4
+  TC4 rmse=11.0 dTmax=+0.9  | TC5 rmse=31.9 dTmax=+72.0
+  RMSE moyen 21.7 C (baseline 21.8) ; |dTmax| moyen 40.1 C (baseline 40.7)
+  -> quasi AUCUN gain global : le fit pondere redistribue le residu (ameliore
+  fortement TC2/TC3/TC4, degrade TC1/TC5) car TC3 (sigma le plus petit = poids le
+  plus fort) domine la fonction objectif. La FORME du M reste fausse : ce n'est pas
+  un probleme de facteur d'echelle/de pertes globales mais de forme de source
+  (cf. etape 2).
+
+--- ETAPE 2 : variante SIGMA (lissage de source gaussien) ---
+Meme figeage (decalage_x=0, h_haut=30.087, h_bord_x0=0), source_sigma_mm scanne :
+  sigma=2.0mm -> facteur=7.324 h_bas_2d=108.4  cout=19716.0
+  sigma=4.0mm -> facteur=7.616 h_bas_2d=118.9  cout= 8574.5
+  sigma=5.0mm -> facteur=7.717 h_bas_2d=120.1  cout= 5495.3
+  sigma=6.0mm -> facteur=7.911 h_bas_2d=123.9  cout= 4087.3
+  sigma=6.5mm -> facteur=7.989 h_bas_2d=125.1  cout= 3896.7  <- MINIMUM
+  sigma=7.0mm -> facteur=8.064 h_bas_2d=124.9  cout= 4019.5
+  sigma=7.5mm -> facteur=8.176 h_bas_2d=128.4  cout= 4402.8
+  sigma=8.0mm -> facteur=8.265 h_bas_2d=129.4  cout= 4976.4
+  sigma=10 mm -> (non reconverge dans le budget, hors minimum)
+Minimum net a sigma* ~ 6.5 mm (coherent avec resultats_diag_centre_transitoire.log
+§6-7 : sigma~5-6mm identifie sur A-1). Chute de cout de 84% vs sigma=0 (25219->3897)
+DIRECTEMENT sur l'essai cible du profil M (contrairement au test precedent sur A-1
+qui n'avait teste sigma que par transfert, pas par calibration directe sur exp7).
+
+Calibration finale a sigma=6.5mm (n_lhs=16 seed=0 max_nfev=40, log complet :
+journaux/resultats_calibration_exp7_200A_sigma.log) :
+  facteur_couplage = 7.9819 +/- 0.0396
+  h_bas_2d         = 124.692 +/- 1.961 W/m2.K
+  correlation(facteur_couplage,h_bas_2d) = 0.765
+  cout = 3899.5, succes=True, 15 evaluations NLSQ
+  Reproductibilite (seed=42) : facteur=7.988 h_bas_2d=125.18 cout=3897 -> tres stable.
+  h_haut reste NON identifiable a sigma=6.5 (cout 3842-3966 quasi plat pour h_haut
+  in {5,30.087,50}, meme mecanisme qu'a sigma=0).
+
+Validation fine (nx=61,ny=21,nz=15), h_bord_x0=0 (identique a h_bord_x0=250, verifie) :
+  TC1 rmse= 7.2 dTmax=+19.3 | TC2 rmse= 8.7 dTmax=-9.7 | TC3 rmse= 3.2 dTmax=-1.0
+  TC4 rmse=13.0 dTmax=+27.6 | TC5 rmse= 8.8 dTmax=+24.4
+  RMSE moyen 8.2 C (baseline 21.8, -62%) ; |dTmax| moyen 16.4 C (baseline 40.7, -60%)
+  GAIN NET sur TOUS les TC en RMSE (TC1 19.4->7.2, TC2 25.5->8.7, TC3 23.7->3.2,
+  TC4 18.8->13.0, TC5 21.8->8.8). Le biais chants sur-chauffes / centre sous-chauffe
+  est tres reduit (TC1/TC5 +19/+24 au lieu de +51/+56 ; TC2/TC3 -10/-1 au lieu de
+  -53/-28) ; TC4 bascule legerement de -15.9 a +27.6 (sur-corrige, seul TC dont
+  |dTmax| se degrade en valeur absolue, mais son RMSE global s'ameliore quand meme
+  18.8->13.0 -- l'ecart au pic seul est un indicateur bruyant/instantane).
+
+--- ETAPE 3 : propagation d'incertitude (theta* sigma=6.5, covariance NLSQ) ---
+cov = [[0.03958^2, 0.7645*0.03958*1.9607],[sym, 1.9607^2]]
+Directions principales (eigen-decomposition) :
+  PC1 (dominant, 3.845e0) : quasi-pur h_bas_2d (+/-1.96), facteur quasi fixe.
+  PC2 (mineur, 6.51e-4)   : quasi-pur facteur_couplage (+/-0.026).
+Propagation lineaire (+/-1 sigma sur PC1, la direction dominante) sur exp7_200A :
+  facteur=8.012 h_bas_2d=126.65 -> RMSE moyen 8.1, |dTmax| moyen 16.5,
+    T_max_sim TC1=293.7 (nominal 293.4)
+  facteur=7.952 h_bas_2d=122.73 -> RMSE moyen 8.1, |dTmax| moyen 16.1,
+    T_max_sim TC1=292.3 (nominal 293.4)
+=> l'intervalle de confiance PARAMETRIQUE (~68%) sur le pic simule TC1 est etroit :
++/-~0.7-1.0 C. L'INCERTITUDE DOMINANTE dans les predictions N'EST PAS parametrique
+(le fit determine tres precisement facteur_couplage/h_bas_2d etant donne le sigma
+de lissage choisi) mais STRUCTURELLE/modele (biais residuel 3-28 C selon le TC,
+cf. RMSE par TC ci-dessus). Un intervalle de confiance base uniquement sur le
+jacobien NLSQ sous-estimerait tres largement l'incertitude reelle de prediction --
+a ne rapporter qu'accompagne du RMSE/biais residuel par TC.
+
+--- RESUME DECISION ---
+theta*_new RECOMMANDE (a soumettre a la validation croisee phase 3, PAS ecrit dans
+config/materiaux.yaml par cet agent) :
+  facteur_couplage = 7.982 +/- 0.040   (dimensionless)
+  h_haut           = 30.087 (FIGE -- non identifiable depuis exp7_200A, valeur =
+                      point de depart, PAS une estimation ; a reidentifier sur un
+                      essai a contraste temporel type Series A/B en phase 3)
+  h_bas_2d         = 124.69 +/- 1.96 W/m2.K
+  h_bord_x0        = 0.0 (NON identifiable depuis exp7_200A -- retrait du fudge non
+                      physique justifie sur CET essai ; a reconfirmer en phase 3 sur
+                      serieA_A-1/A-3 ou le spot est pres du chant)
+  decalage_x       = 0.0 (FIGE par design ; sensibilite residuelle +17% de cout a
+                      dx=0.003 documentee mais hors perimetre)
+  source_sigma_mm  = 6.5  (NOUVEAU LEVIER, gain net -62% RMSE / -60% |dTmax| sur
+                      exp7_200A, minimum de cout net entre 6 et 7 mm)
+
+ATTENTION reportee a la phase 3 : resultats_diag_centre_transitoire.log §7 avait
+trouve que sigma=6 (calibre sur A-1, twill=0.28 ancien) degradait les PICS des
+essais Series A/B de +13 a +17 C tout en ameliorant marginalement leur RMSE. Cette
+fois sigma est calibre DIRECTEMENT sur l'essai qu'il est cense corriger (exp7_200A,
+avec le twill corrige 0.20mm) et le gain y est net et large (pas marginal). Le
+risque de degrader A-1/A-3/B-2 (essais a spot sequentiel, physique differente)
+n'est PAS ecarte par ce travail -- IMPERATIF de confronter theta*_new (sigma=6.5)
+aux essais Series A/B en validation croisee phase 3 avant adoption definitive ;
+si sigma degrade nettement A/B, envisager de rapporter sigma=0 comme repli
+(facteur_couplage=7.228, h_bas_2d=108.56, memes h_haut/h_bord_x0/decalage_x) qui
+reste un leger progres/neutre sur exp7_200A (RMSE 21.7 vs 21.8) sans le risque.
+
+Logs generes (dossier journaux/) :
+  resultats_calibration_exp7_200A_main.log   (fit 3-parametres joint + warning correlation)
+  resultats_calibration_exp7_200A_sigma.log  (fit final sigma=6.5, LHS + NLSQ complet)
+  resultats_calibration_exp7_200A_phase2.log (ce fichier -- synthese complete)

@@ -14,6 +14,24 @@ cf_pekk:
   # Conductivité thermique du laminé homogénéisé quasi-iso [45/-45/0/90]3s
   k_plan: 3.0                # W/m.K — dans le plan (homogénéisé quasi-iso), incertain
   k_z: 0.64                  # W/m.K — transverse (Buser / CLAUDE.md vault)
+  # Conductivité thermique DÉPENDANTE DE T (Lionetto et al. 2017, éq. 5 :
+  # k = k(T) ; cf. docs/modele/audit_lionetto_2017.md §3.1/§4.3). Table
+  # [[T_°C, k_W/mK], ...], interpolée linéairement (extrapolation plate hors
+  # bornes). FLAG OFF PAR DÉFAUT : laissé EN COMMENTAIRE => k constant
+  # ci-dessus (comportement historique bit-identique). Décommenter active la
+  # forme flux-conservative à k variable dans les solveurs. Valeurs = ORDRE DE
+  # GRANDEUR sourcé littérature CF/PAEK (courbe k vs T, réfs Lionetto [46,47,63]
+  # / Grouve) — INCERTAIN / CALIBRABLE, PAS une mesure du PEKK réel ; à ne pas
+  # adopter sans évaluation held-out (mandat calibration-uq-specialist). NON
+  # combinable avec k_plan_x/k_plan_y (les solveurs lèvent une ValueError).
+  # k_plan_T:
+  #   - [20,  3.0]
+  #   - [150, 3.3]
+  #   - [340, 3.9]
+  # k_z_T:
+  #   - [20,  0.64]
+  #   - [150, 0.70]
+  #   - [340, 0.80]
   # Conductivités électriques d'un pli UD (Grouve 2020 Table 1, Solvay)
   sigma_0: 2.2e+4            # S/m — sens fibre
   sigma_90: 3.4              # S/m — travers fibre (intra-pli)
@@ -24,12 +42,14 @@ cf_pekk:
 # conductrices fermées dans les deux directions => siège principal des courants
 # de Foucault (hypothèse Série A, cahier de labo).
 twill_suscepteur:
-  # CORRECTION PRÉPARÉE (user 2026-07-27) : épaisseur MESURÉE = 0,20 mm (0.0002 m),
-  # pas 0,28. À APPLIQUER à la prochaine recalibration (change la répartition de
-  # puissance entre couches -> refit θ*). Valeur active laissée à 0.00028 pour
-  # l'instant afin de ne pas confondre avec l'expérience thermostat 'capteurs' en
-  # cours ; passer à 0.0002 en même temps que le refit.
-  epaisseur: 0.00028         # m — ~2 CPT (tissé) ; MESURÉ 0.0002 (à appliquer, cf. ci-dessus)
+  # CORRECTION APPLIQUÉE (user 2026-07-27, appliquée 2026-07-29 -- Phase 1 de la
+  # consolidation du jumeau, cf. docs/superpowers/specs/2026-07-29-consolidation-
+  # jumeau-design.md) : épaisseur MESURÉE = 0,20 mm (0.0002 m), pas 0,28 (ancienne
+  # hypothèse ~2 CPT). Change la répartition de puissance entre couches -> θ* DOIT
+  # être recalibré (Phase 2, calibration-uq-specialist) ; ne PAS comparer un θ*
+  # calibré avec l'ancienne épaisseur 0.00028 à des métriques calculées après ce
+  # changement.
+  epaisseur: 0.00020         # m — MESURÉ (twill suscepteur), cf. commentaire ci-dessus
   sigma_plan: 1.1e+4         # S/m — isotrope plan (ordre sigma_0/2, tissé équilibré), incertain
   facteur_couplage: 1.0      # facteur d'efficacité calibré (blindage, contacts fibre-fibre)
 
@@ -41,14 +61,19 @@ ceramique:
   h_contact: 50.0            # W/m2.K, incertain (calibré, modèle 3D)
   T_puits: 20.0              # °C
   # Conductance TOP effective du modèle 2D lumpé dans l'épaisseur
-  # (jumeau.thermique.solveur2d.SolveurThermique2D), sous l'empreinte CFC
+  # (jumeau.thermique.solveur2d.SolveurThermique2D), sous l'empreinte MFC
   # active : remplace le rôle de h_contact mais absorbe aussi la conduction
   # à travers le demi-stack supérieur (plus de résolution en z côté 2D).
   # NOUVEAU (2026-07-20). Point de départ = dernière calibration 3D de
   # h_contact sur chauffe_250A_3TC (5.0, cf. scripts/calibrer.py docstring),
   # PAS une valeur calibrée pour le 2D — à recalibrer. Borne suggérée pour
   # la calibration à venir : [1, 50] W/m2.K (même enveloppe que h_contact).
-  h_haut: 5.0                 # W/m2.K, incertain (point de départ, modèle 2D)
+  # ADOPTÉ 2026-07-29 (consolidation) : θ* de référence 2D canonique
+  # (facteur_couplage=6.0123, h_haut=30.087, h_bas_2d=37.424, h_bord_x0=250),
+  # validé MEILLEUR sur le jeu tenu à l'écart (held-out) par la recalibration
+  # groupée -- une recalibration naïve à twill 0.20 ne l'a PAS battu. Adopté
+  # en config comme point de départ 2D, PAS comme calibration finale.
+  h_haut: 30.087              # W/m2.K, θ* de référence 2D canonique (cf. ci-dessus)
 
 ambiant:
   T_amb: 20.0                # °C
@@ -64,7 +89,9 @@ ambiant:
   # sur chauffe_250A_3TC (50.919, cf. scripts/calibrer.py docstring), PAS
   # une valeur calibrée pour le 2D — à recalibrer. Borne suggérée pour la
   # calibration à venir : [2, 300] W/m2.K (même enveloppe que h_bas 3D).
-  h_bas_2d: 50.919            # W/m2.K, incertain (point de départ, modèle 2D)
+  # ADOPTÉ 2026-07-29 (consolidation) : θ* de référence 2D canonique, validé
+  # meilleur sur held-out (cf. commentaire h_haut ci-dessus).
+  h_bas_2d: 37.424             # W/m2.K, θ* de référence 2D canonique (cf. ci-dessus)
   # Puits de chaleur additionnel au chant x=0 SEUL du modèle 2D lumpé
   # (jumeau.thermique.solveur2d). Introduit comme "bridage/appui du montage sur
   # x=0" (calibré sur A-1, 250 W/m2.K), mais REQUALIFIÉ le 2026-07-27 :
@@ -76,4 +103,6 @@ ambiant:
   # latérale FAIBLE et UNIFORME sur les quatre chants (physique, symétrique).
   # Valeur active laissée à 250 pour l'instant (ne pas confondre avec
   # l'expérience thermostat 'capteurs' en cours). 0.0 = pas de puits.
+  # CONFIRMÉ 2026-07-29 (consolidation) : fait partie du θ* de référence 2D
+  # canonique, validé meilleur sur held-out ; valeur inchangée (250.0).
   h_bord_x0: 250.0           # W/m2.K — EFFECTIF (pas physique, cf. ci-dessus), à retravailler

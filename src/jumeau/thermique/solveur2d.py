@@ -13,7 +13,7 @@ directement l'interface.
 Bilan par maille (imposé, cf. mission thermal-solver-engineer 2026-07-20) :
 
     (ρcp)_eff · e_eff · ∂T/∂t = ∇·(k_eff · e_eff · ∇T) + P_surf(x,y,t)
-                                 − h_haut·(T − T_puits)·[masque CFC actif]
+                                 − h_haut·(T − T_puits)·[masque MFC actif]
                                  − h_bas·(T − T_amb)
 
 - ``e_eff`` : épaisseur totale du stack (identique à ``Grille3D.epaisseur``) ;
@@ -30,13 +30,21 @@ Bilan par maille (imposé, cf. mission thermal-solver-engineer 2026-07-20) :
   dans le terme de conduction, ``e_eff`` se simplifie exactement de part et
   d'autre (∇·(k·e·∇T) / (ρcp·e) = k·∇²T / (ρcp)), donc le terme de conduction
   a la MÊME forme que le 3D (kx/rc, ky/rc), indépendamment de e_eff ;
+- ``k_eff`` ANISOTROPE (prototype 2026-07-31, flag OFF par défaut) : ``kx``,
+  ``ky`` proviennent de ``mat.k_plan_xy()`` (``materiaux.Materiau.k_plan_x``/
+  ``k_plan_y``, ``None`` => isotrope, ``kx = ky = k_plan``, comportement
+  historique bit-identique). Justification physique : le laminé CF/PEKK
+  quasi-iso [45/-45/0/90]3s n'a pas de raison stricte d'être isotrope dans le
+  plan une fois homogénéisé avec la géométrie du process (profil « M » en y,
+  dissipation longitudinale en x) — cf. docs/modele/README.md § résidu
+  ouvert, option (A) ;
 - ``P_surf(x, y, t)`` : puissance Joule TOTALE intégrée sur l'épaisseur
   (W/m²), construite en sommant sur z le champ ``source_spot`` 3D existant
   (``jumeau.procede.Essai.source_fn_2d`` fait cette somme une fois par spot) ;
   Q_volumique_2D = P_surf / e_eff (W/m³), même rôle que ``Q`` dans le 3D ;
 - ``h_haut`` (NOUVEAU, ``materiaux.ContactCeramique.h_haut``) : perte
   effective vers le puits céramique/concentrateur, active seulement là où le
-  masque CFC l'est (même masque que le 3D) — remplace ``h_contact`` mais
+  masque MFC l'est (même masque que le 3D) — remplace ``h_contact`` mais
   absorbe aussi la conduction à travers le demi-stack supérieur ;
 - ``h_bas`` (NOUVEAU, ``materiaux.Ambiant.h_bas_2d``) : perte effective vers
   la face opposée/ambiant, appliquée PARTOUT (pas de masque) — absorbe
@@ -109,6 +117,13 @@ class SolveurThermique2D:
         if masque_ceramique is None:
             masque_ceramique = np.zeros((grille.nx, grille.ny), dtype=bool)
         self.masque_ceramique = masque_ceramique
+        if materiau.a_k_variable() and (materiau.k_plan_x is not None
+                                        or materiau.k_plan_y is not None):
+            raise ValueError(
+                "k(T) (k_plan_T/k_z_T) et anisotropie in-plane (k_plan_x/k_plan_y) "
+                "ne sont pas combinables (interaction non explorée) — n'en activer "
+                "qu'un seul. Cf. Materiau.a_k_variable / docstring k_plan_field."
+            )
 
     # ------------------------------------------------------------------
     def _rhs(self, t: float, Tflat: np.ndarray, source_fn) -> np.ndarray:
@@ -118,8 +133,6 @@ class SolveurThermique2D:
         rc = mat.densite * cp                       # (ρ·cp)_eff, J/m3.K
         dT = np.zeros_like(T)
 
-        kx = ky = mat.k_plan
-
         # --- conduction dans le plan : différences secondes intérieures,
         # demi-cellule aux bords (identique au 3D — e_eff se simplifie du
         # terme de conduction, cf. docstring module) ; les bords (x, y) sont
@@ -127,27 +140,76 @@ class SolveurThermique2D:
         # les chants du 3D.
         Ta_K = amb.T_amb + KELVIN
 
-        # axe x
-        dT[1:-1, :] += kx * (T[:-2, :] - 2.0 * T[1:-1, :] + T[2:, :]) / g.dx**2
-        for i, voisin in ((0, 1), (-1, -2)):
-            T_edge = T[i, :]
-            TedgeK = T_edge + KELVIN
-            # Puits conductif du montage sur le chant x=0 SEUL (bridage/appui,
-            # cf. Ambiant.h_bord_x0) : 0.0 par défaut -> chant inchangé.
-            extra_x0 = amb.h_bord_x0 * (amb.T_amb - T_edge) if i == 0 else 0.0
-            dT[i, :] += (2.0 / g.dx) * (
-                kx * (T[voisin, :] - T_edge) / g.dx
+        if not mat.a_k_variable():
+            # ===== chemin historique : k scalaire/anisotrope constant (bit-identique) =====
+            kx, ky = mat.k_plan_xy()  # isotrope par défaut (kx=ky=k_plan) sauf k_plan_x/y renseignés
+
+            # axe x
+            dT[1:-1, :] += kx * (T[:-2, :] - 2.0 * T[1:-1, :] + T[2:, :]) / g.dx**2
+            for i, voisin in ((0, 1), (-1, -2)):
+                T_edge = T[i, :]
+                TedgeK = T_edge + KELVIN
+                # Puits conductif du montage sur le chant x=0 SEUL (bridage/appui,
+                # cf. Ambiant.h_bord_x0) : 0.0 par défaut -> chant inchangé.
+                extra_x0 = amb.h_bord_x0 * (amb.T_amb - T_edge) if i == 0 else 0.0
+                dT[i, :] += (2.0 / g.dx) * (
+                    kx * (T[voisin, :] - T_edge) / g.dx
+                    + amb.h_convection * (amb.T_amb - T_edge)
+                    + mat.emissivite * amb.stefan_boltzmann * (Ta_K**4 - TedgeK**4)
+                    + extra_x0
+                )
+            # axe y
+            dT[:, 1:-1] += ky * (T[:, :-2] - 2.0 * T[:, 1:-1] + T[:, 2:]) / g.dy**2
+            for j, voisin in ((0, 1), (-1, -2)):
+                T_edge = T[:, j]
+                TedgeK = T_edge + KELVIN
+                dT[:, j] += (2.0 / g.dy) * (
+                    ky * (T[:, voisin] - T_edge) / g.dy
+                    + amb.h_convection * (amb.T_amb - T_edge)
+                    + mat.emissivite * amb.stefan_boltzmann * (Ta_K**4 - TedgeK**4)
+                )
+        else:
+            # ===== forme FLUX-CONSERVATIVE à k(T) variable (Lionetto éq. 5) =====
+            # F_{i+½} = k_face·(T[i+1]−T[i])/d, k_face = moyenne arithmétique des
+            # k(T) voisins ; à k constant se réduit exactement au laplacien
+            # ci-dessus. Anisotropie k_plan_x/y NON combinée avec k(T) (garde
+            # __init__) : ici k in-plane isotrope k_plan_field(T).
+            kpf = mat.k_plan_field(T)          # (nx, ny) — in-plane k(T)
+
+            # axe x
+            kfx = 0.5 * (kpf[:-1, :] + kpf[1:, :])
+            Fx = kfx * (T[1:, :] - T[:-1, :]) / g.dx
+            dT[1:-1, :] += (Fx[1:, :] - Fx[:-1, :]) / g.dx
+            # chant x=0 (avec puits conductif h_bord_x0)
+            T_edge = T[0, :]; TedgeK = T_edge + KELVIN
+            dT[0, :] += (2.0 / g.dx) * (
+                Fx[0, :]
                 + amb.h_convection * (amb.T_amb - T_edge)
                 + mat.emissivite * amb.stefan_boltzmann * (Ta_K**4 - TedgeK**4)
-                + extra_x0
+                + amb.h_bord_x0 * (amb.T_amb - T_edge)
             )
-        # axe y
-        dT[:, 1:-1] += ky * (T[:, :-2] - 2.0 * T[:, 1:-1] + T[:, 2:]) / g.dy**2
-        for j, voisin in ((0, 1), (-1, -2)):
-            T_edge = T[:, j]
-            TedgeK = T_edge + KELVIN
-            dT[:, j] += (2.0 / g.dy) * (
-                ky * (T[:, voisin] - T_edge) / g.dy
+            # chant x=L
+            T_edge = T[-1, :]; TedgeK = T_edge + KELVIN
+            dT[-1, :] += (2.0 / g.dx) * (
+                -Fx[-1, :]
+                + amb.h_convection * (amb.T_amb - T_edge)
+                + mat.emissivite * amb.stefan_boltzmann * (Ta_K**4 - TedgeK**4)
+            )
+            # axe y
+            kfy = 0.5 * (kpf[:, :-1] + kpf[:, 1:])
+            Fy = kfy * (T[:, 1:] - T[:, :-1]) / g.dy
+            dT[:, 1:-1] += (Fy[:, 1:] - Fy[:, :-1]) / g.dy
+            # chant y=0
+            T_edge = T[:, 0]; TedgeK = T_edge + KELVIN
+            dT[:, 0] += (2.0 / g.dy) * (
+                Fy[:, 0]
+                + amb.h_convection * (amb.T_amb - T_edge)
+                + mat.emissivite * amb.stefan_boltzmann * (Ta_K**4 - TedgeK**4)
+            )
+            # chant y=W
+            T_edge = T[:, -1]; TedgeK = T_edge + KELVIN
+            dT[:, -1] += (2.0 / g.dy) * (
+                -Fy[:, -1]
                 + amb.h_convection * (amb.T_amb - T_edge)
                 + mat.emissivite * amb.stefan_boltzmann * (Ta_K**4 - TedgeK**4)
             )

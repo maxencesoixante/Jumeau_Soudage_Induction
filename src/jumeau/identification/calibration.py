@@ -19,15 +19,15 @@ fréquence + facteur d'échelle ensemble) :
   ``h_bas`` (convection équivalente face inférieure) ;
 - 2D (modèle lumpé dans l'épaisseur, ``thermique/solveur2d.py``, 2026-07-20) :
   ``h_haut`` (``materiaux.ContactCeramique.h_haut`` — perte effective vers le
-  puits céramique/concentrateur, active seulement sous le masque CFC) et
+  puits céramique/concentrateur, active seulement sous le masque MFC) et
   ``h_bas_2d`` (``materiaux.Ambiant.h_bas_2d`` — perte effective face
   opposée/ambiant, appliquée partout). Ce sont les analogues lumpés de
-  h_contact/h_bas : mêmes rôles physiques (haut = puits sous CFC, bas =
+  h_contact/h_bas : mêmes rôles physiques (haut = puits sous MFC, bas =
   ambiant partout), donc a priori séparément identifiables par le même
   argument spatial que 3D (où corr(h_contact, h_bas) = 0.067, cf. historique
-  ci-dessous) — un TC actuellement sous une empreinte CFC pressée voit h_haut
+  ci-dessous) — un TC actuellement sous une empreinte MFC pressée voit h_haut
   ET h_bas_2d, un TC hors empreinte (refroidissement, passe suivante) ne voit
-  QUE h_bas_2d : le masque CFC (suit le spot actif, cf. ``Essai.masque_fn``)
+  QUE h_bas_2d : le masque MFC (suit le spot actif, cf. ``Essai.masque_fn``)
   fournit le contraste nécessaire.
 
 SYMÉTRIE DE decalage_x (identifiabilité du signe) — pour chauffe_250A_3TC le
@@ -56,7 +56,7 @@ IDENTIFIABILITÉ facteur_couplage <-> decalage_x — avertissement de l'agent EM
 confirmé numériquement (calibration 3D sur chauffe_250A_3TC, 2026-07-19) :
 corr(facteur_couplage, decalage_x) = 0.985 > 0.95 ET decalage_x railé
 EXACTEMENT sur sa borne haute (0,015). Recommandation appliquée depuis : FIGER
-decalage_x (bord physique de l'enveloppe bobine/CFC, ou une valeur mesurée
+decalage_x (bord physique de l'enveloppe bobine/MFC, ou une valeur mesurée
 indépendamment) et ne calibrer que les 3 autres paramètres. La même
 vérification DOIT être refaite pour le modèle 2D (essai de calibration et
 grille source différents) — ne pas supposer que le résultat 3D se transpose

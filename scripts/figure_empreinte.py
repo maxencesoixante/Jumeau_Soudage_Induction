@@ -3,9 +3,9 @@
 température simulées à l'interface de soudure à différents instants.
 
 Équivalent semi-statique : au lieu d'une bobine avançant en continu (2 mm/s),
-la tête (hairpin + CFC) est indexée sur 4 empreintes successives ; chaque
+la tête (hairpin + MFC) est indexée sur 4 empreintes successives ; chaque
 panneau montre la carte d'interface à la fin de l'impulsion de chauffe d'une
-empreinte. L'empreinte CFC active est tracée en pointillés rouges, la flèche
+empreinte. L'empreinte MFC active est tracée en pointillés rouges, la flèche
 indique la direction d'avance de la tête.
 
 Usage :
@@ -120,7 +120,7 @@ def principale():
         i_t = int(np.argmin(np.abs(t_sol - t_k)))
         im = ax.pcolormesh(g.x * 1e3, g.y * 1e3, carte[:, :, i_t].T,
                            shading="gouraud", cmap="jet", vmin=20.0, vmax=vmax)
-        # empreinte CFC du spot actif (ou dernier actif) en pointillés rouges
+        # empreinte MFC du spot actif (ou dernier actif) en pointillés rouges
         i_spot = essai._spot_actif(t_k - 0.5)
         if i_spot is None:
             i_spot = min(range(len(essai.spots)),

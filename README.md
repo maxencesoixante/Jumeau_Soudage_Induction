@@ -1,15 +1,31 @@
 # Jumeau numérique — soudage par induction CF/PEKK
 
 Simulation Python de l'**empreinte thermique** créée par la bobine hairpin +
-concentrateur de flux (CFC Fluxtrol Ferrotron 559H) sur les laminés CF/PEKK
+concentrateur de flux (MFC Fluxtrol Ferrotron 559H) sur les laminés CF/PEKK
 du montage semi-statique (maîtrise, LIPEC/ÉTS). Le modèle produit une **carte
 de température 3D** (plan 120×40 mm × épaisseur du stack) confrontée aux
 mesures thermocouples des essais (Séries A/B + essais de chauffe).
 
+## Montage & géométrie
+
+Cotes du montage (coupon CF/PEKK, concentrateur MFC, bobine hairpin) et
+positions des thermocouples à l'interface, vues de dessus (plan x–y) et en
+coupe (échelle 1:1). Coupon **120 × 40 mm**, MFC Ferrotron 559H **31,5 mm (x)
+× 55 mm (y)**, bobine hairpin en tube Cu **6 × 6 mm**, entraxe brins
+**12,35 mm**, interface à **z = 3,36 mm**, film twill 0,10 mm.
+
+**exp7 — cartographie en largeur (profil « M »), 5 TC à x = 60 mm, y = 0/10/20/30/40 mm :**
+
+![Montage exp7 — cartographie en largeur](docs/figures/schema_montage_exp7.png)
+
+**exp9 — dissipation longitudinale, 5 TC au bord (y = 0), x = 0/30/60/90/120 mm :**
+
+![Montage exp9 — dissipation longitudinale](docs/figures/schema_montage_exp9.png)
+
 ## Chaîne physique
 
 1. **Champ magnétique** — Biot-Savart analytique de la bobine hairpin
-   (polyligne de segments) ; CFC traité par **courants images** à travers un
+   (polyligne de segments) ; MFC traité par **courants images** à travers un
    demi-espace perméable, facteur (µr−1)/(µr+1) ≈ 0,88 (µr = 16).
 2. **Courants de Foucault** — plaque mince (δ ≈ 6 mm à 300 kHz > épaisseur),
    fonction de courant ψ résolue par différences finies 2D par couche
@@ -32,20 +48,20 @@ mesures thermocouples des essais (Séries A/B + essais de chauffe).
 |---|---|
 | Plaque mince EM, courants plans | Lin 1993 ; δ(300 kHz, σ0) ≈ 6 mm > 3,36 mm |
 | Champ de réaction (blindage) négligé | absorbé par `facteur_couplage` calibré |
-| CFC = demi-espace perméable (images) | approx. 1er ordre de la concentration de flux |
+| MFC = demi-espace perméable (images) | approx. 1er ordre de la concentration de flux |
 | Laminé homogénéisé (σ, k quasi-iso plan) | O'Shaughnessey 2014 (Annexes I-II) ; Grouve 2020 |
 | µr = 1 pour le laminé | Grouve 2020 (Lionetto 2017) |
 | Fusion via cp apparent gaussien | notebook 1D / Samanis et al. 2026 éq. 2-3 |
 | Fréquence FIGÉE à 388 kHz | relevé machine du 2026-07-17 (EASYHEAT à 250 A) ; elle reste corrélée au facteur d'échelle → seul le facteur est calibré (leçon black-box f_I/r_I) |
-| Bobine + CFC refroidis → puits 20 °C | O'Shaughnessey 2014 (COMSOL, refroidissement eau) |
+| Bobine + MFC refroidis → puits 20 °C | O'Shaughnessey 2014 (COMSOL, refroidissement eau) |
 | Pertes diélectriques négligées | O'Shaughnessey 2014 §3.1.3 |
-| Pertes propres du CFC (Joule + hystérésis, Ferrotron 559H) non modélisées | négligeable : vérifié 2026-07-20 via la courbe de pertes constructeur (Fluxtrol *Ferrotron 559H* datasheet, µᵢ=16, ρ>15 kΩ·cm, Pv=4,1·f¹·¹·B²·⁵ W/cm³) — ≈0,6–1,4 W dissipés dans tout le bloc CFC à 250 A/388 kHz, contre ~50–260 W dans le twill ; 1 à 2 ordres de grandeur sous le déficit local requis à TC1 (cf. « Limites connues ») |
+| Pertes propres du MFC (Joule + hystérésis, Ferrotron 559H) non modélisées | négligeable : vérifié 2026-07-20 via la courbe de pertes constructeur (Fluxtrol *Ferrotron 559H* datasheet, µᵢ=16, ρ>15 kΩ·cm, Pv=4,1·f¹·¹·B²·⁵ W/cm³) — ≈0,6–1,4 W dissipés dans tout le bloc MFC à 250 A/388 kHz, contre ~50–260 W dans le twill ; 1 à 2 ordres de grandeur sous le déficit local requis à TC1 (cf. « Limites connues ») |
 
 ## Limites connues
 
 - Les **dimensions de la bobine hairpin** : tubes carrés de **6 mm de côté**,
   **gap 6,35 mm** entre brins (entraxe centre-à-centre **12,35 mm**), brins le
-  long du grand côté du CFC. **Orientation CFC confirmée** (2026-07-17) : 55 mm
+  long du grand côté du MFC. **Orientation MFC confirmée** (2026-07-17) : 55 mm
   parallèle à la largeur y des échantillons. **CORRECTION 2026-07-23** : la
   valeur antérieure (tubes ~9,5 mm, entraxe ~19 mm) était fausse ; la corriger a
   résolu l'essentiel du dépassement de pic A-1 (|ΔT_max| 46→15 °C à `k_plan=3`
@@ -128,22 +144,22 @@ mesures thermocouples des essais (Séries A/B + essais de chauffe).
   l'amplitude du contraste bord/centre est probablement exagérée.
   **Diagnostic 2026-07-27** (`journaux/resultats_diag_forme_source.log`) : le champ `Bz`
   est déjà UNIFORME sur la largeur (0,95→1,00) — le M ne vient donc PAS de la
-  forme du champ ni de la semelle du CFC, mais **entièrement de l'écrasement du
+  forme du champ ni de la semelle du MFC, mais **entièrement de l'écrasement du
   courant de Foucault** contre les chants (`ψ = 0` au bord d'une nappe continue
   idéalisée). Contraste bord/centre ~2,4× en source intégrée ; le « q ≈ 0 au
   centre » est l'œil de boucle (point de courant nul), un minimum ponctuel sur
   la ligne de symétrie où tombe justement TC2 de l'essai de chauffe. Corollaire :
-  un modèle de CFC fini n'y changera rien (il vaut pour le profil en longueur) ;
+  un modèle de MFC fini n'y changera rien (il vaut pour le profil en longueur) ;
   les leviers d'adoucissement sont les courants de retour 3D et la résistance de
   contact du twill tissé — non calibrables sans mesure.
   **Test expérimental direct : la cartographie bord→centre** (5 TC d'interface à
   y = 0/10/20/30/40 mm, x = 60 mm), cible chiffrée 717/382/292/382/717 °C au pic.
 - **TC1 (surface côté bobine) chauffe 5–6× trop lentement dans le modèle** (diagnostic thermal-solver-engineer, 2026-07-18/20 : 37,7 °C/s mesuré vs ~6,3 °C/s simulé, essai `chauffe_250A_3TC`). Trois explications ont été testées et **écartées** :
   - condition limite thermique (`h_contact=0` ne change quasiment rien, 6,38→6,42 °C/s) et diffusion (couper la source dans le laminé sup. fait chuter TC1 à 0,98 °C/s, τ_diffusion≈28,5 s ≫ 1 s) ;
-  - auto-échauffement du CFC (Ferrotron 559H) : ≈0,6–1,4 W chiffrés via la fiche constructeur, 1–2 ordres de grandeur trop faible même dans l'hypothèse la plus généreuse ;
+  - auto-échauffement du MFC (Ferrotron 559H) : ≈0,6–1,4 W chiffrés via la fiche constructeur, 1–2 ordres de grandeur trop faible même dans l'hypothèse la plus généreuse ;
   - artefact de positionnement `decalage_x` (le hairpin a un zéro de dissipation exact sur son plan de symétrie près de TC1) : balayage EM de `decalage_x` sur [0, 0.015] m (diagnostic jusqu'à 0.050 m), le rapport `Q(TC1)/Q(TC2)` culmine à **0,12** vers 7 mm et reste 5–50× sous 1 sur tout le domaine, alors que la cible mesurée est `taux_TC1/taux_TC2 ≈ 1,71`. Décaler la bobine déplace le zéro de champ mais ne peut pas inverser la hiérarchie de résistivité inter-couches (TC1 dans `lamine_sup` ρ≈3,7 mΩ·m, TC2 dans `twill_suscepteur` ρ≈0,09 mΩ·m, ~40× plus conducteur).
 
-  **Mécanisme manquant non identifié** — le déficit est structurel (répartition de puissance entre couches, ou effet de champ proche à cette hauteur z non capturé par le modèle de plaque mince), pas un artefact de positionnement ni une perte au contact. Aucune mesure de la température du CFC lui-même n'existe dans les essais actuels (TC1-3 sont tous sur le laminé, TC4/TC5 débranchés). Mesure discriminante proposée : thermocouple ou caméra IR sur la face active du CFC pendant un essai de chauffe.
+  **Mécanisme manquant non identifié** — le déficit est structurel (répartition de puissance entre couches, ou effet de champ proche à cette hauteur z non capturé par le modèle de plaque mince), pas un artefact de positionnement ni une perte au contact. Aucune mesure de la température du MFC lui-même n'existe dans les essais actuels (TC1-3 sont tous sur le laminé, TC4/TC5 débranchés). Mesure discriminante proposée : thermocouple ou caméra IR sur la face active du MFC pendant un essai de chauffe.
 
 ## Utilisation
 
@@ -173,5 +189,5 @@ TC2 = interface (tissu PW), TC3 = face opposée (README essais_chauffe).
 - Grouve 2020 — propriétés C/PEKK, µr=1, tenseur σ, h=10 W/m²K.
 - Lin 1993 — différences finies 2D, courants dans les fibres, plaque mince.
 - Duhovic 2012 — skin depth, ≥2 éléments dans la peau, convection.
-- Fluxtrol Inc. — *Ferrotron 559H* datasheet (rev. 06/02/15, fluxtrol.com) — propriétés matériau constructeur (µᵢ=16, ρ>15 kΩ·cm, courbe de pertes Pv=4,1·f¹·¹·B²·⁵) utilisée le 2026-07-20 pour chiffrer l'auto-échauffement du CFC (négligeable, cf. tableau des hypothèses).
+- Fluxtrol Inc. — *Ferrotron 559H* datasheet (rev. 06/02/15, fluxtrol.com) — propriétés matériau constructeur (µᵢ=16, ρ>15 kΩ·cm, courbe de pertes Pv=4,1·f¹·¹·B²·⁵) utilisée le 2026-07-20 pour chiffrer l'auto-échauffement du MFC (négligeable, cf. tableau des hypothèses).
 - Samanis et al. 2026 — méthode des lignes 1D, identification, test black-box.

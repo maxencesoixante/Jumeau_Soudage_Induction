@@ -8,7 +8,7 @@ Samanis et al. 2026 éq. 2-3) :
 - nœuds intérieurs : ∂T/∂t = [kx·δ²x + ky·δ²y + kz·δ²z]T/(ρ·cp_app) + Q/(ρ·cp_app) ;
 - nœuds de bord : demi-cellule de contrôle, préfacteur 2/d (identique à
   l'éq. 3 du 1D) avec flux surfaciques convection + rayonnement (Kelvin) ;
-- face supérieure (z=0, côté bobine) : sous l'empreinte céramique/CFC ->
+- face supérieure (z=0, côté bobine) : sous l'empreinte céramique/MFC ->
   conductance de contact h_contact vers T_puits (bobine + concentrateur
   refroidis, O'Shaughnessey 2014) ; hors empreinte -> convection + rayonnement ;
 - face inférieure : convection h_bas + rayonnement vers T_amb ;
@@ -97,7 +97,7 @@ class SolveurThermique3D:
     ``source_fn(t) -> ndarray (nx, ny, nz)`` en W/m³ (peut être un champ figé
     par morceaux dans le temps — passes successives du procédé).
     ``masque_ceramique`` : bool (nx, ny) — True là où la face supérieure est
-    en contact avec la céramique/CFC pressés (conductance vers le puits).
+    en contact avec la céramique/MFC pressés (conductance vers le puits).
     Peut être un callable ``t -> masque`` pour suivre le spot actif du
     procédé séquentiel (le concentrateur n'appuie que sur l'empreinte active).
     """
@@ -117,6 +117,13 @@ class SolveurThermique3D:
         if masque_ceramique is None:
             masque_ceramique = np.zeros((grille.nx, grille.ny), dtype=bool)
         self.masque_ceramique = masque_ceramique
+        if materiau.a_k_variable() and (materiau.k_plan_x is not None
+                                        or materiau.k_plan_y is not None):
+            raise ValueError(
+                "k(T) (k_plan_T/k_z_T) et anisotropie in-plane (k_plan_x/k_plan_y) "
+                "ne sont pas combinables (interaction non explorée) — n'en activer "
+                "qu'un seul. Cf. Materiau.a_k_variable / docstring k_plan_field."
+            )
 
     # ------------------------------------------------------------------
     def _rhs(self, t: float, Tflat: np.ndarray, source_fn) -> np.ndarray:
@@ -126,42 +133,91 @@ class SolveurThermique3D:
         rc = mat.densite * cp                       # ρ·cp_app, J/m3.K
         dT = np.zeros_like(T)
 
-        kx = ky = mat.k_plan
-        kz = mat.k_z
-
-        # --- conduction : différences secondes intérieures, demi-cellule aux bords
-        # axe x
-        dT[1:-1, :, :] += kx * (T[:-2, :, :] - 2.0 * T[1:-1, :, :] + T[2:, :, :]) / g.dx**2
-        dT[0, :, :] += (2.0 / g.dx) * (kx * (T[1, :, :] - T[0, :, :]) / g.dx
-                                       + amb.h_convection * (amb.T_amb - T[0, :, :]))
-        dT[-1, :, :] += (2.0 / g.dx) * (kx * (T[-2, :, :] - T[-1, :, :]) / g.dx
-                                        + amb.h_convection * (amb.T_amb - T[-1, :, :]))
-        # axe y
-        dT[:, 1:-1, :] += ky * (T[:, :-2, :] - 2.0 * T[:, 1:-1, :] + T[:, 2:, :]) / g.dy**2
-        dT[:, 0, :] += (2.0 / g.dy) * (ky * (T[:, 1, :] - T[:, 0, :]) / g.dy
-                                       + amb.h_convection * (amb.T_amb - T[:, 0, :]))
-        dT[:, -1, :] += (2.0 / g.dy) * (ky * (T[:, -2, :] - T[:, -1, :]) / g.dy
-                                        + amb.h_convection * (amb.T_amb - T[:, -1, :]))
-        # axe z — intérieur
-        dT[:, :, 1:-1] += kz * (T[:, :, :-2] - 2.0 * T[:, :, 1:-1] + T[:, :, 2:]) / g.dz**2
-
-        # face supérieure z=0 (côté bobine)
-        T_top = T[:, :, 0]
-        Ttop_K = T_top + KELVIN
         Ta_K = amb.T_amb + KELVIN
-        flux_libre = (amb.h_convection * (amb.T_amb - T_top)
-                      + mat.emissivite * amb.stefan_boltzmann * (Ta_K**4 - Ttop_K**4))
-        flux_ceram = self.contact.h_contact * (self.contact.T_puits - T_top)
         masque = self.masque_ceramique(t) if callable(self.masque_ceramique) else self.masque_ceramique
-        flux_top = np.where(masque, flux_ceram, flux_libre)
-        dT[:, :, 0] += (2.0 / g.dz) * (kz * (T[:, :, 1] - T_top) / g.dz + flux_top)
 
-        # face inférieure z=h (côté bâti/table)
-        T_bot = T[:, :, -1]
-        Tbot_K = T_bot + KELVIN
-        flux_bot = (amb.h_bas * (amb.T_amb - T_bot)
-                    + mat.emissivite * amb.stefan_boltzmann * (Ta_K**4 - Tbot_K**4))
-        dT[:, :, -1] += (2.0 / g.dz) * (kz * (T[:, :, -2] - T_bot) / g.dz + flux_bot)
+        if not mat.a_k_variable():
+            # ===== chemin historique : k SCALAIRE CONSTANT (bit-identique) =====
+            kx = ky = mat.k_plan
+            kz = mat.k_z
+
+            # --- conduction : différences secondes intérieures, demi-cellule aux bords
+            # axe x
+            dT[1:-1, :, :] += kx * (T[:-2, :, :] - 2.0 * T[1:-1, :, :] + T[2:, :, :]) / g.dx**2
+            dT[0, :, :] += (2.0 / g.dx) * (kx * (T[1, :, :] - T[0, :, :]) / g.dx
+                                           + amb.h_convection * (amb.T_amb - T[0, :, :]))
+            dT[-1, :, :] += (2.0 / g.dx) * (kx * (T[-2, :, :] - T[-1, :, :]) / g.dx
+                                            + amb.h_convection * (amb.T_amb - T[-1, :, :]))
+            # axe y
+            dT[:, 1:-1, :] += ky * (T[:, :-2, :] - 2.0 * T[:, 1:-1, :] + T[:, 2:, :]) / g.dy**2
+            dT[:, 0, :] += (2.0 / g.dy) * (ky * (T[:, 1, :] - T[:, 0, :]) / g.dy
+                                           + amb.h_convection * (amb.T_amb - T[:, 0, :]))
+            dT[:, -1, :] += (2.0 / g.dy) * (ky * (T[:, -2, :] - T[:, -1, :]) / g.dy
+                                            + amb.h_convection * (amb.T_amb - T[:, -1, :]))
+            # axe z — intérieur
+            dT[:, :, 1:-1] += kz * (T[:, :, :-2] - 2.0 * T[:, :, 1:-1] + T[:, :, 2:]) / g.dz**2
+
+            # face supérieure z=0 (côté bobine)
+            T_top = T[:, :, 0]
+            Ttop_K = T_top + KELVIN
+            flux_libre = (amb.h_convection * (amb.T_amb - T_top)
+                          + mat.emissivite * amb.stefan_boltzmann * (Ta_K**4 - Ttop_K**4))
+            flux_ceram = self.contact.h_contact * (self.contact.T_puits - T_top)
+            flux_top = np.where(masque, flux_ceram, flux_libre)
+            dT[:, :, 0] += (2.0 / g.dz) * (kz * (T[:, :, 1] - T_top) / g.dz + flux_top)
+
+            # face inférieure z=h (côté bâti/table)
+            T_bot = T[:, :, -1]
+            Tbot_K = T_bot + KELVIN
+            flux_bot = (amb.h_bas * (amb.T_amb - T_bot)
+                        + mat.emissivite * amb.stefan_boltzmann * (Ta_K**4 - Tbot_K**4))
+            dT[:, :, -1] += (2.0 / g.dz) * (kz * (T[:, :, -2] - T_bot) / g.dz + flux_bot)
+        else:
+            # ===== forme FLUX-CONSERVATIVE à k(T) variable (Lionetto éq. 5) =====
+            # Flux de face F_{i+½} = k_face·(T[i+1]−T[i])/d, k_face = moyenne
+            # arithmétique des k(T) des deux nœuds ; div = (F_{i+½}−F_{i−½})/d.
+            # À k constant, k_face = k et cette forme se réduit exactement au
+            # laplacien ci-dessus (à l'ordre des opérations flottantes près) —
+            # cf. test_thermique.py::test_k_variable_constante_egale_scalaire.
+            kpf = mat.k_plan_field(T)          # (nx, ny, nz) — in-plane k(T)
+            kzf = mat.k_z_field(T)             # (nx, ny, nz) — transverse k_z(T)
+
+            # axe x
+            kfx = 0.5 * (kpf[:-1, :, :] + kpf[1:, :, :])
+            Fx = kfx * (T[1:, :, :] - T[:-1, :, :]) / g.dx
+            dT[1:-1, :, :] += (Fx[1:, :, :] - Fx[:-1, :, :]) / g.dx
+            dT[0, :, :] += (2.0 / g.dx) * (Fx[0, :, :]
+                                           + amb.h_convection * (amb.T_amb - T[0, :, :]))
+            dT[-1, :, :] += (2.0 / g.dx) * (-Fx[-1, :, :]
+                                            + amb.h_convection * (amb.T_amb - T[-1, :, :]))
+            # axe y
+            kfy = 0.5 * (kpf[:, :-1, :] + kpf[:, 1:, :])
+            Fy = kfy * (T[:, 1:, :] - T[:, :-1, :]) / g.dy
+            dT[:, 1:-1, :] += (Fy[:, 1:, :] - Fy[:, :-1, :]) / g.dy
+            dT[:, 0, :] += (2.0 / g.dy) * (Fy[:, 0, :]
+                                           + amb.h_convection * (amb.T_amb - T[:, 0, :]))
+            dT[:, -1, :] += (2.0 / g.dy) * (-Fy[:, -1, :]
+                                            + amb.h_convection * (amb.T_amb - T[:, -1, :]))
+            # axe z — intérieur
+            kfz = 0.5 * (kzf[:, :, :-1] + kzf[:, :, 1:])
+            Fz = kfz * (T[:, :, 1:] - T[:, :, :-1]) / g.dz
+            dT[:, :, 1:-1] += (Fz[:, :, 1:] - Fz[:, :, :-1]) / g.dz
+
+            # face supérieure z=0 (côté bobine) — flux de bord identiques au chemin scalaire
+            T_top = T[:, :, 0]
+            Ttop_K = T_top + KELVIN
+            flux_libre = (amb.h_convection * (amb.T_amb - T_top)
+                          + mat.emissivite * amb.stefan_boltzmann * (Ta_K**4 - Ttop_K**4))
+            flux_ceram = self.contact.h_contact * (self.contact.T_puits - T_top)
+            flux_top = np.where(masque, flux_ceram, flux_libre)
+            dT[:, :, 0] += (2.0 / g.dz) * (Fz[:, :, 0] + flux_top)
+
+            # face inférieure z=h (côté bâti/table)
+            T_bot = T[:, :, -1]
+            Tbot_K = T_bot + KELVIN
+            flux_bot = (amb.h_bas * (amb.T_amb - T_bot)
+                        + mat.emissivite * amb.stefan_boltzmann * (Ta_K**4 - Tbot_K**4))
+            dT[:, :, -1] += (2.0 / g.dz) * (-Fz[:, :, -1] + flux_bot)
 
         # --- source Joule + normalisation par la masse thermique
         # source_fn est normalisée par simuler() : signature (t, T) -> Q, ce qui

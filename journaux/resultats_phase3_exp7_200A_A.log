@@ -1,0 +1,10 @@
+
+=== exp7_200A [2D] ===
+     rmse  T_max_sim  T_max_mes  delta_T_max  taux_sim  taux_mes
+TC                                                              
+TC1   7.2      293.4      274.1         19.3      20.4      23.3
+TC2   8.7      206.2      216.0         -9.7      11.2      11.8
+TC3   3.2      143.8      144.7         -1.0       6.9       6.8
+TC4  13.0      206.2      178.6         27.6      11.2      10.9
+TC5   8.8      293.4      269.0         24.4      20.4      22.6
+RMSE moyen : 8.2 °C ; écart T_max moyen : 16.4 °C

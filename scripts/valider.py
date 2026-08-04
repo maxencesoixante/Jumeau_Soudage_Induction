@@ -129,6 +129,16 @@ def principale():
                          "du courant (twill tisse), puissance conservee ; adoucit l'oeil "
                          "de boucle au centre (defaut 0 = inchange). NECESSITE un theta* "
                          "recalibre -- cf. resultats_diag_centre_transitoire.log")
+    ap.add_argument("--lambda-bord-mm", type=float, default=0.0,
+                    help="repousse la BC psi=0 de lambda_bord_mm (mm) au-dela du bord "
+                         "physique en largeur -- adoucit le contraste chant/centre du "
+                         "profil en \"M\" (defaut 0 = inchange). NECESSITE un theta* "
+                         "recalibre -- cf. jumeau.em.source_joule (docstring module)")
+    ap.add_argument("--masque-source-mfc", action="store_true",
+                    help="masque la source Joule a l'empreinte du MFC, par spot "
+                         "(defaut False = source non masquee, chemin historique). "
+                         "NECESSITE un theta* recalibre (la puissance totale change) "
+                         "-- cf. jumeau.procede.Essai.masque_source_mfc")
     ap.add_argument("--ny", type=int, default=21)
     ap.add_argument("--nz", type=int, default=15,
                     help="défaut 15 (= défaut Essai/construire_grille) ; nz n'a "
@@ -156,7 +166,9 @@ def principale():
                       facteur_couplage=args.facteur, decalage_x=args.decalage_x,
                       racine=RACINE, champ_reaction=args.champ_reaction,
                       thermostat_capteurs=args.thermostat_capteurs,
-                      source_sigma_mm=args.source_sigma_mm)
+                      source_sigma_mm=args.source_sigma_mm,
+                      lambda_bord_mm=args.lambda_bord_mm,
+                      masque_source_mfc=args.masque_source_mfc)
         solveur, sol = essai.simuler(modele=args.modele)
         series = essai.series_tc(solveur, sol)
         df = recaler_a_la_chauffe(charger_mesures(essai.fichier_mesures))

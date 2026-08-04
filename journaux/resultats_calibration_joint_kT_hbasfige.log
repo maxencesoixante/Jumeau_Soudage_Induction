@@ -1,0 +1,129 @@
+Chargement des essais joints : ['exp7_150A', 'exp7_200A', 'exp9_200A_y20_monospot']
+Chargement des essais held-out : ['exp7_250A', 'exp9_200A_monospot']
+Paramètres calibrés : ('facteur_couplage', 'h_bas_2d', 'k_cold', 'k_hot', 'h_bord_x0')
+Bornes basses : [0.5, 2.0, 2.0, 2.0, 50.0]
+Bornes hautes : [30.0, 300.0, 12.0, 12.0, 400.0]
+h_haut FIGÉ à 30.087 (non-identifiable, cf. docstring module).
+Paramètres figés (non calibrés) : {'h_bas_2d': 37.424} -- calibration réduite à ('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0').
+  LHS 1/12 : θ=[25.9758, 11.7752, 6.1325, 137.0179] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=265249302.7 (7.7s)
+  LHS 2/12 : θ=[20.6257, 9.5727, 8.1611, 203.723] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=170000247.7 (6.7s)
+  LHS 3/12 : θ=[8.9969, 3.7208, 6.3201, 370.7535] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=9517000.3 (3.0s)
+  LHS 4/12 : θ=[13.1422, 6.972, 10.5586, 103.21] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=58104684.2 (3.9s)
+  LHS 5/12 : θ=[15.5864, 2.3821, 3.4169, 271.005] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=39925656.4 (5.8s)
+  LHS 6/12 : θ=[7.8054, 6.0631, 7.2745, 147.7903] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=6336141.8 (2.3s)
+  LHS 7/12 : θ=[11.2788, 3.3469, 8.669, 50.559] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=23005486.5 (3.5s)
+  LHS 8/12 : θ=[23.398, 8.1246, 4.7596, 330.3231] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=140229982.4 (8.1s)
+  LHS 9/12 : θ=[2.6262, 10.5654, 4.0622, 303.4513] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=5125903.2 (1.3s)
+  LHS 10/12 : θ=[28.8057, 7.0921, 2.055, 389.5643] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=149959122.0 (8.4s)
+  LHS 11/12 : θ=[18.7617, 5.0651, 11.5047, 244.3109] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=131588521.6 (5.5s)
+  LHS 12/12 : θ=[4.4539, 8.7581, 10.144, 177.657] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=2242063.9 (1.5s)
+NLSQ joint : démarrage à θ0=[4.4539, 8.7581, 10.144, 177.657] (coût LHS=2242063.9) — 50 évaluations max, 3 essais, 2725 résidus.
+  NLSQ éval 1 : θ=[4.45394, 8.7581, 10.14404, 177.65704] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=2242063.9 (1.5s)
+  NLSQ éval 2 : θ=[4.67663, 8.7581, 10.14404, 177.65704] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=2261806.1 (1.5s)
+  NLSQ éval 3 : θ=[4.45394, 9.19601, 10.14404, 177.65704] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=2310731.4 (1.7s)
+  NLSQ éval 4 : θ=[4.45394, 8.7581, 10.65124, 177.65704] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=2254964.9 (1.5s)
+  NLSQ éval 5 : θ=[4.45394, 8.7581, 10.14404, 186.53989] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=2238512.0 (1.8s)
+  NLSQ éval 6 : θ=[4.72276, 7.96687, 6.66015, 192.49779] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1986392.0 (1.5s)
+  NLSQ éval 7 : θ=[4.95889, 7.96687, 6.66015, 192.49779] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1984082.0 (1.2s)
+  NLSQ éval 8 : θ=[4.72276, 8.36521, 6.66015, 192.49779] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=2019500.5 (1.4s)
+  NLSQ éval 9 : θ=[4.72276, 7.96687, 6.99316, 192.49779] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=2004776.3 (1.5s)
+  NLSQ éval 10 : θ=[4.72276, 7.96687, 6.66015, 202.12268] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1989009.7 (1.5s)
+  NLSQ éval 11 : θ=[5.07106, 7.96776, 2.62821, 160.85989] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1780823.1 (1.5s)
+  NLSQ éval 12 : θ=[5.32461, 7.96776, 2.62821, 160.85989] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1815159.9 (1.6s)
+  NLSQ éval 13 : θ=[5.07106, 8.36615, 2.62821, 160.85989] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1811387.4 (1.7s)
+  NLSQ éval 14 : θ=[5.07106, 7.96776, 2.75962, 160.85989] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1790545.2 (1.6s)
+  NLSQ éval 15 : θ=[5.07106, 7.96776, 2.62821, 168.90288] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1780936.5 (1.6s)
+  NLSQ éval 16 : θ=[5.13562, 7.90384, 2.05835, 156.1808] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1750274.4 (1.6s)
+  NLSQ éval 17 : θ=[5.3924, 7.90384, 2.05835, 156.1808] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1773027.0 (1.7s)
+  NLSQ éval 18 : θ=[5.13562, 8.29904, 2.05835, 156.1808] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1772938.1 (1.6s)
+  NLSQ éval 19 : θ=[5.13562, 7.90384, 2.16127, 156.1808] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1755069.4 (1.6s)
+  NLSQ éval 20 : θ=[5.13562, 7.90384, 2.05835, 163.98984] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1750513.8 (1.6s)
+  NLSQ éval 21 : θ=[5.20216, 7.83595, 2.00145, 157.9316] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1745485.8 (1.7s)
+  NLSQ éval 22 : θ=[5.46226, 7.83595, 2.00145, 157.9316] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1795324.4 (1.7s)
+  NLSQ éval 23 : θ=[5.20216, 8.22775, 2.00145, 157.9316] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1777813.4 (1.5s)
+  NLSQ éval 24 : θ=[5.20216, 7.83595, 2.10152, 157.9316] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1751147.2 (1.7s)
+  NLSQ éval 25 : θ=[5.20216, 7.83595, 2.00145, 165.82818] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1745850.3 (1.7s)
+  NLSQ éval 26 : θ=[5.18284, 7.72326, 2.00014, 145.0149] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1742151.3 (1.4s)
+  NLSQ éval 27 : θ=[5.44198, 7.72326, 2.00014, 145.0149] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1779733.8 (1.6s)
+  NLSQ éval 28 : θ=[5.18284, 8.10942, 2.00014, 145.0149] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1760984.5 (1.4s)
+  NLSQ éval 29 : θ=[5.18284, 7.72326, 2.10015, 145.0149] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1746456.9 (1.7s)
+  NLSQ éval 30 : θ=[5.18284, 7.72326, 2.00014, 152.26564] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1742470.3 (1.7s)
+  NLSQ éval 31 : θ=[5.19158, 7.74994, 2.0, 147.97825] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1741788.5 (1.8s)
+  NLSQ éval 32 : θ=[5.45116, 7.74994, 2.0, 147.97825] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1769503.9 (1.7s)
+  NLSQ éval 33 : θ=[5.19158, 8.13743, 2.0, 147.97825] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1755551.4 (1.6s)
+  NLSQ éval 34 : θ=[5.19158, 7.74994, 2.1, 147.97825] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1744514.8 (1.7s)
+  NLSQ éval 35 : θ=[5.19158, 7.74994, 2.0, 155.37717] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1742034.6 (1.8s)
+  NLSQ éval 36 : θ=[5.21371, 7.82223, 2.0, 157.09435] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1745809.9 (1.8s)
+  NLSQ éval 37 : θ=[5.21094, 7.80117, 2.0, 150.22621] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1743365.4 (1.8s)
+  NLSQ éval 38 : θ=[5.21047, 7.7944, 2.0, 148.43076] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1740458.6 (1.7s)
+  NLSQ éval 39 : θ=[5.47099, 7.7944, 2.0, 148.43076] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1786426.6 (1.8s)
+  NLSQ éval 40 : θ=[5.21047, 8.18412, 2.0, 148.43076] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1773174.3 (1.6s)
+  NLSQ éval 41 : θ=[5.21047, 7.7944, 2.1, 148.43076] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1749623.1 (1.7s)
+  NLSQ éval 42 : θ=[5.21047, 7.7944, 2.0, 155.8523] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1740300.1 (1.8s)
+  NLSQ éval 43 : θ=[5.20532, 7.70526, 2.0, 147.45388] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1737983.7 (1.7s)
+  NLSQ éval 44 : θ=[5.46558, 7.70526, 2.0, 147.45388] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1784127.4 (1.8s)
+  NLSQ éval 45 : θ=[5.20532, 8.09053, 2.0, 147.45388] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1758934.7 (1.6s)
+  NLSQ éval 46 : θ=[5.20532, 7.70526, 2.1, 147.45388] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1745188.5 (1.9s)
+  NLSQ éval 47 : θ=[5.20532, 7.70526, 2.0, 154.82657] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1738444.5 (1.9s)
+  NLSQ éval 48 : θ=[5.18204, 7.72914, 2.0, 146.04254] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1745867.3 (2.0s)
+  NLSQ éval 49 : θ=[5.18246, 7.73221, 2.0, 147.13973] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1741033.6 (1.7s)
+  NLSQ éval 50 : θ=[5.18962, 7.7163, 2.0, 147.45117] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1742027.1 (1.6s)
+  NLSQ éval 51 : θ=[5.20053, 7.70614, 2.0, 147.45368] (('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) coût=1740306.5 (1.6s)
+
+=== θ*_new joint ===
+  facteur_couplage = 5.2053 ± 0.0404
+  h_bas_2d = 37.424  (FIGÉ, non calibré)
+  k_cold = 7.7053 ± 0.14
+  k_hot = 2 ± 0.524
+  h_bord_x0 = 147.45 ± 13.3
+Coût final : 1737983.7 | succès : True (51 évaluations NLSQ) | message : `xtol` termination condition is satisfied.
+Corrélations (ordre ('facteur_couplage', 'k_cold', 'k_hot', 'h_bord_x0')) :
+[[ 1.     0.107 -0.392  0.152]
+ [ 0.107  1.    -0.794  0.374]
+ [-0.392 -0.794  1.    -0.119]
+ [ 0.152  0.374 -0.119  1.   ]]
+
+k(T) ajusté : k_cold(20°C)=7.71 → k_hot(340°C)=2.00 W/m·K  →  DÉCROISSANT — hypothèse k(T) soutenue
+
+=== Table de comparaison (essais JOINT) ===
+                 essai  TC  rmse_ref  rmse_new  dTmax_ref  dTmax_new
+             exp7_150A TC1      23.2      26.7       55.2      -27.5
+             exp7_150A TC2      22.6      40.2      -24.1      -72.9
+             exp7_150A TC3      25.0      26.5      -20.3      -45.3
+             exp7_150A TC4      20.9      20.6       18.8      -30.0
+             exp7_150A TC5      23.4      25.8       55.0      -27.7
+             exp7_200A TC1      14.1      31.8       37.0      -44.1
+             exp7_200A TC2      25.7      41.7      -56.2      -80.1
+             exp7_200A TC3      24.8      24.3      -31.7      -40.1
+             exp7_200A TC4      16.8      21.9      -18.9      -42.8
+             exp7_200A TC5      16.3      29.5       42.1      -39.0
+exp9_200A_y20_monospot TC1       9.7       3.9      -11.9       -0.7
+exp9_200A_y20_monospot TC2       8.2       8.4        8.9       11.6
+exp9_200A_y20_monospot TC3      40.5      13.3       24.2        2.8
+exp9_200A_y20_monospot TC4      14.7      10.4      -13.1      -10.3
+exp9_200A_y20_monospot TC5      11.3       5.3      -11.0        2.3
+
+RMSE moyen (JOINT) : réf=19.8 °C vs new=22.0 °C
+|ΔT_max| moyen (JOINT) : réf=28.6 °C vs new=31.8 °C
+
+=== Table de comparaison (essais HOLD-OUT, non vus par le fit) ===
+             essai  TC  rmse_ref  rmse_new  dTmax_ref  dTmax_new
+         exp7_250A TC1      15.5      27.2       50.2      -22.7
+         exp7_250A TC2      26.9      42.1      -63.3      -81.2
+         exp7_250A TC3      28.3      28.5      -41.1      -47.3
+         exp7_250A TC4      16.0      27.2      -36.3      -54.3
+         exp7_250A TC5      15.1      28.2       56.3      -16.7
+exp9_200A_monospot TC1      11.0       7.9      -11.4       -7.0
+exp9_200A_monospot TC2       9.6       8.2      -15.0      -12.7
+exp9_200A_monospot TC3      11.4      33.1      -22.2      -90.4
+exp9_200A_monospot TC4      17.8      15.9      -30.3      -27.9
+exp9_200A_monospot TC5      13.5       9.9      -16.7      -12.1
+
+RMSE moyen (HOLD-OUT) : réf=16.5 °C vs new=22.8 °C
+|ΔT_max| moyen (HOLD-OUT) : réf=34.3 °C vs new=37.2 °C
+
+RMSE moyen GLOBAL (tous essais rapportés) : réf=18.5 °C vs new=22.3 °C
+
+Validation croisée manuelle (2D) :
+  python scripts/valider.py --modele 2D --facteur 5.2053 --decalage-x 0 --h-haut 30.087 --h-bas-2d 37.424 --h-bord-x0 147.45 --essais exp7_150A exp7_200A exp9_200A_y20_monospot exp7_250A exp9_200A_monospot
+  (NB : k(T) n'est pas un flag de valider.py -- l'appliquer via materiaux.Materiau.k_plan_T=[[20,7.71],[340,2]] avant de rejouer, ou utiliser ce script.)

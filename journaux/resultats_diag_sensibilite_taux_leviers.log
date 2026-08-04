@@ -1,0 +1,121 @@
+Diagnostic -- sensibilite du TAUX (dT/dt) aux leviers, theta* fige
+==============================================================================
+Essais testes : ['exp7_200A', 'exp9_200A_monospot', 'exp9_200A_y20_monospot']
+theta* de reference : facteur=6.0123 h_haut=30.087 h_bas_2d=37.424 h_bord_x0=250.0
+
+--- baseline (k_plan=3.0, config) ---
+                 essai  TC            famille  taux_mes  taux_sim  deficit_%
+             exp7_200A TC1          SOUS-SPOT     15.12     16.90       11.8
+             exp7_200A TC2 LOBE-INTERMEDIAIRE     10.21      8.04      -21.3
+             exp7_200A TC3        CENTRE-OEIL      6.67      4.14      -38.0
+             exp7_200A TC4 LOBE-INTERMEDIAIRE      7.90      8.04        1.8
+             exp7_200A TC5          SOUS-SPOT     14.83     16.90       13.9
+    exp9_200A_monospot TC1          HORS-SPOT       NaN       NaN        NaN
+    exp9_200A_monospot TC2          HORS-SPOT      1.58      0.09      -94.1
+    exp9_200A_monospot TC3          SOUS-SPOT     20.38     19.98       -2.0
+    exp9_200A_monospot TC4          HORS-SPOT      2.63      0.11      -95.7
+    exp9_200A_monospot TC5          HORS-SPOT      0.11      0.00      -96.3
+exp9_200A_y20_monospot TC1          HORS-SPOT      0.06      0.03      -58.2
+exp9_200A_y20_monospot TC2          HORS-SPOT      0.74      0.68       -8.3
+exp9_200A_y20_monospot TC3        CENTRE-OEIL      4.20      4.73       12.6
+exp9_200A_y20_monospot TC4          HORS-SPOT      1.43      0.61      -57.5
+exp9_200A_y20_monospot TC5          HORS-SPOT      0.08      0.03      -57.5
+
+--- k_plan=7.3 (identifie, calib jointe) ---
+                 essai  TC            famille  taux_mes  taux_sim  deficit_%
+             exp7_200A TC1          SOUS-SPOT     15.12     11.93      -21.0
+             exp7_200A TC2 LOBE-INTERMEDIAIRE     10.21      8.12      -20.5
+             exp7_200A TC3        CENTRE-OEIL      6.67      5.74      -14.0
+             exp7_200A TC4 LOBE-INTERMEDIAIRE      7.90      8.12        2.8
+             exp7_200A TC5          SOUS-SPOT     14.83     11.93      -19.5
+    exp9_200A_monospot TC1          HORS-SPOT       NaN       NaN        NaN
+    exp9_200A_monospot TC2          HORS-SPOT      1.58      0.30      -81.2
+    exp9_200A_monospot TC3          SOUS-SPOT     20.38     14.68      -28.0
+    exp9_200A_monospot TC4          HORS-SPOT      2.63      0.36      -86.2
+    exp9_200A_monospot TC5          HORS-SPOT      0.11      0.01      -94.5
+exp9_200A_y20_monospot TC1          HORS-SPOT      0.06      0.18      180.2
+exp9_200A_y20_monospot TC2          HORS-SPOT      0.74      1.25       69.9
+exp9_200A_y20_monospot TC3        CENTRE-OEIL      4.20      5.89       40.0
+exp9_200A_y20_monospot TC4          HORS-SPOT      1.43      1.12      -21.5
+exp9_200A_y20_monospot TC5          HORS-SPOT      0.08      0.25      229.0
+
+--- k_plan=9.0 (borne haute cp_kplan.log) ---
+                 essai  TC            famille  taux_mes  taux_sim  deficit_%
+             exp7_200A TC1          SOUS-SPOT     15.12     10.87      -28.1
+             exp7_200A TC2 LOBE-INTERMEDIAIRE     10.21      7.90      -22.6
+             exp7_200A TC3        CENTRE-OEIL      6.67      5.96      -10.7
+             exp7_200A TC4 LOBE-INTERMEDIAIRE      7.90      7.90        0.1
+             exp7_200A TC5          SOUS-SPOT     14.83     10.87      -26.7
+    exp9_200A_monospot TC1          HORS-SPOT       NaN       NaN        NaN
+    exp9_200A_monospot TC2          HORS-SPOT      1.58      0.39      -75.1
+    exp9_200A_monospot TC3          SOUS-SPOT     20.38     13.47      -33.9
+    exp9_200A_monospot TC4          HORS-SPOT      2.63      0.48      -81.9
+    exp9_200A_monospot TC5          HORS-SPOT      0.11      0.01      -94.1
+exp9_200A_y20_monospot TC1          HORS-SPOT      0.06      0.23      254.3
+exp9_200A_y20_monospot TC2          HORS-SPOT      0.74      1.43       93.7
+exp9_200A_y20_monospot TC3        CENTRE-OEIL      4.20      5.93       41.0
+exp9_200A_y20_monospot TC4          HORS-SPOT      1.43      1.29       -9.6
+exp9_200A_y20_monospot TC5          HORS-SPOT      0.08      0.33      335.4
+
+--- source_sigma_mm=6 (centre_transitoire.log) ---
+                 essai  TC            famille  taux_mes  taux_sim  deficit_%
+             exp7_200A TC1          SOUS-SPOT     15.12     12.78      -15.5
+             exp7_200A TC2 LOBE-INTERMEDIAIRE     10.21      8.42      -17.5
+             exp7_200A TC3        CENTRE-OEIL      6.67      5.48      -17.8
+             exp7_200A TC4 LOBE-INTERMEDIAIRE      7.90      8.42        6.7
+             exp7_200A TC5          SOUS-SPOT     14.83     12.78      -13.9
+    exp9_200A_monospot TC1          HORS-SPOT       NaN       NaN        NaN
+    exp9_200A_monospot TC2          HORS-SPOT      1.58      0.34      -78.7
+    exp9_200A_monospot TC3          SOUS-SPOT     20.38     14.16      -30.5
+    exp9_200A_monospot TC4          HORS-SPOT      2.63      0.37      -86.1
+    exp9_200A_monospot TC5          HORS-SPOT      0.11      0.01      -94.2
+exp9_200A_y20_monospot TC1          HORS-SPOT      0.06      0.03      -46.2
+exp9_200A_y20_monospot TC2          HORS-SPOT      0.74      0.86       16.9
+exp9_200A_y20_monospot TC3        CENTRE-OEIL      4.20      5.63       33.9
+exp9_200A_y20_monospot TC4          HORS-SPOT      1.43      0.80      -44.1
+exp9_200A_y20_monospot TC5          HORS-SPOT      0.08      0.05      -40.0
+
+--- h_haut x2 (60.17, pendant la chauffe) ---
+                 essai  TC            famille  taux_mes  taux_sim  deficit_%
+             exp7_200A TC1          SOUS-SPOT     15.12     16.62       10.0
+             exp7_200A TC2 LOBE-INTERMEDIAIRE     10.21      7.88      -22.8
+             exp7_200A TC3        CENTRE-OEIL      6.67      4.04      -39.4
+             exp7_200A TC4 LOBE-INTERMEDIAIRE      7.90      7.88       -0.1
+             exp7_200A TC5          SOUS-SPOT     14.83     16.62       12.1
+    exp9_200A_monospot TC1          HORS-SPOT       NaN       NaN        NaN
+    exp9_200A_monospot TC2          HORS-SPOT      1.58      0.09      -94.1
+    exp9_200A_monospot TC3          SOUS-SPOT     20.38     19.76       -3.0
+    exp9_200A_monospot TC4          HORS-SPOT      2.63      0.11      -95.7
+    exp9_200A_monospot TC5          HORS-SPOT      0.11      0.00      -96.3
+exp9_200A_y20_monospot TC1          HORS-SPOT      0.06      0.03      -59.2
+exp9_200A_y20_monospot TC2          HORS-SPOT      0.74      0.67       -8.8
+exp9_200A_y20_monospot TC3        CENTRE-OEIL      4.20      4.58        8.8
+exp9_200A_y20_monospot TC4          HORS-SPOT      1.43      0.61      -57.7
+exp9_200A_y20_monospot TC5          HORS-SPOT      0.08      0.03      -58.2
+
+--- h_haut /2 (15.04, pendant la chauffe) ---
+                 essai  TC            famille  taux_mes  taux_sim  deficit_%
+             exp7_200A TC1          SOUS-SPOT     15.12     17.04       12.7
+             exp7_200A TC2 LOBE-INTERMEDIAIRE     10.21      8.12      -20.5
+             exp7_200A TC3        CENTRE-OEIL      6.67      4.19      -37.3
+             exp7_200A TC4 LOBE-INTERMEDIAIRE      7.90      8.12        2.8
+             exp7_200A TC5          SOUS-SPOT     14.83     17.04       14.9
+    exp9_200A_monospot TC1          HORS-SPOT       NaN       NaN        NaN
+    exp9_200A_monospot TC2          HORS-SPOT      1.58      0.09      -94.1
+    exp9_200A_monospot TC3          SOUS-SPOT     20.38     20.09       -1.4
+    exp9_200A_monospot TC4          HORS-SPOT      2.63      0.11      -95.7
+    exp9_200A_monospot TC5          HORS-SPOT      0.11      0.00      -96.3
+exp9_200A_y20_monospot TC1          HORS-SPOT      0.06      0.03      -57.7
+exp9_200A_y20_monospot TC2          HORS-SPOT      0.74      0.68       -8.0
+exp9_200A_y20_monospot TC3        CENTRE-OEIL      4.20      4.81       14.5
+exp9_200A_y20_monospot TC4          HORS-SPOT      1.43      0.61      -57.5
+exp9_200A_y20_monospot TC5          HORS-SPOT      0.08      0.03      -57.1
+
+SYNTHESE -- deficit %% moyen par famille x levier :
+famille                                     CENTRE-OEIL  HORS-SPOT  LOBE-INTERMEDIAIRE  SOUS-SPOT
+baseline (k_plan=3.0, config)                     -12.7      -66.8                -9.8        7.9
+k_plan=7.3 (identifie, calib jointe)               13.0       28.0                -8.8      -22.8
+k_plan=9.0 (borne haute cp_kplan.log)              15.2       60.4               -11.2      -29.6
+source_sigma_mm=6 (centre_transitoire.log)          8.0      -53.2                -5.4      -20.0
+h_haut x2 (60.17, pendant la chauffe)             -15.3      -67.1               -11.5        6.4
+h_haut /2 (15.04, pendant la chauffe)             -11.4      -66.6                -8.8        8.7

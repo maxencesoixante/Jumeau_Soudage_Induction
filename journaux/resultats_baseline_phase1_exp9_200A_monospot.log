@@ -1,0 +1,10 @@
+
+=== exp9_200A_monospot [2D] ===
+     rmse  T_max_sim  T_max_mes  delta_T_max  taux_sim  taux_mes
+TC                                                              
+TC1  11.0       22.1       33.5        -11.4       NaN       NaN
+TC2   9.6       35.4       50.1        -14.6       NaN       NaN
+TC3   8.7      270.2      277.4         -7.2      29.5      32.8
+TC4  17.7       35.4       65.3        -29.9       NaN       NaN
+TC5  13.4       24.3       40.9        -16.6       NaN       NaN
+RMSE moyen : 12.1 °C ; écart T_max moyen : 15.9 °C
