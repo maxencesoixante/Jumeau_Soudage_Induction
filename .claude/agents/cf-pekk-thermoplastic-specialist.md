@@ -99,3 +99,35 @@ micromécanique (Jones 1975) à partir des fibres T300 et de la matrice PEEK.
 - **σ(T), k(T) : ÉCART (❌).** Lionetto insiste (citant Duhovic) sur la dépendance en
   T de σ et k ; le jumeau les fige. **cp est la SEULE propriété dépendante de T**
   (via le pic de fusion). À prioriser pour les forts gradients près du joint.
+
+## Références de propriétés — conductivités & anisotropie (Buser, Bard, Van Otterloo)
+
+Sources qui alimentent le tenseur orthotrope et bornent la question `k_plan` (issue #4)
+et l'anisotropie in-plane (issue #3). Toutes indexées dans la MOC vault
+« Jumeau numérique — références du modèle ».
+
+- **Buser et al. 2025 (*Composites Part A* 188, 108550) — σ LONGITUDINALE.** Méthode
+  six-pointes sur PAEK UD. La conductivité longitudinale in-plane suit la loi des
+  mélanges `σ₁ = σ_f·v_f`, avec conductivité de fibre unique **σ_f ≈ 900 kS/m
+  (9·10⁵ S/m)**. → borne haute physique du σ_plan de l'interface/laminé ; sert de
+  contrôle d'ordre de grandeur du `sigma_0` homogénéisé de config (Grouve : 2,2·10⁴ S/m).
+- **Buser et al. 2026 (*Composites Part A* 209, 109986) — σ TRANSVERSE.** La
+  conductivité transverse est **~4 ordres de grandeur** sous la longitudinale → nappes
+  UD fortement anisotropes. **Mise en garde de l'article : pas de σ₂/σ₃ « universel »
+  en littérature** — la σ transverse dépend du taux de contact inter-fibres et de la
+  géométrie d'éprouvette ; ne PAS adopter une valeur littérature à l'aveugle. →
+  corrobore le rapport `sigma_0/sigma_z ~10⁴` du tenseur ; `sigma_z` reste incertain
+  (calibration-eligible).
+- **Bard et al. 2019 (*Polymers* 11, MDPI) — k des fibres de carbone (nues/revêtues).**
+  CF/époxy à ~50 vol% de fibres **NUES** : **k_long ≈ 3 W/m·K, k_trans ≈ 0,6 W/m·K**
+  (Ni : 6 / 0,9 ; Cu : 20 / 2,9 — hors périmètre, fibres non revêtues ici). → point de
+  mesure INDÉPENDANT qui **encadre le `k_plan = 3.0` de config et `k_z ≈ 0.64`** ;
+  pertinent pour l'issue #4 (la calibration veut `k_plan ~7,5–8,5`, mais la mesure sur
+  fibres nues soutient plutôt ~3). Réserve : CF/époxy ≠ CF/PEKK et UD ≠ quasi-iso —
+  transfert en ordre de grandeur (in-plane dominé par les fibres), pas en valeur exacte.
+- **Van Otterloo & Dayal 2003 (*Composites Part A* 34, 93–103) — anisotropie quasi-iso.**
+  Mesure (traction + ondes de Lamb ultrasonores) que le stratifié quasi-iso
+  [0/45/−45/90]s **n'est PAS parfaitement isotrope dans le plan** (modules élastiques).
+  Par analogie élastique→thermique, justifie qu'un `k_plan` scalaire est une
+  approximation et qu'un **`kx ≠ ky` est physiquement plausible** (piste `k_plan`
+  anisotrope, issue #3). N.B. : évidence ÉLASTIQUE, pas une valeur de conductivité.

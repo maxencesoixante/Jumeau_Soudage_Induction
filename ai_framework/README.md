@@ -80,3 +80,35 @@ de session (`config/essais/_session_*.yaml`) sont éphémères et ignorées par 
 - « Lance l'essai de chauffe de référence et montre-moi les courbes des thermocouples. »
 - « Simule l'essai de chauffe à 260 A et trace la carte de température de l'interface. »
 - « Configure une chauffe à 600 A. » → déclenche la self-correction (hors bornes).
+
+## Validation (issue #7)
+
+**Cœur déterministe — couvert par la CI, sans Ollama** :
+`tests/test_ai_framework.py` (20 tests) valide `verifs` (bornes/avertissements), les
+3 outils **de bout en bout avec un vrai run du solveur 2D** (+ chemins d'erreur « ❌ »),
+et la boucle d'orchestration de `app.repondre` avec un **client Ollama mocké** :
+exécution séquentielle (1 outil/tour), self-correction sur erreur, terminaison,
+garde-fou de tours, outil inconnu, Ollama injoignable.
+
+```bash
+.venv/bin/python -m pytest tests/test_ai_framework.py
+```
+
+**Boucle LLM réelle — smoke live** (le seul maillon qu'un mock ne couvre pas : la
+qualité des appels d'outils d'un vrai modèle). Après `ollama serve` + `ollama pull qwen2.5`,
+un **smoke headless** (sans lancer l'UI) exerce la boucle avec le vrai LLM et imprime la
+trace des appels d'outils :
+
+```bash
+.venv/bin/python ai_framework/smoke_live.py
+```
+
+Il vérifie (1) l'enchaînement config → simulation → figure (1 outil/tour) et (2) le respect
+des bornes sur une demande absurde (600 A). **Passé le 2026-08-04 avec `qwen2.5`** :
+enchaînement correct + figure produite ; 600 A refusé (self-correction dès la planification).
+Le même comportement est visible dans l'UI (`.venv/bin/python ai_framework/app.py`) avec les
+3 requêtes d'exemple ci-dessus.
+
+> **Params synchronisés le 2026-08-04** : `outils.py` passe désormais le θ\* de référence
+> 2D canonique (`facteur_couplage=6.0123, h_haut=30.087, h_bas_2d=37.424, h_bord_x0=250`,
+> cf. `config/materiaux.yaml`), et non plus les anciennes valeurs périmées du 2026-07-20.

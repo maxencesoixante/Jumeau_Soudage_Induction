@@ -1,0 +1,22 @@
+Vérification croisée eppy — régime jumeau : f=388 kHz, coupon 120x40 mm, dx=2 mm
+
+Balayage ÉPAISSEUR (sigma=1.1e+04 S/m) :
+ t (mm) |  contraste M |  contraste K |      Δ%
+------------------------------------------------
+   0.20 |        3.029 |        3.028 |   -0.0%
+   0.50 |        3.029 |        3.024 |   -0.2%
+   1.00 |        3.029 |        3.010 |   -0.6%
+   2.00 |        3.029 |        2.959 |   -2.3%
+   3.36 |        3.029 |        2.849 |   -5.9%
+
+Balayage CONDUCTIVITÉ (t=0,2 mm, twill) :
+ sigma (S/m) |  contraste M |  contraste K |      Δ%
+-----------------------------------------------------
+     3.4e+00 |        3.029 |        3.029 |  -0.00%
+     1.1e+04 |        3.029 |        3.028 |  -0.03%
+     2.2e+04 |        3.029 |        3.026 |  -0.10%
+     5.0e+04 |        3.029 |        3.013 |  -0.53%
+     1.0e+05 |        3.029 |        2.967 |  -2.07%
+
+Référence jumeau : M mesuré = 2,09 ; modèle = 3,15 (réduction requise ~ -34%).
+Conclusion : réaction négligeable au régime du jumeau ; contraste ~3 reproduit par un code indépendant → M = physique plaque-mince réelle, pas un bug.

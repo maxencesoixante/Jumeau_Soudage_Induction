@@ -12,7 +12,16 @@ cf_pekk:
   chaleur_latente: 130000.0  # J/kg
   T_glass: 159.0             # °C (Tg, repère seulement)
   # Conductivité thermique du laminé homogénéisé quasi-iso [45/-45/0/90]3s
-  k_plan: 3.0                # W/m.K — dans le plan (homogénéisé quasi-iso), incertain
+  # k_plan — RÉFÉRENCE = 3,0 W/m·K. Tension documentée (issue #4, résolue 2026-08-04) :
+  #  · la CALIBRATION identifie ~7,5–8,5 W/m·K DÉCROISSANT avec T (3× : scalaire joint 7,3 ;
+  #    k(T) libre 8,5 ; k(T) h_bas figé 7,7) ;
+  #  · MAIS toute valeur montée (scalaire / anisotrope / k(T)) sur-étale les pics
+  #    source-dominés => held-out régresse à chaque fois (tous réfutés) ;
+  #  · la MESURE indépendante Bard 2019 (CF nues, k_long ≈ 3 W/m·K) soutient ~3.
+  # => 3,0 reste la référence (compromis calibré, physiquement défendable ; domaine de
+  #    validité acté). Acquis de PROPRIÉTÉ, pas correctif adoptable. Mesure 9 (k(T)) non
+  #    réalisée. Cf. docs/modele/README.md §résidu, mémoire kt-residu-structurel-piste.
+  k_plan: 3.0                # W/m.K — dans le plan (homogénéisé quasi-iso), calibré (cf. note)
   k_z: 0.64                  # W/m.K — transverse (Buser / CLAUDE.md vault)
   # Conductivité thermique DÉPENDANTE DE T (Lionetto et al. 2017, éq. 5 :
   # k = k(T) ; cf. docs/modele/audit_lionetto_2017.md §3.1/§4.3). Table

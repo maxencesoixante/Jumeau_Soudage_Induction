@@ -44,6 +44,9 @@ class Materiau:
     # ``scripts/calibrer_joint.py``). Ne PAS renseigner par défaut dans
     # ``config/materiaux.yaml`` — cf. mission : flag OFF par défaut, verdict
     # d'adoption laissé à l'orchestrateur.
+    # VERDICT (issue #9) : RÉFUTÉ le 2026-07-31 — objectif multimodal en ky
+    # (2 optima opposés), relocalise le conflit sans le résoudre. Conservé
+    # (capacité + repro). Cf. docs/modele/leviers_refutes.md.
     k_plan_x: float | None = None
     k_plan_y: float | None = None
     # Conductivité thermique DÉPENDANTE DE T (Lionetto et al. 2017, éq. 5 :
@@ -56,6 +59,10 @@ class Materiau:
     # renseigner par défaut dans ``config/materiaux.yaml`` (flag OFF), comme le
     # prototype ``k_plan_x``/``k_plan_y``. NON combinable avec l'anisotropie
     # ``k_plan_x``/``k_plan_y`` (les solveurs lèvent une ``ValueError``).
+    # VERDICT (issues #4/#9) : ÉVALUÉ, NON adopté le 2026-08-03 — held-out
+    # régresse (sur-étale le pic source-dominé). ACQUIS PHYSIQUE : k_plan réel
+    # ≈ 7,5–8,5 W/m·K décroissant (correction de propriété, pas de résidu).
+    # Conservé (capacité + repro). Cf. docs/modele/leviers_refutes.md.
     k_plan_T: list | None = None
     k_z_T: list | None = None
 

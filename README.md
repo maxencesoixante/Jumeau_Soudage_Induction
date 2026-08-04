@@ -47,7 +47,7 @@ coupe (échelle 1:1). Coupon **120 × 40 mm**, MFC Ferrotron 559H **31,5 mm (x)
 | Hypothèse | Source / justification |
 |---|---|
 | Plaque mince EM, courants plans | Lin 1993 ; δ(300 kHz, σ0) ≈ 6 mm > 3,36 mm |
-| Champ de réaction (blindage) négligé | absorbé par `facteur_couplage` calibré |
+| Champ de réaction (blindage) négligé | absorbé par `facteur_couplage` ; **justifié quantitativement** par vérif croisée `eppy` : réaction ≤ 0,03 % du contraste au régime twill (`docs/modele/verification_croisee_eppy.md`) |
 | MFC = demi-espace perméable (images) | approx. 1er ordre de la concentration de flux |
 | Laminé homogénéisé (σ, k quasi-iso plan) | O'Shaughnessey 2014 (Annexes I-II) ; Grouve 2020 |
 | µr = 1 pour le laminé | Grouve 2020 (Lionetto 2017) |
@@ -71,7 +71,13 @@ coupe (échelle 1:1). Coupon **120 × 40 mm**, MFC Ferrotron 559H **31,5 mm (x)
   (2026-07-20) : les 5 TC sont TOUS à l'interface (repère cahier origine-milieu
   converti au repère modèle origine-coin) — TC1 au bord de longueur / centre de
   largeur (x=0, y=20 mm), TC2–TC5 au bord de largeur (y=0). Remplace l'ancienne
-  hypothèse « TC1 surface / TC alignés sur les spots ».
+  hypothèse « TC1 surface / TC alignés sur les spots ». **Position TC1 re-confirmée
+  terrain le 2026-08-04 (issue #8) : y=20 mm, centre de largeur.** L'hypothèse
+  « TC1 au coin y=0 » (que la donnée *simulée* semblait favoriser, coin plus froid ≈
+  mesuré) est **rejetée** : elle n'aurait fait que *fitter* l'erreur de profil en M.
+  La surestimation du pic TC1 (A-1 : 671 simulé vs 398 mesuré au centre de largeur)
+  est donc un **vrai déficit modèle** (M en largeur trop contrasté, cf. étalement
+  in-plane), pas un artefact de position.
 - **Puits de bord `h_bord_x0` (montage bridé x=0)** : le modèle 2D lumpé
   surchauffait TC1 (+185 à +273 °C au pic) car la chaleur du spot 1 (~16 mm du
   bord x=0) restait piégée contre le chant quasi-adiabatique. Un puits conductif
@@ -152,6 +158,13 @@ coupe (échelle 1:1). Coupon **120 × 40 mm**, MFC Ferrotron 559H **31,5 mm (x)
   un modèle de MFC fini n'y changera rien (il vaut pour le profil en longueur) ;
   les leviers d'adoucissement sont les courants de retour 3D et la résistance de
   contact du twill tissé — non calibrables sans mesure.
+  **Vérification croisée EM 2026-08-04** (`docs/modele/verification_croisee_eppy.md`) :
+  un second solveur indépendant (`eppy`, Grouve/Nagel 2019, isotrope, sans MFC) reproduit
+  le **même contraste** (~3,0 ≈ notre 3,15) → le M sur-contrasté est de la **vraie physique
+  plaque-mince** (écrasement du courant au chant), **pas** un artefact de notre anisotropie,
+  des images MFC ni de la discrétisation. L'écart au contraste mesuré (2,09, réduction requise
+  ~ −34 %) est la limite d'**étalement in-plane** documentée, pas un bug EM. Code vendoré :
+  `third_party/eppy/`.
   **Test expérimental direct : la cartographie bord→centre** (5 TC d'interface à
   y = 0/10/20/30/40 mm, x = 60 mm), cible chiffrée 717/382/292/382/717 °C au pic.
 - **TC1 (surface côté bobine) chauffe 5–6× trop lentement dans le modèle** (diagnostic thermal-solver-engineer, 2026-07-18/20 : 37,7 °C/s mesuré vs ~6,3 °C/s simulé, essai `chauffe_250A_3TC`). Trois explications ont été testées et **écartées** :
@@ -187,7 +200,25 @@ TC2 = interface (tissu PW), TC3 = face opposée (README essais_chauffe).
 
 - O'Shaughnessey 2014 (même labo) — homogénéisation, CL, sensibilité (I, f, gap, σ).
 - Grouve 2020 — propriétés C/PEKK, µr=1, tenseur σ, h=10 W/m²K.
+- Lionetto et al. 2017 (*Materials & Design* 120, 212–221, doi:10.1016/j.matdes.2017.02.024)
+  — modèle EF du soudage induction continu CF/PAEK : propriétés homogénéisées, µr=1,
+  σ(T), fusion (Greco–Maffezzoli) et cristallisation (Ozawa). **Référence de l'audit du
+  modèle** (`docs/modele/audit_lionetto_2017.md`).
+- Buser et al. 2025 (*Composites Part A* 188, 108550) — mesure de la conductivité
+  électrique **longitudinale** des rubans CFRP UD ; sous-jacente à la question `k_plan`.
+- Buser et al. 2026 (*Composites Part A* 209, 109986) — conductivité électrique
+  **transverse** (dans le plan), méthode à six pointes.
+- Bard et al. — revêtement Cu/Ni des fibres de carbone pour composites thermiquement /
+  électriquement conducteurs ; référence d'homogénéisation σ/k.
+- Van Otterloo — « How isotropic are quasi-isotropic laminates » : anisotropie in-plane
+  des quasi-iso (piste `k_plan` anisotrope).
 - Lin 1993 — différences finies 2D, courants dans les fibres, plaque mince.
+- Grouve — solveur **`eppy`** (github.com/wjbg/eppy, MIT, commit épinglé `62f0030`, validé
+  contre **Nagel 2019** fig. 6) : 2ᵉ solveur EM plaque mince indépendant (potentiel vecteur
+  électrique `T` ≡ notre `ψ`), **vendoré** sous `third_party/eppy/` (copie MIT patchée
+  numpy ≥ 2, provenance `third_party/eppy/NOTICE.md`) pour la vérification croisée code-à-code
+  de `em/foucault.py` (`docs/modele/verification_croisee_eppy.md`, script
+  `scripts/verif_eppy_reaction.py`).
 - Duhovic 2012 — skin depth, ≥2 éléments dans la peau, convection.
 - Fluxtrol Inc. — *Ferrotron 559H* datasheet (rev. 06/02/15, fluxtrol.com) — propriétés matériau constructeur (µᵢ=16, ρ>15 kΩ·cm, courbe de pertes Pv=4,1·f¹·¹·B²·⁵) utilisée le 2026-07-20 pour chiffrer l'auto-échauffement du MFC (négligeable, cf. tableau des hypothèses).
 - Samanis et al. 2026 — méthode des lignes 1D, identification, test black-box.
