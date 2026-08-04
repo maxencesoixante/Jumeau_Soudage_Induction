@@ -89,3 +89,21 @@ justifier l'écart. Audit complet des écarts : `docs/modele/audit_lionetto_2017
 - **Régime continu :** Lionetto = tête mobile via **moving mesh** (PAS de terme
   d'advection dans l'éq. 5). Pour porter le jumeau au continu, translater la
   **source** (`source_spot`) ou adopter un maillage mobile — ne PAS ajouter ρCp·v·∇T.
+
+## Cadre σ — anisotropie & valeurs mesurées (Buser 2025–26)
+
+Fondements chiffrés du tenseur de résistivité par couche (ρxx, ρyy, et le σz qui
+justifie la réduction plaque mince). Le tenseur lui-même est fourni par
+`cf-pekk-thermoplastic-specialist` ; ces références en bornent les ordres de grandeur.
+
+- **Buser et al. 2026 (*Composites Part A* 209, 109986) : σ_transverse ~4 ordres de
+  grandeur sous σ_longitudinale.** → justifie QUANTITATIVEMENT l'hypothèse plaque mince
+  (Jez négligeable car σz ≪ σxy) et la CL `ψ = 0` au bord. Mise en garde de l'article :
+  aucune σ₂/σ₃ littérature « universelle » (dépend du taux de contact inter-fibres) →
+  garder `σz`/`ρzz` incertain, route vers `calibration-uq-specialist`, ne pas figer une
+  valeur littérature comme mesurée.
+- **Buser et al. 2025 (*Composites Part A* 188, 108550) : σ_long = σ_f·v_f (loi des
+  mélanges), σ_f ≈ 900 kS/m.** → borne haute de ρxx/ρyy de la nappe conductrice ;
+  contrôle d'ordre de grandeur du `sigma_0` de config (Grouve 2020 : 2,2·10⁴ S/m). Un σ
+  in-plane monté vers cette borne raccourcit δ = √(2ρ/µ0ω) — re-vérifier alors que
+  δ reste ≫ épaisseur de couche avant de garder la plaque mince.
