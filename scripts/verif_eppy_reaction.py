@@ -28,17 +28,22 @@ RÉSULTAT (cf. journaux/resultats_verif_eppy_reaction.log, docs/modele/verificat
 
 REPRODUCTION
 ------------
-  git clone https://github.com/wjbg/eppy   # commit épinglé 62f0030
-  # patch numpy>=2 (eppy est écrit pour numpy 1.x) :
-  sed -i '' 's/np\\.float_/np.float64/g; s/np\\.complex_/np.complex128/g' eppy/*.py
-  sed -i '' "s/'cfloat'/'complex128'/g" eppy/eppy.py
-  EPPY_DIR=./eppy .venv/bin/python scripts/verif_eppy_reaction.py
+  # eppy est vendoré (copie MIT au commit 62f0030, patché numpy≥2) dans
+  # third_party/eppy/ — rien à cloner ni patcher :
+  .venv/bin/python scripts/verif_eppy_reaction.py
+
+  # (override optionnel vers un autre clone : EPPY_DIR=/chemin/vers/eppy)
+  # Provenance et procédure de régénération du vendor : third_party/eppy/NOTICE.md
 """
 import os
 import sys
+from pathlib import Path
+
 import numpy as np
 
-EPPY_DIR = os.environ.get("EPPY_DIR", "eppy")
+# Par défaut : la copie vendorée (rejouable hors-ligne). EPPY_DIR peut pointer ailleurs.
+_VENDORED_EPPY = Path(__file__).resolve().parent.parent / "third_party" / "eppy"
+EPPY_DIR = os.environ.get("EPPY_DIR", str(_VENDORED_EPPY))
 if not os.path.isdir(EPPY_DIR):
     sys.exit(f"eppy introuvable ({EPPY_DIR}). Voir la section REPRODUCTION du docstring.")
 sys.path.insert(0, EPPY_DIR)

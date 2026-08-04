@@ -3,6 +3,14 @@
 **Date : 2026-08-04.** Script : [`scripts/verif_eppy_reaction.py`](../../scripts/verif_eppy_reaction.py) ·
 Log : [`journaux/resultats_verif_eppy_reaction.log`](../../journaux/resultats_verif_eppy_reaction.log).
 
+**Reproduction (hors-ligne, une commande) :** `eppy` est vendoré (copie MIT au commit
+`62f0030`, patchée numpy ≥ 2) sous [`third_party/eppy/`](../../third_party/eppy/) — rien à
+cloner. Provenance et régénération : [`third_party/eppy/NOTICE.md`](../../third_party/eppy/NOTICE.md).
+
+```bash
+.venv/bin/python scripts/verif_eppy_reaction.py
+```
+
 ## Contexte
 
 [`eppy`](https://github.com/wjbg/eppy) (W.J.B. Grouve — auteur de Grouve 2020 et des
