@@ -33,9 +33,9 @@ différent, pas à une erreur de modèle : ils sont signalés comme tels.
 | Chaleur **conservative**, k(T) | (5) | Forme conservative à k(T) **derrière flag** (défaut off) | ✅ Traité (2026-08-03, flag `k_plan_T`/`k_z_T`) |
 | Terme d'advection | — | absent | ✅ Accord (Lionetto n'en a pas : moving mesh) |
 | Fusion **−Qm = ρ·HmTOT·Wm·Xcmax·dXm/dt** | (7) | **cp apparent** gaussien | ✅ Équivalent (même enthalpie latente) |
-| Degré de fusion Xm (Greco–Maffezzoli) | (8)–(9) | Gaussienne / erf | ⚠️ Écart de **forme** (symétrique vs asymétrique) |
-| Cristallisation **Qc**, Ozawa | (10)–(13) | **non modélisée** | ⚠️ Écart assumé (latente négligeable pour T) |
-| σ(T), k(T) dépendants de T | Tab.1 | figés (seul cp dépend de T) | ❌ Écart |
+| Degré de fusion Xm (Greco–Maffezzoli) | (8)–(9) | Gaussienne / erf | ⚠️ Écart de **forme** → ⛔ wontfix (DSC requise, §6) |
+| Cristallisation **Qc**, Ozawa | (10)–(13) | **non modélisée** | ⚠️ Écart assumé → ⛔ wontfix (négligeable pour T, §6) |
+| σ(T), k(T) dépendants de T | Tab.1 | figés (seul cp dépend de T) | ❌ Écart → k(T) traité (flag, non adopté) ; σ(T) différé (§6) |
 | CL convection **q0 = hc(Ta−T)** | (14) | convection **+ rayonnement** | ✅/➕ Jumeau plus complet |
 | Contact vers puits (h fictif) | §3.3 | `h_contact → T_puits` | ✅ Même philosophie |
 
@@ -276,22 +276,38 @@ jumeau, que Lionetto ne couvre pas.
 
 ---
 
-## 6. Priorisation des écarts à corriger
+## 6. Priorisation des écarts à corriger — DÉCISION actée (2026-08-04, issue #5)
 
 Par ordre d'impact décroissant sur la fidélité du **champ de température** (le
-livrable actuel), si on décide un jour de rapprocher le code de Lionetto :
+livrable actuel). Chaque écart restant est **tranché ci-dessous** ; aucun n'est
+rouvert sans le déclencheur nommé.
 
-1. **k(T)** (§3.1, §4.3) — ✅ **FAIT (2026-08-03)** : forme conservative à k(T)
-   derrière flag OFF par défaut (`k_plan_T`/`k_z_T`), non-régression bit-exacte,
-   énergie conservée. Reste à **évaluer/adopter** (table k(T) mesurée + held-out,
-   mandat `calibration-uq-specialist`).
-2. **σ(T)** (§2.3, §4.3) — différé : couplage EM↔thermique à deux sens (re-résoudre
-   ψ au T courant), architectural ; faible valeur marginale (efficacité absorbée par
-   `facteur_couplage`).
-3. **Loi de fusion Xm asymétrique** (§4.1) — subordonné à une caractérisation DSC
-   du PEKK réel ; effet localisé sur la fenêtre de fusion.
-4. **Cristallisation Qc** (§4.2) — seulement si l'on vise la cristallinité/qualité
-   de joint ; négligeable pour T.
+| # | Écart | Réf. | Verdict (2026-08-04) | Déclencheur de réouverture |
+|---|-------|------|----------------------|----------------------------|
+| 1 | **k(T)** | §3.1, §4.3 | ✅ **FAIT + NON ADOPTÉ** | table k(T) mesurée qui franchisse le held-out |
+| 2 | **σ(T)** | §2.3, §4.3 | 🕓 **DIFFÉRÉ** | besoin d'un couplage EM↔thermique 2-sens |
+| 3 | **Loi de fusion Xm asymétrique** | §4.1 | ⛔ **BLOQUÉ (wontfix)** | caractérisation **DSC** du PEKK réel |
+| 4 | **Cristallisation Qc** | §4.2 | ⛔ **wontfix** | objectif cristallinité/qualité de joint |
+
+1. **k(T)** — forme conservative à k(T) **implémentée** derrière flag OFF (`k_plan_T`/
+   `k_z_T`, 2026-08-03 ; non-régression bit-exacte, énergie conservée). **Évaluée puis
+   NON ADOPTÉE** : la table k(T) décroissante améliore le fit en distribution mais
+   **régresse le held-out** (sur-étale le pic bord source-dominé). Décision figée avec la
+   clôture des **issues #4 / #3** (2026-08-04) ; le flag est catalogué au registre
+   [`leviers_refutes.md`](leviers_refutes.md). Rien à faire de plus ici.
+2. **σ(T)** — **DIFFÉRÉ**. Rétroaction σ(T) sur ψ = couplage à deux sens (re-résoudre ψ
+   au T courant à chaque pas), changement **architectural** ; valeur marginale faible car
+   l'efficacité globale est déjà absorbée par `facteur_couplage` calibré. Non implémenté,
+   pas de flag. À réactiver seulement si un livrable exige la rétroaction électrothermique.
+3. **Loi de fusion Xm asymétrique** — **BLOQUÉ (wontfix en l'état)**. Le jumeau utilise une
+   gaussienne symétrique (cp apparent) au lieu de la distribution asymétrique de
+   Greco–Maffezzoli (éq. 9) ; l'**enthalpie latente totale est correcte** (§4.1), seule la
+   *forme* de la fenêtre de fusion diffère. Corriger exige une **DSC du PEKK réel** (non
+   prévue) ; effet localisé, sans impact sur le pic. Wontfix tant que la DSC n'est pas faite.
+4. **Cristallisation Qc** — **wontfix**. Latente négligeable pour le champ de T (~19 J/g,
+   §4.2) ; n'a d'intérêt que pour prédire la cristallinité / qualité de joint, **hors du
+   périmètre** du livrable actuel (champ de température). À implémenter seulement si cet
+   objectif devient prioritaire.
 
 Les écarts §2.1 (plaque mince) et §2.2/§3.2 (Joule, CL) sont **assumés et
 justifiés** — ne rien y changer sans nouvelle donnée (plaque mince) ou ne pas
