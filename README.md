@@ -187,6 +187,18 @@ TC2 = interface (tissu PW), TC3 = face opposée (README essais_chauffe).
 
 - O'Shaughnessey 2014 (même labo) — homogénéisation, CL, sensibilité (I, f, gap, σ).
 - Grouve 2020 — propriétés C/PEKK, µr=1, tenseur σ, h=10 W/m²K.
+- Lionetto et al. 2017 (*Materials & Design* 120, 212–221, doi:10.1016/j.matdes.2017.02.024)
+  — modèle EF du soudage induction continu CF/PAEK : propriétés homogénéisées, µr=1,
+  σ(T), fusion (Greco–Maffezzoli) et cristallisation (Ozawa). **Référence de l'audit du
+  modèle** (`docs/modele/audit_lionetto_2017.md`).
+- Buser et al. 2025 (*Composites Part A* 188, 108550) — mesure de la conductivité
+  électrique **longitudinale** des rubans CFRP UD ; sous-jacente à la question `k_plan`.
+- Buser et al. 2026 (*Composites Part A* 209, 109986) — conductivité électrique
+  **transverse** (dans le plan), méthode à six pointes.
+- Bard et al. — revêtement Cu/Ni des fibres de carbone pour composites thermiquement /
+  électriquement conducteurs ; référence d'homogénéisation σ/k.
+- Van Otterloo — « How isotropic are quasi-isotropic laminates » : anisotropie in-plane
+  des quasi-iso (piste `k_plan` anisotrope).
 - Lin 1993 — différences finies 2D, courants dans les fibres, plaque mince.
 - Duhovic 2012 — skin depth, ≥2 éléments dans la peau, convection.
 - Fluxtrol Inc. — *Ferrotron 559H* datasheet (rev. 06/02/15, fluxtrol.com) — propriétés matériau constructeur (µᵢ=16, ρ>15 kΩ·cm, courbe de pertes Pv=4,1·f¹·¹·B²·⁵) utilisée le 2026-07-20 pour chiffrer l'auto-échauffement du MFC (négligeable, cf. tableau des hypothèses).
