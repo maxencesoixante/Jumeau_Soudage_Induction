@@ -94,11 +94,20 @@ garde-fou de tours, outil inconnu, Ollama injoignable.
 .venv/bin/python -m pytest tests/test_ai_framework.py
 ```
 
-**Boucle LLM réelle — smoke manuel** (le seul maillon qu'un mock ne couvre pas : la
-qualité des appels d'outils d'un vrai modèle). Après `ollama serve` + `ollama pull qwen2.5`
-et `.venv/bin/python ai_framework/app.py`, passer les 3 requêtes d'exemple ci-dessus et
-vérifier : (1) enchaînement config → simulation → figure ; (2) la requête « 600 A »
-déclenche bien la self-correction (rejet lu, puis correction).
+**Boucle LLM réelle — smoke live** (le seul maillon qu'un mock ne couvre pas : la
+qualité des appels d'outils d'un vrai modèle). Après `ollama serve` + `ollama pull qwen2.5`,
+un **smoke headless** (sans lancer l'UI) exerce la boucle avec le vrai LLM et imprime la
+trace des appels d'outils :
+
+```bash
+.venv/bin/python ai_framework/smoke_live.py
+```
+
+Il vérifie (1) l'enchaînement config → simulation → figure (1 outil/tour) et (2) le respect
+des bornes sur une demande absurde (600 A). **Passé le 2026-08-04 avec `qwen2.5`** :
+enchaînement correct + figure produite ; 600 A refusé (self-correction dès la planification).
+Le même comportement est visible dans l'UI (`.venv/bin/python ai_framework/app.py`) avec les
+3 requêtes d'exemple ci-dessus.
 
 > **Params synchronisés le 2026-08-04** : `outils.py` passe désormais le θ\* de référence
 > 2D canonique (`facteur_couplage=6.0123, h_haut=30.087, h_bas_2d=37.424, h_bord_x0=250`,
