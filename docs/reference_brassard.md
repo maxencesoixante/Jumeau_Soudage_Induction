@@ -44,7 +44,7 @@ jumeau, sur deux plans : la **confection des figures** et l'**approche de modél
 | **Thème unique réutilisé** | Eux : 1 `elsevier_theme`. Nous : chaque `gen_*.py` redéfinit son `rcParams` (~10 duplications) | 🔧 **Adopter** un module de style partagé `scripts/_style.py` (rcParams + palette + helper `savefig`) |
 | **Export vectoriel multi-format** | Eux : PDF+SVG+TIFF 500 dpi LZW (journal-ready). Nous : PNG 600 dpi | ✅ **FAIT (#19)** : helper `_style.savefig` — `FIG_FORMATS="png,pdf,tiff"` produit PDF vectoriel + TIFF LZW ; PNG par défaut (byte-identique) |
 | **Colormap perceptuel homogène** | Nous : `jet` (non perceptuel, non colorblind-safe) dans `figure_empreinte.py` | 🔧 **Corriger** : remplacer `jet` par `inferno`/`viridis` partout |
-| **Schémas en TikZ** | Eux : TikZ vectoriel. Nous : matplotlib | 🕓 **Optionnel** : TikZ pour les schémas de montage (montage, empilement) si un rendu article vectoriel est requis |
+| **Schémas en TikZ** | Eux : TikZ vectoriel. Nous : matplotlib | ❌ **ÉCARTÉ (#20)** : matplotlib exporte déjà les schémas en PDF vectoriel (#19), pilotés par la config ; TikZ = nouvelle chaîne LaTeX + double maintenance pour un gain marginal. Cf. §Évaluation ci-dessous |
 | **Fenêtre de procédé** | Déjà couverte de notre côté | ✅ Rien à faire |
 | **Police serif** | Eux : Times. Nous : sans-serif (≠ préférence projet « serif ») | 🕓 À trancher dans le module de style (uniformiser sur le choix voulu) |
 
@@ -84,13 +84,47 @@ thermique transitoire, une fusion de matrice PAEK. Comparaison :
 
 ---
 
-## Sous-issues candidates (à ouvrir si retenues)
-1. **Centraliser le style des figures** — module `scripts/_style.py` partagé (rcParams +
-   palette Okabe-Ito + helper `savefig` multi-format), remplacer les ~10 blocs `rcParams`
-   dupliqués ; corriger `jet` → `inferno`. *(modele/documentation, faisable sans données.)*
-2. **Export vectoriel des figures d'article** — PDF (+ TIFF LZW) pour soumission, PNG
-   conservé pour slides. *(documentation.)*
-3. **(Optionnel) Schémas de montage en TikZ** — évaluer TikZ/pgfplots vs matplotlib pour les
-   schémas vectoriels du mémoire. *(documentation.)*
-4. **(Réflexion) Décomposer `facteur_couplage`** en contributions physiques nommées, à la
-   manière de la résistance de contact de Brassard. *(modele — prospectif.)*
+## Évaluation TikZ pour les schémas de montage (#20, 2026-08-05)
+
+**Question** : porter `gen_schemas_montage.py` (vue de dessus + coupe, exp7/exp9) en
+TikZ/pgfplots pour un rendu article ?
+
+**Bénéfice TikZ** : 100 % vectoriel, typographie LaTeX cohérente avec le corps du mémoire,
+cotation nette.
+
+**Coûts / constats** :
+- **Chaîne LaTeX absente** de l'environnement (ni `pdflatex`/`lualatex`/`tectonic`) — un
+  prototype TikZ ne serait même pas compilable/vérifiable ici.
+- **#19 a déjà réglé le vectoriel** : le schéma matplotlib s'exporte en **PDF vectoriel
+  compact** (`schema_montage_exp7.pdf`, ~43 Ko avec polices embarquées, via `FIG_FORMATS`)
+  — l'essentiel du bénéfice « vectoriel pour l'impression » sans nouvelle chaîne.
+- **Perte du pilotage par config** : les cotes du schéma matplotlib sont **tirées de
+  `config/geometrie.yaml`** (MFC 31,5×55, tubes 6 mm, interface z=3,36…) et se régénèrent si
+  la géométrie change. Un schéma TikZ fige les cotes à la main → re-synchronisation manuelle à
+  chaque changement (exactement la dette combattue en #17).
+- **Double maintenance** : garder matplotlib pour les figures de données + TikZ pour les
+  schémas = deux chaînes à entretenir.
+
+Nuance : le PDF matplotlib garde un petit élément raster résiduel (`/Image`, aplats
+semi-transparents) ; TikZ serait strictement vectoriel, mais l'écart est marginal à l'échelle
+d'une figure d'article.
+
+Esquisse illustrative (non compilée, sans LaTeX ici) — l'approche TikZ resterait du dessin
+manuel coté :
+```latex
+% \draw[fill=mfc]  (-15.75,-27.5) rectangle (15.75,27.5); % MFC 31.5 x 55
+% \draw[fill=coil] (-3.175,-30)  rectangle (-0.175,30);   % brin hairpin
+% \node[tc] at (0,20) {TC1}; ...  % cotes à saisir/maintenir à la main
+```
+
+**Décision : ÉCARTER TikZ pour l'instant.** Garder matplotlib + export vectoriel (#19).
+**Déclencheur de réouverture** : (a) une exigence de rendu impose le 100 % vectoriel LaTeX
+avec typographie identique au corps, **ET** (b) une chaîne LaTeX est installée et maintenue.
+
+---
+
+## Sous-issues engendrées — toutes traitées
+1. ✅ **Centraliser le style des figures** (`scripts/_style.py`, palette Okabe-Ito, fix `jet`) — **#17 mergé**.
+2. ✅ **Export vectoriel des figures** (PDF + TIFF via `FIG_FORMATS`, PNG conservé) — **#19 mergé**.
+3. ❌ **Schémas de montage en TikZ** — **#20 écarté** (matplotlib + export vectoriel suffit ; pas de LaTeX ; pilotage config à préserver — cf. §Évaluation ci-dessus).
+4. ✅ **Décomposer `facteur_couplage`** — **#21 traité** : non identifiable depuis la température, verdict documenté (`modele/facteur_couplage_decomposition.md`).
