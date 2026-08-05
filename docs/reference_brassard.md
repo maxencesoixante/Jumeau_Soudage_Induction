@@ -42,7 +42,7 @@ jumeau, sur deux plans : la **confection des figures** et l'**approche de modél
 |-------|---------|----------|
 | **Palette Okabe-Ito + trait plein/pointillé mesuré↔simulé** | **Convergence** : mêmes choix qu'un article SAGE/Elsevier publié | ✅ **Confirme** nos conventions — rien à changer |
 | **Thème unique réutilisé** | Eux : 1 `elsevier_theme`. Nous : chaque `gen_*.py` redéfinit son `rcParams` (~10 duplications) | 🔧 **Adopter** un module de style partagé `scripts/_style.py` (rcParams + palette + helper `savefig`) |
-| **Export vectoriel multi-format** | Eux : PDF+SVG+TIFF 500 dpi LZW (journal-ready). Nous : PNG 600 dpi | 🔧 **Ajouter** un export **PDF vectoriel** (+ TIFF pour soumission) via le helper `savefig`, PNG conservé pour slides |
+| **Export vectoriel multi-format** | Eux : PDF+SVG+TIFF 500 dpi LZW (journal-ready). Nous : PNG 600 dpi | ✅ **FAIT (#19)** : helper `_style.savefig` — `FIG_FORMATS="png,pdf,tiff"` produit PDF vectoriel + TIFF LZW ; PNG par défaut (byte-identique) |
 | **Colormap perceptuel homogène** | Nous : `jet` (non perceptuel, non colorblind-safe) dans `figure_empreinte.py` | 🔧 **Corriger** : remplacer `jet` par `inferno`/`viridis` partout |
 | **Schémas en TikZ** | Eux : TikZ vectoriel. Nous : matplotlib | 🕓 **Optionnel** : TikZ pour les schémas de montage (montage, empilement) si un rendu article vectoriel est requis |
 | **Fenêtre de procédé** | Déjà couverte de notre côté | ✅ Rien à faire |

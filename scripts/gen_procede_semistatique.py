@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 
 R = Path("/Users/maxencedubois/PycharmProjects/Jumeau_Soudage_Induction")
 sys.path.insert(0, str(R / "src"))
-from _style import apply_style  # noqa: E402  (style partagé, issue #17)
+from _style import apply_style, savefig  # noqa: E402  (style partagé, issue #17)
 apply_style(**{
     "font.size": 11, "axes.labelsize": 11.5, "axes.titlesize": 12,
     "savefig.pad_inches": 0.06,
@@ -72,5 +72,5 @@ cb.set_label("Pic de température d'interface (°C)")
 fig.text(0.5, -0.02, "La soudure se forme en DEUX RAILS le long des chants (lobes du M) sur toute "
          "la longueur ; le centre reste froid (spot fixe en largeur).", ha="center",
          fontsize=8.5, color="0.35")
-fig.savefig(OUT)
+savefig(fig, OUT)
 print("saved", OUT, "| zone soudée %.1f%%" % soudee)

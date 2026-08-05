@@ -48,3 +48,35 @@ def test_apply_style_overrides_preservent_les_reglages_figure():
         assert mpl.rcParams["savefig.pad_inches"] == pytest.approx(0.06)
         # le noyau reste appliqué en plus des surcharges
         assert mpl.rcParams["figure.dpi"] == 600
+
+
+def test_formats_env_defaut_png(monkeypatch):
+    monkeypatch.delenv("FIG_FORMATS", raising=False)
+    assert _style.formats_env() == ["png"]
+
+
+def test_formats_env_multi(monkeypatch):
+    monkeypatch.setenv("FIG_FORMATS", "png, pdf ,TIFF")
+    assert _style.formats_env() == ["png", "pdf", "tiff"]
+
+
+def test_savefig_png_par_defaut(tmp_path, monkeypatch):
+    monkeypatch.delenv("FIG_FORMATS", raising=False)
+    import matplotlib.pyplot as plt
+    fig = plt.figure()
+    ecrits = _style.savefig(fig, tmp_path / "essai.png", close=True)
+    assert [p.name for p in ecrits] == ["essai.png"]
+    assert (tmp_path / "essai.png").exists()
+    assert not (tmp_path / "essai.pdf").exists()
+
+
+def test_savefig_multi_format_vectoriel_et_tiff(tmp_path):
+    import matplotlib.pyplot as plt
+    fig = plt.figure()
+    ecrits = _style.savefig(fig, tmp_path / "essai.png",
+                            formats=["png", "pdf", "tiff"], close=True)
+    noms = {p.suffix for p in ecrits}
+    assert noms == {".png", ".pdf", ".tiff"}
+    # PDF vectoriel : en-tête %PDF
+    assert (tmp_path / "essai.pdf").read_bytes()[:4] == b"%PDF"
+    assert (tmp_path / "essai.tiff").exists()

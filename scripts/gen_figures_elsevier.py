@@ -26,7 +26,7 @@ OUT.mkdir(parents=True, exist_ok=True)
 # ----------------------------------------------------------------------
 # rcParams — reference style (serieA_A-2_250A_2026-06-09.png)
 # ----------------------------------------------------------------------
-from _style import apply_style  # noqa: E402  (style partagé, issue #17)
+from _style import apply_style, savefig as _savefig  # noqa: E402  (style partagé, #17/#19)
 apply_style(**{
     "font.size": 10, "axes.labelsize": 11, "axes.titlesize": 11, "legend.fontsize": 9,
     "xtick.labelsize": 9.5, "ytick.labelsize": 9.5, "axes.linewidth": 0.8,
@@ -109,8 +109,7 @@ def savefig(fig, name):
             plt.close(fig)
             return
         name = PRES_NAMES[name]
-    fig.savefig(OUT / name)
-    plt.close(fig)
+    _savefig(fig, OUT / name, close=True)  # PNG + PDF/TIFF selon FIG_FORMATS (#19)
     print("saved", OUT / name)
 
 

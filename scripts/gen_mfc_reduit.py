@@ -36,7 +36,7 @@ import matplotlib.pyplot as plt
 
 R = Path("/Users/maxencedubois/PycharmProjects/Jumeau_Soudage_Induction")
 sys.path.insert(0, str(R / "src"))
-from _style import apply_style  # noqa: E402  (style partagé, issue #17)
+from _style import apply_style, savefig  # noqa: E402  (style partagé, issue #17)
 apply_style(**{
     "font.size": 11, "axes.labelsize": 11.5, "axes.titlesize": 11,
     "savefig.pad_inches": 0.06,
@@ -169,5 +169,5 @@ fig.text(0.5, -0.01,
         "Masque source = approximation 1er ordre (rectangle dur, pas de frange ; puissance hors empreinte "
         "tronquée, pas redistribuée) -- extrapolation NON mesurée, à confirmer.",
         ha="center", fontsize=7.8, style="italic", color="#555555")
-fig.savefig(OUT, bbox_extra_artists=[fig.texts[-1]])
+savefig(fig, OUT, bbox_extra_artists=[fig.texts[-1]])
 print("\nsaved", OUT)

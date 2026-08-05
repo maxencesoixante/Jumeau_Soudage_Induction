@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 
 R = Path("/Users/maxencedubois/PycharmProjects/Jumeau_Soudage_Induction")
 sys.path.insert(0, str(R / "src"))
-from _style import apply_style  # noqa: E402  (style partagé, issue #17)
+from _style import apply_style, savefig  # noqa: E402  (style partagé, issue #17)
 apply_style(**{
     "font.size": 11, "axes.labelsize": 12, "axes.titlesize": 12.5,
     "savefig.pad_inches": 0.06,
@@ -86,5 +86,5 @@ ax.legend(loc="lower left", fontsize=9)
 ax.text(0.5, -0.15, "Point chaud = lobe du M (soude en 1er). Frontière dégradation conservatrice "
         "(modèle sur-estime le bord ~50 °C).", transform=ax.transAxes, ha="center",
         fontsize=8, color="0.4")
-fig.savefig(OUT)
+savefig(fig, OUT)
 print("saved", OUT, "| A =", round(A))
