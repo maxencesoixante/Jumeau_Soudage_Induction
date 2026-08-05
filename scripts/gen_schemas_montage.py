@@ -25,15 +25,11 @@ OUT = Path("/Users/maxencedubois/PycharmProjects/Jumeau_Soudage_Induction/docs/f
 # rcParams -- meme style que gen_figures_elsevier.py (police sans-serif,
 # 600 dpi, fond blanc)
 # ----------------------------------------------------------------------
-mpl.rcParams.update({
-    "font.family": "sans-serif", "font.sans-serif": ["DejaVu Sans", "Arial", "Helvetica"],
-    "mathtext.fontset": "dejavusans",
-    "font.size": 10, "axes.labelsize": 10.5, "axes.labelweight": "bold",
-    "axes.titlesize": 11, "legend.fontsize": 8.5,
-    "xtick.labelsize": 9, "ytick.labelsize": 9,
-    "axes.linewidth": 0.8,
-    "lines.linewidth": 1.2,
-    "figure.dpi": 600, "savefig.dpi": 600, "savefig.bbox": "tight",
+from _style import apply_style  # noqa: E402  (style partagé, issue #17)
+apply_style(**{
+    "font.size": 10, "axes.labelsize": 10.5, "axes.titlesize": 11,
+    "legend.fontsize": 8.5, "xtick.labelsize": 9, "ytick.labelsize": 9,
+    "axes.linewidth": 0.8, "lines.linewidth": 1.2,
     "savefig.pad_inches": 0.08, "figure.facecolor": "white", "savefig.facecolor": "white",
 })
 

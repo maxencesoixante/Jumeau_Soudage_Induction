@@ -31,6 +31,7 @@ sys.path.insert(0, str(RACINE / "src"))
 
 from jumeau.materiaux import Config
 from jumeau.procede import Essai
+from _style import CMAP_TEMP  # colormap perceptuel partagé (remplace jet, issue #17)
 
 
 def principale():
@@ -119,7 +120,7 @@ def principale():
     for k, (ax, t_k) in enumerate(zip(axes, temps)):
         i_t = int(np.argmin(np.abs(t_sol - t_k)))
         im = ax.pcolormesh(g.x * 1e3, g.y * 1e3, carte[:, :, i_t].T,
-                           shading="gouraud", cmap="jet", vmin=20.0, vmax=vmax)
+                           shading="gouraud", cmap=CMAP_TEMP, vmin=20.0, vmax=vmax)
         # empreinte MFC du spot actif (ou dernier actif) en pointillés rouges
         i_spot = essai._spot_actif(t_k - 0.5)
         if i_spot is None:

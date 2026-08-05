@@ -22,12 +22,10 @@ import matplotlib.pyplot as plt
 
 R = Path("/Users/maxencedubois/PycharmProjects/Jumeau_Soudage_Induction")
 sys.path.insert(0, str(R / "src"))
-mpl.rcParams.update({
-    "font.family": "sans-serif", "font.sans-serif": ["DejaVu Sans", "Arial"],
-    "mathtext.fontset": "dejavusans",
-    "font.size": 11, "axes.labelsize": 12, "axes.labelweight": "bold",
-    "axes.titlesize": 12.5, "legend.fontsize": 10, "figure.dpi": 600,
-    "savefig.dpi": 600, "savefig.bbox": "tight", "savefig.pad_inches": 0.06,
+from _style import apply_style  # noqa: E402  (style partagé, issue #17)
+apply_style(**{
+    "font.size": 11, "axes.labelsize": 12, "axes.titlesize": 12.5,
+    "legend.fontsize": 10, "savefig.pad_inches": 0.06,
 })
 
 from jumeau.materiaux import Config

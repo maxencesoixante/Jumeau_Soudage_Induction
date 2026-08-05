@@ -23,10 +23,8 @@ import imageio_ffmpeg
 R = Path("/Users/maxencedubois/PycharmProjects/Jumeau_Soudage_Induction")
 sys.path.insert(0, str(R / "src"))
 mpl.rcParams["animation.ffmpeg_path"] = imageio_ffmpeg.get_ffmpeg_exe()
-mpl.rcParams.update({
-    "font.family": "sans-serif", "font.sans-serif": ["DejaVu Sans", "Arial"],
-    "mathtext.fontset": "dejavusans",
-})
+from _style import apply_style  # noqa: E402  (style partagé, issue #17)
+apply_style(fonts_only=True)
 
 from jumeau.materiaux import Config
 from jumeau.procede import Essai

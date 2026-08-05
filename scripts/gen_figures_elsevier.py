@@ -26,15 +26,12 @@ OUT.mkdir(parents=True, exist_ok=True)
 # ----------------------------------------------------------------------
 # rcParams — reference style (serieA_A-2_250A_2026-06-09.png)
 # ----------------------------------------------------------------------
-mpl.rcParams.update({
-    "font.family": "sans-serif", "font.sans-serif": ["DejaVu Sans", "Arial", "Helvetica"],
-    "mathtext.fontset": "dejavusans",
-    "font.size": 10, "axes.labelsize": 11, "axes.labelweight": "bold",
-    "axes.titlesize": 11, "legend.fontsize": 9,
-    "xtick.labelsize": 9.5, "ytick.labelsize": 9.5,
-    "axes.linewidth": 0.8,
+from _style import apply_style  # noqa: E402  (style partagé, issue #17)
+apply_style(**{
+    "font.size": 10, "axes.labelsize": 11, "axes.titlesize": 11, "legend.fontsize": 9,
+    "xtick.labelsize": 9.5, "ytick.labelsize": 9.5, "axes.linewidth": 0.8,
     "lines.linewidth": 1.4, "lines.markersize": 4.5, "legend.frameon": False,
-    "figure.dpi": 600, "savefig.dpi": 600, "savefig.bbox": "tight", "savefig.pad_inches": 0.05,
+    "savefig.pad_inches": 0.05,
 })
 
 # ----------------------------------------------------------------------

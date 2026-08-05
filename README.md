@@ -220,5 +220,10 @@ TC2 = interface (tissu PW), TC3 = face opposée (README essais_chauffe).
   de `em/foucault.py` (`docs/modele/verification_croisee_eppy.md`, script
   `scripts/verif_eppy_reaction.py`).
 - Duhovic 2012 — skin depth, ≥2 éléments dans la peau, convection.
+- Brassard et al. 2020 (*J. Composite Materials*, doi:10.1177/0021998320957055) — modèle EF
+  COMSOL 3D du **soudage par résistance** CF/PEEK à élément chauffant nanocomposite :
+  couplage électro-thermique one-way, propriétés k(T)/cp(T) **mesurées** (MTPS/MDSC),
+  résistance de contact ≈ facteur d'échelle. Dépôt de référence analysé dans
+  [`docs/reference_brassard.md`](docs/reference_brassard.md) (modèle + méthodo figures).
 - Fluxtrol Inc. — *Ferrotron 559H* datasheet (rev. 06/02/15, fluxtrol.com) — propriétés matériau constructeur (µᵢ=16, ρ>15 kΩ·cm, courbe de pertes Pv=4,1·f¹·¹·B²·⁵) utilisée le 2026-07-20 pour chiffrer l'auto-échauffement du MFC (négligeable, cf. tableau des hypothèses).
 - Samanis et al. 2026 — méthode des lignes 1D, identification, test black-box.
