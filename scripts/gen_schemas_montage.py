@@ -25,7 +25,7 @@ OUT = Path("/Users/maxencedubois/PycharmProjects/Jumeau_Soudage_Induction/docs/f
 # rcParams -- meme style que gen_figures_elsevier.py (police sans-serif,
 # 600 dpi, fond blanc)
 # ----------------------------------------------------------------------
-from _style import apply_style  # noqa: E402  (style partagé, issue #17)
+from _style import apply_style, savefig  # noqa: E402  (style partagé, issue #17)
 apply_style(**{
     "font.size": 10, "axes.labelsize": 10.5, "axes.titlesize": 11,
     "legend.fontsize": 8.5, "xtick.labelsize": 9, "ytick.labelsize": 9,
@@ -328,7 +328,7 @@ def make_exp7():
     fig.suptitle("Montage — exp7 : cartographie en largeur (profil M)",
                  fontsize=13, fontweight="bold", y=0.975)
 
-    fig.savefig(OUT / "schema_montage_exp7.png")
+    savefig(fig, OUT / "schema_montage_exp7.png")
     plt.close(fig)
 
 
@@ -425,7 +425,7 @@ def make_exp9():
     fig.suptitle("Montage — exp9 : dissipation longitudinale",
                  fontsize=13, fontweight="bold", y=0.975)
 
-    fig.savefig(OUT / "schema_montage_exp9.png")
+    savefig(fig, OUT / "schema_montage_exp9.png")
     plt.close(fig)
 
 

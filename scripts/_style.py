@@ -13,7 +13,11 @@ redéfinissions le style dans chaque script.
 
 from __future__ import annotations
 
+import os
+from pathlib import Path
+
 import matplotlib as mpl
+import matplotlib.pyplot as plt
 
 # --------------------------------------------------------------------------- #
 # Palette Okabe-Ito (colorblind-safe) — imposée pour toutes les figures.
@@ -76,3 +80,39 @@ def apply_style(*, fonts_only: bool = False, **overrides) -> None:
         mpl.rcParams.update(_FIGURE)
     if overrides:
         mpl.rcParams.update(overrides)
+
+
+# --------------------------------------------------------------------------- #
+# Export multi-format.
+#   Défaut = PNG seul (rendu des slides, byte-identique à l'historique).
+#   Pour l'article : FIG_FORMATS="png,pdf,tiff" (PDF vectoriel + TIFF LZW).
+# Cf. dépôt Brassard (docs/reference_brassard.md), qui exporte PDF+SVG+TIFF.
+# --------------------------------------------------------------------------- #
+def formats_env() -> list[str]:
+    """Formats d'export demandés via l'environnement ``FIG_FORMATS`` (défaut ``png``)."""
+    brut = os.environ.get("FIG_FORMATS", "png")
+    return [f.strip().lower() for f in brut.split(",") if f.strip()]
+
+
+def savefig(fig, path, *, close: bool = False, formats: list[str] | None = None, **kwargs):
+    """Sauvegarde ``fig`` en un ou plusieurs formats.
+
+    ``path`` est un chemin de base ; son extension est remplacée par chaque
+    format demandé (``FIG_FORMATS`` ou l'argument ``formats``). Le PNG est le
+    défaut — mêmes octets que ``fig.savefig(path.png)`` (les ``kwargs`` sont
+    transmis tels quels, p. ex. ``bbox_extra_artists``). Le TIFF est compressé
+    LZW ; le PDF est vectoriel.
+    """
+    base = Path(path)
+    fmts = formats if formats is not None else formats_env()
+    ecrits = []
+    for fmt in fmts:
+        sortie = base.with_suffix("." + fmt)
+        skw = dict(kwargs)
+        if fmt in ("tif", "tiff"):
+            skw.setdefault("pil_kwargs", {"compression": "tiff_lzw"})
+        fig.savefig(sortie, **skw)
+        ecrits.append(sortie)
+    if close:
+        plt.close(fig)
+    return ecrits

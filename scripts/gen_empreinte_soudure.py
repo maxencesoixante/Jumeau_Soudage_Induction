@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 
 R = Path("/Users/maxencedubois/PycharmProjects/Jumeau_Soudage_Induction")
 sys.path.insert(0, str(R / "src"))
-from _style import apply_style  # noqa: E402  (style partagé, issue #17)
+from _style import apply_style, savefig  # noqa: E402  (style partagé, issue #17)
 apply_style(**{
     "font.size": 11, "axes.labelsize": 11.5, "axes.titlesize": 11,
     "savefig.pad_inches": 0.06,
@@ -71,5 +71,5 @@ cb = fig.colorbar(im, ax=axes, fraction=0.03, pad=0.02)
 cb.set_label("Température d'interface au pic (°C)")
 fig.suptitle("Empreinte de soudure — carte d'interface (spot fixe centré x=60)",
              fontsize=12, fontweight="bold", y=0.98)
-fig.savefig(OUT)
+savefig(fig, OUT)
 print("saved", OUT)
