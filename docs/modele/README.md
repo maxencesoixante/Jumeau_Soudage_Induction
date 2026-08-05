@@ -31,6 +31,7 @@ Rejouer une validation : `python scripts/valider.py --modele 2D --facteur 6.0123
 - [`figures_catalogue.md`](figures_catalogue.md) — catalogue des figures.
 - [`verification_croisee_eppy.md`](verification_croisee_eppy.md) — vérification code-à-code du solveur EM contre `eppy` (Grouve, Nagel 2019) : contraste M ~3 reproduit par un code indépendant ; champ de réaction négligeable au régime du jumeau.
 - [`leviers_refutes.md`](leviers_refutes.md) — registre des leviers réfutés conservés derrière flags (thermostat_capteurs, k(T), k_plan anisotrope, lambda_bord) : verdict, réf, comment les rejouer (issue #9).
+- [`facteur_couplage_decomposition.md`](facteur_couplage_decomposition.md) — peut-on décomposer `facteur_couplage` en contributions physiques ? Non identifiable depuis la température ; déclencheur = σ mesuré (Mesure 10). Verdict issue #21.
 - Spec de consolidation : `../superpowers/specs/2026-07-29-consolidation-jumeau-design.md`.
 
 ## État & résidu ouvert
