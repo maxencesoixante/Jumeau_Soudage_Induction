@@ -60,7 +60,10 @@ twill_suscepteur:
   # changement.
   epaisseur: 0.00020         # m — MESURÉ (twill suscepteur), cf. commentaire ci-dessus
   sigma_plan: 1.1e+4         # S/m — isotrope plan (ordre sigma_0/2, tissé équilibré), incertain
-  facteur_couplage: 1.0      # facteur d'efficacité calibré (blindage, contacts fibre-fibre)
+  facteur_couplage: 1.0      # facteur d'efficacité calibré (blindage, contacts fibre-fibre, σ)
+  # Décomposition en contributions physiques : non identifiable depuis la température
+  # (dégénérescence multiplicative) — voir docs/modele/facteur_couplage_decomposition.md
+  # (issue #21) ; déclencheur = Mesure 10 (σ mesuré) qui isole η_géom×contact.
 
 ceramique:
   epaisseur: 0.002           # m — Pamitherm, EM-transparente
