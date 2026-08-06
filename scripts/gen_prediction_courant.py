@@ -12,7 +12,7 @@ courant constant pendant une duree FIXE (DUREE_CHAUFFE=20 s), puis court
 refroidissement jusqu'a DUREE_TOTALE=25 s (seul le courant varie -> compare
 la DYNAMIQUE, tout le reste egal).
 
-Sortie : docs/figures/fig_prediction_chauffe_courant.png
+Sortie : docs/modele/figures/fig_prediction_chauffe_courant.png
 
 N'utilise QUE l'essai exp7_200A.yaml comme gabarit geometrique (spots,
 thermocouples) ; la source est reconstruite a chaque courant via
@@ -49,7 +49,7 @@ NX, NY, NZ = 61, 21, 15
 DUREE_CHAUFFE = 20.0   # s -- protocole IDENTIQUE pour tous les courants predits
 DUREE_TOTALE = 25.0    # s -- + court refroidissement pour la figure (0-25 s)
 
-COURANTS_PREDITS = [100, 125, 165, 215, 275, 300]
+COURANTS_PREDITS = [160, 175, 190, 205, 220, 235]  # nouveaux courants DANS la fenêtre validée [150, 250] A
 COURANTS_MESURES = {150: "150A_v3.txt", 200: "200A_v6.txt", 250: "250A_v3.txt"}
 
 # Rampe de couleur pour les courants predits (froid -> chaud avec le courant)
@@ -182,7 +182,11 @@ def main():
     ax.set_title(
         "Prédiction — historique de chauffe au chant vs courant (modèle + mesures exp7)")
     legend_right(ax, ncol=1)
-    savefig(fig, "fig_prediction_chauffe_courant.png")
+    OUT_PRED = R / "docs" / "modele" / "figures"
+    OUT_PRED.mkdir(parents=True, exist_ok=True)
+    fig.savefig(OUT_PRED / "fig_prediction_chauffe_courant.png")
+    plt.close(fig)
+    print("saved", OUT_PRED / "fig_prediction_chauffe_courant.png")
 
     # ------------------------------------------------------------------
     # Table texte (b) + controle (c) -- imprimes pour le rapport
