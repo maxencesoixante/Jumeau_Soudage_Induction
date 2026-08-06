@@ -12,7 +12,9 @@ courant constant pendant une duree FIXE (DUREE_CHAUFFE=20 s), puis court
 refroidissement jusqu'a DUREE_TOTALE=25 s (seul le courant varie -> compare
 la DYNAMIQUE, tout le reste egal).
 
-Sortie : docs/modele/figures/fig_prediction_chauffe_courant.png
+Sorties (docs/modele/figures/) :
+  - fig_prediction_chauffe_courant.png : historique T(t) au chant vs courant
+  - fig_prediction_profil_M.png : profil en « M » (T en largeur au pic) vs courant
 
 N'utilise QUE l'essai exp7_200A.yaml comme gabarit geometrique (spots,
 thermocouples) ; la source est reconstruite a chaque courant via
@@ -95,7 +97,16 @@ def simuler_courant(cfg, e, courant: float):
     T_bord0 = sv.serie_temporelle(sol, 0.060, 0.0, "interface")
     T_bord1 = sv.serie_temporelle(sol, 0.060, largeur, "interface")
     T_chant = np.maximum(T_bord0, T_bord1)
-    return sol.t, T_chant
+    return sol.t, T_chant, sv, sol
+
+
+def profil_largeur(sv, sol, largeur, ny=21):
+    """Profil en largeur T(y) à l'INTERFACE, x=0.060 (centre du spot), pris à
+    l'instant du PIC. Retourne (y_mm, profil_°C) — c'est le profil en « M »."""
+    ys = np.linspace(0.0, largeur, ny)
+    Ty = np.array([sv.serie_temporelle(sol, 0.060, y, "interface") for y in ys])
+    ipic = int(np.argmax(Ty.max(axis=0)))
+    return ys * 1e3, Ty[:, ipic]
 
 
 def temps_fusion(t: np.ndarray, T: np.ndarray, T_ref: float = T_FUSION):
@@ -120,9 +131,11 @@ def main():
     # 1) Courants PREDITS (modele, theta* fige, protocole 20 s uniforme)
     # ------------------------------------------------------------------
     resultats = {}
+    profils = {}
     for I in COURANTS_PREDITS:
-        t, T_chant = simuler_courant(cfg, e, float(I))
+        t, T_chant, sv, sol = simuler_courant(cfg, e, float(I))
         resultats[I] = (t, T_chant)
+        profils[I] = profil_largeur(sv, sol, e.grille.largeur)
 
     # ------------------------------------------------------------------
     # 2) Courants MESURES (exp7, ancrage) -- meme nettoyage que gen_figures
@@ -146,7 +159,7 @@ def main():
     for I in (150, 200, 250):
         e.spots[0]["t_fin"] = duree_reelle[I]
         e.spec["duree_totale"] = duree_reelle[I] + 5.0
-        t_c, T_c = simuler_courant(cfg, e, float(I))
+        t_c, T_c, _, _ = simuler_courant(cfg, e, float(I))
         t_m, chant_m = mesures[I]
         pic_modele = float(T_c.max())
         pic_mesure = float(chant_m.max())
@@ -187,6 +200,25 @@ def main():
     fig.savefig(OUT_PRED / "fig_prediction_chauffe_courant.png")
     plt.close(fig)
     print("saved", OUT_PRED / "fig_prediction_chauffe_courant.png")
+
+    # ------------------------------------------------------------------
+    # Figure 2 -- profil en M (largeur) au pic, un trait par courant predit
+    # ------------------------------------------------------------------
+    fig2, ax2 = plt.subplots(figsize=(7.2, 4.4))
+    for I in sorted(COURANTS_PREDITS):
+        ym, prof = profils[I]
+        ax2.plot(ym, prof, "-o", color=COLOR_PRED[I], lw=1.6, ms=3,
+                 label=f"{I} A — modèle (prédiction, non testé)")
+    add_temp_lines(ax2, lines=("fusion", "procede", "degrad"))
+    ax2.set_xlim(0, 40)
+    ax2.set_xlabel("Position en largeur $y$ (mm)")
+    ax2.set_ylabel("Température à l'interface au pic (°C)")
+    ax2.set_title(
+        "Prédiction — profil en « M » (largeur) au pic vs courant")
+    legend_right(ax2, ncol=1)
+    fig2.savefig(OUT_PRED / "fig_prediction_profil_M.png")
+    plt.close(fig2)
+    print("saved", OUT_PRED / "fig_prediction_profil_M.png")
 
     # ------------------------------------------------------------------
     # Table texte (b) + controle (c) -- imprimes pour le rapport
