@@ -14,7 +14,7 @@
 > documentée. **Loi taux-courant** : la source suit **I²** (modèle `R=k·I²−L`, R²=0,999) ; la
 > fréquence mesurée est constante (388±2 kHz sur 5 courants) → couplage fréquence↔courant écarté.
 > Détail :
-> `data/exp7_bord-centre_2026-07-28_avec-ceramique/README.md`. Figures : `docs/figures/`
+> `data/exp7_bord-centre_2026-07-28_avec-ceramique/README.md`. Figures : `docs/labo/figures/`
 > (fig1-5).
 
 ---

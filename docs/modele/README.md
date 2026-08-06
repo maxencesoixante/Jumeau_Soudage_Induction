@@ -23,7 +23,8 @@ Rejouer une validation : `python scripts/valider.py --modele 2D --facteur 6.0123
 |---|---|---|
 | **Sorties de simulation** | `resultats/` (gitignoré, régénérable) | courbes/cartes de validation + `*_series_sim.csv` par essai. |
 | **Journaux** | `journaux/resultats_*.log` | validation, calibration (`_calibration_exp7_200A_*`, `_phase3_*`), diagnostics, convergence/MMS. Cf. §6 du journal pour référence vs archive. |
-| **Figures** | `../figures/` | dossier UNIQUE (jeu de référence + variantes `presentation_*`), PNG 600 dpi, générées par `scripts/gen_figures_elsevier.py`, `gen_schemas_montage.py`, `gen_prediction_courant.py`, `gen_animation_chauffe.py`. |
+| **Figures — modèle** | `figures/` (= `docs/modele/figures/`) | figures **entièrement modélisées** (aucune data réelle) : empreinte, MFC réduit, procédé semi-statique, loi de réglage, schémas de montage, prédictions (`gen_empreinte_soudure.py`, `gen_mfc_reduit.py`, `gen_procede_semistatique.py`, `gen_loi_reglage.py`, `gen_schemas_montage.py`, `gen_prediction_courant.py`). |
+| **Figures — data** | `../labo/figures/` | figures **utilisant les mesures** (exp7/exp9, séries A/B) : profils M, courbes brutes, dissipation, loi en courant, fenêtre de soudage, variantes `presentation_*` (`gen_figures_elsevier.py`, `gen_fenetre_soudage.py`). |
 
 ## Documents modèle
 - [`rapport_directrice_jumeau.md`](rapport_directrice_jumeau.md) — rapport complet pour la direction.
@@ -143,24 +144,25 @@ sans en casser un autre. Le résidu est **compris, quantifié et irréductible**
 - **Prédictions à courants non mesurés** (nouveaux courants dans [150, 250 A], θ\* figé) :
   [`figures/fig_prediction_chauffe_courant.png`](figures/fig_prediction_chauffe_courant.png) (historique T(t) au chant, tous courants),
   [`figures/fig_prediction_chauffe_par_courant.png`](figures/fig_prediction_chauffe_par_courant.png) (petits multiples : les **5 thermocouples** au fil du temps, un panneau par courant) et
-  [`figures/fig_prediction_profil_M.png`](figures/fig_prediction_profil_M.png) (profil en « M » en largeur au pic)
+  [`figures/fig_prediction_profil_M.png`](figures/fig_prediction_profil_M.png) (profil en « M » en largeur au pic),
+  [`figures/fig_prediction_profil_longueur.png`](figures/fig_prediction_profil_longueur.png) (distribution en longueur au pic)
   (`scripts/gen_prediction_courant.py`).
-- **Fenêtre de soudage — abaque opératoire** (courant × durée) : `../figures/fig_fenetre_soudage.png`
+- **Fenêtre de soudage — abaque opératoire** (courant × durée) : `../labo/figures/fig_fenetre_soudage.png`
   (`scripts/gen_fenetre_soudage.py`). Point chaud (lobe M) : zones sous-chauffe / soudage
   (337-450 °C) / dégradation. Enseignements : **soudage impossible sous ~180 A** avec un spot fixe ;
   la **fenêtre se resserre quand le courant monte** (200 A : ~21-39 s ; 300 A : ~7-11 s).
-- **Empreinte de soudure** (carte T(x,y) interface) : `../figures/fig_empreinte_soudure.png`
+- **Empreinte de soudure** (carte T(x,y) interface) : `figures/fig_empreinte_soudure.png`
   (`scripts/gen_empreinte_soudure.py`). À spot fixe, **seuls les 2 lobes du M (bords) fondent**
   (~1-2 % de l'interface), le centre reste froid.
-- **Procédé semi-statique** (4 dwells, pas 30 mm) : `../figures/fig_procede_semistatique.png`
+- **Procédé semi-statique** (4 dwells, pas 30 mm) : `figures/fig_procede_semistatique.png`
   (`scripts/gen_procede_semistatique.py`). La soudure se forme en **deux rails le long des chants**
   sur toute la longueur ; **le centre ne soude jamais** (spot fixe en largeur) — enseignement procédé
   (il faudrait élargir/adoucir le M pour souder pleine largeur).
-- **Loi de réglage atelier** (durée vs courant) : `../figures/fig_loi_reglage.png`
+- **Loi de réglage atelier** (durée vs courant) : `figures/fig_loi_reglage.png`
   (`scripts/gen_loi_reglage.py`). Durée recommandée (cible 390 °C) + fenêtre + ajustement
   `t ≈ 9,6·10⁵/I²` (taux ∝ I²) + table (200 A→30 s, 250 A→15 s, 300 A→9 s).
 - Frontière dégradation conservatrice partout (modèle sur-estime le bord ~50 °C).
-- **MFC réduit (31,75 mm) — prédiction exploratoire** : `../figures/fig_mfc_reduit.png`
+- **MFC réduit (31,75 mm) — prédiction exploratoire** : `figures/fig_mfc_reduit.png`
   (`scripts/gen_mfc_reduit.py`). Le modèle standard **ne voit pas** l'effet d'un MFC plus petit (le
   MFC n'entre que via le plan image + `mu_r` + un masque de PERTES, pas la source). Flag
   **`Essai(masque_source_mfc=True)`** (défaut OFF, no-op sur le MFC labo validé) qui confine la

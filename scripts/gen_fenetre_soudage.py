@@ -12,7 +12,7 @@ dégradation (pic ≥ 450 °C). Ancrages : essais mesurés 150/200/250 A.
 NB : le modèle SUR-ESTIME le pic au bord d'environ ~50 °C (biais validé) → la
 frontière de dégradation est CONSERVATRICE (côté sûr) ; abaque indicatif ±~30-50 °C.
 
-Sortie : docs/figures/fig_fenetre_soudage.png
+Sortie : docs/labo/figures/fig_fenetre_soudage.png
 """
 import sys
 from pathlib import Path
@@ -32,7 +32,7 @@ from jumeau.materiaux import Config
 from jumeau.procede import Essai
 from jumeau.em.source_joule import source_spot
 
-OUT = R / "docs" / "figures" / "fig_fenetre_soudage.png"
+OUT = R / "docs" / "labo" / "figures" / "fig_fenetre_soudage.png"
 FACTEUR = 6.0123
 T_FUSION, T_PROCEDE, T_DEGRAD = 337.0, 390.0, 450.0
 T_HEAT = 40.0               # durée de chauffe continue simulée (s)
