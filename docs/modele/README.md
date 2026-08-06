@@ -140,7 +140,9 @@ sans en casser un autre. Le résidu est **compris, quantifié et irréductible**
   non réalisée) ; tant qu'il n'a pas battu la référence hors échantillon, `k_plan=3,0` reste la référence.
 
 ## Exploitation (domaine validé)
-- **Prédictions T(t) à courants non mesurés** (nouveaux courants dans [150, 250 A]) : [`figures/fig_prediction_chauffe_courant.png`](figures/fig_prediction_chauffe_courant.png)
+- **Prédictions à courants non mesurés** (nouveaux courants dans [150, 250 A], θ\* figé) :
+  [`figures/fig_prediction_chauffe_courant.png`](figures/fig_prediction_chauffe_courant.png) (historique T(t) au chant) et
+  [`figures/fig_prediction_profil_M.png`](figures/fig_prediction_profil_M.png) (profil en « M » en largeur au pic)
   (`scripts/gen_prediction_courant.py`).
 - **Fenêtre de soudage — abaque opératoire** (courant × durée) : `../figures/fig_fenetre_soudage.png`
   (`scripts/gen_fenetre_soudage.py`). Point chaud (lobe M) : zones sous-chauffe / soudage
