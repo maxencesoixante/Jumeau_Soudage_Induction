@@ -15,6 +15,7 @@ la DYNAMIQUE, tout le reste egal).
 Sorties (docs/modele/figures/) :
   - fig_prediction_chauffe_courant.png : historique T(t) au chant vs courant
   - fig_prediction_profil_M.png : profil en « M » (T en largeur au pic) vs courant
+  - fig_prediction_chauffe_par_courant.png : petits multiples T(t), un panneau par courant
 
 N'utilise QUE l'essai exp7_200A.yaml comme gabarit geometrique (spots,
 thermocouples) ; la source est reconstruite a chaque courant via
@@ -60,6 +61,22 @@ COLOR_PRED = {
     I: CMAP(0.08 + 0.84 * k / (len(COURANTS_PREDITS) - 1))
     for k, I in enumerate(sorted(COURANTS_PREDITS))
 }
+
+# Les 5 thermocouples exp7 : a l'interface, x=0.060 (spot centre), en largeur
+# y=0/10/20/30/40 mm (chants -> centre -> chant). Palette Okabe-Ito.
+# Le modele (spot centre) est SYMETRIQUE => y=0 == y=40 et y=10 == y=30 : on
+# trace les TC "miroir" (y=30, y=40) en TIRETS pour qu'ils restent visibles
+# par-dessus leur jumeau au lieu d'etre caches.
+TC_POS = [(0.000, "TC (y=0, chant)",   "#0072B2", "-"),
+          (0.010, "TC (y=10 mm)",      "#E69F00", "-"),
+          (0.020, "TC (y=20, centre)", "#009E73", "-"),
+          (0.030, "TC (y=30 mm, miroir)", "#D55E00", (0, (4, 2))),
+          (0.040, "TC (y=40, chant, miroir)", "#56B4E9", (0, (4, 2)))]
+
+
+def series_5tc(sv, sol):
+    """Les 5 historiques T(t) aux positions TC exp7 (interface, x=0.060)."""
+    return {y: sv.serie_temporelle(sol, 0.060, y, "interface") for y, *_ in TC_POS}
 
 
 def construire_essai():
@@ -132,10 +149,12 @@ def main():
     # ------------------------------------------------------------------
     resultats = {}
     profils = {}
+    tc5 = {}
     for I in COURANTS_PREDITS:
         t, T_chant, sv, sol = simuler_courant(cfg, e, float(I))
         resultats[I] = (t, T_chant)
         profils[I] = profil_largeur(sv, sol, e.grille.largeur)
+        tc5[I] = (t, series_5tc(sv, sol))
 
     # ------------------------------------------------------------------
     # 2) Courants MESURES (exp7, ancrage) -- meme nettoyage que gen_figures
@@ -219,6 +238,40 @@ def main():
     fig2.savefig(OUT_PRED / "fig_prediction_profil_M.png")
     plt.close(fig2)
     print("saved", OUT_PRED / "fig_prediction_profil_M.png")
+
+    # ------------------------------------------------------------------
+    # Figure 3 -- petits multiples : un panneau T(t) par courant predit,
+    # cote a cote (axes partages pour comparer d'un coup d'oeil).
+    # ------------------------------------------------------------------
+    cour = sorted(COURANTS_PREDITS)
+    ncols = 3
+    nrows = (len(cour) + ncols - 1) // ncols
+    fig3, axs = plt.subplots(nrows, ncols, figsize=(11.5, 7.0),
+                             sharex=True, sharey=True)
+    axs = np.atleast_1d(axs).ravel()
+    for ax3, I in zip(axs, cour):
+        tt, series = tc5[I]
+        for y, label, col, ls in TC_POS:
+            ax3.plot(tt, series[y], ls=ls, color=col, lw=1.6,
+                     label=(label if ax3 is axs[0] else None))
+        ax3.axhline(T_FUSION, color="0.35", lw=0.9, ls=":", zorder=0)
+        ax3.set_title(f"{I} A", loc="left", fontweight="bold")
+        ax3.set_xlim(0, 25)
+        ax3.grid(True, alpha=0.25)
+    for ax3 in axs[len(cour):]:      # masquer les panneaux inutilises
+        ax3.set_visible(False)
+    handles, labels = axs[0].get_legend_handles_labels()
+    fig3.legend(handles, labels, loc="upper center", ncol=5, frameon=False,
+                fontsize=8.5, bbox_to_anchor=(0.5, 0.95))
+    fig3.suptitle("Prédiction — les 5 thermocouples (interface) au fil du temps, un panneau par "
+                  "courant. Modèle symétrique : y=0≡y=40, y=10≡y=30 (tirets = TC miroir) ; "
+                  "pointillés gris = fusion 337 °C", y=0.995, fontsize=10.5)
+    fig3.supxlabel("Temps depuis le début de chauffe (s)", fontweight="bold")
+    fig3.supylabel("Température à l'interface (°C)", fontweight="bold")
+    fig3.tight_layout(rect=[0, 0, 1, 0.90])
+    fig3.savefig(OUT_PRED / "fig_prediction_chauffe_par_courant.png")
+    plt.close(fig3)
+    print("saved", OUT_PRED / "fig_prediction_chauffe_par_courant.png")
 
     # ------------------------------------------------------------------
     # Table texte (b) + controle (c) -- imprimes pour le rapport
