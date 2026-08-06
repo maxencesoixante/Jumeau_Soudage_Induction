@@ -15,6 +15,7 @@ la DYNAMIQUE, tout le reste egal).
 Sorties (docs/modele/figures/) :
   - fig_prediction_chauffe_courant.png : historique T(t) au chant vs courant
   - fig_prediction_profil_M.png : profil en « M » (T en largeur au pic) vs courant
+  - fig_prediction_chauffe_par_courant.png : petits multiples T(t), un panneau par courant
 
 N'utilise QUE l'essai exp7_200A.yaml comme gabarit geometrique (spots,
 thermocouples) ; la source est reconstruite a chaque courant via
@@ -219,6 +220,34 @@ def main():
     fig2.savefig(OUT_PRED / "fig_prediction_profil_M.png")
     plt.close(fig2)
     print("saved", OUT_PRED / "fig_prediction_profil_M.png")
+
+    # ------------------------------------------------------------------
+    # Figure 3 -- petits multiples : un panneau T(t) par courant predit,
+    # cote a cote (axes partages pour comparer d'un coup d'oeil).
+    # ------------------------------------------------------------------
+    cour = sorted(COURANTS_PREDITS)
+    ncols = 3
+    nrows = (len(cour) + ncols - 1) // ncols
+    fig3, axs = plt.subplots(nrows, ncols, figsize=(11.0, 6.2),
+                             sharex=True, sharey=True)
+    axs = np.atleast_1d(axs).ravel()
+    for ax3, I in zip(axs, cour):
+        t, T_chant = resultats[I]
+        ax3.plot(t, T_chant, "-", color=COLOR_PRED[I], lw=1.9)
+        ax3.axhline(T_FUSION, color="#0072B2", lw=0.9, ls="-", zorder=0)
+        ax3.set_title(f"{I} A", loc="left", fontweight="bold")
+        ax3.set_xlim(0, 25)
+        ax3.grid(True, alpha=0.25)
+    for ax3 in axs[len(cour):]:      # masquer les panneaux inutilises
+        ax3.set_visible(False)
+    fig3.suptitle("Prédiction — historique de chauffe au chant, un panneau par courant "
+                  "(ligne bleue = fusion PEKK 337 °C)")
+    fig3.supxlabel("Temps depuis le début de chauffe (s)", fontweight="bold")
+    fig3.supylabel("Température au chant (°C)", fontweight="bold")
+    fig3.tight_layout()
+    fig3.savefig(OUT_PRED / "fig_prediction_chauffe_par_courant.png")
+    plt.close(fig3)
+    print("saved", OUT_PRED / "fig_prediction_chauffe_par_courant.png")
 
     # ------------------------------------------------------------------
     # Table texte (b) + controle (c) -- imprimes pour le rapport
