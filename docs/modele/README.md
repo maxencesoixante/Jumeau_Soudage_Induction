@@ -26,6 +26,46 @@ Rejouer une validation : `python scripts/valider.py --modele 2D --facteur 6.0123
 | **Figures — modèle** | `figures/` (= `docs/modele/figures/`) | figures **entièrement modélisées** (aucune data réelle) : empreinte, MFC réduit, procédé semi-statique, loi de réglage, schémas de montage, prédictions (`gen_empreinte_soudure.py`, `gen_mfc_reduit.py`, `gen_procede_semistatique.py`, `gen_loi_reglage.py`, `gen_schemas_montage.py`, `gen_prediction_courant.py`). |
 | **Figures — data** | `../labo/figures/` | figures **utilisant les mesures** (exp7/exp9, séries A/B) : profils M, courbes brutes, dissipation, loi en courant, fenêtre de soudage, variantes `presentation_*` (`gen_figures_elsevier.py`, `gen_fenetre_soudage.py`). |
 
+## Galerie des figures (modèle) — `figures/`
+
+Figures **entièrement modélisées** (aucune donnée réelle). Jeu complet dans [`figures/`](figures/).
+
+### Montage & géométrie
+
+![Montage exp7](figures/schema_montage_exp7.png)
+*Montage exp7 : coupon, MFC, bobine hairpin, 5 TC — vue de dessus + coupe (cotes de `config/geometrie.yaml`).*
+
+![Montage exp9](figures/schema_montage_exp9.png)
+*Montage exp9 : ligne de TC en longueur au bord (y=0).*
+
+### Cartes & procédé (modèle)
+
+![Empreinte de soudure](figures/fig_empreinte_soudure.png)
+*Carte T(x,y) d'interface au pic pour un réglage donné — zone effectivement soudée (lobes du M).*
+
+![Procédé semi-statique](figures/fig_procede_semistatique.png)
+*Pic de température sur 4 dwells successifs : la piste soudée = deux rails le long des chants.*
+
+![MFC réduit](figures/fig_mfc_reduit.png)
+*Prédiction exploratoire : effet d'un concentrateur MFC réduit (masque de source).*
+
+![Loi de réglage](figures/fig_loi_reglage.png)
+*Loi de réglage atelier : durée de chauffe recommandée vs courant (taux ∝ I²).*
+
+### Prédictions à courants non mesurés (fenêtre [150, 250 A], θ\* figé)
+
+![Prédiction T(t) au chant](figures/fig_prediction_chauffe_courant.png)
+*Historique de chauffe au chant vs courant (tous courants), avec ancres mesurées 150/200/250 A.*
+
+![Prédiction 5 TC par courant](figures/fig_prediction_chauffe_par_courant.png)
+*Les 5 thermocouples au fil du temps, un panneau par courant (modèle symétrique : TC miroir en tirets).*
+
+![Profil en M prédit](figures/fig_prediction_profil_M.png)
+*Profil en « M » (température en largeur) au pic, un trait par courant.*
+
+![Distribution en longueur prédite](figures/fig_prediction_profil_longueur.png)
+*Distribution de température le long de l'échantillon au pic (pic sous le spot x=60 mm).*
+
 ## Documents modèle
 - [`rapport_directrice_jumeau.md`](rapport_directrice_jumeau.md) — rapport complet pour la direction.
 - [`rapport_slides_jumeau.md`](rapport_slides_jumeau.md) — trame de présentation.
