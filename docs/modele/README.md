@@ -143,7 +143,8 @@ sans en casser un autre. Le résidu est **compris, quantifié et irréductible**
 - **Prédictions à courants non mesurés** (nouveaux courants dans [150, 250 A], θ\* figé) :
   [`figures/fig_prediction_chauffe_courant.png`](figures/fig_prediction_chauffe_courant.png) (historique T(t) au chant, tous courants),
   [`figures/fig_prediction_chauffe_par_courant.png`](figures/fig_prediction_chauffe_par_courant.png) (petits multiples : les **5 thermocouples** au fil du temps, un panneau par courant) et
-  [`figures/fig_prediction_profil_M.png`](figures/fig_prediction_profil_M.png) (profil en « M » en largeur au pic)
+  [`figures/fig_prediction_profil_M.png`](figures/fig_prediction_profil_M.png) (profil en « M » en largeur au pic),
+  [`figures/fig_prediction_profil_longueur.png`](figures/fig_prediction_profil_longueur.png) (distribution en longueur au pic)
   (`scripts/gen_prediction_courant.py`).
 - **Fenêtre de soudage — abaque opératoire** (courant × durée) : `../figures/fig_fenetre_soudage.png`
   (`scripts/gen_fenetre_soudage.py`). Point chaud (lobe M) : zones sous-chauffe / soudage

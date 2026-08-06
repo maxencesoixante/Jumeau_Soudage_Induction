@@ -15,6 +15,7 @@ la DYNAMIQUE, tout le reste egal).
 Sorties (docs/modele/figures/) :
   - fig_prediction_chauffe_courant.png : historique T(t) au chant vs courant
   - fig_prediction_profil_M.png : profil en « M » (T en largeur au pic) vs courant
+  - fig_prediction_profil_longueur.png : distribution T(x) en longueur au pic vs courant
   - fig_prediction_chauffe_par_courant.png : petits multiples T(t), un panneau par courant
 
 N'utilise QUE l'essai exp7_200A.yaml comme gabarit geometrique (spots,
@@ -126,6 +127,17 @@ def profil_largeur(sv, sol, largeur, ny=21):
     return ys * 1e3, Ty[:, ipic]
 
 
+def profil_longueur(sv, sol, longueur, y=0.0, nx=31):
+    """Profil en LONGUEUR T(x) à l'INTERFACE, au bord (y=0, lobe chaud), pris à
+    l'instant du PIC. Distribution de la chaleur le long de l'échantillon
+    (analogue à la mesure exp9) : pic sous le spot (x=0.060), décroissance vers
+    les extrémités. Retourne (x_mm, profil_°C)."""
+    xs = np.linspace(0.0, longueur, nx)
+    Tx = np.array([sv.serie_temporelle(sol, x, y, "interface") for x in xs])
+    ipic = int(np.argmax(Tx.max(axis=0)))
+    return xs * 1e3, Tx[:, ipic]
+
+
 def temps_fusion(t: np.ndarray, T: np.ndarray, T_ref: float = T_FUSION):
     """Instant (s) de la premiere traversee de ``T_ref`` (interp. lineaire),
     ou None si jamais atteint sur la fenetre simulee."""
@@ -149,11 +161,13 @@ def main():
     # ------------------------------------------------------------------
     resultats = {}
     profils = {}
+    profils_L = {}
     tc5 = {}
     for I in COURANTS_PREDITS:
         t, T_chant, sv, sol = simuler_courant(cfg, e, float(I))
         resultats[I] = (t, T_chant)
         profils[I] = profil_largeur(sv, sol, e.grille.largeur)
+        profils_L[I] = profil_longueur(sv, sol, e.grille.longueur)
         tc5[I] = (t, series_5tc(sv, sol))
 
     # ------------------------------------------------------------------
@@ -238,6 +252,29 @@ def main():
     fig2.savefig(OUT_PRED / "fig_prediction_profil_M.png")
     plt.close(fig2)
     print("saved", OUT_PRED / "fig_prediction_profil_M.png")
+
+    # ------------------------------------------------------------------
+    # Figure 2bis -- distribution EN LONGUEUR T(x) au bord (y=0), au pic,
+    # un trait par courant (analogue modele de la campagne exp9).
+    # ------------------------------------------------------------------
+    figL, axL = plt.subplots(figsize=(7.2, 4.4))
+    for I in sorted(COURANTS_PREDITS):
+        xm, prof = profils_L[I]
+        axL.plot(xm, prof, "-o", color=COLOR_PRED[I], lw=1.6, ms=3,
+                 label=f"{I} A — modèle (prédiction, non testé)")
+    axL.axvline(60.0, color="0.6", lw=0.8, ls=":", zorder=0)   # position du spot
+    axL.text(60.0, axL.get_ylim()[1], " spot (x=60)", fontsize=7.5,
+             color="0.4", va="top", ha="left")
+    add_temp_lines(axL, lines=("fusion", "procede", "degrad"))
+    axL.set_xlim(0, 120)
+    axL.set_xlabel("Position en longueur $x$ (mm)")
+    axL.set_ylabel("Température au bord (y=0) au pic (°C)")
+    axL.set_title(
+        "Prédiction — distribution de température en longueur au pic vs courant")
+    legend_right(axL, ncol=1)
+    figL.savefig(OUT_PRED / "fig_prediction_profil_longueur.png")
+    plt.close(figL)
+    print("saved", OUT_PRED / "fig_prediction_profil_longueur.png")
 
     # ------------------------------------------------------------------
     # Figure 3 -- petits multiples : un panneau T(t) par courant predit,
