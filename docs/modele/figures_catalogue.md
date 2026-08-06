@@ -8,7 +8,7 @@ séries tracées, essais/données sources, méthode de calcul, lignes de référ
 
 ## 0. Format commun (référence `serieA_A-2_250A_2026-06-09.png`)
 
-Depuis la refonte du **2026-07-29**, tout le jeu `docs/figures/` suit le **format de
+Depuis la refonte du **2026-07-29**, tout le jeu `docs/labo/figures/` suit le **format de
 référence** de `serieA_A-2_250A_2026-06-09.png` :
 
 | Élément | Convention |
@@ -42,11 +42,11 @@ Le **début de chauffe** (`heating_onset_idx`) est le dernier point ambiant avan
 TC dépasse ambiante + 2 °C ; les axes temporels sont recalés sur cet instant.
 
 **Reproductibilité** : `scripts/gen_figures_elsevier.py` régénère l'intégralité du jeu (variable
-d'environnement `FIGOUT` pour la destination ; sans argument → `docs/figures/`).
+d'environnement `FIGOUT` pour la destination ; sans argument → `docs/labo/figures/`).
 Arguments positionnels optionnels pour ne régénérer qu'une figure :
 `fig1 fig2 fig3 fig4 fig5 chant par 5tc mono semi`.
 
-**Jeux de figures — dossier UNIQUE `docs/figures/`** (consolidé le 2026-08-03 ;
+**Jeux de figures — dossier UNIQUE `docs/labo/figures/`** (consolidé le 2026-08-03 ;
 les anciens `figures_elsevier/` et `figures_presentation/` ont fusionné) :
 - **Jeu de référence** — 10 figures + les figures dérivées + la figure de référence
   `serieA_A-2_250A_2026-06-09.png`. Noms inchangés (`fig1_profil_M.png`, …).
@@ -259,7 +259,7 @@ Figures de travail (non article), conservées pour traçabilité :
 
 ---
 
-## C. Variantes présentation (`docs/figures/`)
+## C. Variantes présentation (`docs/labo/figures/`)
 
 `presentation_fig1_profil_M_3courants`, `presentation_fig2_mesure_vs_modele`,
 `presentation_fig3_centre_dynamique`, `presentation_fig4_courbes_brutes`,
@@ -269,6 +269,6 @@ Figures de travail (non article), conservées pour traçabilité :
 > **Format** : réalignées sur le format de référence (§ 0) le 2026-07-29 — mêmes titre / labels
 > gras / légende hors cadre / lignes T°, avec **polices agrandies** pour la projection (canevas
 > mis à l'échelle en conséquence). Depuis le 2026-08-03 le preset écrit directement dans le
-> dossier unique `docs/figures/` avec le préfixe `presentation_` (plus besoin de `FIGOUT`).
+> dossier unique `docs/labo/figures/` avec le préfixe `presentation_` (plus besoin de `FIGOUT`).
 > Régénération : `PRESET=presentation .venv/bin/python scripts/gen_figures_elsevier.py
 > fig1 fig2 fig3 fig4 fig5`.

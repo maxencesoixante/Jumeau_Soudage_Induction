@@ -27,7 +27,7 @@ reproduit (200 A mesuré à 390).
 **Conséquence modèle.** La fréquence NE varie PAS avec l'ampérage → **une seule valeur globale
 suffit** ; la correction « fréquence par essai » est **abandonnée**. La valeur config `388e3`
 reste bonne. Bénéfice de bord : ceci **confirme la loi en I² de la source** (pas de couplage
-fréquence↔courant), cf. loi taux-courant `docs/figures/presentation_fig5`.
+fréquence↔courant), cf. loi taux-courant `docs/labo/figures/presentation_fig5`.
 
 ---
 

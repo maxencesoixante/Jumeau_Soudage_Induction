@@ -6,7 +6,7 @@ serieA_A-2_250A_2026-06-09.png:
   - horizontal temperature reference lines (fusion / procédé / dégradation)
     on the absolute-temperature figures, labelled in whitespace.
 
-Output dir via env FIGOUT (default docs/figures).
+Output dir via env FIGOUT (default docs/labo/figures).
 """
 import os
 import sys
@@ -20,7 +20,7 @@ from scipy.signal import medfilt
 
 R = Path("/Users/maxencedubois/PycharmProjects/Jumeau_Soudage_Induction")
 sys.path.insert(0, str(R / "src"))
-OUT = Path(os.environ.get("FIGOUT", str(R / "docs" / "figures")))
+OUT = Path(os.environ.get("FIGOUT", str(R / "docs" / "labo" / "figures")))
 OUT.mkdir(parents=True, exist_ok=True)
 
 # ----------------------------------------------------------------------
@@ -37,7 +37,7 @@ apply_style(**{
 # ----------------------------------------------------------------------
 # Presets: "elsevier" (default) or "presentation" (slides — bigger fonts,
 # only fig1..fig5). Depuis 2026-08-03, tout est dans le dossier UNIQUE
-# docs/figures/ ; les variantes présentation portent le préfixe
+# docs/labo/figures/ ; les variantes présentation portent le préfixe
 # ``presentation_`` pour éviter la collision avec le jeu de référence
 # (cf. docs/modele/figures_catalogue.md).
 # ----------------------------------------------------------------------

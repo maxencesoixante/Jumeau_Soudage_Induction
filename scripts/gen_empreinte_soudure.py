@@ -6,7 +6,7 @@ l'interface au pic, avec les contours fusion (337) / cible procédé (390) /
 dégradation (450) : ça montre la ZONE effectivement soudée (les lobes du M au
 bord) et confirme que le centre reste froid (spot fixe).
 
-Sortie : docs/figures/fig_empreinte_soudure.png
+Sortie : docs/modele/figures/fig_empreinte_soudure.png
 """
 import sys
 from pathlib import Path
@@ -25,7 +25,7 @@ from jumeau.materiaux import Config
 from jumeau.procede import Essai
 from jumeau.em.source_joule import source_spot
 
-OUT = R / "docs" / "figures" / "fig_empreinte_soudure.png"
+OUT = R / "docs" / "modele" / "figures" / "fig_empreinte_soudure.png"
 FACTEUR = 6.0123
 T_FUSION, T_PROCEDE, T_DEGRAD = 337.0, 390.0, 450.0
 # Deux réglages dans la fenêtre de soudage (cf. fig_fenetre_soudage) :
