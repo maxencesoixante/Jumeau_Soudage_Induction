@@ -3,6 +3,7 @@ sous contrainte de non-dégradation. Indépendant du modèle (opère sur des car
 
 from __future__ import annotations
 
+import copy
 from pathlib import Path
 
 import numpy as np
@@ -60,24 +61,35 @@ def verifier_sequentiel(cfg: Config, passes_params, *, facteur: float = 6.0123,
     """Rejoue le plan en UNE séquence multi-passes (chaleur résiduelle incluse)
     et renvoie ``(grille, Tmax_reel(x, y))``. Chaque passe = un spot successif
     (patron de ``scripts/gen_procede_semistatique.py``). ``passes_params`` = liste
-    de dicts ``{"x_c", "y_c", "courant", "duree"}``."""
+    de dicts ``{"x_c", "y_c", "courant", "duree"[, "mfc_longueur"]}`` ; le masquage
+    MFC réduit (#39) est appliqué PAR PASSE (chaque passe peut avoir sa largeur)."""
     cfg.contact.h_haut = 30.087
     cfg.ambiant.h_bas_2d = 37.424
     cfg.ambiant.h_bord_x0 = 250.0
+    # masquage MFC appliqué à la main par passe -> Essai en masque_source_mfc=False
     e = Essai(cfg, _GABARIT, nx=nx, ny=ny, nz=nz,
               facteur_couplage=facteur, decalage_x=0.0, racine=_RACINE)
     t = 0.0
-    spots, Qs = [], []
+    spots, Qs, masks = [], [], []
     for p in passes_params:
+        mfc = p.get("mfc_longueur")
+        cfg_p = cfg
+        if mfc is not None:
+            cfg_p = copy.deepcopy(cfg)
+            cfg_p.geometrie["cfc"]["longueur"] = float(mfc)
+        mask = masque_empreinte_cfc(e.grille, cfg_p, p["x_c"], centre_y=p["y_c"])
+        Q = source_spot(e.grille, cfg, e.couches, p["courant"], p["x_c"],
+                        facteur_couplage=facteur, centre_y=p["y_c"])
+        if mfc is not None:              # source coupée à l'empreinte du MFC réduit
+            Q = Q * mask[:, :, None]
         spots.append({"centre_x": p["x_c"], "t_debut": t, "t_fin": t + p["duree"]})
-        Qs.append(source_spot(e.grille, cfg, e.couches, p["courant"], p["x_c"],
-                              facteur_couplage=facteur, centre_y=p["y_c"]))
+        Qs.append(Q)
+        masks.append(mask)
         t += p["duree"]
     e.spots = spots
     # reconstruire les masques céramique/MFC pour matcher les NOUVELLES passes
     # (le gabarit exp7 n'a qu'un spot ; sans ça masque_fn indexe hors bornes).
-    e._masques = [masque_empreinte_cfc(e.grille, cfg, p["x_c"], centre_y=p["y_c"])
-                  for p in passes_params]
+    e._masques = masks
     e._Q_spots = Qs
     e._P_spots_2d = [Q.sum(axis=2) * e.grille.dz for Q in Qs]
     e.spec["duree_chauffe"] = t
