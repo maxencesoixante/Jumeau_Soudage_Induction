@@ -9,6 +9,7 @@ import numpy as np
 
 from ..materiaux import Config
 from ..procede import Essai
+from ..geometrie import masque_empreinte_cfc
 from ..em.source_joule import source_spot
 
 _RACINE = Path(__file__).resolve().parents[3]
@@ -29,6 +30,8 @@ def empreinte(cfg: Config, x_c: float, y_c: float, courant: float, duree: float,
     e.spec["duree_chauffe"] = duree
     e.spec["duree_totale"] = duree
     e.spots[0]["t_fin"] = duree
+    # masque céramique/MFC recentré sous la passe (x_c, y_c)
+    e._masques = [masque_empreinte_cfc(e.grille, cfg, x_c, centre_y=y_c)]
     Q = source_spot(e.grille, cfg, e.couches, courant, x_c,
                     facteur_couplage=facteur, centre_y=y_c)
     e._Q_spots = [Q]

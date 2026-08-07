@@ -116,3 +116,21 @@ def test_planifier_sarrete_sans_amelioration():
     D = np.array([[20.0, 100.0]])           # D ne soude rien
     passes, Tc, m = planifier({"A": A, "D": D}, ambiant=20.0)
     assert passes == ["A"]
+
+
+# --------------------------------------------------------------------------- #
+# Task 5 — vérification séquentielle (lent)
+# --------------------------------------------------------------------------- #
+@pytest.mark.slow
+def test_verifier_sequentiel_au_moins_aussi_couvrant_que_max():
+    """La couverture séquentielle (chaleur résiduelle incluse) est >= la
+    combinaison indépendante par max des mêmes passes (glouton conservateur)."""
+    from jumeau.planification.empreinte import empreinte
+    from jumeau.planification.planificateur import verifier_sequentiel, metriques
+    cfg = Config.charger(RACINE / "config")
+    passes = [{"x_c": 0.045, "y_c": 0.020, "courant": 220.0, "duree": 12.0},
+              {"x_c": 0.075, "y_c": 0.020, "courant": 220.0, "duree": 12.0}]
+    maps = [empreinte(cfg, p["x_c"], p["y_c"], p["courant"], p["duree"])[1] for p in passes]
+    T_max_indep = np.maximum.reduce(maps)
+    g, T_seq = verifier_sequentiel(cfg, passes)
+    assert metriques(T_seq)["pct_soude"] >= metriques(T_max_indep)["pct_soude"] - 1e-6
