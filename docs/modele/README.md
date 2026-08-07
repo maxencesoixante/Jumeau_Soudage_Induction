@@ -69,11 +69,12 @@ Figures **entièrement modélisées** (aucune donnée réelle). Jeu complet dans
 ### Planification de soudage uniforme (`scripts/planifier_soudage.py`)
 
 ![Plan de soudage — carte de couverture](figures/fig_plan_soudage_couverture.png)
-*Plan de passes (x, y, courant, durée) généré par glouton + carte de couverture `Tmax` :
-bleu = non soudé, vert = soudé (337–450 °C), rouge = dégradé (≥ 450 °C). Résultat honnête :
-avec le levier x+y et le MFC large, seules de fines bandes de bord (lobes du M) se soudent
-sans dégrader — le soudage uniforme exigerait un MFC plus étroit (cf. spec
-`docs/superpowers/specs/2026-08-07-planificateur-soudage-uniforme-design.md`).*
+*Plan de passes (x, y, courant, durée, largeur MFC) généré par glouton + carte de couverture
+`Tmax` : bleu = non soudé, vert = soudé (337–450 °C), rouge = dégradé (≥ 450 °C). Résultat
+honnête : seules de fines bandes de bord (lobes du M) se soudent sans dégrader → **9 % soudé,
+0 % dégradé, NON uniforme**. Le **MFC réduit (31,75 mm)** ajouté comme levier (issue #39) n'est
+PAS retenu par le glouton : le masque dur coupe les lobes de bord sans réchauffer le centre.
+Un concentrateur vraiment localisant (hors modèle de masque 1er ordre) serait nécessaire.*
 
 ## Documents modèle
 - [`rapport_directrice_jumeau.md`](rapport_directrice_jumeau.md) — rapport complet pour la direction.
