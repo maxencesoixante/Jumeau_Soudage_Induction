@@ -63,3 +63,16 @@ def test_empreinte_forme_et_monotonie_courant():
     assert T160.shape == (g.nx, g.ny)
     assert T240.max() > T160.max()          # plus de courant -> plus chaud
     assert T160.min() >= 15.0               # au moins l'ambiant
+
+
+# --------------------------------------------------------------------------- #
+# Task 3 — bibliothèque d'empreintes
+# --------------------------------------------------------------------------- #
+def test_bibliotheque_cardinalite_et_cle():
+    from jumeau.planification.empreinte import bibliotheque
+    cfg = Config.charger(RACINE / "config")
+    g, lib = bibliotheque(cfg, x_cs=[0.045, 0.075], y_cs=[0.020], courants=[200.0],
+                          duree=12.0)
+    assert len(lib) == 2                         # 2 x_c × 1 y_c × 1 courant
+    assert (0.045, 0.020, 200.0) in lib
+    assert lib[(0.045, 0.020, 200.0)].shape == (g.nx, g.ny)
