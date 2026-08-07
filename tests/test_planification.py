@@ -73,9 +73,33 @@ def test_bibliotheque_cardinalite_et_cle():
     cfg = Config.charger(RACINE / "config")
     g, lib = bibliotheque(cfg, x_cs=[0.045, 0.075], y_cs=[0.020], courants=[200.0],
                           duree=12.0)
-    assert len(lib) == 2                         # 2 x_c × 1 y_c × 1 courant
-    assert (0.045, 0.020, 200.0) in lib
-    assert lib[(0.045, 0.020, 200.0)].shape == (g.nx, g.ny)
+    assert len(lib) == 2                         # 2 x_c × 1 y_c × 1 courant × 1 MFC
+    assert (0.045, 0.020, 200.0, None) in lib    # clé = (x, y, I, mfc_longueur)
+    assert lib[(0.045, 0.020, 200.0, None)].shape == (g.nx, g.ny)
+
+
+def test_bibliotheque_mfc_ajoute_une_dimension():
+    from jumeau.planification.empreinte import bibliotheque
+    cfg = Config.charger(RACINE / "config")
+    g, lib = bibliotheque(cfg, x_cs=[0.060], y_cs=[0.020], courants=[200.0],
+                          duree=12.0, mfc_longueurs=[None, 0.03175])
+    assert len(lib) == 2                         # 1×1×1 × 2 MFC
+    assert (0.060, 0.020, 200.0, None) in lib
+    assert (0.060, 0.020, 200.0, 0.03175) in lib
+
+
+# --------------------------------------------------------------------------- #
+# #39 — MFC réduit comme levier
+# --------------------------------------------------------------------------- #
+def test_empreinte_mfc_reduit_masque_les_bords():
+    """Un MFC réduit (masque source à son empreinte, centré y=20) coupe la
+    source près des chants -> Tmax au chant PLUS BAS qu'avec le MFC large."""
+    from jumeau.planification.empreinte import empreinte
+    _, T_large = empreinte(Config.charger(RACINE / "config"),
+                           0.060, 0.020, 235.0, 20.0)                    # MFC 55 mm
+    _, T_reduit = empreinte(Config.charger(RACINE / "config"),
+                            0.060, 0.020, 235.0, 20.0, mfc_longueur=0.03175)
+    assert T_reduit[:, 0].max() < T_large[:, 0].max()   # chant y=0 plus froid
 
 
 # --------------------------------------------------------------------------- #
