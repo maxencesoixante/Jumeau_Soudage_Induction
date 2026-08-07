@@ -32,3 +32,6 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+    "slow: tests lents (simulations complètes) — exclure avec -m 'not slow'",
+]
