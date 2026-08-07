@@ -76,3 +76,43 @@ def test_bibliotheque_cardinalite_et_cle():
     assert len(lib) == 2                         # 2 x_c × 1 y_c × 1 courant
     assert (0.045, 0.020, 200.0) in lib
     assert lib[(0.045, 0.020, 200.0)].shape == (g.nx, g.ny)
+
+
+# --------------------------------------------------------------------------- #
+# Task 4 — planificateur glouton (pur, synthétique)
+# --------------------------------------------------------------------------- #
+def test_metriques_comptage():
+    from jumeau.planification.planificateur import metriques
+    T = np.array([[300.0, 400.0], [500.0, 340.0]])   # 1 sous-fusion, 2 soudés, 1 dégradé
+    m = metriques(T)
+    assert m["pct_soude"] == pytest.approx(50.0)      # 400 et 340
+    assert m["pct_degrade"] == pytest.approx(25.0)    # 500
+    assert m["pct_non_soude"] == pytest.approx(25.0)  # 300
+
+
+def test_planifier_couvre_domaine_tuilable():
+    from jumeau.planification.planificateur import planifier
+    A = np.array([[340.0, 20.0]])
+    B = np.array([[20.0, 340.0]])
+    passes, Tc, m = planifier({"A": A, "B": B}, ambiant=20.0)
+    assert m["pct_soude"] == pytest.approx(100.0)
+    assert set(passes) == {"A", "B"}
+    assert m["pct_degrade"] == 0.0
+
+
+def test_planifier_rejette_passe_degradante():
+    from jumeau.planification.planificateur import planifier
+    A = np.array([[340.0, 20.0]])
+    C = np.array([[20.0, 460.0]])           # souderait la 2e case mais en dégradant
+    passes, Tc, m = planifier({"A": A, "C": C}, ambiant=20.0)
+    assert "C" not in passes
+    assert m["pct_degrade"] == 0.0
+    assert m["pct_soude"] == pytest.approx(50.0)
+
+
+def test_planifier_sarrete_sans_amelioration():
+    from jumeau.planification.planificateur import planifier
+    A = np.array([[340.0, 20.0]])
+    D = np.array([[20.0, 100.0]])           # D ne soude rien
+    passes, Tc, m = planifier({"A": A, "D": D}, ambiant=20.0)
+    assert passes == ["A"]
