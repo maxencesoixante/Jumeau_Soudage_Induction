@@ -287,6 +287,7 @@ def source_spot(
     centre_x: float,
     facteur_couplage: float = 1.0,
     decalage_x: float = 0.0,
+    centre_y: float | None = None,
     champ_reaction: bool = False,
     lissage_sigma_mm: float = 0.0,
     lambda_bord_mm: float = 0.0,
@@ -298,6 +299,10 @@ def source_spot(
     montage, cf. geometrie.yaml:coil.decalage_x). Seule la bobine bouge : le
     masque céramique/MFC (masque_empreinte_cfc) reste posé à ``centre_x`` —
     c'est un décalage bobine<->reste du montage, pas un déplacement du spot.
+
+    ``centre_y`` (m, absolu ; ``None`` = centre de largeur ``laminate.largeur/2``)
+    positionne la bobine en LARGEUR — permet les passes décalées en y (planificateur
+    de soudage uniforme). ``None`` reproduit le comportement historique bit-à-bit.
 
     ``champ_reaction`` (défaut False, cf. docstring module) : active la
     résolution auto-cohérente complexe Bz_total = Bz_bobine + Bz_induit[ψ]
@@ -329,7 +334,7 @@ def source_spot(
     omega = 2.0 * np.pi * float(cfg.geometrie["generateur"]["frequence"])
     mu_r = float(cfg.geometrie["cfc"]["mu_r"])
     z_miroir = plan_miroir_cfc(cfg)
-    sommets = sommets_bobine(cfg, centre_x + decalage_x)
+    sommets = sommets_bobine(cfg, centre_x + decalage_x, centre_y=centre_y)
     X, Y = np.meshgrid(grille.x, grille.y, indexing="ij")
 
     bord_souple = lambda_bord_mm > 0.0
