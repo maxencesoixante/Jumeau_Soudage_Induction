@@ -50,3 +50,16 @@ def test_source_spot_centre_y_deplace_le_pic_en_y():
     Q_bas = source_spot(e.grille, cfg, e.couches, 200.0, 0.060,
                         facteur_couplage=6.0123, centre_y=0.030)
     assert barycentre_y(Q_haut) < barycentre_y(Q_bas) - 1e-3
+
+
+# --------------------------------------------------------------------------- #
+# Task 2 — empreinte d'une passe
+# --------------------------------------------------------------------------- #
+def test_empreinte_forme_et_monotonie_courant():
+    from jumeau.planification.empreinte import empreinte
+    cfg = Config.charger(RACINE / "config")
+    g, T160 = empreinte(cfg, 0.060, 0.020, 160.0, 15.0)
+    _, T240 = empreinte(cfg, 0.060, 0.020, 240.0, 15.0)
+    assert T160.shape == (g.nx, g.ny)
+    assert T240.max() > T160.max()          # plus de courant -> plus chaud
+    assert T160.min() >= 15.0               # au moins l'ambiant
