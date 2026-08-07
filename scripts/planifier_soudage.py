@@ -33,24 +33,29 @@ FUSION, DEGRAD = 337.0, 450.0
 X_CS = [0.030, 0.060, 0.090, 0.110]
 Y_CS = [0.000, 0.010, 0.020, 0.030, 0.040]
 COURANTS = [200.0, 235.0]
+# Largeurs de MFC physiques (#39) : labo 55 mm (None) et réduit commandé 31,75 mm.
+MFC_LONGUEURS = [None, 0.03175]
 DUREE = 20.0
 
 
 def main():
     cfg = Config.charger(R / "config")
+    n_cand = len(X_CS) * len(Y_CS) * len(COURANTS) * len(MFC_LONGUEURS)
     print(f"Construction de la bibliothèque d'empreintes "
-          f"({len(X_CS)}×{len(Y_CS)}×{len(COURANTS)} = "
-          f"{len(X_CS) * len(Y_CS) * len(COURANTS)} passes candidates)…")
-    grille, lib = bibliotheque(cfg, X_CS, Y_CS, COURANTS, DUREE)
+          f"({len(X_CS)}×{len(Y_CS)}×{len(COURANTS)}×{len(MFC_LONGUEURS)} = "
+          f"{n_cand} passes candidates)…")
+    grille, lib = bibliotheque(cfg, X_CS, Y_CS, COURANTS, DUREE,
+                               mfc_longueurs=MFC_LONGUEURS)
     passes, Tc, m = planifier(lib, fusion=FUSION, degrad=DEGRAD)
 
     print(f"\nPlan glouton : {len(passes)} passe(s) — soudé {m['pct_soude']:.1f} %, "
           f"non soudé {m['pct_non_soude']:.1f} %, dégradé {m['pct_degrade']:.1f} %")
-    passes_params = [{"x_c": k[0], "y_c": k[1], "courant": k[2], "duree": DUREE}
-                     for k in passes]
+    passes_params = [{"x_c": k[0], "y_c": k[1], "courant": k[2],
+                      "mfc_longueur": k[3], "duree": DUREE} for k in passes]
     for i, p in enumerate(passes_params, 1):
+        mfc = "55" if p["mfc_longueur"] is None else f"{p['mfc_longueur']*1e3:.1f}"
         print(f"  {i}. x={p['x_c']*1e3:5.0f} mm  y={p['y_c']*1e3:4.0f} mm  "
-              f"I={p['courant']:.0f} A  t={p['duree']:.0f} s")
+              f"I={p['courant']:.0f} A  MFC={mfc} mm  t={p['duree']:.0f} s")
 
     (R / "resultats").mkdir(exist_ok=True)
     with open(R / "resultats" / "plan_soudage.yaml", "w", encoding="utf-8") as f:
@@ -69,10 +74,15 @@ def main():
         T_seq, m_seq = Tc, m
         print("\nAucune passe candidate ne soude sans dégrader → couverture 0 %.")
     uniforme = m_seq["pct_soude"] >= 99.9 and m_seq["pct_degrade"] == 0.0
+    utilise_mfc_reduit = any(p["mfc_longueur"] is not None for p in passes_params)
     print(f"\nVERDICT — soudage uniforme : {'OUI' if uniforme else 'NON'}")
     if not uniforme:
-        print("  (couverture < 100 % ou dégradation : cf. carte — limite du levier x+y "
-              "avec le MFC large, cf. spec §Risque de faisabilité.)")
+        print("  Seules de fines bandes de bord (lobes du M) se soudent sans dégrader.")
+        if not utilise_mfc_reduit:
+            print("  Le MFC réduit (31,75 mm, masque 1er ordre) n'a PAS été retenu : il coupe "
+                  "les lobes de bord sans réchauffer le centre (creux du M) -> n'améliore pas "
+                  "la couverture. Un MFC vraiment localisant (non capturé par le masque dur) "
+                  "serait nécessaire. Cf. spec §Risque de faisabilité + issue #39.")
 
     _tracer(grille, T_seq, passes_params, m_seq)
 
@@ -87,8 +97,11 @@ def _tracer(grille, Tmax, passes_params, m):
                     colors=["#0072B2", "#C1272D"], linewidths=[1.3, 1.6])
     ax.clabel(cs, fmt={FUSION: "337", DEGRAD: "450"}, fontsize=7)
     for i, p in enumerate(passes_params, 1):
-        ax.plot(p["x_c"] * 1e3, p["y_c"] * 1e3, "kx", ms=8, mew=1.8)
-        ax.annotate(str(i), (p["x_c"] * 1e3, p["y_c"] * 1e3), fontsize=7,
+        reduit = p["mfc_longueur"] is not None
+        ax.plot(p["x_c"] * 1e3, p["y_c"] * 1e3, "ko" if reduit else "kx",
+                ms=7, mew=1.8, mfc="none" if reduit else "k")
+        etiq = f"{i}R" if reduit else str(i)   # R = MFC réduit
+        ax.annotate(etiq, (p["x_c"] * 1e3, p["y_c"] * 1e3), fontsize=7,
                     ha="left", va="bottom", xytext=(2, 2), textcoords="offset points")
     ax.set_xlabel("Longueur $x$ (mm)")
     ax.set_ylabel("Largeur $y$ (mm)")
