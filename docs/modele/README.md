@@ -66,6 +66,15 @@ Figures **entièrement modélisées** (aucune donnée réelle). Jeu complet dans
 ![Distribution en longueur prédite](figures/fig_prediction_profil_longueur.png)
 *Distribution de température le long de l'échantillon au pic (pic sous le spot x=60 mm).*
 
+### Planification de soudage uniforme (`scripts/planifier_soudage.py`)
+
+![Plan de soudage — carte de couverture](figures/fig_plan_soudage_couverture.png)
+*Plan de passes (x, y, courant, durée) généré par glouton + carte de couverture `Tmax` :
+bleu = non soudé, vert = soudé (337–450 °C), rouge = dégradé (≥ 450 °C). Résultat honnête :
+avec le levier x+y et le MFC large, seules de fines bandes de bord (lobes du M) se soudent
+sans dégrader — le soudage uniforme exigerait un MFC plus étroit (cf. spec
+`docs/superpowers/specs/2026-08-07-planificateur-soudage-uniforme-design.md`).*
+
 ## Documents modèle
 - [`rapport_directrice_jumeau.md`](rapport_directrice_jumeau.md) — rapport complet pour la direction.
 - [`rapport_slides_jumeau.md`](rapport_slides_jumeau.md) — trame de présentation.
