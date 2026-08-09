@@ -137,8 +137,8 @@ class SolveurThermique3D:
         masque = self.masque_ceramique(t) if callable(self.masque_ceramique) else self.masque_ceramique
 
         if not mat.a_k_variable():
-            # ===== chemin historique : k SCALAIRE CONSTANT (bit-identique) =====
-            kx = ky = mat.k_plan
+            # ===== chemin historique : k scalaire/anisotrope constant (bit-identique) =====
+            kx, ky = mat.k_plan_xy()  # isotrope par défaut (kx=ky=k_plan) sauf k_plan_x/y renseignés
             kz = mat.k_z
 
             # --- conduction : différences secondes intérieures, demi-cellule aux bords

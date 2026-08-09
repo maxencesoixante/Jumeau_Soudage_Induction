@@ -189,3 +189,73 @@ def test_puits_ceramique_refroidit():
     Tf = sol.y[:, -1].reshape(g.nx, g.ny, g.nz)
     # la zone sous masque refroidit plus vite que les coins libres
     assert Tf[4, 2, 0] < Tf[0, 0, 0] - 5.0
+
+
+def test_k_plan_xy_isotrope_par_defaut_3d():
+    """k_plan_x/k_plan_y non renseignés (None) => champ 3D BIT-IDENTIQUE à un
+    matériau explicitement isotrope (k_plan_x = k_plan_y = k_plan). Garde la
+    non-régression du chemin scalaire par défaut du solveur 3D (issue #12)."""
+    mat = _materiau(latente=130000.0)
+    assert mat.k_plan_x is None and mat.k_plan_y is None
+    assert mat.k_plan_xy() == (mat.k_plan, mat.k_plan)
+
+    g = Grille3D(0.04, 0.04, 0.00682, 0.00336, nx=13, ny=13, nz=5)
+    amb = Ambiant(h_convection=5.0, h_bas=0.0)
+    contact = ContactCeramique(h_haut=0.0, h_contact=0.0)
+    X, Y = np.meshgrid(g.x, g.y, indexing="ij")
+    Pfield = 2.0e5 * np.exp(-((X - 0.02) ** 2 / (2 * 0.005**2)
+                             + (Y - 0.02) ** 2 / (2 * 0.005**2)))
+    source = lambda t: np.repeat(Pfield[:, :, None], g.nz, axis=2)
+    t_eval = np.array([0.0, 20.0])
+
+    s_defaut = SolveurThermique3D(g, mat, amb, contact)
+    sol_defaut = s_defaut.simuler(source, (0.0, 20.0), t_eval=t_eval)
+
+    mat_explicite = _materiau(latente=130000.0)
+    mat_explicite.k_plan_x = mat.k_plan
+    mat_explicite.k_plan_y = mat.k_plan
+    s_explicite = SolveurThermique3D(g, mat_explicite, amb, contact)
+    sol_explicite = s_explicite.simuler(source, (0.0, 20.0), t_eval=t_eval)
+
+    assert np.array_equal(sol_defaut.y, sol_explicite.y)
+
+
+def test_k_plan_xy_anisotrope_modifie_le_champ_3d():
+    """kx != ky doit produire un champ 3D différent de l'isotrope, avec un
+    étalement plus rapide dans la direction de plus forte conductivité —
+    vérifie que le chemin scalaire du solveur 3D applique bien kx en x et ky
+    en y séparément (et non kx = ky = k_plan en dur). Échoue tant que
+    solveur3d ignore k_plan_x/y (issue #12)."""
+    # Domaine CARRÉ (Lx = Ly) pour isoler l'effet kx/ky de l'asymétrie
+    # géométrique du domaine réel. CL neutres (h=0) : seule la conduction agit.
+    g = Grille3D(0.04, 0.04, 0.00682, 0.00336, nx=15, ny=15, nz=5)
+    amb = Ambiant(h_convection=0.0, h_bas=0.0)
+    contact = ContactCeramique(h_haut=0.0, h_contact=0.0)
+
+    X, Y = np.meshgrid(g.x, g.y, indexing="ij")
+    Pfield = 3.0e5 * np.exp(-((X - 0.02) ** 2 / (2 * 0.004**2)
+                             + (Y - 0.02) ** 2 / (2 * 0.004**2)))
+    source = lambda t: np.repeat(Pfield[:, :, None], g.nz, axis=2)
+    t_eval = np.array([0.0, 15.0])
+    iz = g.nz // 2  # plan médian en épaisseur
+
+    mat_iso = _materiau()
+    s_iso = SolveurThermique3D(g, mat_iso, amb, contact)
+    T_iso = s_iso.resultat_3d(s_iso.simuler(source, (0.0, 15.0), t_eval=t_eval), -1)[:, :, iz]
+
+    mat_aniso = _materiau()
+    mat_aniso.k_plan_x = 9.0   # forte conduction en x (longueur)
+    mat_aniso.k_plan_y = 1.0   # faible conduction en y (largeur)
+    s_aniso = SolveurThermique3D(g, mat_aniso, amb, contact)
+    T_aniso = s_aniso.resultat_3d(s_aniso.simuler(source, (0.0, 15.0), t_eval=t_eval), -1)[:, :, iz]
+
+    assert not np.allclose(T_iso, T_aniso)
+
+    ix0 = np.argmin(np.abs(g.x - 0.02))
+    iy0 = np.argmin(np.abs(g.y - 0.02))
+    # forte kx (9) étale davantage en x que l'isotrope (k_plan=3) -> bord x plus chaud
+    assert T_aniso[0, iy0] > T_iso[0, iy0]
+    # asymétrie interne : kx=9 aplatit le gradient en x plus que ky=1 en y
+    chute_x = T_aniso[ix0, iy0] - T_aniso[0, iy0]
+    chute_y = T_aniso[ix0, iy0] - T_aniso[ix0, 0]
+    assert chute_x < chute_y
