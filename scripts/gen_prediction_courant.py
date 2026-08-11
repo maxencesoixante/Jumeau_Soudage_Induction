@@ -211,7 +211,7 @@ def main():
     for I in sorted(COURANTS_PREDITS):
         t, T_chant = resultats[I]
         ax.plot(t, T_chant, "-", color=COLOR_PRED[I], lw=1.6,
-                label=f"{I} A — modèle (prédiction, non testé)")
+                label=f"{I} A — modèle")
     couleurs_mes = {150: "#333333", 200: "#777777", 250: "#000000"}
     marqueurs_mes = {150: "o", 200: "s", 250: "^"}
     for I in (150, 200, 250):
@@ -241,14 +241,15 @@ def main():
     for I in sorted(COURANTS_PREDITS):
         ym, prof = profils[I]
         ax2.plot(ym, prof, "-o", color=COLOR_PRED[I], lw=1.6, ms=3,
-                 label=f"{I} A — modèle (prédiction, non testé)")
+                 label=f"{I} A")
     add_temp_lines(ax2, lines=("fusion", "procede", "degrad"))
     ax2.set_xlim(0, 40)
     ax2.set_xlabel("Position en largeur $y$ (mm)")
     ax2.set_ylabel("Température à l'interface au pic (°C)")
     ax2.set_title(
-        "Prédiction — profil en « M » (largeur) au pic vs courant")
-    legend_right(ax2, ncol=1)
+        "Prédiction (modèle, non testé) — profil en « M » (largeur) au pic vs courant")
+    ax2.legend(loc="center", bbox_to_anchor=(0.5, 0.55), ncol=3,
+               fontsize=8, frameon=True, framealpha=0.85)
     fig2.savefig(OUT_PRED / "fig_prediction_profil_M.png")
     plt.close(fig2)
     print("saved", OUT_PRED / "fig_prediction_profil_M.png")
@@ -261,17 +262,16 @@ def main():
     for I in sorted(COURANTS_PREDITS):
         xm, prof = profils_L[I]
         axL.plot(xm, prof, "-o", color=COLOR_PRED[I], lw=1.6, ms=3,
-                 label=f"{I} A — modèle (prédiction, non testé)")
+                 label=f"{I} A")
     axL.axvline(60.0, color="0.6", lw=0.8, ls=":", zorder=0)   # position du spot
-    axL.text(60.0, axL.get_ylim()[1], " spot (x=60)", fontsize=7.5,
-             color="0.4", va="top", ha="left")
     add_temp_lines(axL, lines=("fusion", "procede", "degrad"))
     axL.set_xlim(0, 120)
     axL.set_xlabel("Position en longueur $x$ (mm)")
     axL.set_ylabel("Température au bord (y=0) au pic (°C)")
     axL.set_title(
-        "Prédiction — distribution de température en longueur au pic vs courant")
-    legend_right(axL, ncol=1)
+        "Prédiction (modèle, non testé) — température en longueur au pic vs courant")
+    axL.legend(loc="upper left", bbox_to_anchor=(0.015, 0.66), ncol=2,
+               fontsize=7.5, frameon=True, framealpha=0.85)
     figL.savefig(OUT_PRED / "fig_prediction_profil_longueur.png")
     plt.close(figL)
     print("saved", OUT_PRED / "fig_prediction_profil_longueur.png")

@@ -204,37 +204,6 @@ def coupe_axis_cosmetics(ax):
         ax.spines[s].set_visible(False)
 
 
-# ----------------------------------------------------------------------
-# Encart zoom de l'INTERFACE (empilement fin : film 0,1 mm + pli twill + TC),
-# echelle z dilatee pour la lisibilite des couches minces.
-# ----------------------------------------------------------------------
-def layup_inset(ax_parent, rect_frac, xc):
-    """Encart compact (auto-contenu) : zoom z sur l'empilement fin autour de
-    l'interface (lamine sup / film 0,1 mm / pli twill + TC / lamine inf)."""
-    axi = ax_parent.inset_axes(rect_frac)
-    a, b = xc - 6, xc + 6
-    top, bot = -2.4, -4.5
-    rect(axi, a, H_FILM_TOP, b - a, top - H_FILM_TOP, facecolor=C_COUPON, alpha=0.22, edgecolor="none")
-    rect(axi, a, H_FILM_BOT, b - a, H_FILM_TOP - H_FILM_BOT, facecolor=C_FILM, edgecolor="0.55", linewidth=0.5)
-    rect(axi, a, bot, b - a, H_FILM_BOT - bot, facecolor=C_COUPON, alpha=0.22, edgecolor="none")
-    axi.plot([a, b], [H_INTERFACE, H_INTERFACE], color=C_COUPON, linewidth=2.6, solid_capstyle="butt", zorder=5)
-    axi.scatter([xc], [H_INTERFACE], s=18, marker="o", color=C_TC, edgecolor="black", linewidth=0.4, zorder=6)
-    axi.text(a + 0.4, (H_FILM_TOP + top) / 2, "laminé sup.", fontsize=5.6, color="0.35", va="center")
-    axi.text(a + 0.4, bot + 0.5, "laminé inf.", fontsize=5.6, color="0.35", va="bottom")
-    axi.annotate("film 0,10 mm", xy=(b - 0.5, (H_FILM_TOP + H_FILM_BOT) / 2),
-                 xytext=(xc - 1.0, H_FILM_BOT - 0.55), fontsize=5.6, color="0.3", va="top", ha="left",
-                 arrowprops=dict(arrowstyle="-", color="0.5", lw=0.5))
-    axi.set_xlim(a, b)
-    axi.set_ylim(bot, top)
-    axi.set_xticks([])
-    axi.set_yticks([])
-    for s in axi.spines.values():
-        s.set_edgecolor("0.5")
-        s.set_linewidth(0.8)
-    axi.set_title("détail interface\n(pli twill + TC, zoom z)", fontsize=6.0, pad=1.5)
-    return axi
-
-
 # ========================================================================
 # FIGURE exp7 -- cartographie bord -> centre en LARGEUR
 # ========================================================================
@@ -255,18 +224,17 @@ def make_exp7():
 
     ys_tc = [0, 10, 20, 30, 40]
     for i, y in enumerate(ys_tc, start=1):
-        tc_marker(ax1, xc, y, f"TC{i}\n({xc:.0f}, {y})", dxlab=18.5, dylab=0, fs=7.2,
+        tc_marker(ax1, xc, y, f"TC{i}", dxlab=14.0, dylab=0, fs=7.6,
                   ha="left", va="center")
 
     # cotes
-    cote_h(ax1, 0, L, -13.0, "L = 120 mm", above=False)
+    cote_h(ax1, 0, L, -18.8, "L = 120 mm", above=False)
     cote_v(ax1, 0, W, -9.0, "l = 40 mm", right=False)
-    cote_h(ax1, xc - ENTRAXE / 2, xc + ENTRAXE / 2, W + 21.0, f"entraxe {ENTRAXE:.2f} mm", fs=6.8)
-    cote_h(ax1, xc - MFC_X / 2, xc + MFC_X / 2, W + 26.0, f"MFC {MFC_X:.1f} mm (x)", fs=6.8)
-    cote_v(ax1, yc - MFC_Y / 2, yc + MFC_Y / 2, L + 8.0, f"MFC {MFC_Y:.0f} mm (y)", fs=6.8)
+    cote_h(ax1, xc - ENTRAXE / 2, xc + ENTRAXE / 2, W + 20.0, f"entraxe {ENTRAXE:.2f} mm", fs=7.0)
+    cote_h(ax1, xc - MFC_X / 2, xc + MFC_X / 2, W + 25.0, f"MFC {MFC_X:.1f} mm (x)", fs=7.0)
 
-    ax1.set_xlim(-18, L + 20)
-    ax1.set_ylim(-20, W + 33)
+    ax1.set_xlim(-16, L + 12)
+    ax1.set_ylim(-22, W + 31)
     ax1.set_aspect("equal")
     ax1.set_xlabel("x (mm) — longueur du coupon")
     ax1.set_ylabel("y (mm) — largeur")
@@ -298,10 +266,10 @@ def make_exp7():
              linewidth=0.7, alpha=0.95, zorder=6)
     rect(ax2, yc - COIL_DRAW_LEN / 2, z_mid, COIL_DRAW_LEN, TUBE, facecolor="none",
          edgecolor="0.3", linewidth=0.8, linestyle="--", zorder=6)
-    ax2.annotate("brins Cu traversant le MFC\net ressortant de chaque côté",
-                 xy=(yc - MFC_Y / 2 - COIL_OVERHANG / 2, z_mid + TUBE / 2),
-                 xytext=(y_lo - 2, H_MFC_TOP - 3.0), fontsize=6.6,
-                 color="0.2", ha="left", va="center", zorder=8, bbox=BOXPROPS,
+    ax2.annotate("brins Cu",
+                 xy=(yc - COIL_DRAW_LEN / 2 + COIL_OVERHANG / 2, z_mid + TUBE / 2),
+                 xytext=(yc - COIL_DRAW_LEN / 2, z_mid + TUBE + 2.6), fontsize=7.0,
+                 color="0.2", ha="left", va="bottom", zorder=8, bbox=BOXPROPS,
                  arrowprops=dict(arrowstyle="-", color="0.4", lw=0.6))
 
     # TC sur l'interface
@@ -313,9 +281,7 @@ def make_exp7():
     for yb in (0, W):
         ax2.plot([yb, yb], [H_COUPON_BOT, 0], color=C_COUPON, lw=0.9, zorder=4)
 
-    layup_inset(ax2, [0.80, 0.05, 0.20, 0.42], yc)
-
-    ax2.set_xlim(yc - COIL_DRAW_LEN / 2 - 3, y_hi + 34)
+    ax2.set_xlim(yc - COIL_DRAW_LEN / 2 - 3, y_hi + 6)
     ax2.set_ylim(H_COUPON_BOT - 3, H_MFC_TOP + 3)
     ax2.set_aspect("equal")
     ax2.set_xlabel("y (mm) — largeur (coupe à x = 60 mm)")
@@ -357,7 +323,7 @@ def make_exp9():
 
     xs_tc = [0, 30, 60, 90, 120]
     for i, x in enumerate(xs_tc, start=1):
-        tc_marker(ax1, x, 0, f"TC{i}\n({x}, 0)", dxlab=0, dylab=-11.0, fs=7.0, ha="center", va="top")
+        tc_marker(ax1, x, 0, f"TC{i}", dxlab=0, dylab=-10.0, fs=7.4, ha="center", va="top")
 
     y_arrow = -25.0
     ax1.annotate("", xy=(CENTRES_DWELL[-1], y_arrow), xytext=(CENTRES_DWELL[0], y_arrow),
@@ -396,9 +362,9 @@ def make_exp9():
              linewidth=0.8, alpha=0.92, zorder=6)
     ax2.text(xc_spot, H_MFC_TOP - 2.4, "MFC (spot)", ha="center", va="center",
              fontsize=7.6, bbox=BOXPROPS, zorder=8)
-    ax2.annotate("2 tubes Cu 6×6 mm traversant le MFC\n(face basse au ras du bas du MFC)",
+    ax2.annotate("tubes Cu",
                  xy=(xc_spot + ENTRAXE / 2 + TUBE / 2, H_TUBE_BOT + TUBE / 2),
-                 xytext=(xc_spot + 12, H_TUBE_TOP + 3.5), fontsize=6.6, color="0.2",
+                 xytext=(xc_spot + 13, H_TUBE_TOP + 3.0), fontsize=7.0, color="0.2",
                  ha="left", va="center", zorder=8, bbox=BOXPROPS,
                  arrowprops=dict(arrowstyle="-", color="0.4", lw=0.6))
 
@@ -407,12 +373,8 @@ def make_exp9():
         if x_lo - 2 <= x <= x_hi + 2:
             tc_marker(ax2, x, H_INTERFACE, f"TC{i}", dxlab=0, dylab=-2.4, fs=6.8,
                       ha="center", va="top")
-    ax2.text(x_hi - 1, H_INTERFACE - 5.6, "TC espacés de 30 mm (cf. vue de dessus)",
-             ha="right", va="top", fontsize=6.4, color="0.4", style="italic")
 
-    layup_inset(ax2, [0.015, 0.55, 0.22, 0.40], xc_spot)
-
-    ax2.set_xlim(x_lo, x_hi + 6)
+    ax2.set_xlim(x_lo, x_hi + 4)
     ax2.set_ylim(H_COUPON_BOT - 6, H_MFC_TOP + 3)
     ax2.set_aspect("equal")
     ax2.set_xlabel("x (mm) — longueur (coupe au bord y = 0, ligne des TC)")
