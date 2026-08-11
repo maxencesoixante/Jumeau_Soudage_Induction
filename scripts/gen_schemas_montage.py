@@ -41,7 +41,7 @@ C_COIL = "#E69F00"     # cuivre / bobine
 C_MFC = "#7F7F7F"      # gris / concentrateur (Magnetic Flux Concentrator)
 C_COUPON = "#0072B2"   # bleu / coupon-twill
 C_TC = "#C1272D"       # rouge / thermocouples
-C_CERAM = "#CDE6F5"    # bleu tres clair / ceramique
+C_CERAM = "#009E73"    # vert (Okabe-Ito) / céramique entretoise MFC-coupon
 C_FILM = "#EFEFEF"     # gris tres clair / film PEKK
 
 BOXPROPS = dict(facecolor="white", alpha=0.82, edgecolor="none", pad=1.2)
@@ -160,6 +160,7 @@ def tc_marker(ax, x, y, label, dxlab=0, dylab=2.6, fs=7.4, ha="center", va="bott
 LEGEND_HANDLES = [
     Rectangle((0, 0), 1, 1, facecolor=C_COIL, edgecolor="0.2", label="Bobine hairpin (Cu, tube 6 mm)"),
     Rectangle((0, 0), 1, 1, facecolor=C_MFC, edgecolor="0.2", alpha=0.35, label="Concentrateur MFC (Ferrotron 559H)"),
+    Rectangle((0, 0), 1, 1, facecolor=C_CERAM, edgecolor="#00654A", alpha=0.55, label="Céramique (entretoise MFC/coupon, 2 mm)"),
     Rectangle((0, 0), 1, 1, facecolor=C_COUPON, edgecolor=C_COUPON, alpha=0.55,
               hatch="xxxx", label="Coupon CF/PEKK (laminé)"),
     Line2D([0], [0], marker="o", color="none", markerfacecolor=C_TC, markeredgecolor="black",
@@ -202,9 +203,9 @@ def draw_stack_1to1(ax, a, b, interface_label=True):
         ax.plot([a, b], [z_sup, z_sup], color=C_COUPON, alpha=0.30, lw=0.4, zorder=3)
         z_inf = H_FILM_BOT + (H_COUPON_BOT - H_FILM_BOT) * k / 4.0
         ax.plot([a, b], [z_inf, z_inf], color=C_COUPON, alpha=0.30, lw=0.4, zorder=3)
-    # ceramique 0 -> +2
-    rect(ax, a, 0.0, b - a, H_CERAM_TOP, facecolor=C_CERAM, edgecolor="0.3",
-         linewidth=0.6, zorder=2)
+    # ceramique 0 -> +2 (entretoise entre coupon et MFC/tubes, couleur distincte)
+    rect(ax, a, 0.0, b - a, H_CERAM_TOP, facecolor=C_CERAM, alpha=0.55,
+         edgecolor="#00654A", linewidth=0.7, zorder=5)
     # contours
     rect(ax, a, H_COUPON_BOT, b - a, -H_COUPON_BOT, facecolor="none", edgecolor=C_COUPON,
          linewidth=1.0, zorder=4)
@@ -228,7 +229,7 @@ def coupe_axis_cosmetics(ax):
 def make_exp7():
     fig = plt.figure(figsize=(8.4, 9.8))
     gs = fig.add_gridspec(2, 1, height_ratios=[1.55, 1.0], hspace=0.30,
-                          top=0.955, bottom=0.07, left=0.12, right=0.97)
+                          top=0.955, bottom=0.125, left=0.12, right=0.97)
     ax1 = fig.add_subplot(gs[0])
     ax2 = fig.add_subplot(gs[1])
 
@@ -306,7 +307,7 @@ def make_exp7():
     ax2.set_title("Vue en coupe (plan y–z, x = 60 mm) — échelle 1:1", fontsize=10)
     coupe_axis_cosmetics(ax2)
 
-    fig.legend(handles=LEGEND_HANDLES, loc="lower center", ncol=4, frameon=False,
+    fig.legend(handles=LEGEND_HANDLES, loc="lower center", ncol=3, frameon=False,
                bbox_to_anchor=(0.5, 0.005), fontsize=8.0)
 
     savefig(fig, OUT / "schema_montage_exp7.png")
@@ -319,7 +320,7 @@ def make_exp7():
 def make_exp9():
     fig = plt.figure(figsize=(8.8, 9.4))
     gs = fig.add_gridspec(2, 1, height_ratios=[1.5, 0.72], hspace=0.28,
-                          top=0.955, bottom=0.115, left=0.11, right=0.98)
+                          top=0.955, bottom=0.16, left=0.11, right=0.98)
     ax1 = fig.add_subplot(gs[0])
     ax2 = fig.add_subplot(gs[1])
 
@@ -396,8 +397,8 @@ def make_exp9():
     ax2.set_title("Vue en coupe (plan x–z, y = 0) — échelle 1:1", fontsize=10)
     coupe_axis_cosmetics(ax2)
 
-    fig.legend(handles=LEGEND_HANDLES, loc="lower center", ncol=4, frameon=False,
-               bbox_to_anchor=(0.5, 0.003), fontsize=8.0)
+    fig.legend(handles=LEGEND_HANDLES, loc="lower center", ncol=3, frameon=False,
+               bbox_to_anchor=(0.5, 0.004), fontsize=8.0)
 
     savefig(fig, OUT / "schema_montage_exp9.png")
     plt.close(fig)
