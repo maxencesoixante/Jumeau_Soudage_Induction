@@ -1,7 +1,9 @@
 """Schemas de montage exp7 / exp9 -- deux vues (plan x-y + coupe), format
 article (style docs/modele/figures, cf. scripts/gen_figures_elsevier.py).
 
-Les deux vues sont disposees COTE A COTE (vue de dessus | vue en coupe).
+Les deux vues sont EMPILEES (vue de dessus au-dessus, vue en coupe en dessous) :
+figure en portrait, chaque vue prend toute la largeur -> plus grande une fois
+inseree pleine largeur de colonne dans le document.
 
 Les vues en COUPE sont dessinees a l'ECHELLE 1:1 (aspect equal), avec un
 ENCART ZOOM sur le spot (MFC + tubes carres 6 mm + empilement) pour la
@@ -208,9 +210,9 @@ def coupe_axis_cosmetics(ax):
 # FIGURE exp7 -- cartographie bord -> centre en LARGEUR
 # ========================================================================
 def make_exp7():
-    fig = plt.figure(figsize=(15.0, 6.4))
-    gs = fig.add_gridspec(1, 2, width_ratios=[1.0, 1.1], wspace=0.16,
-                          top=0.84, bottom=0.18, left=0.055, right=0.985)
+    fig = plt.figure(figsize=(8.4, 9.8))
+    gs = fig.add_gridspec(2, 1, height_ratios=[1.55, 1.0], hspace=0.30,
+                          top=0.905, bottom=0.07, left=0.12, right=0.97)
     ax1 = fig.add_subplot(gs[0])
     ax2 = fig.add_subplot(gs[1])
 
@@ -302,9 +304,9 @@ def make_exp7():
 # FIGURE exp9 -- dissipation LONGITUDINALE
 # ========================================================================
 def make_exp9():
-    fig = plt.figure(figsize=(15.6, 6.4))
-    gs = fig.add_gridspec(1, 2, width_ratios=[1.0, 1.32], wspace=0.14,
-                          top=0.84, bottom=0.17, left=0.045, right=0.99)
+    fig = plt.figure(figsize=(8.8, 9.4))
+    gs = fig.add_gridspec(2, 1, height_ratios=[1.35, 1.0], hspace=0.30,
+                          top=0.905, bottom=0.07, left=0.11, right=0.98)
     ax1 = fig.add_subplot(gs[0])
     ax2 = fig.add_subplot(gs[1])
 
