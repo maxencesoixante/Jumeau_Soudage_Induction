@@ -487,26 +487,25 @@ def fig_dissipation_monospot():
     # Modèle : forme normalisée, remise à l'échelle absolue via le pic moyen mesuré
     dT_ref = float(np.mean(pics_dT))
     axa.plot(x, modele_norm * dT_ref + 25.0, "--s", color=C_MODEL, markeredgecolor="white",
-             markeredgewidth=0.5, label="Modèle 2D (forme × pic)", zorder=2)
+             markeredgewidth=0.5, label="Modèle 2D", zorder=2)
     axb.plot(x, modele_norm, "--s", color=C_MODEL, markeredgecolor="white",
-             markeredgewidth=0.5, label="Modèle 2D (forme normalisée)", zorder=2)
+             markeredgewidth=0.5, label="Modèle 2D", zorder=2)
 
     for ax in (axa, axb):
         ax.axvline(60, ls=":", color="0.6", lw=0.8, zorder=0)
         ax.set_xticks(x)
         ax.set_xlabel("Position en longueur $x$ (mm)")
-    axa.annotate("spot centré à $x$ = 60 mm\n(centre du coil) → pic ici",
-                 xy=(60, dT_ref + 25.0), xytext=(64, (dT_ref + 25.0) * 0.80),
-                 fontsize=8, color="0.25", ha="left",
-                 arrowprops=dict(arrowstyle="-", color="0.4", lw=0.6))
     axa.set_ylabel("Température de pic atteinte (°C)")
     axb.set_ylabel("Profil normalisé au spot (–)")
     panel_title(axa, "(a) pics absolus — 4 courants")
     panel_title(axb, "(b) normalisé : forme invariante en courant")
-    axb.legend(loc="upper left", ncol=1, frameon=False, fontsize=8.5)
+    # Légende partagée sous les deux panneaux (hors des courbes)
+    handles, labels = axb.get_legend_handles_labels()
+    fig.legend(handles, labels, loc="lower center", ncol=5, frameon=False,
+               fontsize=8.5, bbox_to_anchor=(0.5, -0.01))
     fig.suptitle("Décroissance longitudinale : mesuré vs modèle (spot unique, $y$=0)",
                  fontsize=12, fontweight="bold", y=1.02)
-    fig.tight_layout()
+    fig.tight_layout(rect=(0, 0.08, 1, 1))
     savefig(fig, "fig_dissipation_monospot.png")
 
 
