@@ -34,6 +34,7 @@ apply_style(**{
     "axes.linewidth": 0.8, "lines.linewidth": 1.2,
     "savefig.pad_inches": 0.08, "figure.facecolor": "white", "savefig.facecolor": "white",
 })
+mpl.rcParams["hatch.linewidth"] = 0.4   # fines lignes de hachure (look composite)
 
 # Okabe-Ito palette imposee
 C_COIL = "#E69F00"     # cuivre / bobine
@@ -120,6 +121,14 @@ def rect(ax, x0, y0, w, h, **kw):
     ax.add_patch(Rectangle((x0, y0), w, h, **kw))
 
 
+def coupon_weave(ax, x0, y0, w, h, zorder=1):
+    """Coupon CF/PEKK : remplissage translucide + tissage (hachure croisée)
+    pour évoquer un composite tissé, avec un contour net."""
+    rect(ax, x0, y0, w, h, facecolor=C_COUPON, alpha=0.16, edgecolor="none", zorder=zorder)
+    rect(ax, x0, y0, w, h, facecolor="none", edgecolor=C_COUPON, alpha=0.55,
+         linewidth=1.3, hatch="xxxx", zorder=zorder)
+
+
 def coil_legs_patch(ax, xc, yc):
     """Les deux jambes de la bobine hairpin, centrees sur (xc, yc)."""
     for sgn in (-1, 1):
@@ -151,7 +160,8 @@ def tc_marker(ax, x, y, label, dxlab=0, dylab=2.6, fs=7.4, ha="center", va="bott
 LEGEND_HANDLES = [
     Rectangle((0, 0), 1, 1, facecolor=C_COIL, edgecolor="0.2", label="Bobine hairpin (Cu, tube 6 mm)"),
     Rectangle((0, 0), 1, 1, facecolor=C_MFC, edgecolor="0.2", alpha=0.35, label="Concentrateur MFC (Ferrotron 559H)"),
-    Rectangle((0, 0), 1, 1, facecolor=C_COUPON, edgecolor="0.2", alpha=0.25, label="Coupon CF/PEKK (laminé)"),
+    Rectangle((0, 0), 1, 1, facecolor=C_COUPON, edgecolor=C_COUPON, alpha=0.55,
+              hatch="xxxx", label="Coupon CF/PEKK (laminé)"),
     Line2D([0], [0], marker="o", color="none", markerfacecolor=C_TC, markeredgecolor="black",
            markersize=6, label="Thermocouple (à l'interface, z = 3,36 mm)"),
 ]
@@ -186,6 +196,12 @@ def draw_stack_1to1(ax, a, b, interface_label=True):
          edgecolor="none", zorder=2)                       # film 0.1 mm
     rect(ax, a, H_COUPON_BOT, b - a, H_FILM_BOT - H_COUPON_BOT, facecolor=C_COUPON,
          alpha=0.22, edgecolor="none", zorder=2)          # inf
+    # plis du lamine (aspect composite) : fines lignes horizontales
+    for k in range(1, 4):
+        z_sup = H_FILM_TOP * k / 4.0                       # entre -3,36 et 0
+        ax.plot([a, b], [z_sup, z_sup], color=C_COUPON, alpha=0.30, lw=0.4, zorder=3)
+        z_inf = H_FILM_BOT + (H_COUPON_BOT - H_FILM_BOT) * k / 4.0
+        ax.plot([a, b], [z_inf, z_inf], color=C_COUPON, alpha=0.30, lw=0.4, zorder=3)
     # ceramique 0 -> +2
     rect(ax, a, 0.0, b - a, H_CERAM_TOP, facecolor=C_CERAM, edgecolor="0.3",
          linewidth=0.6, zorder=2)
@@ -219,8 +235,7 @@ def make_exp7():
     xc, yc = 60.0, 20.0
 
     # --- Panneau 1 : vue de dessus (x-y) ---------------------------------
-    rect(ax1, 0, 0, L, W, facecolor=C_COUPON, edgecolor=C_COUPON, alpha=0.20,
-         linewidth=1.4, zorder=1)
+    coupon_weave(ax1, 0, 0, L, W)
     mfc_patch(ax1, xc, yc, style="solid")
     coil_legs_patch(ax1, xc, yc)
 
@@ -303,8 +318,8 @@ def make_exp7():
 # ========================================================================
 def make_exp9():
     fig = plt.figure(figsize=(8.8, 9.4))
-    gs = fig.add_gridspec(2, 1, height_ratios=[1.35, 1.0], hspace=0.30,
-                          top=0.955, bottom=0.07, left=0.11, right=0.98)
+    gs = fig.add_gridspec(2, 1, height_ratios=[1.5, 0.72], hspace=0.28,
+                          top=0.955, bottom=0.115, left=0.11, right=0.98)
     ax1 = fig.add_subplot(gs[0])
     ax2 = fig.add_subplot(gs[1])
 
@@ -312,8 +327,7 @@ def make_exp9():
     xc_spot = 60.0
 
     # --- Panneau 1 : vue de dessus (x-y) ----------------------------------
-    rect(ax1, 0, 0, L, W, facecolor=C_COUPON, edgecolor=C_COUPON, alpha=0.20,
-         linewidth=1.4, zorder=1)
+    coupon_weave(ax1, 0, 0, L, W)
     mfc_patch(ax1, xc_spot, yc, style="solid")
     coil_legs_patch(ax1, xc_spot, yc)
     for j, xd in enumerate(CENTRES_DWELL, start=1):
@@ -351,7 +365,7 @@ def make_exp9():
     # La vue de dessus porte deja le contexte pleine longueur (5 TC + 4 dwells).
     # La coupe se concentre sur le spot (x=60) pour montrer la geometrie reelle
     # (tubes carres, MFC) a l'echelle 1:1. Fenetre x=[28, 92] : TC2/TC3/TC4.
-    x_lo, x_hi = 28.0, 92.0
+    x_lo, x_hi = 0.0, 120.0                 # pleine longueur : les 5 TC visibles
     draw_stack_1to1(ax2, -8, L + 8)         # empilement dessine large, clipe par xlim
     # MFC spot (plein) + 2 tubes carres traversant (coupe ⊥ aux tubes -> carres)
     rect(ax2, xc_spot - MFC_X / 2, H_MFC_BOT, MFC_X, MFC_H, facecolor=C_MFC,
@@ -360,7 +374,7 @@ def make_exp9():
         xt = xc_spot + sgn * ENTRAXE / 2 - TUBE / 2
         rect(ax2, xt, H_TUBE_BOT, TUBE, TUBE, facecolor=C_COIL, edgecolor="0.15",
              linewidth=0.8, alpha=0.92, zorder=6)
-    ax2.text(xc_spot, H_MFC_TOP - 2.4, "MFC (spot)", ha="center", va="center",
+    ax2.text(xc_spot, H_MFC_TOP - 2.4, "MFC", ha="center", va="center",
              fontsize=7.6, bbox=BOXPROPS, zorder=8)
     ax2.annotate("tubes Cu",
                  xy=(xc_spot + ENTRAXE / 2 + TUBE / 2, H_TUBE_BOT + TUBE / 2),
@@ -374,12 +388,12 @@ def make_exp9():
             tc_marker(ax2, x, H_INTERFACE, f"TC{i}", dxlab=0, dylab=-2.4, fs=6.8,
                       ha="center", va="top")
 
-    ax2.set_xlim(x_lo, x_hi + 4)
-    ax2.set_ylim(H_COUPON_BOT - 6, H_MFC_TOP + 3)
+    ax2.set_xlim(x_lo - 6, x_hi + 6)
+    ax2.set_ylim(H_COUPON_BOT - 3, H_MFC_TOP + 3)
     ax2.set_aspect("equal")
     ax2.set_xlabel("x (mm) — longueur (coupe au bord y = 0, ligne des TC)")
     ax2.set_ylabel("z (mm) — hauteur / profondeur\n(0 = surface, + vers le haut)")
-    ax2.set_title("Vue en coupe (plan x–z, y = 0) — zoom spot, échelle 1:1", fontsize=10)
+    ax2.set_title("Vue en coupe (plan x–z, y = 0) — échelle 1:1", fontsize=10)
     coupe_axis_cosmetics(ax2)
 
     fig.legend(handles=LEGEND_HANDLES, loc="lower center", ncol=4, frameon=False,
