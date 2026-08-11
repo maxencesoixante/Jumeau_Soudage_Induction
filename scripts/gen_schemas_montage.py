@@ -212,7 +212,7 @@ def coupe_axis_cosmetics(ax):
 def make_exp7():
     fig = plt.figure(figsize=(8.4, 9.8))
     gs = fig.add_gridspec(2, 1, height_ratios=[1.55, 1.0], hspace=0.30,
-                          top=0.905, bottom=0.07, left=0.12, right=0.97)
+                          top=0.955, bottom=0.07, left=0.12, right=0.97)
     ax1 = fig.add_subplot(gs[0])
     ax2 = fig.add_subplot(gs[1])
 
@@ -293,8 +293,6 @@ def make_exp7():
 
     fig.legend(handles=LEGEND_HANDLES, loc="lower center", ncol=4, frameon=False,
                bbox_to_anchor=(0.5, 0.005), fontsize=8.0)
-    fig.suptitle("Montage — exp7 : cartographie en largeur (profil M)",
-                 fontsize=13, fontweight="bold", y=0.975)
 
     savefig(fig, OUT / "schema_montage_exp7.png")
     plt.close(fig)
@@ -306,7 +304,7 @@ def make_exp7():
 def make_exp9():
     fig = plt.figure(figsize=(8.8, 9.4))
     gs = fig.add_gridspec(2, 1, height_ratios=[1.35, 1.0], hspace=0.30,
-                          top=0.905, bottom=0.07, left=0.11, right=0.98)
+                          top=0.955, bottom=0.07, left=0.11, right=0.98)
     ax1 = fig.add_subplot(gs[0])
     ax2 = fig.add_subplot(gs[1])
 
@@ -386,8 +384,6 @@ def make_exp9():
 
     fig.legend(handles=LEGEND_HANDLES, loc="lower center", ncol=4, frameon=False,
                bbox_to_anchor=(0.5, 0.003), fontsize=8.0)
-    fig.suptitle("Montage — exp9 : dissipation longitudinale",
-                 fontsize=13, fontweight="bold", y=0.975)
 
     savefig(fig, OUT / "schema_montage_exp9.png")
     plt.close(fig)
