@@ -21,3 +21,17 @@ def test_lambda_bord_abaisse_le_contraste():
     c0, _ = contraste_ktlb(facteur=6.0123, k_hot=None, lambda_bord_mm=0.0)
     c6, _ = contraste_ktlb(facteur=6.0123, k_hot=None, lambda_bord_mm=6.0)
     assert c6 < c0
+
+
+from diag_pareto_source_conduction import (restaurer_facteur, rmse_pooled,
+                                           charger_essais, _cfg_noeud)
+
+
+def test_noeud_reference_rmse_et_facteur():
+    fit = charger_essais(("exp7_150A", "exp7_200A", "exp9_200A_y20_monospot"))
+    held = charger_essais(("exp7_250A", "exp9_200A_monospot"))
+    cfg = _cfg_noeud(k_hot=None)  # isotrope de référence
+    facteur = restaurer_facteur(fit, cfg, lambda_bord_mm=0.0)
+    assert 4.5 <= facteur <= 8.0          # restaure ~6.0 sur le lot d'ajustement
+    rmse = rmse_pooled(held, cfg, facteur, lambda_bord_mm=0.0)
+    assert 12.0 <= rmse <= 21.0           # ordre de grandeur du held-out de réf (~16.5)

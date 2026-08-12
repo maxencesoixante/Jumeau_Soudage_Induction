@@ -65,3 +65,31 @@ def contraste_ktlb(facteur: float, k_hot: float | None, lambda_bord_mm: float,
     amb = float(sv.serie_temporelle(sol, 0.060, 0.020, "interface")[0])
     profil = (mod - amb) / (mod[2] - amb)
     return float((profil[0] + profil[4]) / 2), profil
+
+
+from calibrer_joint import EssaiCalibre
+
+NX, NY, NZ = 31, 11, 13
+
+
+def charger_essais(noms, nx=NX, ny=NY, nz=NZ):
+    return [EssaiCalibre(n, nx, ny, nz) for n in noms]
+
+
+def restaurer_facteur(essais_fit, cfg, lambda_bord_mm, facteur0=6.0123, max_nfev=15):
+    """Fit 1-D de facteur_couplage minimisant les résidus σ-pondérés du lot."""
+    def resid(x):
+        f = float(x[0])
+        return np.concatenate([e.residus(cfg, f, 0.0, lambda_bord_mm) for e in essais_fit])
+    res = least_squares(resid, x0=[facteur0], bounds=([0.5], [30.0]),
+                        max_nfev=max_nfev, method="trf")
+    return float(res.x[0])
+
+
+def rmse_pooled(essais, cfg, facteur, lambda_bord_mm):
+    """Moyenne des RMSE par-TC (colonne 'rmse' de rapport_essai) sur les essais."""
+    vals = []
+    for e in essais:
+        rap = e.rapport(cfg, facteur, 0.0, lambda_bord_mm)
+        vals.extend(rap["rmse"].tolist())
+    return float(np.mean(vals))
