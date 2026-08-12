@@ -13,6 +13,7 @@ import argparse
 import sys
 from pathlib import Path
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from scipy.optimize import least_squares
@@ -21,6 +22,7 @@ RACINE = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RACINE / "src"))
 sys.path.insert(0, str(RACINE / "scripts"))
 
+from _style import apply_style, savefig
 from jumeau.materiaux import Config
 from jumeau.procede import Essai
 
@@ -159,6 +161,42 @@ def balayer(lambdas=LAMBDAS, k_hots=K_HOTS):
             print(f"  λ={lb:>3} k_hot={kh:>3} | facteur={f:6.3f} "
                   f"contraste={c:5.3f} RMSE_held={rmse_h:6.2f} -> {cls}")
     return pd.DataFrame(lignes)
+
+
+def tracer_pareto(df, png_path):
+    """Nuage contraste_M (x) vs rmse_holdout (y). Couleur=lambda_bord,
+    taille=k_hot. Boîte de faisabilité + point de référence tracés."""
+    apply_style(**{"font.size": 10, "axes.labelsize": 11})
+    ref = df[df["classe"] == "reference"].iloc[0]
+    noeuds = df[df["classe"] != "reference"]
+    rmse_ref = float(ref["rmse_holdout"])
+
+    fig, ax = plt.subplots(figsize=(7.2, 5.4))
+    # boîte de faisabilité : |contraste-2.08|<=0.15 ET rmse<=rmse_ref
+    ax.axvspan(2.08 - 0.15, 2.08 + 0.15, color="#009E73", alpha=0.10, zorder=0)
+    ax.axhline(rmse_ref, color="#009E73", lw=1.0, ls="--",
+               label=f"RMSE réf = {rmse_ref:.1f} °C")
+    ax.axhline(rmse_ref + 0.7, color="#E69F00", lw=0.9, ls=":",
+               label="seuil quasi (réf + 0,7)")
+    sc = ax.scatter(noeuds["contraste_M"], noeuds["rmse_holdout"],
+                    c=noeuds["lambda_bord_mm"], s=20 + 14 * noeuds["k_hot"],
+                    cmap="viridis", edgecolor="0.2", linewidth=0.4, zorder=5)
+    ax.scatter([ref["contraste_M"]], [ref["rmse_holdout"]], marker="*",
+               s=240, color="#C1272D", edgecolor="black", zorder=6,
+               label="référence isotrope (k=3, λ=0)")
+    ax.axvline(2.08, color="0.4", lw=0.8, zorder=1)
+    ax.annotate("contraste mesuré 2,08", xy=(2.08, ax.get_ylim()[1]),
+                fontsize=8, color="0.4", ha="left", va="top", rotation=90)
+    fig.colorbar(sc, ax=ax, label="lambda_bord (mm)")
+    ax.set_xlabel("contraste M (exp7 200 A)  —  cible mesurée 2,08")
+    ax.set_ylabel("RMSE held-out (°C)  —  exp7_250A + exp9 bord")
+    ax.set_title("Faisabilité source × conduction (taille ∝ k_hot)", fontsize=11)
+    ax.legend(fontsize=8, loc="best", framealpha=0.9)
+    for s in ("top", "right"):
+        ax.spines[s].set_visible(False)
+    Path(png_path).parent.mkdir(parents=True, exist_ok=True)
+    savefig(fig, png_path)
+    plt.close(fig)
 
 
 def main():
