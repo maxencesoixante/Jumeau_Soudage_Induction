@@ -168,6 +168,21 @@ correction de *propriété* défendable, pas un correctif de résidu adoptable. 
 référence. Logs : `../../journaux/resultats_calibration_joint_kT{,_hbasfige}.log` ; mémoire :
 `kt-residu-structurel-piste`.
 
+**Combinaison source × conduction — carte de faisabilité 2D (2026-08-12,
+`scripts/diag_pareto_source_conduction.py`) — NO-GO, fermeture confirmée.** Dernier levier
+réellement non testé : adoucissement de source (`lambda_bord`) ET conduction in-plane (`k(T)`)
+ENSEMBLE, balayés sur une grille 2D. Le nœud isotrope de référence reproduit le contraste M 3,16
+(≈3,13) et le RMSE held-out 16,5 °C (RMSE_REF) ; **tout** nœud combinant les deux ingrédients est
+classé « hors » — aucune région faisable. En grille fine, des nœuds ATTEIGNENT bien la boîte de
+contraste mesuré (2,16–2,21, cible 2,08) via du `k(T)` pur au plafond physique de conduction
+(k_hot→k_cold=7,5), mais leur RMSE held-out (~26 °C) reste ~10 °C AU-DESSUS de la barre de
+quasi-faisabilité (17,2 °C) ; tout `lambda_bord`>0 aggrave encore (RMSE 30–37 °C) — les deux
+ingrédients CUMULENT le sur-étalement au lieu de coopérer. **Conclusion : confirme la fermeture
+(arc modèle clos)** avec preuve 2D — la dernière porte non testée est fermée ; θ\* de référence
+inchangé, `k_plan=3,0` reste la référence. Figure : `figures/pareto_source_conduction.png` ;
+données : `../../journaux/resultats_pareto_source_conduction_2026-08-12.csv` ; script :
+`scripts/diag_pareto_source_conduction.py`.
+
 ---
 
 ## Domaine de validité du jumeau (bilan, 2026-07-31)
