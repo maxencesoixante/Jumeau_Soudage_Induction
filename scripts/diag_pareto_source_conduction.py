@@ -125,3 +125,65 @@ def verdict(classes):
     if "quasi" in classes:
         return "QUASI-GO"
     return "NO-GO"
+
+
+LAMBDAS = [0.0, 1.0, 2.0, 3.0, 4.0, 6.0]
+K_HOTS = [2.0, 3.0, 4.0, 5.0, 6.0]
+
+
+def balayer(lambdas=LAMBDAS, k_hots=K_HOTS):
+    fit = charger_essais(FIT)
+    held = charger_essais(HELDOUT)
+
+    # nœud de référence isotrope -> RMSE_REF
+    cfg_ref = _cfg_noeud(k_hot=None)
+    f_ref = restaurer_facteur(fit, cfg_ref, 0.0)
+    rmse_ref = rmse_pooled(held, cfg_ref, f_ref, 0.0)
+    c_ref, _ = contraste_ktlb(f_ref, None, 0.0)
+    lignes = [dict(lambda_bord_mm=0.0, k_hot=float("nan"), facteur=f_ref,
+                   contraste_M=c_ref, rmse_holdout=rmse_ref, rmse_fit=float("nan"),
+                   classe="reference")]
+    print(f"[REF] facteur={f_ref:.4f}  contraste={c_ref:.3f}  RMSE_held={rmse_ref:.2f}")
+
+    for lb in lambdas:
+        for kh in k_hots:
+            cfg = _cfg_noeud(k_hot=kh)
+            f = restaurer_facteur(fit, cfg, lb)
+            rmse_h = rmse_pooled(held, cfg, f, lb)
+            rmse_f = rmse_pooled(fit, cfg, f, lb)
+            c, _ = contraste_ktlb(f, kh, lb)
+            cls = classer(c, rmse_h, rmse_ref)
+            lignes.append(dict(lambda_bord_mm=lb, k_hot=kh, facteur=f,
+                               contraste_M=c, rmse_holdout=rmse_h, rmse_fit=rmse_f,
+                               classe=cls))
+            print(f"  λ={lb:>3} k_hot={kh:>3} | facteur={f:6.3f} "
+                  f"contraste={c:5.3f} RMSE_held={rmse_h:6.2f} -> {cls}")
+    return pd.DataFrame(lignes)
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--lambdas", type=float, nargs="+", default=LAMBDAS)
+    ap.add_argument("--k-hots", type=float, nargs="+", default=K_HOTS)
+    ap.add_argument("--csv", default=str(RACINE / "journaux" /
+                    "resultats_pareto_source_conduction_2026-08-12.csv"))
+    ap.add_argument("--png", default=str(RACINE / "docs" / "modele" / "figures" /
+                    "pareto_source_conduction.png"))
+    args = ap.parse_args()
+
+    df = balayer(args.lambdas, args.k_hots)
+    Path(args.csv).parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(args.csv, index=False)
+
+    noeuds = df[df["classe"] != "reference"]
+    v = verdict(noeuds["classe"].tolist())
+    tracer_pareto(df, args.png)  # défini en Task 5
+    print(f"\n=== VERDICT : {v} ===")
+    print(f"faisables={int((noeuds['classe']=='faisable').sum())} "
+          f"quasi={int((noeuds['classe']=='quasi').sum())} "
+          f"hors={int((noeuds['classe']=='hors').sum())}")
+    print(f"CSV : {args.csv}\nPNG : {args.png}")
+
+
+if __name__ == "__main__":
+    main()
