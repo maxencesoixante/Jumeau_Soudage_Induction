@@ -41,7 +41,8 @@ C_COIL = "#E69F00"     # cuivre / bobine
 C_MFC = "#7F7F7F"      # gris / concentrateur (Magnetic Flux Concentrator)
 C_COUPON = "#0072B2"   # bleu / coupon-twill
 C_TC = "#C1272D"       # rouge / thermocouples
-C_CERAM = "#009E73"    # vert (Okabe-Ito) / céramique entretoise MFC-coupon
+C_CERAM = "#4D4D4D"    # gris foncé / céramique entretoise MFC-coupon
+C_CERAM_EDGE = "#262626"  # contour céramique (gris très foncé)
 C_FILM = "#EFEFEF"     # gris tres clair / film PEKK
 
 BOXPROPS = dict(facecolor="white", alpha=0.82, edgecolor="none", pad=1.2)
@@ -150,6 +151,14 @@ def mfc_patch(ax, xc, yc, style="solid"):
              linewidth=1.0, linestyle=":", zorder=3)
 
 
+def ceramique_patch(ax):
+    """Entretoise ceramique (2 mm) vue de dessus : plaque translucide gris
+    fonce sur toute l'emprise du coupon, sous le MFC (comme le patch MFC,
+    avec effet de transparence)."""
+    rect(ax, 0, 0, L, W, facecolor=C_CERAM, alpha=0.28, edgecolor=C_CERAM_EDGE,
+         linewidth=0.6, zorder=2)
+
+
 def tc_marker(ax, x, y, label, dxlab=0, dylab=2.6, fs=7.4, ha="center", va="bottom"):
     ax.scatter([x], [y], s=22, marker="o", color=C_TC, edgecolor="black",
                linewidth=0.4, zorder=10)
@@ -160,7 +169,7 @@ def tc_marker(ax, x, y, label, dxlab=0, dylab=2.6, fs=7.4, ha="center", va="bott
 LEGEND_HANDLES = [
     Rectangle((0, 0), 1, 1, facecolor=C_COIL, edgecolor="0.2", label="Bobine hairpin (Cu, tube 6 mm)"),
     Rectangle((0, 0), 1, 1, facecolor=C_MFC, edgecolor="0.2", alpha=0.35, label="Concentrateur MFC (Ferrotron 559H)"),
-    Rectangle((0, 0), 1, 1, facecolor=C_CERAM, edgecolor="#00654A", alpha=0.55, label="Céramique (entretoise MFC/coupon, 2 mm)"),
+    Rectangle((0, 0), 1, 1, facecolor=C_CERAM, edgecolor=C_CERAM_EDGE, alpha=0.55, label="Céramique (entretoise MFC/coupon, 2 mm)"),
     Rectangle((0, 0), 1, 1, facecolor=C_COUPON, edgecolor=C_COUPON, alpha=0.55,
               hatch="xxxx", label="Coupon CF/PEKK (laminé)"),
     Line2D([0], [0], marker="o", color="none", markerfacecolor=C_TC, markeredgecolor="black",
@@ -205,7 +214,7 @@ def draw_stack_1to1(ax, a, b, interface_label=True):
         ax.plot([a, b], [z_inf, z_inf], color=C_COUPON, alpha=0.30, lw=0.4, zorder=3)
     # ceramique 0 -> +2 (entretoise entre coupon et MFC/tubes, couleur distincte)
     rect(ax, a, 0.0, b - a, H_CERAM_TOP, facecolor=C_CERAM, alpha=0.55,
-         edgecolor="#00654A", linewidth=0.7, zorder=5)
+         edgecolor=C_CERAM_EDGE, linewidth=0.7, zorder=5)
     # contours
     rect(ax, a, H_COUPON_BOT, b - a, -H_COUPON_BOT, facecolor="none", edgecolor=C_COUPON,
          linewidth=1.0, zorder=4)
@@ -237,6 +246,7 @@ def make_exp7():
 
     # --- Panneau 1 : vue de dessus (x-y) ---------------------------------
     coupon_weave(ax1, 0, 0, L, W)
+    ceramique_patch(ax1)                    # entretoise translucide sous le MFC
     mfc_patch(ax1, xc, yc, style="solid")
     coil_legs_patch(ax1, xc, yc)
 
@@ -329,12 +339,9 @@ def make_exp9():
 
     # --- Panneau 1 : vue de dessus (x-y) ----------------------------------
     coupon_weave(ax1, 0, 0, L, W)
+    ceramique_patch(ax1)                    # entretoise translucide sous le MFC
     mfc_patch(ax1, xc_spot, yc, style="solid")
     coil_legs_patch(ax1, xc_spot, yc)
-    for j, xd in enumerate(CENTRES_DWELL, start=1):
-        mfc_patch(ax1, xd, yc, style="dotted")
-        ax1.text(xd, yc - MFC_Y / 2 - 2.0, f"d{j}", ha="center", va="top",
-                 fontsize=6.6, color="0.30", fontweight="bold")
 
     xs_tc = [0, 30, 60, 90, 120]
     for i, x in enumerate(xs_tc, start=1):
@@ -366,8 +373,8 @@ def make_exp9():
     # La vue de dessus porte deja le contexte pleine longueur (5 TC + 4 dwells).
     # La coupe se concentre sur le spot (x=60) pour montrer la geometrie reelle
     # (tubes carres, MFC) a l'echelle 1:1. Fenetre x=[28, 92] : TC2/TC3/TC4.
-    x_lo, x_hi = 0.0, 120.0                 # pleine longueur : les 5 TC visibles
-    draw_stack_1to1(ax2, -8, L + 8)         # empilement dessine large, clipe par xlim
+    x_lo, x_hi = 0.0, 120.0                 # pleine longueur : le coupon fait 120 mm
+    draw_stack_1to1(ax2, x_lo, x_hi)        # coupon borne a 0..120 mm (respecte L)
     # MFC spot (plein) + 2 tubes carres traversant (coupe ⊥ aux tubes -> carres)
     rect(ax2, xc_spot - MFC_X / 2, H_MFC_BOT, MFC_X, MFC_H, facecolor=C_MFC,
          edgecolor="0.2", alpha=0.35, linewidth=0.9, zorder=4)
@@ -398,7 +405,7 @@ def make_exp9():
     coupe_axis_cosmetics(ax2)
 
     fig.legend(handles=LEGEND_HANDLES, loc="lower center", ncol=3, frameon=False,
-               bbox_to_anchor=(0.5, 0.004), fontsize=8.0)
+               bbox_to_anchor=(0.5, 0.06), fontsize=8.0)
 
     savefig(fig, OUT / "schema_montage_exp9.png")
     plt.close(fig)
