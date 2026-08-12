@@ -35,3 +35,23 @@ def test_noeud_reference_rmse_et_facteur():
     assert 4.5 <= facteur <= 8.0          # restaure ~6.0 sur le lot d'ajustement
     rmse = rmse_pooled(held, cfg, facteur, lambda_bord_mm=0.0)
     assert 12.0 <= rmse <= 21.0           # ordre de grandeur du held-out de réf (~16.5)
+
+
+from diag_pareto_source_conduction import classer, verdict
+
+
+def test_classer():
+    # contraste dans la boîte + RMSE ≤ réf → faisable
+    assert classer(2.10, 16.0, rmse_ref=16.5) == "faisable"
+    # contraste ok mais RMSE entre réf et réf+0.7 → quasi
+    assert classer(2.10, 17.0, rmse_ref=16.5) == "quasi"
+    # contraste hors boîte → hors quel que soit le RMSE
+    assert classer(2.50, 15.0, rmse_ref=16.5) == "hors"
+    # contraste ok mais RMSE > réf+marge → hors
+    assert classer(2.10, 18.0, rmse_ref=16.5) == "hors"
+
+
+def test_verdict():
+    assert verdict(["hors", "faisable", "quasi"]) == "GO"
+    assert verdict(["hors", "quasi", "hors"]) == "QUASI-GO"
+    assert verdict(["hors", "hors"]) == "NO-GO"

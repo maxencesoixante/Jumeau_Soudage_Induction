@@ -93,3 +93,35 @@ def rmse_pooled(essais, cfg, facteur, lambda_bord_mm):
         rap = e.rapport(cfg, facteur, 0.0, lambda_bord_mm)
         vals.extend(rap["rmse"].tolist())
     return float(np.mean(vals))
+
+
+def classer(contraste, rmse_holdout, rmse_ref, cible=2.08, tol=0.15, marge_quasi=0.7):
+    """Classifie un nœud d'après son contraste M et RMSE held-out.
+
+    Retourne:
+        'faisable': contraste dans [cible-tol, cible+tol] et RMSE ≤ rmse_ref.
+        'quasi': contraste ok mais rmse_ref < RMSE ≤ rmse_ref + marge_quasi.
+        'hors': sinon.
+    """
+    if abs(contraste - cible) > tol:
+        return "hors"
+    if rmse_holdout <= rmse_ref:
+        return "faisable"
+    if rmse_holdout <= rmse_ref + marge_quasi:
+        return "quasi"
+    return "hors"
+
+
+def verdict(classes):
+    """Agrège les classifications (liste de str) en un verdict GO/QUASI-GO/NO-GO.
+
+    Retourne:
+        'GO': au moins un nœud 'faisable'.
+        'QUASI-GO': au moins un nœud 'quasi' et aucun 'faisable'.
+        'NO-GO': tous les nœuds sont 'hors'.
+    """
+    if "faisable" in classes:
+        return "GO"
+    if "quasi" in classes:
+        return "QUASI-GO"
+    return "NO-GO"
