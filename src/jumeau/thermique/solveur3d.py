@@ -124,6 +124,20 @@ class SolveurThermique3D:
                 "ne sont pas combinables (interaction non explorée) — n'en activer "
                 "qu'un seul. Cf. Materiau.a_k_variable / docstring k_plan_field."
             )
+        if getattr(materiau, "r_contact_interface", 0.0) > 0.0:
+            if materiau.a_k_variable():
+                raise ValueError(
+                    "r_contact_interface (chemin scalaire) et k(T) (k_plan_T/k_z_T, "
+                    "chemin flux-conservatif) ne sont pas combinables — n'en activer "
+                    "qu'un seul. Cf. Materiau.r_contact_interface."
+                )
+            iz = grille.iz_interface
+            if not (1 <= iz <= grille.nz - 3):
+                raise ValueError(
+                    "r_contact_interface exige une interface STRICTEMENT intérieure "
+                    f"(1 <= iz_interface <= nz-3) ; obtenu iz={iz}, nz={grille.nz}. "
+                    "La face de contact doit être une face z intérieure."
+                )
 
     # ------------------------------------------------------------------
     def _rhs(self, t: float, Tflat: np.ndarray, source_fn) -> np.ndarray:
@@ -156,6 +170,19 @@ class SolveurThermique3D:
                                             + amb.h_convection * (amb.T_amb - T[:, -1, :]))
             # axe z — intérieur
             dT[:, :, 1:-1] += kz * (T[:, :, :-2] - 2.0 * T[:, :, 1:-1] + T[:, :, 2:]) / g.dz**2
+
+            # résistance de contact à l'interface : la face z entre iz et iz+1
+            # utilise la conductance en série 1/(dz/kz + R_c) au lieu de kz/dz.
+            # On corrige le flux de CETTE seule face (R_c=0 => correction nulle,
+            # bit-identique). iz et iz+1 sont intérieurs (garde __init__).
+            r_c = getattr(mat, "r_contact_interface", 0.0)
+            if r_c > 0.0:
+                iz = g.iz_interface
+                g0 = kz / g.dz                        # conductance de face historique
+                gc = 1.0 / (g.dz / kz + r_c)          # conductance avec R_c en série
+                dflux = (gc - g0) * (T[:, :, iz + 1] - T[:, :, iz])   # W/m²
+                dT[:, :, iz] += dflux / g.dz
+                dT[:, :, iz + 1] -= dflux / g.dz
 
             # face supérieure z=0 (côté bobine)
             T_top = T[:, :, 0]

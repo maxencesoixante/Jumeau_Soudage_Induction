@@ -37,18 +37,23 @@ la source (la fréquence est FIGÉE à sa valeur nominale : sans mesure de f,
 elle serait totalement corrélée au facteur d'échelle — leçon du test
 black-box sur l'identifiabilité f_I/r_I).
 
-Déficit de chauffe de TC1 — ``decalage_x`` écarté (2026-07-20) : TC1 (surface,
-dans ``lamine_sup``) chauffe 5–6× trop lentement que la mesure. Un balayage EM
-de ``decalage_x`` sur [0, 0.015] m (diagnostic jusqu'à 0.050 m, ``facteur_couplage``
-figé) montre que le rapport ``Q(TC1)/Q(TC2)`` culmine à ~0,12 vers 7 mm et reste
-5–50× sous 1 sur tout le domaine, alors que la cible mesurée est
-``taux_TC1/taux_TC2 ≈ 1,71``. Décaler la bobine déplace le zéro de dissipation
-du plan de symétrie du hairpin mais ne peut PAS inverser la hiérarchie de
-résistivité inter-couches (``lamine_sup`` ρ≈3,7 mΩ·m vs ``twill_suscepteur``
-ρ≈0,09 mΩ·m, ~40× plus conducteur). Le déficit TC1 est donc structurel
-(répartition de puissance entre couches / champ proche non capturé par la
-plaque mince), pas un problème de positionnement — ne pas retenter ``decalage_x``
-comme remède sans nouvelle donnée (cf. README, § Limites connues).
+Déficit d'épaisseur — ``decalage_x`` écarté (2026-07-20) : un balayage EM de
+``decalage_x`` sur [0, 0.015] m (``facteur_couplage`` figé) ne peut PAS inverser
+la hiérarchie de résistivité inter-couches (``lamine_sup`` ρ≈3,7 mΩ·m vs
+``twill_suscepteur`` ρ≈0,09 mΩ·m, ~40× plus conducteur) — la source se dépose au
+twill/interface quoi qu'il arrive. Ne pas retenter ``decalage_x`` comme remède.
+
+CORRECTION 2026-08-13 (débogage systématique « limite #2 ») : l'ancienne
+formulation « TC1 surface 5–6× trop lent, cible ``taux_TC1/taux_TC2 ≈ 1,71`` »
+était FAUSSE. Recalculée depuis la donnée brute 3-TC (``chauffe_250A_3TC``), la
+mesure donne surface≈interface (ratio ≈ 0,97) ; TOUS les TC A/B sont d'ailleurs
+à l'interface. Le vrai écart est un GRADIENT D'ÉPAISSEUR trop faible : le modèle
+sur-chauffe la face opposée (o/i≈0,9 vs 0,42 mesuré), mécanisme = couplage
+transverse (thermique/électrique) trop fort entre interface et laminé inférieur.
+Levier prototypé ``Materiau.r_contact_interface`` (résistance de contact à
+l'interface, ``solveur3d``) — reproduit le profil d'épaisseur mais NO-GO en
+validation croisée (aggrave l'interface de bord TC1 sur A/B). Cf.
+``docs/modele/leviers_refutes.md``, mémoire ``limite2-gradient-epaisseur``.
 
 Champ de réaction (``champ_reaction``, 2026-07-21) — DERRIÈRE UN FLAG
 ----------------------------------------------------------------------
