@@ -65,6 +65,17 @@ class Materiau:
     # Conservé (capacité + repro). Cf. docs/modele/leviers_refutes.md.
     k_plan_T: list | None = None
     k_z_T: list | None = None
+    # Résistance thermique de contact inter-plis au plan de soudure
+    # (m²·K/W). 0.0 (défaut) => empilement traité comme un solide continu,
+    # comportement historique bit-identique. Une valeur > 0 insère, sur la
+    # SEULE face z de l'interface (``Grille3D.iz_interface``), une conductance
+    # en série 1/(dz/k_z + R_c) au lieu de k_z/dz — modélise le découplage
+    # transverse mesuré (face opposée bien plus froide que l'interface, cf.
+    # essai 3-TC). N'agit qu'en 3D (le 2D lumpé n'a qu'un nœud en z). NON
+    # combinable avec k(T) (``k_z_T`` : les solveurs lèvent une ``ValueError``).
+    # PARAMÈTRE CALIBRABLE — ne PAS renseigner par défaut dans
+    # ``config/materiaux.yaml`` (flag OFF), θ* à recalibrer si activé.
+    r_contact_interface: float = 0.0
 
     @classmethod
     def depuis_config(cls, cfg: dict) -> "Materiau":
@@ -72,7 +83,7 @@ class Materiau:
         champs = {k: float(cfg[k]) for k in (
             "densite", "cp_base", "T_fusion", "delta_T_fusion", "chaleur_latente",
             "k_plan", "k_z", "emissivite", "sigma_0", "sigma_90", "sigma_z", "T_glass",
-            "k_plan_x", "k_plan_y",
+            "k_plan_x", "k_plan_y", "r_contact_interface",
         ) if k in cfg}
         # tables k(T) : listes [[T, k], …] gardées telles quelles (pas de float()
         # scalaire — ``k_plan_field``/``k_z_field`` les castent en tableau).

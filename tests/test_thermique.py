@@ -220,6 +220,81 @@ def test_k_plan_xy_isotrope_par_defaut_3d():
     assert np.array_equal(sol_defaut.y, sol_explicite.y)
 
 
+def test_r_contact_reduit_flux_interface():
+    """Une résistance de contact R_c à l'interface réduit le flux conductif qui
+    traverse le plan de soudure : le nœud juste SOUS l'interface chauffe moins
+    vite (flux entrant bridé) et le nœud d'interface refroidit moins vite
+    (chaleur retenue). Testé directement sur le RHS, conduction isolée."""
+    g = Grille3D(0.12, 0.04, 0.00682, 0.00336, nx=5, ny=3, nz=7)
+    amb = Ambiant(h_convection=0.0, h_bas=0.0)     # isole la conduction
+    contact = ContactCeramique(h_contact=0.0)
+    iz = g.iz_interface
+
+    # champ en marche : chaud jusqu'à l'interface (incluse), froid en dessous
+    T = np.full((g.nx, g.ny, g.nz), 20.0)
+    T[:, :, : iz + 1] = 200.0
+    Tflat = T.ravel()
+    src = lambda t, TT: np.zeros((g.nx, g.ny, g.nz))
+
+    mat0 = _materiau()
+    matR = _materiau(); matR.r_contact_interface = 0.05
+    r0 = SolveurThermique3D(g, mat0, amb, contact)._rhs(0.0, Tflat, src).reshape(g.nx, g.ny, g.nz)
+    rR = SolveurThermique3D(g, matR, amb, contact)._rhs(0.0, Tflat, src).reshape(g.nx, g.ny, g.nz)
+
+    assert np.all(rR[:, :, iz + 1] < r0[:, :, iz + 1])   # sous l'interface : chauffe bridée
+    assert np.all(rR[:, :, iz] > r0[:, :, iz])           # à l'interface : refroidit moins
+
+
+def test_r_contact_nul_bit_identique():
+    """r_contact_interface = 0 (défaut) => RHS BIT-IDENTIQUE au chemin
+    historique : le levier ne perturbe rien tant qu'il n'est pas activé."""
+    g = Grille3D(0.12, 0.04, 0.00682, 0.00336, nx=9, ny=5, nz=7)
+    amb = Ambiant(h_convection=12.0, h_bas=8.0)
+    contact = ContactCeramique(h_contact=50.0, T_puits=20.0)
+    mat_ref = _materiau(latente=130000.0)
+    mat_zero = _materiau(latente=130000.0); mat_zero.r_contact_interface = 0.0
+    rng = np.random.default_rng(1)
+    T = (20.0 + 300.0 * rng.random(g.n)).astype(float)
+    src = lambda t, TT: np.full((g.nx, g.ny, g.nz), 5.0e5)
+    r_ref = SolveurThermique3D(g, mat_ref, amb, contact)._rhs(0.0, T, src)
+    r_zero = SolveurThermique3D(g, mat_zero, amb, contact)._rhs(0.0, T, src)
+    assert np.array_equal(r_ref, r_zero)
+
+
+def test_r_contact_et_kT_incompatibles_3d():
+    """R_c (chemin scalaire) et k(T) (chemin flux-conservatif) ne se combinent
+    pas — le solveur lève une ValueError explicite (garde __init__)."""
+    mat = _materiau(); mat.r_contact_interface = 0.05
+    mat.k_z_T = [[0.0, 0.64], [400.0, 0.64]]
+    g = Grille3D(0.12, 0.04, 0.00682, 0.00336, nx=9, ny=5, nz=7)
+    with pytest.raises(ValueError):
+        SolveurThermique3D(g, mat, Ambiant(), ContactCeramique())
+
+
+def test_r_contact_creuse_gradient_epaisseur():
+    """En intégration : source à l'interface, R_c>0 rend la face opposée plus
+    FROIDE qu'à R_c=0 (découplage transverse), tandis que la face côté source
+    reste au moins aussi chaude — le mécanisme de la limite #2."""
+    g = Grille3D(0.12, 0.04, 0.00682, 0.00336, nx=5, ny=3, nz=11)
+    amb = Ambiant(h_convection=0.0, h_bas=0.0)
+    contact = ContactCeramique(h_contact=0.0)
+    iz = g.iz_interface
+    Q = np.zeros((g.nx, g.ny, g.nz)); Q[:, :, iz] = 3.0e6      # source au plan d'interface
+    src = lambda t: Q
+
+    def face_opposee_et_source(r_c):
+        mat = _materiau(); mat.r_contact_interface = r_c
+        s = SolveurThermique3D(g, mat, amb, contact)
+        sol = s.simuler(src, (0.0, 40.0), t_eval=np.array([0.0, 40.0]))
+        Tf = sol.y[:, -1].reshape(g.nx, g.ny, g.nz)
+        return Tf[g.nx // 2, g.ny // 2, -1], Tf[g.nx // 2, g.ny // 2, 0]
+
+    oppo0, src0 = face_opposee_et_source(0.0)
+    oppoR, srcR = face_opposee_et_source(0.05)
+    assert oppoR < oppo0 - 1.0        # face opposée nettement plus froide
+    assert srcR >= src0 - 1e-6        # face côté source pas plus froide
+
+
 def test_k_plan_xy_anisotrope_modifie_le_champ_3d():
     """kx != ky doit produire un champ 3D différent de l'isotrope, avec un
     étalement plus rapide dans la direction de plus forte conductivité —

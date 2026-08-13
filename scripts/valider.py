@@ -102,6 +102,11 @@ def principale():
                     help="décalage bobine<->montage le long de x (m), calibré (amplitude non signée)")
     ap.add_argument("--h-contact", type=float, default=None, help="(modèle 3D)")
     ap.add_argument("--h-bas", type=float, default=None, help="(modèle 3D)")
+    ap.add_argument("--r-contact-interface", type=float, default=None,
+                    help="(modèle 3D) résistance de contact thermique au plan de "
+                         "soudure (m².K/W) : découple la face opposée (creuse le "
+                         "gradient d'épaisseur, cf. limite #2). NÉCESSITE un θ* "
+                         "recalibré. Défaut None = config (0 = off).")
     ap.add_argument("--h-haut", type=float, default=None, help="(modèle 2D)")
     ap.add_argument("--h-bas-2d", type=float, default=None, help="(modèle 2D)")
     ap.add_argument("--h-bord-x0", type=float, default=None,
@@ -152,6 +157,8 @@ def principale():
         cfg.contact.h_contact = args.h_contact
     if args.h_bas is not None:
         cfg.ambiant.h_bas = args.h_bas
+    if args.r_contact_interface is not None:
+        cfg.materiau.r_contact_interface = args.r_contact_interface
     if args.h_haut is not None:
         cfg.contact.h_haut = args.h_haut
     if args.h_bas_2d is not None:
