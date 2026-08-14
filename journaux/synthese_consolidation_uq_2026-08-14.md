@@ -60,3 +60,27 @@ figure : `docs/modele/figures/fig_kplan_courant.png` (script `scripts/gen_figure
    pas un défaut de calage.
 3. L'apport net de la session = **UQ** (bornes serrées, identifiabilité) + **k_plan(I) constant**,
    pas un changement de config.
+
+## Phase E — Affinage : anisotropie kx≠ky sur données complètes (test décisif) → NO-GO
+Motivé par une vérif croisée forte : le fit anisotrope de juillet donnait kx=7,515 ; la
+mesure longitudinale indépendante d'aujourd'hui (exp9 y=0, 4 courants) donne kx≈7,50±1,03.
+On relance donc `calibrer_joint.py --anisotrope` sur le dataset complet (8 essais,
+held-out courants intermédiaires).
+
+Résultat : facteur 6.49 / h_bas_2d 67.2 / **kx 8.17±0.08 / ky 11.35±1.33** / h_bord_x0 50.2.
+- ky **rail contre sa borne haute (12)** → le fit veut *encore plus* de conduction transverse
+  (non-physique), clampé.
+- **Held-out RÉGRESSE : réf 13,8 → new 19,9 °C** ; RMSE global 16,5 → 19,4.
+
+Conclusions :
+1. Le « kx=7,5 / ky=2,0 physiquement plausible » de juillet était un **artefact du dataset
+   mince** (un seul essai conduction). Sur données complètes, ky va à la borne HAUTE, pas à 2,0.
+2. Tension structurelle irréconciliable : la famille M réclame ky↑ (remplir le creux du M),
+   la famille conduction un k modéré. Un seul (kx,ky) ne satisfait pas les deux.
+3. kx≈8 reste cohérent avec la mesure longitudinale ; c'est **ky qui est non-physique/non
+   identifiable**, pas kx.
+
+**VERDICT : anisotropie NO-GO sur la meilleure donnée.** Dernier levier de forme ouvert clos.
+La limite d'étalement in-plane est confirmée non-résoluble par les leviers paramétriques
+(recalage isotrope, anisotropie, k(T), R_c, forme de source — tous NO-GO). Log :
+`journaux/resultats_calibration_joint_anisotrope_consolide_2026-08-14.log`.
