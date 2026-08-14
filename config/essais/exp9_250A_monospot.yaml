@@ -1,0 +1,33 @@
+# Essai exp9_250A_monospot — dissipation longitudinale, spot unique fixe, 250 A,
+# ligne de bord (y=0). Source : data/exp9_dissipation-longitudinale_2026-07-28/
+# README.md, section monospot 175/226/250 A. Fichier tab-séparé, décimale
+# virgule ; auto-détecté par charger_mesures. NB : fichier nommé en minuscules
+# (250a_y0_monospot.txt).
+#
+# Protocole : MFC centré sur TC3 (x=0.060), spot fixe, coupure MANUELLE au même
+# pic ~270 °C (TC3) que les autres courants — l'ABSOLU est bridé par le cutoff ;
+# l'intérêt est la FORME longitudinale (se superpose entre courants).
+# Convention y=0 = lobe chaud du profil « M » (cf. exp9_200A_monospot.yaml).
+#
+# Fenêtre DÉTECTÉE (charger_mesures + recaler_a_la_chauffe, seuil dT/dt=1 °C/s) :
+# onset ≈ t=0 (recalé) ; pic (TC3, au spot) à t≈8.0 s -> t_fin=8.0 s.
+# Durée totale mesurée après recalage : 203.0 s.
+# Pics mesurés (°C) : TC1=31.4 TC2=48.9 TC3=284.8 TC4=60.1 TC5=42.2
+# (ambiant ≈ 28-36 °C) — indicatif.
+nom: exp9_250A_monospot
+fichier_mesures: data/exp9_dissipation-longitudinale_2026-07-28/250A/250a_y0_monospot.txt
+courant: 250.0                # A
+duree_chauffe: 8.0              # s (fenêtre de chauffe détectée, coupure manuelle)
+duree_totale: 203.0             # s simulés (fenêtre + refroidissement mesuré)
+spots:
+  # Spot UNIQUE fixe, centré en longueur x=0.060 (= centre du coil).
+  - {centre_x: 0.060, t_debut: 0.0, t_fin: 8.0}
+thermocouples:
+  # 5 TC en LONGUEUR à y=0.000 (ligne de bord), tous à l'interface.
+  # x=0 / 30 / 60 (spot) / 90 / 120 mm.
+  TC1: {x: 0.000, y: 0.000, z: interface}
+  TC2: {x: 0.030, y: 0.000, z: interface}
+  TC3: {x: 0.060, y: 0.000, z: interface}   # au spot
+  TC4: {x: 0.090, y: 0.000, z: interface}
+  TC5: {x: 0.120, y: 0.000, z: interface}
+tc_valides: [TC1, TC2, TC3, TC4, TC5]
