@@ -1,0 +1,32 @@
+# Essai exp7_176A — cartographie en largeur (profil « M »), AVEC céramique, 176 A.
+# Source : data/exp7_bord-centre_2026-07-28_avec-ceramique/176A/README.md — point
+# intermédiaire (150↔200 A) ajouté pour densifier la loi taux-courant ET la
+# calibration jointe consolidée (famille profil-M). 1 essai (176A_v1.txt),
+# TC1 fonctionnel. Étiqueté 176 A (consigne « 175 A » arrondie au relevé).
+# Fichier tab-séparé, décimale virgule ; auto-détecté par charger_mesures.
+#
+# Protocole : identique à exp7_200A (chauffe continue à courant constant,
+# coupure MANUELLE au voisinage d'un pic bord ~270 °C, pas de consigne).
+#
+# Fenêtre DÉTECTÉE (charger_mesures + recaler_a_la_chauffe, seuil dT/dt=1 °C/s) :
+# onset ≈ t=0 (recalé) ; pic combiné (bord TC1/TC5) à t≈27.0 s -> t_fin=27.0 s.
+# Durée totale mesurée après recalage : 137.0 s.
+# Pics mesurés (°C) : TC1=271.7 TC2=239.0 TC3=172.7 TC4=203.7 TC5=271.1
+# (chauffe sur échantillon déjà chaud, ambiant local ≈ 45 °C) — indicatif.
+# Profil ΔT/chant (README) : 241/211/147/177/240, M symétrique (ratio 1,00).
+nom: exp7_176A
+fichier_mesures: data/exp7_bord-centre_2026-07-28_avec-ceramique/176A/176A_v1.txt
+courant: 176.0                # A
+duree_chauffe: 27.0             # s (fenêtre de chauffe détectée, coupure manuelle)
+duree_totale: 137.0             # s simulés (fenêtre + refroidissement mesuré)
+spots:
+  # Spot UNIQUE fixe, centré en longueur x=0.060. centre_y implicite =
+  # largeur/2 = 0.020 (non configurable, cf. exp7_150A.yaml).
+  - {centre_x: 0.060, t_debut: 0.0, t_fin: 27.0}
+thermocouples:
+  TC1: {x: 0.060, y: 0.000, z: interface}
+  TC2: {x: 0.060, y: 0.010, z: interface}
+  TC3: {x: 0.060, y: 0.020, z: interface}   # centre de largeur
+  TC4: {x: 0.060, y: 0.030, z: interface}
+  TC5: {x: 0.060, y: 0.040, z: interface}
+tc_valides: [TC1, TC2, TC3, TC4, TC5]
