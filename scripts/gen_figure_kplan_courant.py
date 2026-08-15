@@ -48,30 +48,32 @@ def main():
     # bande = moyenne pondérée ± IC
     ax.axhspan(k_moy - sig_moy, k_moy + sig_moy, color=GRIS_MODELE, alpha=0.18, zorder=0)
     ax.axhline(k_moy, color=GRIS_MODELE, lw=1.6, zorder=1,
-               label=fr"$\overline{{k}}_{{plan}} = {k_moy:.1f} \pm {sig_moy:.1f}$ W·m⁻¹·K⁻¹")
+               label=f"moyenne = {k_moy:.1f}".replace(".", ","))
 
     # valeur physique de config
     ax.axhline(K_CONFIG, color=OKABE_ITO["vermillon"], lw=1.6, ls="--", zorder=1,
-               label=f"config (physique) = {K_CONFIG:.1f}")
+               label=f"valeur du modèle = {K_CONFIG:.0f},0")
 
     # points par courant
     ax.errorbar(I, k, yerr=s, fmt="o", ms=7, color=OKABE_ITO["bleu"],
                 ecolor=OKABE_ITO["bleu"], elinewidth=1.5, capsize=4, zorder=3,
-                label="k_plan ajusté par courant")
+                label="mesuré (un point par essai)")
 
-    ax.set_xlabel("Courant (A)")
-    ax.set_ylabel(r"$k_{plan}$ effectif (W·m⁻¹·K⁻¹)")
+    ax.set_title("Étalement latéral de la chaleur, mesuré à chaque courant",
+                 fontsize=13, fontweight="bold", pad=10)
+    ax.set_xlabel("Courant d'induction (A)")
+    ax.set_ylabel("k_plan — vitesse d'étalement latéral\n(W·m⁻¹·K⁻¹)")
     ax.set_xlim(160, 265)
     ax.set_ylim(0, 12)
     ax.set_xticks([175, 200, 226, 250])
 
-    # verdict de constance, dans une zone vide (bas droite)
-    ax.text(0.97, 0.06,
-            fr"$\chi^2/\mathrm{{ddl}} = {chi2/ddl:.2f}$  →  compatible constant",
-            transform=ax.transAxes, ha="right", va="bottom", fontsize=9,
+    # message en clair, dans une zone vide (bas droite)
+    ax.text(0.97, 0.06, "Points alignés → ne dépend pas du courant",
+            transform=ax.transAxes, ha="right", va="bottom", fontsize=9.5,
+            style="italic",
             bbox=dict(boxstyle="round,pad=0.3", fc="white", ec=GRIS_MODELE, alpha=0.9))
 
-    ax.legend(loc="upper left", framealpha=0.9)
+    ax.legend(loc="upper left", framealpha=0.9, title="k_plan par essai")
     ax.grid(True, alpha=0.25)
 
     out_dir = R / "docs" / "modele" / "figures"
