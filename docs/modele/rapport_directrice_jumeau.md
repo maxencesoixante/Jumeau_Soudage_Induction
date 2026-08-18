@@ -862,11 +862,11 @@ aux corrections de géométrie, et les valeurs de paramètres qu'ils contiennent
 
 Chaque exécution se journalise dans `journaux/` (`journaux/resultats_*.log`), et les figures
 s'écrivent dans `resultats/`. Journaux de référence pour l'état courant :
-`journaux/resultats_hauteur_5mm_recalibration.log` (correction de hauteur et recalibration courante),
-`journaux/resultats_geometrie_corrigee_recalibration.log` (correction d'entraxe, étape précédente),
-`journaux/resultats_diag_hauteur_bobine.log` (diagnostic hauteur + plan image du MFC vérifié sur CAO),
-`journaux/resultats_validation_reference_figures.log` (validation au jeu de paramètres courant) et
-`journaux/resultats_diag_b2_longueur.log` (résidu à basse consigne et correctifs réfutés).
+`journaux/archive/resultats_hauteur_5mm_recalibration.log` (correction de hauteur et recalibration courante),
+`journaux/archive/resultats_geometrie_corrigee_recalibration.log` (correction d'entraxe, étape précédente),
+`journaux/archive/resultats_diag_hauteur_bobine.log` (diagnostic hauteur + plan image du MFC vérifié sur CAO),
+`journaux/archive/resultats_validation_reference_figures.log` (validation au jeu de paramètres courant) et
+`journaux/archive/resultats_diag_b2_longueur.log` (résidu à basse consigne et correctifs réfutés).
 
 ---
 

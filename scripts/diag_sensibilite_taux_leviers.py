@@ -28,7 +28,7 @@ théta* de référence (docs/modele/README.md) : facteur=6.0123, h_haut=30.087,
 h_bas_2d=37.424, h_bord_x0=250 -- FIGÉS. Seul le levier testé varie.
 
 Usage : .venv/bin/python scripts/diag_sensibilite_taux_leviers.py
-Sortie : table stdout + journaux/resultats_diag_sensibilite_taux_leviers.log
+Sortie : table stdout + journaux/archive/resultats_diag_sensibilite_taux_leviers.log
 """
 
 from __future__ import annotations

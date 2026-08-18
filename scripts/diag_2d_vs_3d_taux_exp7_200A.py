@@ -18,7 +18,7 @@ config, NON calibrées pour le 3D -- le 3D n'a pas de théta* propre, cf.
 docs/modele/README.md, seul le 2D est la référence canonique).
 
 Usage : .venv/bin/python scripts/diag_2d_vs_3d_taux_exp7_200A.py
-Sortie : table stdout + journaux/resultats_diag_2d_vs_3d_taux_exp7_200A.log
+Sortie : table stdout + journaux/archive/resultats_diag_2d_vs_3d_taux_exp7_200A.log
 """
 
 from __future__ import annotations

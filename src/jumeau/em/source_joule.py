@@ -115,7 +115,7 @@ ATTENTION calibration — DEUX effets à ne pas confondre :
 
 Adoucissement du bord (``lambda_bord_mm``, 2026-07-30) — DERRIÈRE UN FLAG
 --------------------------------------------------------------------------
-Diagnostic (cf. journaux/resultats_diag_forme_source.log,
+Diagnostic (cf. journaux/archive/resultats_diag_forme_source.log,
 docs/modele/README.md « État & résidu ouvert ») : la BC ``psi=0`` exacte au
 chant est la physique correcte pour une nappe de courant CONTINUE et
 idéalement homogène (aucun courant ne traverse un conducteur isolé isotrope

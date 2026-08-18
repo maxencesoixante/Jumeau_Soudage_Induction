@@ -19,7 +19,7 @@ facteur_couplage=6.0123, h_haut=30.087, h_bas_2d=37.424, h_bord_x0=250,
 k_plan=3.0 (config), twill=0.20mm (config). AUCUN paramètre modifié.
 
 Usage : .venv/bin/python scripts/diag_taux_dTdt_sous_hors_spot.py
-Sortie : table sur stdout + journaux/resultats_diag_taux_dTdt_sous_hors_spot.log
+Sortie : table sur stdout + journaux/archive/resultats_diag_taux_dTdt_sous_hors_spot.log
 """
 
 from __future__ import annotations
