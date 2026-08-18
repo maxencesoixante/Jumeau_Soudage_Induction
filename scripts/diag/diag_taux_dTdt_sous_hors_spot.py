@@ -18,7 +18,7 @@ d'exp9). Modèle 2D, théta* de référence FIGÉ (README docs/modele/README.md)
 facteur_couplage=6.0123, h_haut=30.087, h_bas_2d=37.424, h_bord_x0=250,
 k_plan=3.0 (config), twill=0.20mm (config). AUCUN paramètre modifié.
 
-Usage : .venv/bin/python scripts/diag_taux_dTdt_sous_hors_spot.py
+Usage : .venv/bin/python scripts/diag/diag_taux_dTdt_sous_hors_spot.py
 Sortie : table sur stdout + journaux/archive/resultats_diag_taux_dTdt_sous_hors_spot.log
 """
 
@@ -30,7 +30,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-RACINE = Path(__file__).resolve().parents[1]
+RACINE = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(RACINE / "src"))
 
 from jumeau.materiaux import Config

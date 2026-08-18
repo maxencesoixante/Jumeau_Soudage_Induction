@@ -1,5 +1,5 @@
 """Schemas de montage exp7 / exp9 -- deux vues (plan x-y + coupe), format
-article (style docs/modele/figures, cf. scripts/gen_figures_elsevier.py).
+article (style docs/modele/figures, cf. scripts/gen/gen_figures_elsevier.py).
 
 Les deux vues sont EMPILEES (vue de dessus au-dessus, vue en coupe en dessous) :
 figure en portrait, chaque vue prend toute la largeur -> plus grande une fois
@@ -19,6 +19,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 from matplotlib.lines import Line2D
+import sys
 from pathlib import Path
 
 OUT = Path("/Users/maxencedubois/PycharmProjects/Jumeau_Soudage_Induction/docs/modele/figures")
@@ -27,6 +28,7 @@ OUT = Path("/Users/maxencedubois/PycharmProjects/Jumeau_Soudage_Induction/docs/m
 # rcParams -- meme style que gen_figures_elsevier.py (police sans-serif,
 # 600 dpi, fond blanc)
 # ----------------------------------------------------------------------
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # scripts/ (import _style)
 from _style import apply_style, savefig  # noqa: E402  (style partagé, issue #17)
 apply_style(**{
     "font.size": 10, "axes.labelsize": 10.5, "axes.titlesize": 11,

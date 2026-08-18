@@ -13,7 +13,7 @@ from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 
-R = Path(__file__).resolve().parents[1]
+R = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(R / "scripts"))
 from _style import apply_style, OKABE_ITO, GRIS_MODELE  # noqa: E402
 

@@ -50,7 +50,7 @@ cible = **profil longitudinal normalisé au spot** (robuste au cutoff manuel).
 **COMPATIBLE avec un k_plan constant**. Léger trend montant non significatif.
 
 Driver : `scripts/tester_kplan_courant.py` ; CSV : `journaux/resultats_kplan_courant_2026-08-14.csv` ;
-figure : `docs/modele/figures/fig_kplan_courant.png` (script `scripts/gen_figure_kplan_courant.py`).
+figure : `docs/modele/figures/fig_kplan_courant.png` (script `scripts/gen/gen_figure_kplan_courant.py`).
 
 ## Conclusion
 1. **k_plan effectif ≈ 7,5 W·m⁻¹·K⁻¹, indépendant du courant** (nouvelle donnée quantifiée

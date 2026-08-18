@@ -27,7 +27,7 @@ l'énergie nette, il n'accélère pas la MONTÉE hors-spot -- cf. mécanisme
 théta* de référence (docs/modele/README.md) : facteur=6.0123, h_haut=30.087,
 h_bas_2d=37.424, h_bord_x0=250 -- FIGÉS. Seul le levier testé varie.
 
-Usage : .venv/bin/python scripts/diag_sensibilite_taux_leviers.py
+Usage : .venv/bin/python scripts/diag/diag_sensibilite_taux_leviers.py
 Sortie : table stdout + journaux/archive/resultats_diag_sensibilite_taux_leviers.log
 """
 
@@ -39,7 +39,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-RACINE = Path(__file__).resolve().parents[1]
+RACINE = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(RACINE / "src"))
 sys.path.insert(0, str(RACINE / "scripts"))
 

@@ -21,7 +21,7 @@ Sorties (docs/modele/figures/) :
 N'utilise QUE l'essai exp7_200A.yaml comme gabarit geometrique (spots,
 thermocouples) ; la source est reconstruite a chaque courant via
 jumeau.em.source_joule.source_spot, suivant le patron de
-scripts/gen_figures_elsevier.py::fig3. Aucune config/essai n'est modifiee ;
+scripts/gen/gen_figures_elsevier.py::fig3. Aucune config/essai n'est modifiee ;
 aucune recalibration n'est effectuee (theta* et facteur_couplage figes a leur
 valeur de reference).
 """

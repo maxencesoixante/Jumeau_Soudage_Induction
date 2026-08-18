@@ -18,7 +18,7 @@ import numpy as np
 import pandas as pd
 from scipy.optimize import least_squares
 
-RACINE = Path(__file__).resolve().parents[1]
+RACINE = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(RACINE / "src"))
 sys.path.insert(0, str(RACINE / "scripts"))
 

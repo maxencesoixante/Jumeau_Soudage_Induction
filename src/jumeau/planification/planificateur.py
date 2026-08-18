@@ -60,7 +60,7 @@ def verifier_sequentiel(cfg: Config, passes_params, *, facteur: float = 6.0123,
                         nx: int = 61, ny: int = 21, nz: int = 15):
     """Rejoue le plan en UNE séquence multi-passes (chaleur résiduelle incluse)
     et renvoie ``(grille, Tmax_reel(x, y))``. Chaque passe = un spot successif
-    (patron de ``scripts/gen_procede_semistatique.py``). ``passes_params`` = liste
+    (patron de ``scripts/gen/gen_procede_semistatique.py``). ``passes_params`` = liste
     de dicts ``{"x_c", "y_c", "courant", "duree"[, "mfc_longueur"]}`` ; le masquage
     MFC réduit (#39) est appliqué PAR PASSE (chaque passe peut avoir sa largeur)."""
     cfg.contact.h_haut = 30.087

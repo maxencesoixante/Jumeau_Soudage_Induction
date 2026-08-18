@@ -236,7 +236,7 @@ Suite de la calibration jointe : on s'attaque à la FORME du M.
   hors calibration scalaire.
 
 ### 31 juillet (suite) — Taux de chauffe : UN SEUL défaut d'étalement in-plane (3D écarté)
-Investigation dédiée (`scripts/diag_taux_dTdt_sous_hors_spot.py`, `diag_sensibilite_taux_leviers.py`,
+Investigation dédiée (`scripts/diag/diag_taux_dTdt_sous_hors_spot.py`, `diag_sensibilite_taux_leviers.py`,
 `diag_2d_vs_3d_taux_exp7_200A.py`). Déficit de dT/dt par régime : **sous-spot +14 %** (pas de
 déficit, source OK), lobes −9 %, **centre-œil −22 %**, **hors-spot longitudinal −67 %** → croît avec
 la distance au spot = déficit d'**étalement in-plane**, pas de dépôt.
@@ -274,7 +274,7 @@ rapide (−67 %), un seul défaut = étalement in-plane scalaire. `k_plan=3,0` r
   48 tests) confinant la source à l'empreinte MFC. Prédiction : contraste **4,10 → 1,69**, points
   chauds vers l'intérieur — mais masque dur = **puissance tronquée** → pics effondrés (0 % soudé),
   centre encore froid. **Signal qualitatif** (M adouci) ; absolu biaisé bas → **à mesurer au banc**.
-  `scripts/gen_mfc_reduit.py`, `fig_mfc_reduit.png`.
+  `scripts/gen/gen_mfc_reduit.py`, `fig_mfc_reduit.png`.
 
 ---
 

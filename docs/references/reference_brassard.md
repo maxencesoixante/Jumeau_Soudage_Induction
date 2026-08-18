@@ -25,7 +25,7 @@ jumeau, sur deux plans : la **confection des figures** et l'**approche de modél
   log-log + polygone de la zone admissible.
 - Schémas de montage : **TikZ/pgfplots** (`Tikz/`), vectoriel LaTeX.
 
-### Notre chaîne (`scripts/gen_figures_elsevier.py` + `gen_*.py`)
+### Notre chaîne (`scripts/gen/gen_figures_elsevier.py` + `gen_*.py`)
 - **Python + matplotlib** ; `rcParams` avec **police sans-serif** (DejaVu Sans/Arial),
   **palette Okabe-Ito explicite** (#0072B2 / #E69F00 / #009E73 / #D55E00 / #56B4E9), 600 dpi.
 - Deux presets (`elsevier` défaut, `presentation`) dans `gen_figures_elsevier.py`.

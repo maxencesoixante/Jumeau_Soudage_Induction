@@ -17,7 +17,7 @@ facteur_couplage=6.0123 ; h_contact/h_bas/T_puits = valeurs par défaut
 config, NON calibrées pour le 3D -- le 3D n'a pas de théta* propre, cf.
 docs/modele/README.md, seul le 2D est la référence canonique).
 
-Usage : .venv/bin/python scripts/diag_2d_vs_3d_taux_exp7_200A.py
+Usage : .venv/bin/python scripts/diag/diag_2d_vs_3d_taux_exp7_200A.py
 Sortie : table stdout + journaux/archive/resultats_diag_2d_vs_3d_taux_exp7_200A.log
 """
 
@@ -30,7 +30,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-RACINE = Path(__file__).resolve().parents[1]
+RACINE = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(RACINE / "src"))
 sys.path.insert(0, str(RACINE / "scripts"))
 

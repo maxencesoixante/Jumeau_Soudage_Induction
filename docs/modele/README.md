@@ -130,7 +130,7 @@ Après implémentation de la capacité **k(T)** (conduction flux-conservative à
 flag `k_plan_T`/`k_z_T`, cf. `audit_lionetto_2017.md` §3.1), un `k_plan(T)` **décroissant**
 (testé 7,3→3,0 W/m·K, borné par le k≈7,3 identifié en calibration jointe côté froid, le k=3
 config côté chaud) fournit le **modèle d'étalement in-plane non scalaire** que le résidu réclamait.
-À θ\* de référence **figé** (`scripts/diag_kT_residu.py`) il améliore **SIMULTANÉMENT** :
+À θ\* de référence **figé** (`scripts/diag/diag_kT_residu.py`) il améliore **SIMULTANÉMENT** :
 - le **contraste du M** (exp7 200 A) : réf 3,13 → **2,46** (mesuré 2,08) ;
 - le **déficit hors-spot** (exp9 centre y=20) : extrémités TC1 norm 0,03 → **0,09** (= mesuré),
   RMSE moyen 16,9 → **11,0**.
@@ -168,7 +168,7 @@ référence. Logs : `../../journaux/resultats_calibration_joint_kT{,_hbasfige}.l
 `kt-residu-structurel-piste`.
 
 **Combinaison source × conduction — carte de faisabilité 2D (2026-08-12,
-`scripts/diag_pareto_source_conduction.py`) — NO-GO, fermeture confirmée.** Dernier levier
+`scripts/diag/diag_pareto_source_conduction.py`) — NO-GO, fermeture confirmée.** Dernier levier
 réellement non testé : adoucissement de source (`lambda_bord`) ET conduction in-plane (`k(T)`)
 ENSEMBLE, balayés sur une grille 2D. Le nœud isotrope de référence reproduit le contraste M 3,16
 (≈3,13) et le RMSE held-out 16,5 °C (RMSE_REF) ; **tout** nœud combinant les deux ingrédients est
@@ -180,7 +180,7 @@ ingrédients CUMULENT le sur-étalement au lieu de coopérer. **Conclusion : con
 (arc modèle clos)** avec preuve 2D — la dernière porte non testée est fermée ; θ\* de référence
 inchangé, `k_plan=3,0` reste la référence. Figure : `figures/pareto_source_conduction.png` ;
 données : `../../journaux/resultats_pareto_source_conduction_2026-08-12.csv` ; script :
-`scripts/diag_pareto_source_conduction.py`.
+`scripts/diag/diag_pareto_source_conduction.py`.
 
 ---
 
@@ -210,24 +210,24 @@ sans en casser un autre. Le résidu est **compris, quantifié et irréductible**
   [`figures/fig_prediction_chauffe_par_courant.png`](figures/fig_prediction_chauffe_par_courant.png) (petits multiples : les **5 thermocouples** au fil du temps, un panneau par courant) et
   [`figures/fig_prediction_profil_M.png`](figures/fig_prediction_profil_M.png) (profil en « M » en largeur au pic),
   [`figures/fig_prediction_profil_longueur.png`](figures/fig_prediction_profil_longueur.png) (distribution en longueur au pic)
-  (`scripts/gen_prediction_courant.py`).
+  (`scripts/gen/gen_prediction_courant.py`).
 - **Fenêtre de soudage — abaque opératoire** (courant × durée) : `../labo/figures/fig_fenetre_soudage.png`
-  (`scripts/gen_fenetre_soudage.py`). Point chaud (lobe M) : zones sous-chauffe / soudage
+  (`scripts/gen/gen_fenetre_soudage.py`). Point chaud (lobe M) : zones sous-chauffe / soudage
   (337-450 °C) / dégradation. Enseignements : **soudage impossible sous ~180 A** avec un spot fixe ;
   la **fenêtre se resserre quand le courant monte** (200 A : ~21-39 s ; 300 A : ~7-11 s).
 - **Empreinte de soudure** (carte T(x,y) interface) : `figures/fig_empreinte_soudure.png`
-  (`scripts/gen_empreinte_soudure.py`). À spot fixe, **seuls les 2 lobes du M (bords) fondent**
+  (`scripts/gen/gen_empreinte_soudure.py`). À spot fixe, **seuls les 2 lobes du M (bords) fondent**
   (~1-2 % de l'interface), le centre reste froid.
 - **Procédé semi-statique** (4 dwells, pas 30 mm) : `figures/fig_procede_semistatique.png`
-  (`scripts/gen_procede_semistatique.py`). La soudure se forme en **deux rails le long des chants**
+  (`scripts/gen/gen_procede_semistatique.py`). La soudure se forme en **deux rails le long des chants**
   sur toute la longueur ; **le centre ne soude jamais** (spot fixe en largeur) — enseignement procédé
   (il faudrait élargir/adoucir le M pour souder pleine largeur).
 - **Loi de réglage atelier** (durée vs courant) : `figures/fig_loi_reglage.png`
-  (`scripts/gen_loi_reglage.py`). Durée recommandée (cible 390 °C) + fenêtre + ajustement
+  (`scripts/gen/gen_loi_reglage.py`). Durée recommandée (cible 390 °C) + fenêtre + ajustement
   `t ≈ 9,6·10⁵/I²` (taux ∝ I²) + table (200 A→30 s, 250 A→15 s, 300 A→9 s).
 - Frontière dégradation conservatrice partout (modèle sur-estime le bord ~50 °C).
 - **MFC réduit (31,75 mm) — prédiction exploratoire** : `figures/fig_mfc_reduit.png`
-  (`scripts/gen_mfc_reduit.py`). Le modèle standard **ne voit pas** l'effet d'un MFC plus petit (le
+  (`scripts/gen/gen_mfc_reduit.py`). Le modèle standard **ne voit pas** l'effet d'un MFC plus petit (le
   MFC n'entre que via le plan image + `mu_r` + un masque de PERTES, pas la source). Flag
   **`Essai(masque_source_mfc=True)`** (défaut OFF, no-op sur le MFC labo validé) qui confine la
   source à l'empreinte MFC. Résultat MFC réduit : le contraste s'adoucit (**4,10 → 1,69**), les

@@ -1,6 +1,7 @@
 import sys
 from pathlib import Path
 RACINE = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(RACINE / "scripts" / "diag"))
 sys.path.insert(0, str(RACINE / "scripts"))
 sys.path.insert(0, str(RACINE / "src"))
 

@@ -25,7 +25,7 @@ def empreinte(cfg: Config, x_c: float, y_c: float, courant: float, duree: float,
 
     ``mfc_longueur`` (m ; ``None`` = MFC labo 55 mm, sans masquage = comportement
     historique) : si renseigné, réduit le concentrateur (``cfc.longueur`` en
-    mémoire, patron de ``scripts/gen_mfc_reduit.py``) et **masque la source Joule
+    mémoire, patron de ``scripts/gen/gen_mfc_reduit.py``) et **masque la source Joule
     à l'empreinte du MFC** posée en ``(x_c, y_c)`` — source localisée sous un MFC
     réduit (levier #39)."""
     masque_mfc = mfc_longueur is not None
