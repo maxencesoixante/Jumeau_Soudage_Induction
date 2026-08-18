@@ -31,9 +31,9 @@ from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 
-R = Path("/Users/maxencedubois/PycharmProjects/Jumeau_Soudage_Induction")
-sys.path.insert(0, str(R / "src"))
-sys.path.insert(0, str(R / "scripts"))
+R = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())
+sys.path.insert(0, str(R / "code" / "src"))
+sys.path.insert(0, str(R / "code" / "scripts"))
 
 from gen_figures_elsevier import (  # noqa: E402
     savefig, legend_right, add_temp_lines, load_txt, clean, heating_onset_idx,
@@ -85,7 +85,7 @@ def construire_essai():
     reference. La source (_Q_spots/_P_spots_2d) est reconstruite par courant
     dans la boucle principale ; le protocole temporel (duree_chauffe fixe)
     est impose ici en ecrasant le t_fin du spot unique + duree_totale."""
-    cfg = Config.charger(R / "config")
+    cfg = Config.charger(R / "code" / "config")
     cfg.contact.h_haut = 30.087
     cfg.ambiant.h_bas_2d = 37.424
     cfg.ambiant.h_bord_x0 = 250.0
@@ -228,7 +228,7 @@ def main():
     ax.set_title(
         "Prédiction — historique de chauffe au chant vs courant (modèle + mesures exp7)")
     legend_right(ax, ncol=1)
-    OUT_PRED = R / "docs" / "modele" / "figures"
+    OUT_PRED = R / "biblio" / "modele" / "figures"
     OUT_PRED.mkdir(parents=True, exist_ok=True)
     fig.savefig(OUT_PRED / "fig_prediction_chauffe_courant.png")
     plt.close(fig)

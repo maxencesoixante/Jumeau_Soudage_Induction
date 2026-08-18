@@ -13,11 +13,11 @@ from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 
-R = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(R / "scripts"))
+R = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())
+sys.path.insert(0, str(R / "code" / "scripts"))
 from _style import apply_style, OKABE_ITO, GRIS_MODELE  # noqa: E402
 
-CSV = R / "journaux" / "resultats_kplan_courant_2026-08-14.csv"
+CSV = R / "donnees" / "journaux" / "resultats_kplan_courant_2026-08-14.csv"
 K_CONFIG = 3.0  # valeur physique en config (materiaux.yaml)
 
 
@@ -76,7 +76,7 @@ def main():
     ax.legend(loc="upper left", framealpha=0.9, title="k_plan par essai")
     ax.grid(True, alpha=0.25)
 
-    out_dir = R / "docs" / "modele" / "figures"
+    out_dir = R / "biblio" / "modele" / "figures"
     out_dir.mkdir(parents=True, exist_ok=True)
     out = out_dir / "fig_kplan_courant.png"
     fig.savefig(out)

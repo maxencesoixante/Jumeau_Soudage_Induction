@@ -20,8 +20,8 @@ from matplotlib.animation import FuncAnimation, FFMpegWriter
 from matplotlib.patches import Rectangle
 import imageio_ffmpeg
 
-R = Path("/Users/maxencedubois/PycharmProjects/Jumeau_Soudage_Induction")
-sys.path.insert(0, str(R / "src"))
+R = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())
+sys.path.insert(0, str(R / "code" / "src"))
 mpl.rcParams["animation.ffmpeg_path"] = imageio_ffmpeg.get_ffmpeg_exe()
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # scripts/ (import _style)
 from _style import apply_style  # noqa: E402  (style partagé, issue #17)
@@ -31,7 +31,7 @@ from jumeau.materiaux import Config
 from jumeau.procede import Essai
 from jumeau.em.source_joule import source_spot
 
-OUT = R / "docs" / "chauffe_surface_exp7_200A.mp4"
+OUT = R / "biblio" / "chauffe_surface_exp7_200A.mp4"
 COURANT = 200.0
 FACTEUR = 6.0123
 NX, NY = 61, 21
@@ -41,8 +41,8 @@ FPS = 20
 # ----------------------------------------------------------------------
 # 1. Simulation 2D (θ* de référence = défauts config)
 # ----------------------------------------------------------------------
-cfg = Config.charger(R / "config")
-essai = Essai(cfg, R / "config" / "essais" / "exp7_200A.yaml", nx=NX, ny=NY, nz=15,
+cfg = Config.charger(R / "code" / "config")
+essai = Essai(cfg, R / "code" / "config" / "essais" / "exp7_200A.yaml", nx=NX, ny=NY, nz=15,
               facteur_couplage=FACTEUR, decalage_x=0.0, racine=R)
 solveur, sol = essai.simuler(modele="2D")
 duree_chauffe = float(essai.spec["duree_chauffe"])

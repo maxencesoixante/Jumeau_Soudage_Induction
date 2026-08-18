@@ -50,9 +50,9 @@ from pathlib import Path
 
 import numpy as np
 
-RACINE = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(RACINE / "src"))
-sys.path.insert(0, str(RACINE / "scripts"))
+RACINE = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())
+sys.path.insert(0, str(RACINE / "code" / "src"))
+sys.path.insert(0, str(RACINE / "code" / "scripts"))
 
 H_HAUT_FIGE = 30.087
 
@@ -66,7 +66,7 @@ def contraste_m(facteur: float, h_bas_2d: float, h_bord_x0: float,
     from jumeau.materiaux import Config
     from jumeau.procede import Essai
 
-    cfg = Config.charger(RACINE / "config")
+    cfg = Config.charger(RACINE / "code" / "config")
     cfg.contact.h_haut = H_HAUT_FIGE
     cfg.ambiant.h_bas_2d = h_bas_2d
     cfg.ambiant.h_bord_x0 = h_bord_x0
@@ -76,7 +76,7 @@ def contraste_m(facteur: float, h_bas_2d: float, h_bord_x0: float,
     else:
         cfg.materiau.k_plan = k_plan
 
-    e = Essai(cfg, RACINE / "config" / "essais" / "exp7_200A.yaml", nx=nx, ny=ny, nz=nz,
+    e = Essai(cfg, RACINE / "code" / "config" / "essais" / "exp7_200A.yaml", nx=nx, ny=ny, nz=nz,
               facteur_couplage=facteur, decalage_x=0.0, racine=RACINE)
     sv, sol = e.simuler(modele="2D")
     mod = np.array([sv.serie_temporelle(sol, 0.060, y, "interface").max()

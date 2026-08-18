@@ -67,8 +67,8 @@ import pandas as pd
 from scipy.optimize import least_squares
 from scipy.stats import qmc
 
-RACINE = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(RACINE / "src"))
+RACINE = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())
+sys.path.insert(0, str(RACINE / "code" / "src"))
 
 from jumeau.materiaux import Config
 from jumeau.procede import Essai
@@ -109,10 +109,10 @@ class EssaiCalibre:
     def __init__(self, nom: str, nx: int, ny: int, nz: int, thermostat_capteurs: bool = False):
         self.nom = nom
         self.thermostat_capteurs = bool(thermostat_capteurs)
-        self.chemin = RACINE / "config" / "essais" / f"{nom}.yaml"
+        self.chemin = RACINE / "code" / "config" / "essais" / f"{nom}.yaml"
         # sonde une première fois (facteur_couplage=1.0, non utilisé pour les
         # résidus) uniquement pour récupérer spec/racine/mesures.
-        essai0 = Essai(Config.charger(RACINE / "config"), self.chemin, nx=nx, ny=ny, nz=nz,
+        essai0 = Essai(Config.charger(RACINE / "code" / "config"), self.chemin, nx=nx, ny=ny, nz=nz,
                        facteur_couplage=1.0, racine=RACINE)
         self.racine = essai0.racine
         self.nx, self.ny, self.nz = nx, ny, nz
@@ -216,7 +216,7 @@ class CalibrateurJoint:
             lo = list(bornes_basses or bornes_basses_defaut)
             hi = list(bornes_hautes or bornes_hautes_defaut)
         self.bornes = (np.array(lo, float), np.array(hi, float))
-        self.cfg = Config.charger(RACINE / "config")
+        self.cfg = Config.charger(RACINE / "code" / "config")
         self.cfg.contact.h_haut = H_HAUT_FIGE
         self._taille_totale = sum(e.taille_residu for e in self.essais)
 
@@ -461,13 +461,13 @@ def principale():
               f"W/m·K  →  {sens}")
     idx_sigma = 5 if (args.anisotrope or args.kT) else 4
     sigma_new = theta[idx_sigma] if args.calibrer_sigma else args.source_sigma_mm_fige
-    cfg_ref = Config.charger(RACINE / "config")
+    cfg_ref = Config.charger(RACINE / "code" / "config")
     cfg_ref.contact.h_haut = H_HAUT_FIGE
     cfg_ref.ambiant.h_bas_2d = args.h_bas_2d_ref
     cfg_ref.materiau.k_plan = args.k_plan_ref   # référence TOUJOURS isotrope
     cfg_ref.ambiant.h_bord_x0 = args.h_bord_x0_ref
 
-    cfg_new = Config.charger(RACINE / "config")
+    cfg_new = Config.charger(RACINE / "code" / "config")
     cfg_new.contact.h_haut = H_HAUT_FIGE
     cfg_new.ambiant.h_bas_2d = theta[1]
     if args.anisotrope:

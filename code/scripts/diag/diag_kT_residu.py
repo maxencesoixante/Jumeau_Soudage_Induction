@@ -25,9 +25,9 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-RACINE = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(RACINE / "src"))
-sys.path.insert(0, str(RACINE / "scripts"))
+RACINE = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())
+sys.path.insert(0, str(RACINE / "code" / "src"))
+sys.path.insert(0, str(RACINE / "code" / "scripts"))
 
 from calibrer_joint import EssaiCalibre, H_HAUT_FIGE  # noqa: E402
 from jumeau.materiaux import Config  # noqa: E402
@@ -38,7 +38,7 @@ AMB = 20.0
 
 
 def make_cfg(kind: str) -> Config:
-    cfg = Config.charger(RACINE / "config")
+    cfg = Config.charger(RACINE / "code" / "config")
     cfg.contact.h_haut = H_HAUT_FIGE
     cfg.ambiant.h_bas_2d = 37.424
     cfg.ambiant.h_bord_x0 = 250.0

@@ -4,7 +4,7 @@
 # largeur (y=0). Position TC1 confirmée terrain le 2026-08-04 (issue #8). L'ancien
 # en-tête « TC1 = Surface » était erroné (cf. bloc thermocouples ci-dessous).
 nom: serieA_A-1
-fichier_mesures: data/Serie A/serieA_A-1_250A_2026-06-05.csv
+fichier_mesures: donnees/data/Serie A/serieA_A-1_250A_2026-06-05.csv
 courant: 250.0               # A
 # Coupure sur consigne : « chauffe à 250 A jusqu'à T_processing » (fiche A-1,
 # T max interface 398 °C) — la source est asservie à cette température.

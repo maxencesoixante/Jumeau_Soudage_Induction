@@ -14,8 +14,8 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
-R = Path("/Users/maxencedubois/PycharmProjects/Jumeau_Soudage_Induction")
-sys.path.insert(0, str(R / "src"))
+R = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())
+sys.path.insert(0, str(R / "code" / "src"))
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # scripts/ (import _style)
 from _style import apply_style, savefig  # noqa: E402  (style partagé, issue #17)
 apply_style(**{
@@ -26,17 +26,17 @@ from jumeau.materiaux import Config
 from jumeau.procede import Essai
 from jumeau.em.source_joule import source_spot
 
-OUT = R / "docs" / "modele" / "figures" / "fig_empreinte_soudure.png"
+OUT = R / "biblio" / "modele" / "figures" / "fig_empreinte_soudure.png"
 FACTEUR = 6.0123
 T_FUSION, T_PROCEDE, T_DEGRAD = 337.0, 390.0, 450.0
 # Deux réglages dans la fenêtre de soudage (cf. fig_fenetre_soudage) :
 REGLAGES = [(200.0, 30.0), (250.0, 14.0)]   # (courant A, durée s) -> ~cible procédé au point chaud
 
-cfg = Config.charger(R / "config")
+cfg = Config.charger(R / "code" / "config")
 
 
 def champ_interface(courant, duree):
-    e = Essai(cfg, R / "config" / "essais" / "exp7_200A.yaml", nx=81, ny=41, nz=15,
+    e = Essai(cfg, R / "code" / "config" / "essais" / "exp7_200A.yaml", nx=81, ny=41, nz=15,
               facteur_couplage=FACTEUR, decalage_x=0.0, racine=R)
     e.spec["duree_chauffe"] = duree
     e.spec["duree_totale"] = duree

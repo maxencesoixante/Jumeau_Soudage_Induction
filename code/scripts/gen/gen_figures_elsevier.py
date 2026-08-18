@@ -18,9 +18,9 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from scipy.signal import medfilt
 
-R = Path("/Users/maxencedubois/PycharmProjects/Jumeau_Soudage_Induction")
-sys.path.insert(0, str(R / "src"))
-OUT = Path(os.environ.get("FIGOUT", str(R / "docs" / "labo" / "figures")))
+R = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())
+sys.path.insert(0, str(R / "code" / "src"))
+OUT = Path(os.environ.get("FIGOUT", str(R / "biblio" / "labo" / "figures")))
 OUT.mkdir(parents=True, exist_ok=True)
 
 # ----------------------------------------------------------------------
@@ -91,8 +91,8 @@ COL_FUSION = "#0072B2"
 COL_PROCEDE = "#E69F00"
 COL_DEGRAD = "#C1272D"
 
-DATA7 = R / "data" / "exp7_bord-centre_2026-07-28_avec-ceramique"
-DATA9 = R / "data" / "exp9_dissipation-longitudinale_2026-07-28"
+DATA7 = R / "donnees" / "data" / "exp7_bord-centre_2026-07-28_avec-ceramique"
+DATA9 = R / "donnees" / "data" / "exp9_dissipation-longitudinale_2026-07-28"
 Y_MM = np.array([0, 10, 20, 30, 40])
 
 ESSAIS_VALIDES = {
@@ -209,8 +209,8 @@ def fig2():
     # --- modèle : simulation 2D au θ* de référence, pics ΔT aux 5 positions y ---
     from jumeau.materiaux import Config
     from jumeau.procede import Essai
-    cfg = Config.charger(R / "config")
-    e = Essai(cfg, R / "config" / "essais" / "exp7_200A.yaml", nx=61, ny=21, nz=15,
+    cfg = Config.charger(R / "code" / "config")
+    e = Essai(cfg, R / "code" / "config" / "essais" / "exp7_200A.yaml", nx=61, ny=21, nz=15,
               facteur_couplage=6.0123, decalage_x=0.0, racine=R)
     sv, sol = e.simuler(modele="2D")
     mod = np.array([sv.serie_temporelle(sol, 0.060, y, "interface").max()
@@ -253,7 +253,7 @@ def fig3():
     from jumeau.procede import Essai
     from jumeau.em.source_joule import source_spot
 
-    cfg = Config.charger(R / "config")
+    cfg = Config.charger(R / "code" / "config")
     cfg.contact.h_haut = 30.087
     cfg.ambiant.h_bas_2d = 37.424
     cfg.ambiant.h_bord_x0 = 250.0

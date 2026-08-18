@@ -18,8 +18,8 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
-R = Path("/Users/maxencedubois/PycharmProjects/Jumeau_Soudage_Induction")
-sys.path.insert(0, str(R / "src"))
+R = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())
+sys.path.insert(0, str(R / "code" / "src"))
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # scripts/ (import _style)
 from _style import apply_style, savefig  # noqa: E402  (style partagé, issue #17)
 apply_style(**{
@@ -30,15 +30,15 @@ from jumeau.materiaux import Config
 from jumeau.procede import Essai
 from jumeau.em.source_joule import source_spot
 
-OUT = R / "docs" / "modele" / "figures" / "fig_procede_semistatique.png"
+OUT = R / "biblio" / "modele" / "figures" / "fig_procede_semistatique.png"
 FACTEUR = 6.0123
 COURANT = 250.0
 DWELL = 15.0                          # durée par dwell (s) — dans la fenêtre de soudage
 CENTRES = [0.015875, 0.045875, 0.075875, 0.105875]   # empreintes pas 30 mm (config)
 T_FUSION, T_PROCEDE, T_DEGRAD = 337.0, 390.0, 450.0
 
-cfg = Config.charger(R / "config")
-e = Essai(cfg, R / "config" / "essais" / "serieA_A-1.yaml", nx=81, ny=41, nz=15,
+cfg = Config.charger(R / "code" / "config")
+e = Essai(cfg, R / "code" / "config" / "essais" / "serieA_A-1.yaml", nx=81, ny=41, nz=15,
           facteur_couplage=FACTEUR, decalage_x=0.0, racine=R)
 # reprogrammer les 4 dwells : séquentiels, DWELL s chacun, sans recouvrement
 e.spots = [{"centre_x": cx, "t_debut": k * DWELL, "t_fin": (k + 1) * DWELL}

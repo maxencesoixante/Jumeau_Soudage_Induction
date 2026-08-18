@@ -23,8 +23,8 @@ import yaml
 from verifs import valider_parametres
 
 RACINE = Path(__file__).resolve().parents[1]
-ESSAIS = RACINE / "config" / "essais"
-RESULTATS = RACINE / "resultats"
+ESSAIS = RACINE / "code" / "config" / "essais"
+RESULTATS = RACINE / "donnees" / "resultats"
 # Interpréteur courant (celui qui exécute app.py) → indépendant de l'OS et de
 # l'emplacement du venv : .venv/bin/python sous Unix, .venv\Scripts\python.exe
 # sous Windows. Lancer app.py avec le python du venv suffit.
@@ -95,7 +95,7 @@ def lancer_simulation(essai: str, nx: int = 31, ny: int = 11) -> str:
     if not (ESSAIS / f"{essai}.yaml").exists():
         return f"❌ Essai « {essai} » introuvable. Utilise d'abord config_essai."
 
-    cmd = [PYTHON, "-u", "scripts/valider.py", "--modele", "2D",
+    cmd = [PYTHON, "-u", "code/scripts/valider.py", "--modele", "2D",
            "--facteur", str(FACTEUR_COUPLAGE), "--decalage-x", str(DECALAGE_X),
            "--h-haut", str(H_HAUT), "--h-bas-2d", str(H_BAS_2D),
            "--h-bord-x0", str(H_BORD_X0),

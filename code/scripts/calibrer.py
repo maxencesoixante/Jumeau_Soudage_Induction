@@ -56,8 +56,8 @@ import argparse
 import sys
 from pathlib import Path
 
-RACINE = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(RACINE / "src"))
+RACINE = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())
+sys.path.insert(0, str(RACINE / "code" / "src"))
 
 from jumeau.identification.calibration import Calibrateur
 from jumeau.materiaux import Config
@@ -104,8 +104,8 @@ def principale():
                          "resultats_diag_centre_transitoire.log")
     args = ap.parse_args()
 
-    cfg = Config.charger(RACINE / "config")
-    chemin = RACINE / "config" / "essais" / f"{args.essai}.yaml"
+    cfg = Config.charger(RACINE / "code" / "config")
+    chemin = RACINE / "code" / "config" / "essais" / f"{args.essai}.yaml"
 
     bornes_def = Calibrateur.BORNES_PAR_MODELE[args.modele]
     bornes_basses = list(bornes_def[0])

@@ -29,9 +29,9 @@ from pathlib import Path
 import numpy as np
 from scipy.optimize import least_squares
 
-RACINE = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(RACINE / "src"))
-sys.path.insert(0, str(RACINE / "scripts"))
+RACINE = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())
+sys.path.insert(0, str(RACINE / "code" / "src"))
+sys.path.insert(0, str(RACINE / "code" / "scripts"))
 
 from calibrer_joint import EssaiCalibre  # réutilise le préchargement essai/mesures  # noqa: E402
 from jumeau.materiaux import Config  # noqa: E402
@@ -74,7 +74,7 @@ def ajuster_kplan(ess: EssaiCalibre, facteur, h_bas_2d, h_bord_x0):
     cible = profil_normalise_mesure(ess)
     tcs_off = [tc for tc in ess.tc_valides if tc != "TC3"]  # TC3=1 par construction
 
-    cfg = Config.charger(RACINE / "config")
+    cfg = Config.charger(RACINE / "code" / "config")
     cfg.contact.h_haut = H_HAUT_FIGE
     cfg.ambiant.h_bas_2d = float(h_bas_2d)
     cfg.ambiant.h_bord_x0 = float(h_bord_x0)
@@ -132,7 +132,7 @@ def main():
     print(f"  Verdict : {verdict}")
 
     # export CSV pour la figure
-    out = RACINE / "journaux" / "resultats_kplan_courant_2026-08-14.csv"
+    out = RACINE / "donnees" / "journaux" / "resultats_kplan_courant_2026-08-14.csv"
     with open(out, "w") as f:
         f.write("courant_A,k_plan,sigma\n")
         for I, k, s in resultats:

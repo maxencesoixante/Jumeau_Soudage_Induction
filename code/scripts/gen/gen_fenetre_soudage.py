@@ -20,8 +20,8 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
-R = Path("/Users/maxencedubois/PycharmProjects/Jumeau_Soudage_Induction")
-sys.path.insert(0, str(R / "src"))
+R = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())
+sys.path.insert(0, str(R / "code" / "src"))
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # scripts/ (import _style)
 from _style import apply_style, savefig  # noqa: E402  (style partagé, issue #17)
 apply_style(**{
@@ -33,19 +33,19 @@ from jumeau.materiaux import Config
 from jumeau.procede import Essai
 from jumeau.em.source_joule import source_spot
 
-OUT = R / "docs" / "labo" / "figures" / "fig_fenetre_soudage.png"
+OUT = R / "biblio" / "labo" / "figures" / "fig_fenetre_soudage.png"
 FACTEUR = 6.0123
 T_FUSION, T_PROCEDE, T_DEGRAD = 337.0, 390.0, 450.0
 T_HEAT = 40.0               # durée de chauffe continue simulée (s)
 COURANTS = np.arange(100, 301, 20)   # A
 
-cfg = Config.charger(R / "config")
+cfg = Config.charger(R / "code" / "config")
 TAMB = 25.0
 
 
 def serie_bord(courant):
     """T(t) d'interface au POINT CHAUD (lobe M, x=60, y=0), chauffe continue."""
-    e = Essai(cfg, R / "config" / "essais" / "exp7_200A.yaml", nx=61, ny=21, nz=15,
+    e = Essai(cfg, R / "code" / "config" / "essais" / "exp7_200A.yaml", nx=61, ny=21, nz=15,
               facteur_couplage=FACTEUR, decalage_x=0.0, racine=R)
     e.spec["duree_chauffe"] = T_HEAT
     e.spec["duree_totale"] = T_HEAT

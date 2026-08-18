@@ -15,7 +15,7 @@
 # (chauffe sur échantillon déjà chaud, ambiant local ≈ 45 °C) — indicatif.
 # Profil ΔT/chant (README) : 241/211/147/177/240, M symétrique (ratio 1,00).
 nom: exp7_176A
-fichier_mesures: data/exp7_bord-centre_2026-07-28_avec-ceramique/176A/176A_v1.txt
+fichier_mesures: donnees/data/exp7_bord-centre_2026-07-28_avec-ceramique/176A/176A_v1.txt
 courant: 176.0                # A
 duree_chauffe: 27.0             # s (fenêtre de chauffe détectée, coupure manuelle)
 duree_totale: 137.0             # s simulés (fenêtre + refroidissement mesuré)

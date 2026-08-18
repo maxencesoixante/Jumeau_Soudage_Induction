@@ -29,8 +29,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-RACINE = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(RACINE / "src"))
+RACINE = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())
+sys.path.insert(0, str(RACINE / "code" / "src"))
 
 from jumeau.materiaux import Config
 from jumeau.procede import Essai
@@ -152,7 +152,7 @@ def principale():
                          "Q.sum(axis=2)*dz) -- cf. rapport de convergence.")
     args = ap.parse_args()
 
-    cfg = Config.charger(RACINE / "config")
+    cfg = Config.charger(RACINE / "code" / "config")
     if args.h_contact is not None:
         cfg.contact.h_contact = args.h_contact
     if args.h_bas is not None:
@@ -167,7 +167,7 @@ def principale():
         cfg.ambiant.h_bord_x0 = args.h_bord_x0
 
     for nom in args.essais:
-        chemin = RACINE / "config" / "essais" / f"{nom}.yaml"
+        chemin = RACINE / "code" / "config" / "essais" / f"{nom}.yaml"
         print(f"\n=== {nom} [{args.modele}] ===")
         essai = Essai(cfg, chemin, nx=args.nx, ny=args.ny, nz=args.nz,
                       facteur_couplage=args.facteur, decalage_x=args.decalage_x,
@@ -191,7 +191,7 @@ def principale():
         print(rapport.round(1).to_string())
         print(f"RMSE moyen : {rapport['rmse'].mean():.1f} °C ; "
               f"écart T_max moyen : {rapport['delta_T_max'].abs().mean():.1f} °C")
-        sauver_sorties(essai, sol, series, df, RACINE / "resultats", args.modele)
+        sauver_sorties(essai, sol, series, df, RACINE / "donnees" / "resultats", args.modele)
 
 
 if __name__ == "__main__":

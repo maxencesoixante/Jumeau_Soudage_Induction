@@ -1,4 +1,4 @@
-"""Validation hors-ligne de la couche IA (`ai_framework/`) — issue #7.
+"""Validation hors-ligne de la couche IA (`ia/`) — issue #7.
 
 La boucle « live » (un vrai LLM local via Ollama émettant des appels d'outils) exige
 un serveur Ollama + un modèle ~4,7 Go, hors CI. Ce module valide tout le reste — le
@@ -12,7 +12,7 @@ cœur DÉTERMINISTE — sans Ollama :
     terminaison, garde-fou de tours, outil inconnu.
 
 Le seul maillon non couvert ici = la QUALITÉ des appels d'outils d'un vrai modèle,
-qui se teste à la main (cf. `ai_framework/README.md`, section « live »).
+qui se teste à la main (cf. `ia/README.md`, section « live »).
 """
 
 from __future__ import annotations
@@ -22,10 +22,10 @@ from pathlib import Path
 
 import pytest
 
-RACINE = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(RACINE / "ai_framework"))
+RACINE = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())
+sys.path.insert(0, str(RACINE / "ia"))
 
-# gradio/ollama sont des dépendances de la couche IA (ai_framework/requirements.txt),
+# gradio/ollama sont des dépendances de la couche IA (ia/requirements.txt),
 # pas du cœur physique : si absentes, on saute plutôt que d'échouer la CI.
 pytest.importorskip("yaml")
 gr = pytest.importorskip("gradio")

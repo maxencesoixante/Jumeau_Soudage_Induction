@@ -14,8 +14,8 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
-R = Path("/Users/maxencedubois/PycharmProjects/Jumeau_Soudage_Induction")
-sys.path.insert(0, str(R / "src"))
+R = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())
+sys.path.insert(0, str(R / "code" / "src"))
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # scripts/ (import _style)
 from _style import apply_style, savefig  # noqa: E402  (style partagé, issue #17)
 apply_style(**{
@@ -26,16 +26,16 @@ from jumeau.materiaux import Config
 from jumeau.procede import Essai
 from jumeau.em.source_joule import source_spot
 
-OUT = R / "docs" / "modele" / "figures" / "fig_loi_reglage.png"
+OUT = R / "biblio" / "modele" / "figures" / "fig_loi_reglage.png"
 FACTEUR = 6.0123
 T_FUSION, T_PROCEDE, T_DEGRAD = 337.0, 390.0, 450.0
 T_HEAT = 45.0
 COURANTS = np.arange(180, 301, 10.0)     # A (au-dessus de ~180 A = seuil de soudage)
-cfg = Config.charger(R / "config")
+cfg = Config.charger(R / "code" / "config")
 
 
 def t_seuils(courant):
-    e = Essai(cfg, R / "config" / "essais" / "exp7_200A.yaml", nx=61, ny=21, nz=15,
+    e = Essai(cfg, R / "code" / "config" / "essais" / "exp7_200A.yaml", nx=61, ny=21, nz=15,
               facteur_couplage=FACTEUR, decalage_x=0.0, racine=R)
     e.spec["duree_chauffe"] = e.spec["duree_totale"] = T_HEAT
     e.spots[0]["t_fin"] = T_HEAT

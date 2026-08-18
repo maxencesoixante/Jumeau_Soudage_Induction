@@ -25,7 +25,7 @@
 # active), cf. taux_de_chauffe/delta_T_max de la confrontation pour la
 # comparaison quantitative.
 nom: exp7_150A
-fichier_mesures: data/exp7_bord-centre_2026-07-28_avec-ceramique/150A/150A_v3.txt
+fichier_mesures: donnees/data/exp7_bord-centre_2026-07-28_avec-ceramique/150A/150A_v3.txt
 courant: 150.0                # A
 duree_chauffe: 57.0            # s (fenêtre de chauffe détectée, coupure manuelle)
 duree_totale: 241.0            # s simulés (fenêtre + refroidissement mesuré)

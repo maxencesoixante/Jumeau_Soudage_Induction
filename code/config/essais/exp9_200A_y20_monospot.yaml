@@ -30,7 +30,7 @@
 # témoin au bord (y=0, x=60) pendant l'essai pour mesurer C réel et piloter
 # l'arrêt.
 nom: exp9_200A_y20_monospot
-fichier_mesures: data/exp9_dissipation-longitudinale_2026-07-30/200A/200A_y20_monospot.txt
+fichier_mesures: donnees/data/exp9_dissipation-longitudinale_2026-07-30/200A/200A_y20_monospot.txt
 courant: 200.0                # A
 duree_chauffe: 34.0             # s — fenêtre détectée (onset t≈14.9s, pic combiné +34s ; montée + lente qu'au bord)
 duree_totale: 188.0             # s — après recalage à l'onset (fin de fichier, refroidissement inclus)

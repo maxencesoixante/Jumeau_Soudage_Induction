@@ -18,8 +18,8 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-RACINE = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(RACINE / "src"))
+RACINE = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())
+sys.path.insert(0, str(RACINE / "code" / "src"))
 
 from jumeau.materiaux import Config
 from jumeau.procede import Essai
@@ -38,7 +38,7 @@ def principale():
     ap.add_argument("--sortie", default="resultats")
     args = ap.parse_args()
 
-    cfg = Config.charger(RACINE / "config")
+    cfg = Config.charger(RACINE / "code" / "config")
     if args.h_contact is not None:
         cfg.contact.h_contact = args.h_contact
     if args.h_bas is not None:

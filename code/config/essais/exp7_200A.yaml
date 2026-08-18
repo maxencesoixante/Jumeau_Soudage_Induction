@@ -14,7 +14,7 @@
 # Pics mesurés (°C) : TC1=274.1 TC2=216.0 TC3=144.7 TC4=178.6 TC5=269.0
 # (ambiant ≈ 27 °C) — indicatif (pas de consigne active).
 nom: exp7_200A
-fichier_mesures: data/exp7_bord-centre_2026-07-28_avec-ceramique/200A/200A_v6.txt
+fichier_mesures: donnees/data/exp7_bord-centre_2026-07-28_avec-ceramique/200A/200A_v6.txt
 courant: 200.0                # A
 duree_chauffe: 18.0             # s (fenêtre de chauffe détectée, coupure manuelle)
 duree_totale: 115.0             # s simulés (fenêtre + refroidissement mesuré)

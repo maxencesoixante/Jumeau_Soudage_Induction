@@ -30,8 +30,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-RACINE = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(RACINE / "src"))
+RACINE = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())
+sys.path.insert(0, str(RACINE / "code" / "src"))
 
 from jumeau.materiaux import Config
 from jumeau.procede import Essai
@@ -116,14 +116,14 @@ def fenetre_montee(t_mes: np.ndarray, T_mes: np.ndarray, frac_lo=0.25, frac_hi=0
 
 
 def main():
-    cfg = Config.charger(RACINE / "config")
+    cfg = Config.charger(RACINE / "code" / "config")
     cfg.contact.h_haut = H_HAUT
     cfg.ambiant.h_bas_2d = H_BAS_2D
     cfg.ambiant.h_bord_x0 = H_BORD_X0
 
     lignes = []
     for nom, regimes in ESSAIS.items():
-        chemin = RACINE / "config" / "essais" / f"{nom}.yaml"
+        chemin = RACINE / "code" / "config" / "essais" / f"{nom}.yaml"
         essai = Essai(cfg, chemin, nx=61, ny=21, nz=15,
                       facteur_couplage=FACTEUR, decalage_x=0.0, racine=RACINE)
         solveur, sol = essai.simuler(modele="2D")
@@ -174,7 +174,7 @@ def main():
     print("\nRésumé par famille (déficit % moyen = (sim-mes)/mes*100, <0 = modèle trop lent) :")
     print(resume.to_string())
 
-    out = RACINE / "journaux" / "resultats_diag_taux_dTdt_sous_hors_spot.log"
+    out = RACINE / "donnees" / "journaux" / "resultats_diag_taux_dTdt_sous_hors_spot.log"
     with open(out, "w") as f:
         f.write("Diagnostic -- deficit dT/dt sous-spot vs hors-spot (theta* de reference)\n")
         f.write("=" * 78 + "\n")

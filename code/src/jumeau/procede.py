@@ -63,7 +63,7 @@ class Essai:
                  masque_source_mfc: bool = False):
         self.cfg = cfg
         self.spec = charger_yaml(chemin_essai)
-        self.racine = Path(racine) if racine else Path(chemin_essai).resolve().parents[2]
+        self.racine = Path(racine) if racine else Path(chemin_essai).resolve().parents[3]
         self.grille: Grille3D = construire_grille(cfg, nx=nx, ny=ny, nz=nz)
         self.couches = construire_couches(cfg)
         self.facteur_couplage = facteur_couplage

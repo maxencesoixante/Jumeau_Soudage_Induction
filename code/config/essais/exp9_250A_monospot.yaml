@@ -15,7 +15,7 @@
 # Pics mesurés (°C) : TC1=31.4 TC2=48.9 TC3=284.8 TC4=60.1 TC5=42.2
 # (ambiant ≈ 28-36 °C) — indicatif.
 nom: exp9_250A_monospot
-fichier_mesures: data/exp9_dissipation-longitudinale_2026-07-28/250A/250a_y0_monospot.txt
+fichier_mesures: donnees/data/exp9_dissipation-longitudinale_2026-07-28/250A/250a_y0_monospot.txt
 courant: 250.0                # A
 duree_chauffe: 8.0              # s (fenêtre de chauffe détectée, coupure manuelle)
 duree_totale: 203.0             # s simulés (fenêtre + refroidissement mesuré)

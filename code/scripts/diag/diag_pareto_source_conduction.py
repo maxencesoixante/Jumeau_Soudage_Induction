@@ -18,9 +18,9 @@ import numpy as np
 import pandas as pd
 from scipy.optimize import least_squares
 
-RACINE = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(RACINE / "src"))
-sys.path.insert(0, str(RACINE / "scripts"))
+RACINE = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())
+sys.path.insert(0, str(RACINE / "code" / "src"))
+sys.path.insert(0, str(RACINE / "code" / "scripts"))
 
 from _style import apply_style, savefig
 from jumeau.materiaux import Config
@@ -40,7 +40,7 @@ CONTRASTE_ESSAI = "exp7_200A"
 
 def _cfg_noeud(k_hot: float | None, k_cold: float = K_COLD_FIGE) -> Config:
     """Config canonique + conduction du nœud. k_hot None => isotrope k_plan=3."""
-    cfg = Config.charger(RACINE / "config")
+    cfg = Config.charger(RACINE / "code" / "config")
     cfg.contact.h_haut = H_HAUT_FIGE
     cfg.ambiant.h_bas_2d = H_BAS_2D_FIGE
     cfg.ambiant.h_bord_x0 = H_BORD_X0_FIGE
@@ -58,7 +58,7 @@ def contraste_ktlb(facteur: float, k_hot: float | None, lambda_bord_mm: float,
     """Contraste du profil M (exp7_200A) — recette gen_figures_elsevier::fig2 /
     diag_anisotropie_kx_ky.contraste_m, étendue à k(T) + lambda_bord."""
     cfg = _cfg_noeud(k_hot, k_cold)
-    e = Essai(cfg, RACINE / "config" / "essais" / f"{CONTRASTE_ESSAI}.yaml",
+    e = Essai(cfg, RACINE / "code" / "config" / "essais" / f"{CONTRASTE_ESSAI}.yaml",
               nx=nx, ny=ny, nz=nz, facteur_couplage=facteur, decalage_x=0.0,
               racine=RACINE, lambda_bord_mm=lambda_bord_mm)
     sv, sol = e.simuler(modele="2D")
@@ -203,9 +203,9 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--lambdas", type=float, nargs="+", default=LAMBDAS)
     ap.add_argument("--k-hots", type=float, nargs="+", default=K_HOTS)
-    ap.add_argument("--csv", default=str(RACINE / "journaux" /
+    ap.add_argument("--csv", default=str(RACINE / "donnees" / "journaux" /
                     "resultats_pareto_source_conduction_2026-08-12.csv"))
-    ap.add_argument("--png", default=str(RACINE / "docs" / "modele" / "figures" /
+    ap.add_argument("--png", default=str(RACINE / "biblio" / "modele" / "figures" /
                     "pareto_source_conduction.png"))
     args = ap.parse_args()
 

@@ -5,7 +5,7 @@ exerce la boucle d'orchestration avec un serveur Ollama réel, mais SANS lancer 
 Gradio — appelle directement `app.repondre` et imprime la trace des appels d'outils.
 
 Prérequis : `ollama serve` + un modèle tool-calling (`ollama pull qwen2.5`).
-Lancement  : `.venv/bin/python ai_framework/smoke_live.py`
+Lancement  : `.venv/bin/python ia/smoke_live.py`
 Modèle configurable via `OLLAMA_MODEL`.
 
 Ce qu'on vérifie :
@@ -22,8 +22,8 @@ import sys
 from pathlib import Path
 
 RACINE = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(RACINE / "ai_framework"))
-sys.path.insert(0, str(RACINE / "src"))
+sys.path.insert(0, str(RACINE / "ia"))
+sys.path.insert(0, str(RACINE / "code" / "src"))
 
 import app  # noqa: E402  (client Ollama réel)
 from skills import PROMPT_SYSTEME  # noqa: E402

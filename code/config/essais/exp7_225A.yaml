@@ -14,7 +14,7 @@
 # (chauffe sur échantillon déjà chaud, ambiant local ≈ 60 °C) — indicatif.
 # Profil ΔT/chant (README) : 241/196/126/162/239, M symétrique (ratio 1,01).
 nom: exp7_225A
-fichier_mesures: data/exp7_bord-centre_2026-07-28_avec-ceramique/225A/225A_v1.txt
+fichier_mesures: donnees/data/exp7_bord-centre_2026-07-28_avec-ceramique/225A/225A_v1.txt
 courant: 225.0                # A
 duree_chauffe: 13.0             # s (fenêtre de chauffe détectée, coupure manuelle)
 duree_totale: 116.0             # s simulés (fenêtre + refroidissement mesuré)

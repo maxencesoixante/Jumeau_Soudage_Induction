@@ -30,9 +30,9 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-RACINE = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(RACINE / "src"))
-sys.path.insert(0, str(RACINE / "scripts"))
+RACINE = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())
+sys.path.insert(0, str(RACINE / "code" / "src"))
+sys.path.insert(0, str(RACINE / "code" / "scripts"))
 
 from jumeau.materiaux import Config
 from jumeau.procede import Essai
@@ -58,12 +58,12 @@ REGIMES = {
 
 
 def main():
-    cfg2d = Config.charger(RACINE / "config")
+    cfg2d = Config.charger(RACINE / "code" / "config")
     cfg2d.contact.h_haut = H_HAUT
     cfg2d.ambiant.h_bas_2d = H_BAS_2D
     cfg2d.ambiant.h_bord_x0 = H_BORD_X0
 
-    chemin = RACINE / "config" / "essais" / f"{NOM_ESSAI}.yaml"
+    chemin = RACINE / "code" / "config" / "essais" / f"{NOM_ESSAI}.yaml"
 
     t0 = time.time()
     essai_2d = Essai(cfg2d, chemin, nx=61, ny=21, nz=15,
@@ -73,7 +73,7 @@ def main():
     print(f"2D  (61x21x15, {DUREE_TEST}s) : {time.time()-t0:.1f} s")
     series_2d = essai_2d.series_tc(solveur_2d, sol_2d)
 
-    cfg3d = Config.charger(RACINE / "config")   # h_contact/h_bas/T_puits = defaut config (pas de theta* 3D)
+    cfg3d = Config.charger(RACINE / "code" / "config")   # h_contact/h_bas/T_puits = defaut config (pas de theta* 3D)
     t0 = time.time()
     essai_3d = Essai(cfg3d, chemin, nx=31, ny=11, nz=13,
                       facteur_couplage=FACTEUR, decalage_x=0.0, racine=RACINE)
@@ -125,7 +125,7 @@ def main():
     texte = tbl.to_string(index=False)
     print("\n" + texte)
 
-    out = RACINE / "journaux" / "resultats_diag_2d_vs_3d_taux_exp7_200A.log"
+    out = RACINE / "donnees" / "journaux" / "resultats_diag_2d_vs_3d_taux_exp7_200A.log"
     with open(out, "w") as f:
         f.write("Test decisif -- taux dT/dt : 2D lumpe vs 3D complet vs mesure\n")
         f.write("=" * 78 + "\n")

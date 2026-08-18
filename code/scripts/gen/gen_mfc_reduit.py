@@ -34,8 +34,8 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
-R = Path("/Users/maxencedubois/PycharmProjects/Jumeau_Soudage_Induction")
-sys.path.insert(0, str(R / "src"))
+R = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())
+sys.path.insert(0, str(R / "code" / "src"))
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # scripts/ (import _style)
 from _style import apply_style, savefig  # noqa: E402  (style partagé, issue #17)
 apply_style(**{
@@ -47,13 +47,13 @@ from jumeau.materiaux import Config
 from jumeau.procede import Essai
 from jumeau.em.source_joule import source_spot
 
-OUT = R / "docs" / "modele" / "figures" / "fig_mfc_reduit.png"
+OUT = R / "biblio" / "modele" / "figures" / "fig_mfc_reduit.png"
 FACTEUR = 6.0123           # θ* de référence (facteur_couplage, argument runtime -- NON recalibré ici)
 T_FUSION, T_PROCEDE, T_DEGRAD = 337.0, 390.0, 450.0
 COURANT, DUREE = 250.0, 15.0   # A, s -- réglage dans la fenêtre de soudage (cf. fig_loi_reglage : 250 A -> 15 s)
 X_COUPE = 0.060                # m -- coupe en largeur au spot (centre_x)
 
-cfg_labo = Config.charger(R / "config")
+cfg_labo = Config.charger(R / "code" / "config")
 cfg_reduit = copy.deepcopy(cfg_labo)
 cfg_reduit.geometrie["cfc"]["longueur"] = 0.03175
 # largeur=0.0315 et hauteur=0.012 sont déjà les valeurs par défaut de config/geometrie.yaml
@@ -66,7 +66,7 @@ def champ_interface(cfg, masque_source_mfc: bool, nx=81, ny=41, nz=15):
     """Carte T(x,y) d'interface au PIC, courant/durée forcés (comme
     fig_empreinte_soudure.py) -- reconstruit _Q_spots/_P_spots_2d à COURANT
     et DURÉE choisis (le YAML exp7_200A fixe 200 A / 18 s par défaut)."""
-    e = Essai(cfg, R / "config" / "essais" / "exp7_200A.yaml", nx=nx, ny=ny, nz=nz,
+    e = Essai(cfg, R / "code" / "config" / "essais" / "exp7_200A.yaml", nx=nx, ny=ny, nz=nz,
               facteur_couplage=FACTEUR, decalage_x=0.0, racine=R,
               masque_source_mfc=masque_source_mfc)
     e.spec["duree_chauffe"] = DUREE

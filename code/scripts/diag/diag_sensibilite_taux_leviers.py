@@ -39,9 +39,9 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-RACINE = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(RACINE / "src"))
-sys.path.insert(0, str(RACINE / "scripts"))
+RACINE = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())
+sys.path.insert(0, str(RACINE / "code" / "src"))
+sys.path.insert(0, str(RACINE / "code" / "scripts"))
 
 from jumeau.materiaux import Config
 from jumeau.procede import Essai
@@ -78,7 +78,7 @@ def famille(regime: str) -> str:
 
 
 def rouler(levier_kwargs: dict) -> pd.DataFrame:
-    cfg = Config.charger(RACINE / "config")
+    cfg = Config.charger(RACINE / "code" / "config")
     cfg.contact.h_haut = levier_kwargs.get("h_haut", H_HAUT)
     cfg.ambiant.h_bas_2d = H_BAS_2D
     cfg.ambiant.h_bord_x0 = H_BORD_X0
@@ -91,7 +91,7 @@ def rouler(levier_kwargs: dict) -> pd.DataFrame:
     lignes = []
     for nom in ESSAIS_TEST:
         regimes = ESSAIS[nom]
-        chemin = RACINE / "config" / "essais" / f"{nom}.yaml"
+        chemin = RACINE / "code" / "config" / "essais" / f"{nom}.yaml"
         essai = Essai(cfg, chemin, nx=61, ny=21, nz=15,
                       facteur_couplage=FACTEUR, decalage_x=0.0, racine=RACINE,
                       **essai_kwargs)
@@ -139,7 +139,7 @@ def main():
     print("\n\nSYNTHESE -- déficit % moyen par famille x levier (0 = parfait, <0 = trop lent) :")
     print(synthese.to_string())
 
-    out = RACINE / "journaux" / "resultats_diag_sensibilite_taux_leviers.log"
+    out = RACINE / "donnees" / "journaux" / "resultats_diag_sensibilite_taux_leviers.log"
     with open(out, "w") as f:
         f.write("Diagnostic -- sensibilite du TAUX (dT/dt) aux leviers, theta* fige\n")
         f.write("=" * 78 + "\n")

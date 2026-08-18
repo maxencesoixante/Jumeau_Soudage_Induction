@@ -14,9 +14,9 @@ import yaml
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap, BoundaryNorm
 
-R = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(R / "src"))
-sys.path.insert(0, str(R / "scripts"))
+R = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())
+sys.path.insert(0, str(R / "code" / "src"))
+sys.path.insert(0, str(R / "code" / "scripts"))
 from _style import apply_style  # noqa: E402
 apply_style(**{"font.size": 11, "axes.labelsize": 12, "savefig.pad_inches": 0.06})
 from jumeau.materiaux import Config  # noqa: E402
@@ -39,7 +39,7 @@ DUREE = 20.0
 
 
 def main():
-    cfg = Config.charger(R / "config")
+    cfg = Config.charger(R / "code" / "config")
     n_cand = len(X_CS) * len(Y_CS) * len(COURANTS) * len(MFC_LONGUEURS)
     print(f"Construction de la bibliothèque d'empreintes "
           f"({len(X_CS)}×{len(Y_CS)}×{len(COURANTS)}×{len(MFC_LONGUEURS)} = "
@@ -57,8 +57,8 @@ def main():
         print(f"  {i}. x={p['x_c']*1e3:5.0f} mm  y={p['y_c']*1e3:4.0f} mm  "
               f"I={p['courant']:.0f} A  MFC={mfc} mm  t={p['duree']:.0f} s")
 
-    (R / "resultats").mkdir(exist_ok=True)
-    with open(R / "resultats" / "plan_soudage.yaml", "w", encoding="utf-8") as f:
+    (R / "donnees" / "resultats").mkdir(exist_ok=True)
+    with open(R / "donnees" / "resultats" / "plan_soudage.yaml", "w", encoding="utf-8") as f:
         yaml.safe_dump({"passes": passes_params, "couverture_gloutonne": m,
                         "fusion": FUSION, "degradation": DEGRAD},
                        f, allow_unicode=True, sort_keys=False)
@@ -109,7 +109,7 @@ def _tracer(grille, Tmax, passes_params, m):
                  f"soudé {m['pct_soude']:.0f} %  ·  non soudé {m['pct_non_soude']:.0f} %  ·  "
                  f"dégradé {m['pct_degrade']:.0f} %", fontsize=10.5)
     ax.set_aspect("equal")
-    out = R / "docs" / "modele" / "figures" / "fig_plan_soudage_couverture.png"
+    out = R / "biblio" / "modele" / "figures" / "fig_plan_soudage_couverture.png"
     out.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out)
     plt.close(fig)

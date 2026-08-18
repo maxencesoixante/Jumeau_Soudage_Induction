@@ -22,7 +22,8 @@ from matplotlib.lines import Line2D
 import sys
 from pathlib import Path
 
-OUT = Path("/Users/maxencedubois/PycharmProjects/Jumeau_Soudage_Induction/docs/modele/figures")
+R = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())
+OUT = R / "biblio" / "modele" / "figures"
 
 # ----------------------------------------------------------------------
 # rcParams -- meme style que gen_figures_elsevier.py (police sans-serif,

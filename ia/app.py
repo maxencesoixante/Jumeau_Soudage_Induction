@@ -10,7 +10,7 @@ Prérequis :
   2. Lancer le serveur : `ollama serve`  (souvent démarré automatiquement)
   3. Télécharger un modèle capable de tool-calling : `ollama pull qwen2.5`
 Lancement :
-  .venv/bin/python ai_framework/app.py           # http://127.0.0.1:7860
+  .venv/bin/python ia/app.py           # http://127.0.0.1:7860
 Le modèle est configurable via la variable d'environnement OLLAMA_MODEL.
 """
 

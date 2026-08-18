@@ -1,7 +1,7 @@
 # Essai de chauffe simple spot — gradient dans l'épaisseur (fichier clé de validation)
 # Source : 40_donnees/essais_chauffe/README.md du vault
 nom: chauffe_250A_3TC
-fichier_mesures: data/chauffe_250A_3TC-epaisseur_2026-05-20.txt
+fichier_mesures: donnees/data/chauffe_250A_3TC-epaisseur_2026-05-20.txt
 courant: 250.0               # A (consigne, créneau)
 # La chauffe dure ~30 s (pic interface mesuré ~30 s après le début de la
 # montée, signal recalé par recaler_a_la_chauffe). Durée ajustable ici.

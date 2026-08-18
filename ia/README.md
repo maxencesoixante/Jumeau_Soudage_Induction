@@ -43,7 +43,7 @@ macOS / Linux :
 
 ```bash
 # 1. Dépendances Python (dans le venv du projet)
-.venv/bin/pip install -r ai_framework/requirements.txt
+.venv/bin/pip install -r ia/requirements.txt
 
 # 2. Ollama (serveur LLM local)
 brew install ollama          # ou https://ollama.com/download
@@ -51,7 +51,7 @@ ollama serve &               # démarre le serveur (souvent auto au boot)
 ollama pull qwen2.5          # modèle capable de tool-calling (~4,7 Go)
 
 # 3. Lancer l'assistant
-.venv/bin/python ai_framework/app.py        # http://127.0.0.1:7860
+.venv/bin/python ia/app.py        # http://127.0.0.1:7860
 ```
 
 Windows (PowerShell) — mêmes étapes, chemin du venv différent :
@@ -100,13 +100,13 @@ un **smoke headless** (sans lancer l'UI) exerce la boucle avec le vrai LLM et im
 trace des appels d'outils :
 
 ```bash
-.venv/bin/python ai_framework/smoke_live.py
+.venv/bin/python ia/smoke_live.py
 ```
 
 Il vérifie (1) l'enchaînement config → simulation → figure (1 outil/tour) et (2) le respect
 des bornes sur une demande absurde (600 A). **Passé le 2026-08-04 avec `qwen2.5`** :
 enchaînement correct + figure produite ; 600 A refusé (self-correction dès la planification).
-Le même comportement est visible dans l'UI (`.venv/bin/python ai_framework/app.py`) avec les
+Le même comportement est visible dans l'UI (`.venv/bin/python ia/app.py`) avec les
 3 requêtes d'exemple ci-dessus.
 
 > **Params synchronisés le 2026-08-04** : `outils.py` passe désormais le θ\* de référence
