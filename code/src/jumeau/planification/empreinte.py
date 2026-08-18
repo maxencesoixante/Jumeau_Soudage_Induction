@@ -13,8 +13,8 @@ from ..procede import Essai
 from ..geometrie import masque_empreinte_cfc
 from ..em.source_joule import source_spot
 
-_RACINE = Path(__file__).resolve().parents[3]
-_GABARIT = _RACINE / "config" / "essais" / "exp7_200A.yaml"
+_RACINE = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())  # racine depot
+_GABARIT = _RACINE / "code" / "config" / "essais" / "exp7_200A.yaml"
 
 
 def empreinte(cfg: Config, x_c: float, y_c: float, courant: float, duree: float,
