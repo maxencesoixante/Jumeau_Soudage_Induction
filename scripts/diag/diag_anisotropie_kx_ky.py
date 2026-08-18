@@ -17,7 +17,7 @@ k_plan SCALAIRE. Ce script :
    haut (rapprochant le contraste de 2,09 mesuré) à un coût RMSE comparable,
    ou si c'est un optimum franchement pire.
 
-RÉSULTAT (2026-07-31, logs journaux/resultats_calibration_joint_anisotrope*.log) :
+RÉSULTAT (2026-07-31, logs journaux/archive/resultats_calibration_joint_anisotrope*.log) :
 il existe DEUX optima locaux à ~3 % d'écart de coût :
   - ky libre (borne basse 2.0, PINNED) : kx=7.52, ky=2.03 -> RMSE global 17.8°C
     (bat la référence 18.5°C) MAIS contraste M 3.63 (PIRE que la référence

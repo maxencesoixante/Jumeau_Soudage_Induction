@@ -860,7 +860,7 @@ Ces paramètres supposent la géométrie corrigée (`config/geometrie.yaml` :
 aux corrections de géométrie, et les valeurs de paramètres qu'ils contiennent, se rapportent
 à une géométrie antérieure : leurs raisonnements restent valides, leurs chiffres non.
 
-Chaque exécution se journalise dans `journaux/` (`journaux/resultats_*.log`), et les figures
+Chaque exécution se journalise dans `journaux/` (`journaux/archive/resultats_*.log`), et les figures
 s'écrivent dans `resultats/`. Journaux de référence pour l'état courant :
 `journaux/archive/resultats_hauteur_5mm_recalibration.log` (correction de hauteur et recalibration courante),
 `journaux/archive/resultats_geometrie_corrigee_recalibration.log` (correction d'entraxe, étape précédente),

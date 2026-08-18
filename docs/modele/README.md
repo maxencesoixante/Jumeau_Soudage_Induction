@@ -22,7 +22,7 @@ Rejouer une validation : `python scripts/valider.py --modele 2D --facteur 6.0123
 | Type | Emplacement | Contenu |
 |---|---|---|
 | **Sorties de simulation** | `resultats/` (gitignoré, régénérable) | courbes/cartes de validation + `*_series_sim.csv` par essai. |
-| **Journaux** | `journaux/resultats_*.log` | validation, calibration (`_calibration_exp7_200A_*`, `_phase3_*`), diagnostics, convergence/MMS. Cf. §6 du journal pour référence vs archive. |
+| **Journaux** | `journaux/archive/resultats_*.log` | validation, calibration (`_calibration_exp7_200A_*`, `_phase3_*`), diagnostics, convergence/MMS. Cf. §6 du journal pour référence vs archive. |
 | **Figures — modèle** | `figures/` (= `docs/modele/figures/`) | figures **entièrement modélisées** (aucune data réelle) : empreinte, MFC réduit, procédé semi-statique, loi de réglage, schémas de montage, prédictions (`gen_empreinte_soudure.py`, `gen_mfc_reduit.py`, `gen_procede_semistatique.py`, `gen_loi_reglage.py`, `gen_schemas_montage.py`, `gen_prediction_courant.py`). |
 | **Figures — data** | `../labo/figures/` | figures **utilisant les mesures** (exp7/exp9, séries A/B) : profils M, courbes brutes, dissipation, loi en courant, fenêtre de soudage, variantes `presentation_*` (`gen_figures_elsevier.py`, `gen_fenetre_soudage.py`). |
 
@@ -97,7 +97,7 @@ adoptée.** Fit conjoint bord (exp7) + centre (exp9 y=20). Résultats :
 - ❌ Famille BORD régresse (le `h_bas_2d` élevé sur-refroidit les transitoires du bord) → **RMSE
   global 18,5 → 19,2** (régression) → non adopté (θ\* de référence inchangé).
 - **Conclusion** : le résidu du bord est **structurel** (contraste spatial du M), qu'aucun
-  coefficient uniforme ne corrige. Logs : `../../journaux/resultats_calibration_joint_*.log`.
+  coefficient uniforme ne corrige. Logs : `../../journaux/archive/resultats_calibration_joint_*.log`.
 
 **Forme du M — prototype `lambda_bord_mm` (2026-07-31, flag OFF, non adopté).** Le sur-contraste
 vient de la CL `ψ=0` au chant (`em/foucault.py`), trop raide pour un twill à maille finie.
@@ -115,7 +115,7 @@ d'épaisseur : **test décisif 2D vs 3D → le 3D ne ferme PAS le déficit** (TC
 mais **aucune valeur scalaire** ne ferme les 3 régimes (k≈6 ferme le hors-spot mais sur-corrige le
 sous-spot). → **Taux, pic et contraste du M sont TROIS symptômes du MÊME défaut** : l'étalement
 in-plane est piloté par un `k_plan` scalaire qui ne peut être à la fois bas (sous-spot) et haut
-(hors-spot/centre). Logs : `../../journaux/resultats_diag_{taux_dTdt_sous_hors_spot,sensibilite_taux_leviers,2d_vs_3d_taux_exp7_200A}.log`.
+(hors-spot/centre). Logs : `../../journaux/archive/resultats_diag_{taux_dTdt_sous_hors_spot,sensibilite_taux_leviers,2d_vs_3d_taux_exp7_200A}.log`.
 
 **`k_plan` anisotrope (kx≠ky) — prototype 2026-07-31, flag OFF, NON adopté.** Dernière piste
 testée (`solveur2d.py`/`materiaux.py` `k_plan_x`/`k_plan_y`, défaut isotrope, 45 tests verts ;
@@ -123,7 +123,7 @@ testée (`solveur2d.py`/`materiaux.py` `k_plan_x`/`k_plan_y`, défaut isotrope, 
 longitudinal) mais l'objectif est **multimodal en `ky`** avec deux optima physiquement OPPOSÉS (l'un
 bat le RMSE en **aggravant** le contraste M à 3,63, l'autre rapproche le contraste 2,50 mais **rate**
 le RMSE) → l'anisotropie **relocalise le conflit** au lieu de le résoudre. Verdict : **NON**. Logs :
-`../../journaux/resultats_calibration_joint_anisotrope*.log`.
+`../../journaux/archive/resultats_calibration_joint_anisotrope*.log`.
 
 **`k_plan(T)` décroissant — piste 2026-08-03, améliore les DEUX symptômes (candidat sérieux).**
 Après implémentation de la capacité **k(T)** (conduction flux-conservative à k dépendant de T,
@@ -164,7 +164,7 @@ source-dominés s'effondrent → l'échec held-out est **intrinsèque à k(T)**,
 T-dépendant — les 3 réfutés) : monter la conduction in-plane sur-étale toujours les pics. **Acquis
 positif** : `k_plan` réel ≈ 7,5–8,5 W/m·K (≈2,5–3× le config 3,0) et décroissant, corroboré 3× —
 correction de *propriété* défendable, pas un correctif de résidu adoptable. `k_plan=3,0` reste la
-référence. Logs : `../../journaux/resultats_calibration_joint_kT{,_hbasfige}.log` ; mémoire :
+référence. Logs : `../../journaux/archive/resultats_calibration_joint_kT{,_hbasfige}.log` ; mémoire :
 `kt-residu-structurel-piste`.
 
 **Combinaison source × conduction — carte de faisabilité 2D (2026-08-12,

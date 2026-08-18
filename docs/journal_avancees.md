@@ -198,7 +198,7 @@ Consolidation groupée pilotée par agents (design : `docs/superpowers/specs/202
   (dégrade le spot isolé exp9). Non-identifiabilité `h_haut`×`h_bas_2d` (corr 0,98) confirmée.
 - **Prochaine expérience recommandée** : calibration **jointe multi-familles** (profil M exp7 +
   spot isolé exp9, `h_bord_x0` libre non nul) — seule voie pour un gain réel sans sur-ajuster un
-  régime. Logs : `journaux/resultats_{baseline_phase1,calibration_exp7_200A,phase3}_*.log`.
+  régime. Logs : `journaux/archive/resultats_{baseline_phase1,calibration_exp7_200A,phase3}_*.log`.
 
 ### 30 juillet (suite) — Calibration jointe multi-familles (faite, non adoptée)
 `scripts/calibrer_joint.py` : fit conjoint bord (exp7 150/200/250 A) + centre (exp9 y=20), vecteur
@@ -210,7 +210,7 @@ Consolidation groupée pilotée par agents (design : `docs/superpowers/specs/202
 - σ non identifiable en joint (jacobien singulier) → off. `h_bord_x0=0` toujours réfuté.
 - **Verdict** : le résidu du bord est **STRUCTUREL** (contraste spatial du M) — aucun coefficient
   uniforme ne le corrige. Le vrai levier = **changement de modèle** (adoucir le M en largeur, forme
-  de source), pas la calibration. Logs : `journaux/resultats_calibration_joint_*.log`.
+  de source), pas la calibration. Logs : `journaux/archive/resultats_calibration_joint_*.log`.
 
 ### 31 juillet — Forme du M (lambda_bord), contraste réel, piste taux-de-chauffe
 Suite de la calibration jointe : on s'attaque à la FORME du M.
@@ -257,7 +257,7 @@ Option A prototypée (`k_plan_x`/`k_plan_y` dans `solveur2d.py`/`materiaux.py`, 
 connu) mais l'objectif est **multimodal en `ky`** (2 optima opposés : l'un bat le RMSE en aggravant
 le contraste M à 3,63, l'autre rapproche 2,50 mais rate le RMSE) → l'anisotropie **relocalise** le
 conflit, ne le résout pas. **Verdict : NON adopté** (flag off). Logs :
-`journaux/resultats_calibration_joint_anisotrope*.log`.
+`journaux/archive/resultats_calibration_joint_anisotrope*.log`.
 
 **→ Arc modèle CLOS (option B).** Tous les leviers testés/documentés (calib scalaire jointe,
 `lambda_bord`, 3D, anisotropie) : le résidu est **irréductible** par le modèle actuel. **Domaine de
@@ -388,7 +388,7 @@ Détail archivé dans `docs/labo/releves_resolus.md`.
 - `figures/` — **deux dossiers** : `docs/modele/figures/` (modèle) et `docs/labo/figures/` (mesures) ;
   variantes `presentation_*`, en place (référencées par les scripts ; PNG 600 dpi).
 
-**Journaux de référence (`journaux/resultats_*.log`) — état courant**
+**Journaux de référence (`journaux/archive/resultats_*.log`) — état courant**
 - `journaux/archive/resultats_hauteur_5mm_recalibration.log` — correction hauteur + θ\* courant.
 - `journaux/archive/resultats_validation_reference_figures.log` — validation au θ\* courant.
 - `journaux/archive/resultats_diag_forme_source.log` — profil en M (source, pas champ).
