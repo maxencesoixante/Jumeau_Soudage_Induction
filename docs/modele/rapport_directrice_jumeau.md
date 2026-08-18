@@ -732,6 +732,16 @@ attribution systématique.
   COMSOL 3D avec élément chauffant à l'interface et concentrateur de flux ; homogénéisation ;
   analyse de sensibilité (courant, fréquence, distance, conductivité). Source des conditions
   aux limites thermiques, de l'homogénéisation, et de la prise en compte du concentrateur.
+- **Gouin O'Shaughnessey, P., Dubé, M., & Fernandez Villegas, I. (2016).** *Modeling and
+  experimental investigation of induction welding of thermoplastic composites and comparison
+  with other welding processes.* Journal of Composite Materials, 50(21), 2895–2910. Version
+  publiée et revue par les pairs du modèle COMSOL 3D d'O'Shaughnessey (même labo ÉTS/Dubé) :
+  EM + thermique avec **propriétés dépendantes de T** (σxy décroît de ≈138 à ≈99 kS/m entre 293
+  et 700 K), suscepteur en maille inox à l'interface + concentrateur de flux ; **268 kHz**
+  (appareil 150–450 kHz, ⇒ nuance la « littérature à 150 kHz » de l'état de l'art §2.x.4).
+  Ancrages : k_plan effectif ≈ 0,8–1,8 W/m·K (bas), µr = 1, σz ≈ 10 S/m ; gradient d'épaisseur
+  mesuré (surface 260 °C / interface 320 °C). Étude de l'effet de la taille du suscepteur et
+  comparaison chiffrée avec soudage par résistance et ultrasons.
 - **Duhovic, M., et al. (2012).** Comparaison de modèles (COMSOL / LS-DYNA) du chauffage par
   induction de CF/PEEK ; profondeur de peau, règles de maillage, coefficients de convection,
   importance de la dépendance en température de la conductivité électrique. Source de la
