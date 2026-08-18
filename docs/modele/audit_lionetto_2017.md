@@ -71,7 +71,7 @@ induits **et** composantes verticales autorisées (Az, Jez).
 à 388 kHz ≫ stack 3,36 mm, et σz ≪ σxy ⇒ courants verticaux Jez négligeables.
 C'est une **approximation** de l'éq. (1), physiquement justifiée dans ce régime,
 mais numériquement distincte. À **re-vérifier** si la fréquence monte ou si le
-stack s'épaissit (cf. `docs/etat_art_induction.md` : pas de seuil universel
+stack s'épaissit (cf. `docs/references/etat_art_induction.md` : pas de seuil universel
 « δ vs épaisseur »).
 
 **Écart 2 — courant de déplacement (✅ négligeable).** Le jumeau travaille dans la

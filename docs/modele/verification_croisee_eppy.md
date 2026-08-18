@@ -1,7 +1,7 @@
 # Vérification croisée du solveur EM — jumeau (Lin 1993) vs `eppy` (Nagel 2019)
 
 **Date : 2026-08-04.** Script : [`scripts/verif_eppy_reaction.py`](../../scripts/verif_eppy_reaction.py) ·
-Log : [`journaux/resultats_verif_eppy_reaction.log`](../../journaux/resultats_verif_eppy_reaction.log).
+Log : [`journaux/archive/resultats_verif_eppy_reaction.log`](../../journaux/archive/resultats_verif_eppy_reaction.log).
 
 **Reproduction (hors-ligne, une commande) :** `eppy` est vendoré (copie MIT au commit
 `62f0030`, patchée numpy ≥ 2) sous [`third_party/eppy/`](../../third_party/eppy/) — rien à

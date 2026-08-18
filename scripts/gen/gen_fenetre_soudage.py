@@ -22,6 +22,7 @@ import matplotlib.pyplot as plt
 
 R = Path("/Users/maxencedubois/PycharmProjects/Jumeau_Soudage_Induction")
 sys.path.insert(0, str(R / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # scripts/ (import _style)
 from _style import apply_style, savefig  # noqa: E402  (style partagé, issue #17)
 apply_style(**{
     "font.size": 11, "axes.labelsize": 12, "axes.titlesize": 12.5,

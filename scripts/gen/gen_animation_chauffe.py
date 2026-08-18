@@ -23,6 +23,7 @@ import imageio_ffmpeg
 R = Path("/Users/maxencedubois/PycharmProjects/Jumeau_Soudage_Induction")
 sys.path.insert(0, str(R / "src"))
 mpl.rcParams["animation.ffmpeg_path"] = imageio_ffmpeg.get_ffmpeg_exe()
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # scripts/ (import _style)
 from _style import apply_style  # noqa: E402  (style partagé, issue #17)
 apply_style(fonts_only=True)
 

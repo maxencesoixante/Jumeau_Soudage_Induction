@@ -355,12 +355,12 @@ python scripts/calibrer.py --essai serieA_A-1 --modele 2D
 python scripts/valider.py --modele 2D --facteur <F> --h-haut <H> --h-bas-2d <H>
 ```
 
-**Figures.** Le jeu de figures se régénère avec les scripts `scripts/gen_*.py` (style
+**Figures.** Le jeu de figures se régénère avec les scripts `scripts/gen/gen_*.py` (style
 centralisé dans `scripts/_style.py`, palette Okabe-Ito). Par défaut en **PNG** ; pour la
 soumission d'article, un export **vectoriel** est disponible :
 
 ```bash
-FIG_FORMATS="png,pdf,tiff" python scripts/gen_figures_elsevier.py   # PDF vectoriel + TIFF LZW
+FIG_FORMATS="png,pdf,tiff" python scripts/gen/gen_figures_elsevier.py   # PDF vectoriel + TIFF LZW
 ```
 
 **Assistant conversationnel (optionnel).** Une couche IA locale (`ai_framework/`, orchestrateur
@@ -409,7 +409,7 @@ ai_framework/          assistant conversationnel local (optionnel)
 - **Fluxtrol Inc.** — fiche *Ferrotron 559H* ($\mu_i = 16$, courbe de pertes).
 
 **Procédé voisin (référence méthodologique)**
-- **Brassard et al. 2020** (*J. Composite Materials*, [doi](https://doi.org/10.1177/0021998320957055)) — soudage par **résistance** CF/PEEK ; couplage électro-thermique, propriétés $k(T)/c_p(T)$ mesurées. Analysé dans [`docs/reference_brassard.md`](docs/reference_brassard.md).
+- **Brassard et al. 2020** (*J. Composite Materials*, [doi](https://doi.org/10.1177/0021998320957055)) — soudage par **résistance** CF/PEEK ; couplage électro-thermique, propriétés $k(T)/c_p(T)$ mesurées. Analysé dans [`docs/references/reference_brassard.md`](docs/references/reference_brassard.md).
 - **Samanis et al. 2026** — méthode des lignes 1D, identification.
 
 Les données de mesure sont des **copies** du vault Obsidian `Memoire_Soudage_Induction`

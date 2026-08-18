@@ -26,6 +26,7 @@ OUT.mkdir(parents=True, exist_ok=True)
 # ----------------------------------------------------------------------
 # rcParams — reference style (serieA_A-2_250A_2026-06-09.png)
 # ----------------------------------------------------------------------
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # scripts/ (import _style)
 from _style import apply_style, savefig as _savefig  # noqa: E402  (style partagé, #17/#19)
 apply_style(**{
     "font.size": 10, "axes.labelsize": 11, "axes.titlesize": 11, "legend.fontsize": 9,

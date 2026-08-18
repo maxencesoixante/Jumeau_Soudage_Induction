@@ -41,7 +41,7 @@ fonction `clean()`) : ambiante = moyenne des 2 premières lignes des 5 TC · rej
 Le **début de chauffe** (`heating_onset_idx`) est le dernier point ambiant avant que le max des
 TC dépasse ambiante + 2 °C ; les axes temporels sont recalés sur cet instant.
 
-**Reproductibilité** : `scripts/gen_figures_elsevier.py` régénère l'intégralité du jeu (variable
+**Reproductibilité** : `scripts/gen/gen_figures_elsevier.py` régénère l'intégralité du jeu (variable
 d'environnement `FIGOUT` pour la destination ; sans argument → `docs/labo/figures/`).
 Arguments positionnels optionnels pour ne régénérer qu'une figure :
 `fig1 fig2 fig3 fig4 fig5 chant par 5tc mono semi`.
@@ -270,5 +270,5 @@ Figures de travail (non article), conservées pour traçabilité :
 > gras / légende hors cadre / lignes T°, avec **polices agrandies** pour la projection (canevas
 > mis à l'échelle en conséquence). Depuis le 2026-08-03 le preset écrit directement dans le
 > dossier unique `docs/labo/figures/` avec le préfixe `presentation_` (plus besoin de `FIGOUT`).
-> Régénération : `PRESET=presentation .venv/bin/python scripts/gen_figures_elsevier.py
+> Régénération : `PRESET=presentation .venv/bin/python scripts/gen/gen_figures_elsevier.py
 > fig1 fig2 fig3 fig4 fig5`.

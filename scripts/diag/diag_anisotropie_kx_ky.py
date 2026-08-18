@@ -8,7 +8,7 @@ k_plan SCALAIRE. Ce script :
 
 1. calcule le contraste du profil M (moyenne des pics normalisés aux chants
    y=0/40mm sur le pic centre y=20mm, exp7_200A -- même recette que
-   scripts/gen_figures_elsevier.py::fig2) pour un theta donné (isotrope ou
+   scripts/gen/gen_figures_elsevier.py::fig2) pour un theta donné (isotrope ou
    anisotrope) ;
 2. reproduit la vérification de MULTIMODALITÉ de ky : le fit joint anisotrope
    sans contrainte (scripts/calibrer_joint.py --anisotrope) pousse ky vers sa
@@ -17,7 +17,7 @@ k_plan SCALAIRE. Ce script :
    haut (rapprochant le contraste de 2,09 mesuré) à un coût RMSE comparable,
    ou si c'est un optimum franchement pire.
 
-RÉSULTAT (2026-07-31, logs journaux/resultats_calibration_joint_anisotrope*.log) :
+RÉSULTAT (2026-07-31, logs journaux/archive/resultats_calibration_joint_anisotrope*.log) :
 il existe DEUX optima locaux à ~3 % d'écart de coût :
   - ky libre (borne basse 2.0, PINNED) : kx=7.52, ky=2.03 -> RMSE global 17.8°C
     (bat la référence 18.5°C) MAIS contraste M 3.63 (PIRE que la référence
@@ -35,11 +35,11 @@ joint du 2026-07-30 -- ce n'est pas une découverte nouvelle, c'est ky qui
 lui.
 
 Usage :
-    python scripts/diag_anisotropie_kx_ky.py --contraste --facteur 6.0123 \\
+    python scripts/diag/diag_anisotropie_kx_ky.py --contraste --facteur 6.0123 \\
         --h-bas-2d 37.424 --h-bord-x0 250.0 --k-plan 3.0
-    python scripts/diag_anisotropie_kx_ky.py --contraste --facteur 6.9013 \\
+    python scripts/diag/diag_anisotropie_kx_ky.py --contraste --facteur 6.9013 \\
         --h-bas-2d 87.064 --h-bord-x0 77.51 --kx 7.515 --ky 2.0258
-    python scripts/diag_anisotropie_kx_ky.py --verif-ky-borne --ky-min 3.0 \\
+    python scripts/diag/diag_anisotropie_kx_ky.py --verif-ky-borne --ky-min 3.0 \\
         --n-lhs 4 --max-nfev 30
 """
 from __future__ import annotations
@@ -50,7 +50,7 @@ from pathlib import Path
 
 import numpy as np
 
-RACINE = Path(__file__).resolve().parents[1]
+RACINE = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(RACINE / "src"))
 sys.path.insert(0, str(RACINE / "scripts"))
 

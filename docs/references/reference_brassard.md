@@ -25,7 +25,7 @@ jumeau, sur deux plans : la **confection des figures** et l'**approche de modél
   log-log + polygone de la zone admissible.
 - Schémas de montage : **TikZ/pgfplots** (`Tikz/`), vectoriel LaTeX.
 
-### Notre chaîne (`scripts/gen_figures_elsevier.py` + `gen_*.py`)
+### Notre chaîne (`scripts/gen/gen_figures_elsevier.py` + `gen_*.py`)
 - **Python + matplotlib** ; `rcParams` avec **police sans-serif** (DejaVu Sans/Arial),
   **palette Okabe-Ito explicite** (#0072B2 / #E69F00 / #009E73 / #D55E00 / #56B4E9), 600 dpi.
 - Deux presets (`elsevier` défaut, `presentation`) dans `gen_figures_elsevier.py`.
@@ -127,4 +127,4 @@ avec typographie identique au corps, **ET** (b) une chaîne LaTeX est installée
 1. ✅ **Centraliser le style des figures** (`scripts/_style.py`, palette Okabe-Ito, fix `jet`) — **#17 mergé**.
 2. ✅ **Export vectoriel des figures** (PDF + TIFF via `FIG_FORMATS`, PNG conservé) — **#19 mergé**.
 3. ❌ **Schémas de montage en TikZ** — **#20 écarté** (matplotlib + export vectoriel suffit ; pas de LaTeX ; pilotage config à préserver — cf. §Évaluation ci-dessus).
-4. ✅ **Décomposer `facteur_couplage`** — **#21 traité** : non identifiable depuis la température, verdict documenté (`modele/facteur_couplage_decomposition.md`).
+4. ✅ **Décomposer `facteur_couplage`** — **#21 traité** : non identifiable depuis la température, verdict documenté (`../modele/facteur_couplage_decomposition.md`).

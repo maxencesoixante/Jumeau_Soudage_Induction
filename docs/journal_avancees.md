@@ -70,7 +70,7 @@ python scripts/valider.py --modele 2D --facteur 6.0123 --decalage-x 0 \
 
 ### 17 juillet — Fondations
 Chaîne EM → thermique complète (`src/jumeau/em`, `thermique`), config géométrie/matériaux,
-première calibration. Revue de littérature (`docs/etat_art_induction.md`).
+première calibration. Revue de littérature (`docs/references/etat_art_induction.md`).
 
 ### 18 juillet — Asservissement + comparaison littérature
 Thermostat de coupure sur consigne (« chauffe jusqu'à T_processing »). Figures type Lionetto
@@ -139,7 +139,7 @@ Rapports/slides/mesures régénérés au θ\* corrigé. Diagnostic de la cote `h
   mesuré ~2,0-2,2) aux trois courants ; le seul résidu est **transitoire** — le centre du modèle
   se remplit trop lentement, **indépendamment du courant** (motif centre-fill identique de 150 à
   250 A). Leviers testés puis **écartés** pour ce résidu : cp / masse thermique / e_eff (taux
-  fondamental sous spot bon à ~15 %, `journaux/resultats_diag_taux_chauffe.log`), k_plan (casse le
+  fondamental sous spot bon à ~15 %, `journaux/archive/resultats_diag_taux_chauffe.log`), k_plan (casse le
   contraste), placement TC. Le **lissage de source** (gaussienne σ≈6 mm) remplit le centre mais
   abaisse les pics → posé derrière `--source-sigma-mm` (défaut off, **non adopté**). Le test **3D**
   confirme le mécanisme (le lumping supprime une partie du taux hors-spot : TC2 7,8 → 11,0 °C/s)
@@ -198,7 +198,7 @@ Consolidation groupée pilotée par agents (design : `docs/superpowers/specs/202
   (dégrade le spot isolé exp9). Non-identifiabilité `h_haut`×`h_bas_2d` (corr 0,98) confirmée.
 - **Prochaine expérience recommandée** : calibration **jointe multi-familles** (profil M exp7 +
   spot isolé exp9, `h_bord_x0` libre non nul) — seule voie pour un gain réel sans sur-ajuster un
-  régime. Logs : `journaux/resultats_{baseline_phase1,calibration_exp7_200A,phase3}_*.log`.
+  régime. Logs : `journaux/archive/resultats_{baseline_phase1,calibration_exp7_200A,phase3}_*.log`.
 
 ### 30 juillet (suite) — Calibration jointe multi-familles (faite, non adoptée)
 `scripts/calibrer_joint.py` : fit conjoint bord (exp7 150/200/250 A) + centre (exp9 y=20), vecteur
@@ -210,7 +210,7 @@ Consolidation groupée pilotée par agents (design : `docs/superpowers/specs/202
 - σ non identifiable en joint (jacobien singulier) → off. `h_bord_x0=0` toujours réfuté.
 - **Verdict** : le résidu du bord est **STRUCTUREL** (contraste spatial du M) — aucun coefficient
   uniforme ne le corrige. Le vrai levier = **changement de modèle** (adoucir le M en largeur, forme
-  de source), pas la calibration. Logs : `journaux/resultats_calibration_joint_*.log`.
+  de source), pas la calibration. Logs : `journaux/archive/resultats_calibration_joint_*.log`.
 
 ### 31 juillet — Forme du M (lambda_bord), contraste réel, piste taux-de-chauffe
 Suite de la calibration jointe : on s'attaque à la FORME du M.
@@ -221,7 +221,7 @@ Suite de la calibration jointe : on s'attaque à la FORME du M.
   bit-identique). `lambda≈4 mm` ramène le contraste **3,15 → ~2,1** (= mesuré) → **corrige la
   forme**. MAIS non conservatif en puissance → à θ\* fixe le RMSE global monte (18,5→~23) et un
   θ\* joint avec `lambda=4` reste perdant (27,3). → **prototype archivé, NON adopté**.
-  Log : `journaux/resultats_diag_lambda_bord_em.log`.
+  Log : `journaux/archive/resultats_diag_lambda_bord_em.log`.
 - **Correction d'une figure périmée** : `fig2` (« mesuré vs modèle », slide 9) affichait un
   contraste **modèle 2,43 ≈ mesuré 2,18** codé EN DUR, d'avant les corrections twill/hauteur. Le
   **vrai** contraste du modèle actuel est **~3,15** (mesuré ~2,09) : le modèle **sur-contraste le M
@@ -236,7 +236,7 @@ Suite de la calibration jointe : on s'attaque à la FORME du M.
   hors calibration scalaire.
 
 ### 31 juillet (suite) — Taux de chauffe : UN SEUL défaut d'étalement in-plane (3D écarté)
-Investigation dédiée (`scripts/diag_taux_dTdt_sous_hors_spot.py`, `diag_sensibilite_taux_leviers.py`,
+Investigation dédiée (`scripts/diag/diag_taux_dTdt_sous_hors_spot.py`, `diag_sensibilite_taux_leviers.py`,
 `diag_2d_vs_3d_taux_exp7_200A.py`). Déficit de dT/dt par régime : **sous-spot +14 %** (pas de
 déficit, source OK), lobes −9 %, **centre-œil −22 %**, **hors-spot longitudinal −67 %** → croît avec
 la distance au spot = déficit d'**étalement in-plane**, pas de dépôt.
@@ -257,7 +257,7 @@ Option A prototypée (`k_plan_x`/`k_plan_y` dans `solveur2d.py`/`materiaux.py`, 
 connu) mais l'objectif est **multimodal en `ky`** (2 optima opposés : l'un bat le RMSE en aggravant
 le contraste M à 3,63, l'autre rapproche 2,50 mais rate le RMSE) → l'anisotropie **relocalise** le
 conflit, ne le résout pas. **Verdict : NON adopté** (flag off). Logs :
-`journaux/resultats_calibration_joint_anisotrope*.log`.
+`journaux/archive/resultats_calibration_joint_anisotrope*.log`.
 
 **→ Arc modèle CLOS (option B).** Tous les leviers testés/documentés (calib scalaire jointe,
 `lambda_bord`, 3D, anisotropie) : le résidu est **irréductible** par le modèle actuel. **Domaine de
@@ -274,7 +274,7 @@ rapide (−67 %), un seul défaut = étalement in-plane scalaire. `k_plan=3,0` r
   48 tests) confinant la source à l'empreinte MFC. Prédiction : contraste **4,10 → 1,69**, points
   chauds vers l'intérieur — mais masque dur = **puissance tronquée** → pics effondrés (0 % soudé),
   centre encore froid. **Signal qualitatif** (M adouci) ; absolu biaisé bas → **à mesurer au banc**.
-  `scripts/gen_mfc_reduit.py`, `fig_mfc_reduit.png`.
+  `scripts/gen/gen_mfc_reduit.py`, `fig_mfc_reduit.png`.
 
 ---
 
@@ -292,7 +292,7 @@ rapide (−67 %), un seul défaut = étalement in-plane scalaire. `k_plan=3,0` r
    (résidu #2), indépendant du courant.
 2. **Lobes A/B trop froids / montée lente hors-spot — LE résidu dominant du RMSE, DIAGNOSTIQUÉ.**
    Les TC A/B TC2-4 (sur les lobes y=0, mais HORS-SPOT en x) sont sous-estimés de 20-30 °C et
-   montent ~2× trop lentement. **Diagnostic du taux** (`journaux/resultats_diag_taux_chauffe.log`) : ce
+   montent ~2× trop lentement. **Diagnostic du taux** (`journaux/archive/resultats_diag_taux_chauffe.log`) : ce
    N'EST PAS un défaut de taux fondamental — directement sous le spot (chants exp 7, 200 A) le
    modèle chauffe à 13,7 °C/s vs 16,1 mesuré (~15 % lent). cp / masse thermique / e_eff (stack
    complet) ÉCARTÉS (réduire e_eff sur-corrige). Le « 2× lent » est spécifique aux points
@@ -303,7 +303,7 @@ rapide (−67 %), un seul défaut = étalement in-plane scalaire. `k_plan=3,0` r
 
 **Résidu résolu / tranché (28 juillet) — le remplissage du centre.** La cartographie 200 A
 avec céramique (chauffe longue, v4/v5/v6) montrait le centre du modèle ~4× trop lent (à chant
-ΔT=200 : centre 76 mesuré vs 18 modèle). Diagnostic (`journaux/resultats_diag_centre_transitoire.log`) :
+ΔT=200 : centre 76 mesuré vs 18 modèle). Diagnostic (`journaux/archive/resultats_diag_centre_transitoire.log`) :
 ni `cp` (invariant), ni `k_plan` seul (mauvaise forme), ni placement TC3 (5 mm insuffisant) →
 œil de boucle (source ≈0 au centre exact) + source trop concentrée. **Prototype « source
 adoucie » (gaussienne σ, délocalisation twill) IMPLÉMENTÉ derrière `lissage_sigma_mm`
@@ -314,7 +314,7 @@ inchangé** ; correctif physique valable pour le régime « spot unique/centre �
 vrai verrou A/B est la vitesse de chauffe (résidu n°2 ci-dessus).
 3. **Régime basse consigne (B-2).** Cause confirmée (le modèle coupe au centre du spot, le
    procédé coupait sur le max des TC d'interface) ; correctif « capteurs » prêt derrière flag,
-   à activer conjointement avec la correction du M. Réf. `journaux/resultats_diag_b2_thermostat_capteurs.log`.
+   à activer conjointement avec la correction du M. Réf. `journaux/archive/resultats_diag_b2_thermostat_capteurs.log`.
 4. **Déficit de chauffe en surface (TC1).** 5-6× trop lent, mécanisme non identifié ; attaqué
    par la mesure de la face du MFC (exp 8).
 
@@ -371,31 +371,36 @@ Détail archivé dans `docs/labo/releves_resolus.md`.
 
 **Documents (`docs/`)**
 - `journal_avancees.md` — **ce document** (point d'entrée, transverse).
-- `etat_art_induction.md` — revue de littérature (transverse).
+- **`docs/references/`** (littérature & dépôts de référence) :
+  - `references/etat_art_induction.md` — revue de littérature (état de l'art).
+  - `references/reference_brassard.md` — dépôt de référence figures (Brassard).
 - **`docs/labo/`** (résultats labo / mesures) :
   - `labo/protocole_exp_dissipation_longitudinale.md` — fiche protocole exp 9.
   - `labo/mesures_a_realiser.md` — mesures encore À FAIRE.
   - `labo/releves_resolus.md` — relevés terrain déjà tranchés (archive).
 - **`docs/modele/`** (résultats modèle numérique) :
-  - `modele/rapport_directrice_jumeau.md` — rapport complet pour la direction.
-  - `modele/rapport_slides_jumeau.md` — trame de présentation (slides).
   - `modele/figures_catalogue.md` — catalogue des figures.
-- `figures/` — dossier unique des figures (modèle + mesures ; variantes `presentation_*`), en place
-  (référencées par les scripts ; PNG 600 dpi).
+  - `modele/audit_lionetto_2017.md`, `modele/verification_croisee_eppy.md`, `modele/leviers_refutes.md`, `modele/facteur_couplage_decomposition.md`.
+- **`docs/presentations/`** (rapports & présentations) :
+  - `presentations/rapport_directrice_jumeau.md` — rapport complet pour la direction.
+  - `presentations/rapport_slides_jumeau.md` — trame de présentation (slides).
+  - `presentations/synthese_consolidation_uq_2026-08-14.md` — synthèse consolidation UQ.
+- `figures/` — **deux dossiers** : `docs/modele/figures/` (modèle) et `docs/labo/figures/` (mesures) ;
+  variantes `presentation_*`, en place (référencées par les scripts ; PNG 600 dpi).
 
-**Journaux de référence (`journaux/resultats_*.log`) — état courant**
-- `journaux/resultats_hauteur_5mm_recalibration.log` — correction hauteur + θ\* courant.
-- `journaux/resultats_validation_reference_figures.log` — validation au θ\* courant.
-- `journaux/resultats_diag_forme_source.log` — profil en M (source, pas champ).
-- `journaux/resultats_diag_b2_thermostat_capteurs.log` — résidu B-2 + loi capteurs.
-- `journaux/resultats_diag_hauteur_bobine.log` — cote hauteur + plan image MFC (CAO).
-- `journaux/resultats_geometrie_corrigee_recalibration.log` — correction d'entraxe (étape précédente).
+**Journaux de référence (`journaux/archive/resultats_*.log`) — état courant**
+- `journaux/archive/resultats_hauteur_5mm_recalibration.log` — correction hauteur + θ\* courant.
+- `journaux/archive/resultats_validation_reference_figures.log` — validation au θ\* courant.
+- `journaux/archive/resultats_diag_forme_source.log` — profil en M (source, pas champ).
+- `journaux/archive/resultats_diag_b2_thermostat_capteurs.log` — résidu B-2 + loi capteurs.
+- `journaux/archive/resultats_diag_hauteur_bobine.log` — cote hauteur + plan image MFC (CAO).
+- `journaux/archive/resultats_geometrie_corrigee_recalibration.log` — correction d'entraxe (étape précédente).
 
 **Journaux d'archive (géométrie/θ\* antérieurs — raisonnements valides, chiffres périmés)**
-- `journaux/resultats_diag_b2_longueur.log`, `journaux/resultats_diag_cp_kplan.log`,
-  `journaux/resultats_diag_blindage_intercouche.log`, `journaux/resultats_convergence_maillage.log`,
-  `journaux/resultats_diagnostic_profil_M_em.log`, `journaux/resultats_champ_reaction_em.log`,
-  `journaux/resultats_test_position_thermostat.log`, et les `resultats_validation_2d_*.log`.
+- `journaux/archive/resultats_diag_b2_longueur.log`, `journaux/archive/resultats_diag_cp_kplan.log`,
+  `journaux/archive/resultats_diag_blindage_intercouche.log`, `journaux/archive/resultats_convergence_maillage.log`,
+  `journaux/archive/resultats_diagnostic_profil_M_em.log`, `journaux/archive/resultats_champ_reaction_em.log`,
+  `journaux/archive/resultats_test_position_thermostat.log`, et les `resultats_validation_2d_*.log`.
 
 **Code** : `src/jumeau/` (em, thermique, identification, validation) ; `scripts/` (simuler,
 calibrer, valider, figures) ; `config/` (geometrie.yaml, materiaux.yaml, essais/) ;

@@ -33,7 +33,7 @@ cohérent avec tout l'historique. θ* canonique **inchangé** dans `config/mater
 L'acquis est l'**UQ** + la confirmation que le fit réclame k_plan ≈ 8 (≈2,7× la valeur
 physique 3,0), signature du déficit structurel d'étalement in-plane.
 
-Log complet : `journaux/resultats_calibration_joint_consolide_2026-08-14.log`.
+Log complet : `journaux/archive/resultats_calibration_joint_consolide_2026-08-14.log`.
 
 ## Phase C — k_plan(I) indépendant du courant
 Sur exp9 y=0 monospot (4 courants), fit de k_plan SEUL (autres params figés à θ*_consolidé),
@@ -50,7 +50,7 @@ cible = **profil longitudinal normalisé au spot** (robuste au cutoff manuel).
 **COMPATIBLE avec un k_plan constant**. Léger trend montant non significatif.
 
 Driver : `scripts/tester_kplan_courant.py` ; CSV : `journaux/resultats_kplan_courant_2026-08-14.csv` ;
-figure : `docs/modele/figures/fig_kplan_courant.png` (script `scripts/gen_figure_kplan_courant.py`).
+figure : `docs/modele/figures/fig_kplan_courant.png` (script `scripts/gen/gen_figure_kplan_courant.py`).
 
 ## Conclusion
 1. **k_plan effectif ≈ 7,5 W·m⁻¹·K⁻¹, indépendant du courant** (nouvelle donnée quantifiée
@@ -83,4 +83,4 @@ Conclusions :
 **VERDICT : anisotropie NO-GO sur la meilleure donnée.** Dernier levier de forme ouvert clos.
 La limite d'étalement in-plane est confirmée non-résoluble par les leviers paramétriques
 (recalage isotrope, anisotropie, k(T), R_c, forme de source — tous NO-GO). Log :
-`journaux/resultats_calibration_joint_anisotrope_consolide_2026-08-14.log`.
+`journaux/archive/resultats_calibration_joint_anisotrope_consolide_2026-08-14.log`.

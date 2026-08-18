@@ -20,7 +20,7 @@ On résout le MÊME cas deux fois (M seul vs K complet) et on compare le contras
 en largeur. Balayages en épaisseur t et en conductivité sigma pour situer le régime
 du jumeau (twill : t≈0,2 mm, sigma≈1,1e4 S/m, f=388 kHz).
 
-RÉSULTAT (cf. journaux/resultats_verif_eppy_reaction.log, docs/modele/verification_croisee_eppy.md)
+RÉSULTAT (cf. journaux/archive/resultats_verif_eppy_reaction.log, docs/modele/verification_croisee_eppy.md)
   - Contraste ≈ 3,0 reproduit par eppy (indépendant) ≈ notre 3,15 → le M est de la
     VRAIE physique plaque-mince (écrasement du courant au chant T=0 ≡ ψ=0), pas un bug.
   - Réaction NÉGLIGEABLE au régime du jumeau (−0,03 % au twill ; −5,9 % même à 3,36 mm)

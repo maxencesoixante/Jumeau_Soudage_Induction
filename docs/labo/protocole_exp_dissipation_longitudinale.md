@@ -12,7 +12,7 @@ Mesurer la **décroissance de température le long de la longueur** de l'échant
 s'éloignant du spot d'induction. C'est la mesure qui attaque **le seul résidu ouvert du jumeau** :
 le modèle valide le profil en largeur (« M ») et la loi en I², mais **son étalement de chaleur
 est trop lent** (le centre se remplit trop lentement, les points hors-spot chauffent trop
-lentement — cf. `journaux/resultats_diag_taux_chauffe.log`, résidu n°2 du `journal_avancees.md`).
+lentement — cf. `journaux/archive/resultats_diag_taux_chauffe.log`, résidu n°2 du `journal_avancees.md`).
 
 `T(x)` donne :
 - la **longueur de décroissance** de la chaleur en longueur (empreinte source + conduction) ;

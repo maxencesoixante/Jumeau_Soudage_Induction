@@ -123,7 +123,7 @@ est **close** : aucune correction en attente ne survit au garde-fou held-out.
   (`calibrer_joint.py --thermostat-capteurs`, essais exp7+exp9+serieB_B-2, held-out serieA_A-1/A-3)
   → **PIRE** que la référence OFF sur fit (31,6→42,2), held-out (30,0→41,2) et global (30,8→41,7) :
   le refit divise le facteur par ~2 et raile k_plan à 9,9 → pics effondrés. Le θ\* actuel (thermostat
-  OFF) reste l'optimum. Log : `journaux/resultats_calibration_joint_thermostat.log`.
+  OFF) reste l'optimum. Log : `journaux/archive/resultats_calibration_joint_thermostat.log`.
 - ~~**Fréquence A-3 (200 A) 388 → 383 kHz**~~ — **abandonnée** : mesure 5 courants (2026-07-28)
   = 388±2 kHz constante, ancien relevé 383 infirmé ; une seule valeur globale suffit.
 - **Lissage de source** (`--source-sigma-mm`, défaut off) — testé exp 7 : remplit le centre mais

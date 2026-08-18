@@ -451,7 +451,7 @@ def verifier_sequentiel(cfg: Config, passes_params, *, facteur: float = 6.0123,
     return e.grille, champs.max(axis=0)
 ```
 
-Note d'intégration : vérifier que `Essai.simuler` consomme bien `e.spots` (liste de dicts avec `centre_x`, `t_debut`, `t_fin`) et `e._Q_spots`/`e._P_spots_2d` déjà posés — c'est le patron de `scripts/gen_procede_semistatique.py` (4 dwells séquentiels). Si `Essai` reconstruit `_Q_spots` à partir des spots au lieu de réutiliser ceux fournis, s'aligner sur ce que fait `gen_procede_semistatique.py` (lire ce script avant d'implémenter).
+Note d'intégration : vérifier que `Essai.simuler` consomme bien `e.spots` (liste de dicts avec `centre_x`, `t_debut`, `t_fin`) et `e._Q_spots`/`e._P_spots_2d` déjà posés — c'est le patron de `scripts/gen/gen_procede_semistatique.py` (4 dwells séquentiels). Si `Essai` reconstruit `_Q_spots` à partir des spots au lieu de réutiliser ceux fournis, s'aligner sur ce que fait `gen_procede_semistatique.py` (lire ce script avant d'implémenter).
 
 - [ ] **Step 4: Run test to verify it passes**
 

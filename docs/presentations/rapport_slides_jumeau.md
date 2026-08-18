@@ -500,7 +500,7 @@ sur 3 essais         + manips discriminantes      ↓
 
 Géométrie corrigée (entraxe + hauteur 5,0 mm), θ\* de référence
 (6,0123 / 30,09 / 37,42), grille 61 × 21 —
-`journaux/resultats_validation_reference_figures.log` (2026-07-27).
+`journaux/archive/resultats_validation_reference_figures.log` (2026-07-27).
 
 **serieA_A-1** (calibration, 250 A)
 
@@ -598,16 +598,16 @@ pytest    # 34 tests, ~3 min
 antérieure, il ne reproduit rien.
 
 Journaux de référence dans `journaux/` :
-`journaux/resultats_hauteur_5mm_recalibration.log` (**correction hauteur + θ\* courant**),
-`journaux/resultats_geometrie_corrigee_recalibration.log` (correction d'entraxe, étape précédente),
-`journaux/resultats_diag_hauteur_bobine.log` (diagnostic hauteur + plan image MFC vérifié sur CAO),
-`journaux/resultats_validation_reference_figures.log` (validation au θ\* courant, figures associées),
-`journaux/resultats_diag_b2_longueur.log` (résidu B-2 et les trois correctifs réfutés),
-`journaux/resultats_convergence_maillage.log`, `journaux/resultats_diagnostic_profil_M_em.log`,
-`journaux/resultats_champ_reaction_em.log`, `journaux/resultats_diag_cp_kplan.log`,
-`journaux/resultats_test_position_thermostat.log`.
-*Les journaux antérieurs au 2026-07-23 (`journaux/resultats_calibration_2d_postmaillage.log`,
-`journaux/resultats_validation_2d_postcalib.log`, et la chaîne de diagnostics) sont établis sur
+`journaux/archive/resultats_hauteur_5mm_recalibration.log` (**correction hauteur + θ\* courant**),
+`journaux/archive/resultats_geometrie_corrigee_recalibration.log` (correction d'entraxe, étape précédente),
+`journaux/archive/resultats_diag_hauteur_bobine.log` (diagnostic hauteur + plan image MFC vérifié sur CAO),
+`journaux/archive/resultats_validation_reference_figures.log` (validation au θ\* courant, figures associées),
+`journaux/archive/resultats_diag_b2_longueur.log` (résidu B-2 et les trois correctifs réfutés),
+`journaux/archive/resultats_convergence_maillage.log`, `journaux/archive/resultats_diagnostic_profil_M_em.log`,
+`journaux/archive/resultats_champ_reaction_em.log`, `journaux/archive/resultats_diag_cp_kplan.log`,
+`journaux/archive/resultats_test_position_thermostat.log`.
+*Les journaux antérieurs au 2026-07-23 (`journaux/archive/resultats_calibration_2d_postmaillage.log`,
+`journaux/archive/resultats_validation_2d_postcalib.log`, et la chaîne de diagnostics) sont établis sur
 l'**ancienne géométrie** : leurs raisonnements restent valides, leurs chiffres non.*
 
 ## Annexe F — Bibliographie mobilisée
@@ -636,7 +636,7 @@ technique.
 **État des figures au 2026-07-27** : toutes les figures (validation `serieA_A-1`/`A-3`/
 `serieB_B-2`, empreinte Fig. 4, fusion Fig. 5) **ont été régénérées à la géométrie corrigée
 hauteur 5,0 mm et au θ\* de référence** (6,0123 / 30,09 / 37,42) ; les figures de validation
-reproduisent exactement `journaux/resultats_validation_reference_figures.log`
+reproduisent exactement `journaux/archive/resultats_validation_reference_figures.log`
 (35,8/25,9 — 31,7/41,3 — 65,3/45,2). Toutes utilisables telles quelles.
 
 ⚠ Les fichiers `resultats/*.png` sont **écrasés à chaque exécution** de `valider.py` : si
