@@ -35,3 +35,6 @@ docs/**/*.mp4
 docs/figures/*.pdf
 docs/figures/*.tif
 docs/figures/*.tiff
+
+# SDD scratch (subagent-driven-development ledger/artefacts)
+.superpowers/
