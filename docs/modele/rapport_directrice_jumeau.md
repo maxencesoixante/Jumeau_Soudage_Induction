@@ -716,6 +716,17 @@ attribution systématique.
   Design, 120, 212–221. Modèle FE 3D couplant électromagnétisme et transfert thermique avec
   fusion et cristallisation. Référence des Figures 4 et 5 reproduites ; source du degré de
   fusion et de la chaleur latente.
+- **Pappadà, S., Salomi, A., Montanaro, J., Passaro, A., Caruso, A., & Maffezzoli, A. (2015).**
+  *Fabrication of a thermoplastic matrix composite stiffened panel by induction welding.*
+  Aerospace Science and Technology, 43, 314–320. Modèle FE COMSOL 3D (EM + thermique, chaleur
+  latente négligée) d'un composite CF **tissé** (satin 5-harnais T300)/PPS. Recoupements
+  externes utiles au jumeau : (i) sous bobine **circulaire**, le champ de température présente
+  **deux pics avec un creux central** (Fig. 4b) — reproduction indépendante du profil en « M »
+  du jumeau ; (ii) conductivités thermiques par règle des mélanges **k_plan = 1,4** et
+  **k_z = 0,25 W/(m·K)** (5ᵉ ancrage externe, côté valeur physique BASSE) ; (iii) gestion
+  active du gradient d'épaisseur (interface ≈ 340 °C / surface < 220 °C via convection forcée
+  h = 200 W/m²·K en face haute, h = 5 en natif) ; (iv) démonstrateur aéronautique (panneau
+  raidi, 4 raidisseurs « L »), soudage continu. σ effective du tissu = 2000 S/m ; f = 590 kHz.
 - **O'Shaughnessey, P. G. (2014).** *Modélisation et investigation expérimentale du soudage
   par induction de composites thermoplastiques.* Mémoire, ÉTS (même laboratoire). Modèle
   COMSOL 3D avec élément chauffant à l'interface et concentrateur de flux ; homogénéisation ;

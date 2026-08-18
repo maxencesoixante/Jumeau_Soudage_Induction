@@ -1,7 +1,8 @@
 # Modélisation électro-thermique du soudage par induction des composites CF/PEKK — état de l'art
 
-> Section d'état de l'art (mémoire LIPEC/ÉTS). Corpus de 13 sources vérifiées
-> (deep-research lit-review, 2026-07-17). Toute affirmation est attribuée ;
+> Section d'état de l'art (mémoire LIPEC/ÉTS). Corpus de 14 sources vérifiées
+> (deep-research lit-review, 2026-07-17 ; réf. 14 ajoutée 2026-08-18).
+> Toute affirmation est attribuée ;
 > aucune référence hors corpus vérifié. La lacune sur le régime plaque mince à
 > 388 kHz est signalée explicitement (§2.x.4).
 
@@ -37,7 +38,11 @@ ici : un tissu referme les boucles de courant dans les deux directions du plan, 
 Ces éléments soutiennent l'hypothèse retenue dans le jumeau, selon laquelle le pli twill (sergé) placé
 à l'interface de soudure agit comme siège principal des courants de Foucault. Lorsque l'auto-échauffement
 du laminé s'avère insuffisant, la voie du suscepteur dédié reste documentée et modélisée (Lionetto et
-al., 2025).
+al., 2025). Au-delà des éprouvettes de laboratoire, le procédé a par ailleurs été porté jusqu'à des
+sous-structures aéronautiques : Pappadà, Salomi, Montanaro, Passaro, Caruso et Maffezzoli (2015)
+fabriquent un panneau raidi à matrice thermoplastique dont les raidisseurs sont entièrement assemblés
+par soudage par induction, ce qui atteste la maturité industrielle de la technique d'assemblage visée
+par le présent travail.
 
 ## 2.x.2 Conductivité électrique effective et homogénéisation
 
@@ -97,7 +102,7 @@ travail se propose de traiter.
 
 ---
 
-## Références (corpus vérifié, 13)
+## Références (corpus vérifié, 14)
 
 1. Bayerl, T., Duhovic, M., Mitschang, P., & Bhattacharyya, D. (2014). The heating of polymer composites by electromagnetic induction – A review. *Composites Part A, 57*, 27–40. https://www.sciencedirect.com/science/article/abs/pii/S1359835X13002996
 2. Fink, B. K., McCullough, R. L., & Gillespie, J. W. (1992). A local theory of heating in cross-ply carbon fiber thermoplastic composites by magnetic induction. *Polymer Engineering & Science, 32*(5). https://4spepublications.onlinelibrary.wiley.com/doi/abs/10.1002/pen.760320509
@@ -112,3 +117,4 @@ travail se propose de traiter.
 11. Induction heating analysis validation of CF/PEKK laminates with magnetic flux controller. (2021). *SAMPE, TP21-0000000485.* https://www.digitallibrarynasampe.org/data/webpages/s2021_webpages/142-TP21-0000000485.html
 12. Fluxtrol. Induction process and coil design for welding of carbon fiber reinforced thermoplastics. https://www.fluxtrol.com/induction-process-and-coil-design-for-welding-of-carbon-fiber-reinforced-thermoplastics/
 13. Lionetto, F., et al. (2025). Experimental and numerical investigation of susceptor-aided continuous induction welding of low-melt PAEK composites. *Polymer Composites.* https://doi.org/10.1002/pc.29732
+14. Pappadà, S., Salomi, A., Montanaro, J., Passaro, A., Caruso, A., & Maffezzoli, A. (2015). Fabrication of a thermoplastic matrix composite stiffened panel by induction welding. *Aerospace Science and Technology, 43*, 314–320. https://doi.org/10.1016/j.ast.2015.03.013
