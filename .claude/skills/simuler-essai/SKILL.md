@@ -15,7 +15,7 @@ scénario, pas à produire des métriques agrégées (pour ça → `valider-croi
 
 ## Procédure
 ```bash
-.venv/bin/python scripts/simuler_essai.py config/essais/<nom>.yaml \
+.venv/bin/python code/scripts/simuler_essai.py code/config/essais/<nom>.yaml \
     [--facteur 1.0] [--h-contact <Hc>] [--h-bas <Hb>] \
     [--nx 49 --ny 17 --nz 15] [--sortie resultats]
 ```

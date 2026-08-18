@@ -344,48 +344,51 @@ des [leviers réfutés](docs/modele/leviers_refutes.md).
 
 ```bash
 python -m venv .venv && source .venv/bin/activate
-pip install -e ".[dev]"
-pytest                                    # vérifications analytiques + régression
+pip install -e "code[dev]"                # le package vit sous code/
+( cd code && pytest )                     # vérifications analytiques + régression (depuis code/)
 
-# simuler un essai + figures (dans resultats/)
-python scripts/simuler_essai.py config/essais/chauffe_250A_3TC.yaml
+# simuler un essai + figures (sorties dans donnees/resultats/)
+python code/scripts/simuler_essai.py code/config/essais/chauffe_250A_3TC.yaml
 
 # calibrer sur un essai, puis valider les autres SANS recalibrage
-python scripts/calibrer.py --essai serieA_A-1 --modele 2D
-python scripts/valider.py --modele 2D --facteur <F> --h-haut <H> --h-bas-2d <H>
+python code/scripts/calibrer.py --essai serieA_A-1 --modele 2D
+python code/scripts/valider.py --modele 2D --facteur <F> --h-haut <H> --h-bas-2d <H>
 ```
 
-**Figures.** Le jeu de figures se régénère avec les scripts `scripts/gen/gen_*.py` (style
-centralisé dans `scripts/_style.py`, palette Okabe-Ito). Par défaut en **PNG** ; pour la
+**Figures.** Le jeu de figures se régénère avec les scripts `code/scripts/gen/gen_*.py` (style
+centralisé dans `code/scripts/_style.py`, palette Okabe-Ito). Par défaut en **PNG** ; pour la
 soumission d'article, un export **vectoriel** est disponible :
 
 ```bash
-FIG_FORMATS="png,pdf,tiff" python scripts/gen/gen_figures_elsevier.py   # PDF vectoriel + TIFF LZW
+FIG_FORMATS="png,pdf,tiff" python code/scripts/gen/gen_figures_elsevier.py   # PDF vectoriel + TIFF LZW
 ```
 
-**Assistant conversationnel (optionnel).** Une couche IA locale (`ai_framework/`, orchestrateur
+**Assistant conversationnel (optionnel).** Une couche IA locale (`ia/`, orchestrateur
 Ollama + 3 outils) permet de piloter le jumeau en langage naturel — cf.
-[`ai_framework/README.md`](ai_framework/README.md).
+[`ia/README.md`](ia/README.md).
 
 ---
 
 ## 8. Structure du dépôt
 
 ```
-src/jumeau/            cœur du modèle
-  em/                  champ magnétique, courants de Foucault, source Joule
-  thermique/           solveurs thermiques 2D / 3D transitoires
-  materiaux.py         propriétés matériau, configuration
-  procede.py           essai, empreintes séquentielles, thermostat
-  identification/      calibration (LHS + NLSQ)
-  validation/          ingestion thermocouples, métriques
-config/                géométrie, matériaux, définitions d'essais (YAML)
-data/                  mesures thermocouples (copies du vault Obsidian)
-scripts/               simulation, calibration, validation, génération de figures
-docs/                  README modèle, audit, catalogue de figures, notes
-third_party/eppy/      solveur EM de référence (vendoré, MIT) pour la vérif croisée
-tests/                 vérifications analytiques + régression (pytest)
-ai_framework/          assistant conversationnel local (optionnel)
+code/                  tout le code du jumeau (auto-portant : pyproject.toml y vit)
+  src/jumeau/          cœur du modèle
+    em/                champ magnétique, courants de Foucault, source Joule
+    thermique/         solveurs thermiques 2D / 3D transitoires
+    materiaux.py       propriétés matériau, configuration
+    procede.py         essai, empreintes séquentielles, thermostat
+    identification/    calibration (LHS + NLSQ)
+    validation/        ingestion thermocouples, métriques
+  config/              géométrie, matériaux, définitions d'essais (YAML)
+  scripts/             simulation, calibration, validation, génération de figures
+  third_party/eppy/    solveur EM de référence (vendoré, MIT) pour la vérif croisée
+  tests/               vérifications analytiques + régression (pytest)
+donnees/               mesures thermocouples (data/), journaux de runs (journaux/),
+                       sorties de simulation (resultats/, gitignoré)
+biblio/                documentation & références : état de l'art, rapports, présentations,
+                       notes modèle/labo, plans & specs
+ia/                    assistant conversationnel local (optionnel, orchestrateur Ollama)
 ```
 
 ---

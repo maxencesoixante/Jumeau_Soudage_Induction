@@ -1,6 +1,6 @@
 ---
 name: ajouter-essai
-description: Intègre une nouvelle campagne d'essai (fichier de mesures + YAML config/essais/) dans le jumeau, avec le bon schéma de spots et thermocouples, puis le simule/valide. À utiliser quand de nouvelles données thermocouples arrivent.
+description: Intègre une nouvelle campagne d'essai (fichier de mesures + YAML code/config/essais/) dans le jumeau, avec le bon schéma de spots et thermocouples, puis le simule/valide. À utiliser quand de nouvelles données thermocouples arrivent.
 ---
 # Ajouter un nouvel essai au jumeau
 
@@ -9,13 +9,13 @@ schéma exact attendu par `Essai`, puis lance une simulation de contrôle. Encod
 positionnement TC et de découpage temporel des empreintes.
 
 ## Étapes
-1. **Déposer le fichier de mesures** dans `data/` (CSV corrigé ou TXT LabVIEW). Le chargeur
+1. **Déposer le fichier de mesures** dans `donnees/data/` (CSV corrigé ou TXT LabVIEW). Le chargeur
    auto-détecte séparateur (tab/virgule) et décimale, remet le temps à zéro, et interpole les
    aberrants (> `seuil_aberrant`, défaut 400 °C : un TC débranché lit ~2295 °C ; < −20 °C aussi).
-2. **Créer `config/essais/<nom>.yaml`** avec ce schéma (voir `chauffe_250A_3TC.yaml` et `serieA_A-1.yaml`) :
+2. **Créer `code/config/essais/<nom>.yaml`** avec ce schéma (voir `chauffe_250A_3TC.yaml` et `serieA_A-1.yaml`) :
    ```yaml
    nom: <nom>
-   fichier_mesures: data/<fichier>.csv
+   fichier_mesures: donnees/data/<fichier>.csv
    courant: 250.0            # A (consigne créneau)
    duree_chauffe: 30.0       # s (durée de chauffe active)
    duree_totale: 300.0       # s simulés (>= couverture du fichier)
@@ -29,7 +29,7 @@ positionnement TC et de découpage temporel des empreintes.
 3. **Découpage temporel des spots** : pour un essai multi-empreintes, caler les fenêtres `t_debut/t_fin` sur les vagues de chauffe réelles vues dans les courbes TC (≈350 s/spot en A/B, à ajuster), pas sur une division théorique.
 4. **Vérifier par simulation** :
    ```bash
-   .venv/bin/python scripts/simuler_essai.py config/essais/<nom>.yaml --facteur <F>
+   .venv/bin/python code/scripts/simuler_essai.py code/config/essais/<nom>.yaml --facteur <F>
    ```
    Comparer les courbes simulées/mesurées et la carte interface.
 

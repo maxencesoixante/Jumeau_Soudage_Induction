@@ -15,7 +15,7 @@ n'a le droit de voir aucun de ces essais pendant la calibration.
 ## Procédure
 1. **Reprendre les paramètres calibrés** (sortie de `calibrer-modele`) et lancer :
    ```bash
-   .venv/bin/python scripts/valider.py \
+   .venv/bin/python code/scripts/valider.py \
        --facteur <F> --h-contact <Hc> --h-bas <Hb> \
        --essais chauffe_250A_3TC serieA_A-1 serieA_A-3 serieB_B-2
    ```
