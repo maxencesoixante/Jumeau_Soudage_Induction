@@ -2,8 +2,8 @@
 
 Un **jumeau numérique** (simulation Python) du **soudage par induction** de laminés
 composites carbone/PEKK. À partir de la géométrie du montage et du courant de la bobine,
-le modèle prédit **où et à quelle vitesse la matière chauffe** à l'interface de soudure —
-une carte de température 3D dans le temps — puis la confronte aux **thermocouples** des
+le modèle prédit **où et à quelle vitesse la matière chauffe** à l'interface de soudure
+une carte de température 3D dans le temps puis la confronte aux **thermocouples** des
 essais réels (maîtrise, LIPEC/ÉTS).
 
 ![Carte de température à l'interface de soudure prédite par le jumeau](docs/modele/figures/fig_empreinte_soudure.png)
