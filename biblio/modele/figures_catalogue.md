@@ -8,7 +8,7 @@ séries tracées, essais/données sources, méthode de calcul, lignes de référ
 
 ## 0. Format commun (référence `serieA_A-2_250A_2026-06-09.png`)
 
-Depuis la refonte du **2026-07-29**, tout le jeu `docs/labo/figures/` suit le **format de
+Depuis la refonte du **2026-07-29**, tout le jeu `biblio/labo/figures/` suit le **format de
 référence** de `serieA_A-2_250A_2026-06-09.png` :
 
 | Élément | Convention |
@@ -24,7 +24,7 @@ référence** de `serieA_A-2_250A_2026-06-09.png` :
 **Trois lignes horizontales de référence** (mêmes couleurs que la référence) :
 `Fusion PEKK (337 °C)` bleu plein · `Cible procédé (390 °C)` orange tireté ·
 `Dégradation (450 °C)` vermillon plein. La température de fusion (337 °C) est celle du modèle
-(`config/materiaux.yaml : T_fusion`).
+(`code/config/materiaux.yaml : T_fusion`).
 
 > **Choix assumé sur les lignes T° :** les essais exp 7 sont des runs de **caractérisation
 > sous-fusion** (pics ≈ 270 °C au chant, bien en-dessous de la fusion). Les **trois** lignes
@@ -41,28 +41,28 @@ fonction `clean()`) : ambiante = moyenne des 2 premières lignes des 5 TC · rej
 Le **début de chauffe** (`heating_onset_idx`) est le dernier point ambiant avant que le max des
 TC dépasse ambiante + 2 °C ; les axes temporels sont recalés sur cet instant.
 
-**Reproductibilité** : `scripts/gen/gen_figures_elsevier.py` régénère l'intégralité du jeu (variable
-d'environnement `FIGOUT` pour la destination ; sans argument → `docs/labo/figures/`).
+**Reproductibilité** : `code/scripts/gen/gen_figures_elsevier.py` régénère l'intégralité du jeu (variable
+d'environnement `FIGOUT` pour la destination ; sans argument → `biblio/labo/figures/`).
 Arguments positionnels optionnels pour ne régénérer qu'une figure :
 `fig1 fig2 fig3 fig4 fig5 chant par 5tc mono semi`.
 
-**Jeux de figures — dossier UNIQUE `docs/labo/figures/`** (consolidé le 2026-08-03 ;
+**Jeux de figures — dossier UNIQUE `biblio/labo/figures/`** (consolidé le 2026-08-03 ;
 les anciens `figures_elsevier/` et `figures_presentation/` ont fusionné) :
 - **Jeu de référence** — 10 figures + les figures dérivées + la figure de référence
   `serieA_A-2_250A_2026-06-09.png`. Noms inchangés (`fig1_profil_M.png`, …).
 - **Variantes « slides »** de fig1–5 (§ C) — **même format de référence** avec polices
   agrandies pour la projection, préfixées **`presentation_`** (`presentation_fig1_profil_M_3courants.png`,
   …) pour cohabiter sans collision avec le jeu de référence dans le même dossier.
-- **`data/exp9_dissipation-longitudinale_2026-07-28/200A/`** — figures d'analyse brute (§ B).
+- **`donnees/data/exp9_dissipation-longitudinale_2026-07-28/200A/`** — figures d'analyse brute (§ B).
 
-> L'ancien jeu `docs/figures_article/` (sans titre incrusté) a été **supprimé** le 2026-07-29 :
+> L'ancien jeu `biblio/figures_article/` (sans titre incrusté) a été **supprimé** le 2026-07-29 :
 > il faisait doublon avec le jeu de référence désormais que ce dernier porte des titres.
 
 ---
 
 ## A. Campagne exp 7 — profil en largeur (« M ») et loi en courant
 
-**Source** : `data/exp7_bord-centre_2026-07-28_avec-ceramique/` (céramique en place = géométrie
+**Source** : `donnees/data/exp7_bord-centre_2026-07-28_avec-ceramique/` (céramique en place = géométrie
 standard du modèle). **5 TC valides à l'interface**, y = 0/10/20/30/40 mm, x = 60 mm (spot centré),
 montage centré en largeur (TC1 ≈ TC5). Campagne **close** à 5 courants.
 
@@ -205,7 +205,7 @@ montage centré en largeur (TC1 ≈ TC5). Campagne **close** à 5 courants.
 
 ## B. Campagne exp 9 — dissipation longitudinale T(x)
 
-**Source** : `data/exp9_dissipation-longitudinale_2026-07-28/`. 5 TC alignés en **longueur**
+**Source** : `donnees/data/exp9_dissipation-longitudinale_2026-07-28/`. 5 TC alignés en **longueur**
 à $x$ = 0/30/60/90/120 mm (pas 30 mm), au bord $y$=0, à 200 A. Deux fichiers 200 A : spot unique
 (`200A_y0_monospot.txt`) et soudage semi-statique 4 dwells (`200A_y0_semistatique.txt`).
 
@@ -245,7 +245,7 @@ montage centré en largeur (TC1 ≈ TC5). Campagne **close** à 5 courants.
   Le modèle chauffe la bonne paire de thermocouples à chaque dwell ; la balance intra-paire
   dépend de la position exacte du spot (incertitude ±15 mm).*
 
-### Figures d'analyse brute (`data/exp9_…/200A/`)
+### Figures d'analyse brute (`donnees/data/exp9_…/200A/`)
 Figures de travail (non article), conservées pour traçabilité :
 - **`analyse_200A_y0.png`** — historique longitudinal du soudage semi-statique (4 dwells), 5 TC
   couleur = position $x$ ; le point chaud avance le long de la longueur, empreinte de chaque
@@ -259,7 +259,7 @@ Figures de travail (non article), conservées pour traçabilité :
 
 ---
 
-## C. Variantes présentation (`docs/labo/figures/`)
+## C. Variantes présentation (`biblio/labo/figures/`)
 
 `presentation_fig1_profil_M_3courants`, `presentation_fig2_mesure_vs_modele`,
 `presentation_fig3_centre_dynamique`, `presentation_fig4_courbes_brutes`,
@@ -269,6 +269,6 @@ Figures de travail (non article), conservées pour traçabilité :
 > **Format** : réalignées sur le format de référence (§ 0) le 2026-07-29 — mêmes titre / labels
 > gras / légende hors cadre / lignes T°, avec **polices agrandies** pour la projection (canevas
 > mis à l'échelle en conséquence). Depuis le 2026-08-03 le preset écrit directement dans le
-> dossier unique `docs/labo/figures/` avec le préfixe `presentation_` (plus besoin de `FIGOUT`).
-> Régénération : `PRESET=presentation .venv/bin/python scripts/gen/gen_figures_elsevier.py
+> dossier unique `biblio/labo/figures/` avec le préfixe `presentation_` (plus besoin de `FIGOUT`).
+> Régénération : `PRESET=presentation .venv/bin/python code/scripts/gen/gen_figures_elsevier.py
 > fig1 fig2 fig3 fig4 fig5`.

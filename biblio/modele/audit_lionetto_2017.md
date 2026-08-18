@@ -7,7 +7,7 @@
 
 **Objet.** Vérifier que le jumeau suit les lois gouvernantes de Lionetto 2017, et
 tracer chaque écart (assumé ou à corriger). Rédigé le 2026-08-03 à partir du PDF
-complet de l'article et du code réel (`src/jumeau/em/`, `thermique/solveur3d.py`,
+complet de l'article et du code réel (`code/src/jumeau/em/`, `thermique/solveur3d.py`,
 `materiaux.py`). **Aucune modification de code** n'accompagne cet audit — c'est un
 document de référence.
 
@@ -71,7 +71,7 @@ induits **et** composantes verticales autorisées (Az, Jez).
 à 388 kHz ≫ stack 3,36 mm, et σz ≪ σxy ⇒ courants verticaux Jez négligeables.
 C'est une **approximation** de l'éq. (1), physiquement justifiée dans ce régime,
 mais numériquement distincte. À **re-vérifier** si la fréquence monte ou si le
-stack s'épaissit (cf. `docs/references/etat_art_induction.md` : pas de seuil universel
+stack s'épaissit (cf. `biblio/references/etat_art_induction.md` : pas de seuil universel
 « δ vs épaisseur »).
 
 **Écart 2 — courant de déplacement (✅ négligeable).** Le jumeau travaille dans la
@@ -139,7 +139,7 @@ position de spot, sans rétroaction σ(T). Couplage à **sens unique**.
 > variable est testée (`test_conservation_energie_variable_k_3d`). Non combinable
 > avec l'anisotropie `k_plan_x/y` (ValueError). **σ(T) reste différé** (écart §2.3,
 > couplage EM↔thermique à deux sens). La table k(T) est **commentée** dans
-> `config/materiaux.yaml` (valeurs littérature CF/PAEK, incertaines/calibrables) —
+> `code/config/materiaux.yaml` (valeurs littérature CF/PAEK, incertaines/calibrables) —
 > son **adoption** reste un mandat `calibration-uq-specialist` (évaluation held-out).
 
 **Écart 3 — k figé et forme non conservative (❌ → ✅ traité derrière flag, cf. MAJ

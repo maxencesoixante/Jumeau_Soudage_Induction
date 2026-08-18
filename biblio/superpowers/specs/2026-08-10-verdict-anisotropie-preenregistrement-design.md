@@ -12,7 +12,7 @@ multi-courant), le calage joint 2D est **multimodal en ky** (deux optima à ~3 %
 réfutation du 2026-07-31, reproduite le 2026-08-09).
 
 Le **harnais de calibration existe déjà** et fait ~90 % du travail :
-`scripts/calibrer_joint.py --anisotrope` réalise le calage joint `(kx, ky)` avec held-out
+`code/scripts/calibrer_joint.py --anisotrope` réalise le calage joint `(kx, ky)` avec held-out
 (`--essais-holdout`), incertitudes, et table RMSE/ΔTmax ref-vs-new. La donnée n'existe pas
 encore sous sa forme propre.
 
@@ -29,7 +29,7 @@ la règle et imprime ADOPTÉ/NON-ADOPTÉ), sans nouvelle physique, réutilisant 
 **Règle multi-portes stricte — ADOPTER `(kx, ky)` si et seulement si les 4 portes tiennent
 simultanément.** Sinon **NON-ADOPTÉ** = limite structurelle actée (comme issue #3).
 
-Ancrages de référence (θ* isotrope canonique, config/materiaux.yaml) : held-out RMSE moyen
+Ancrages de référence (θ* isotrope canonique, code/config/materiaux.yaml) : held-out RMSE moyen
 ≈ 16,5 °C ; contraste M de référence 3,14 ; **contraste M mesuré cible = 2,09**.
 
 | Porte | Métrique | Seuil (Standard, pré-enregistré) |
@@ -45,13 +45,13 @@ et justifiée dans le protocole (traçabilité anti-biais).
 
 ## Composants
 
-### 1. `docs/modele/protocole_verdict_anisotropie.md` (pré-enregistration + runbook)
+### 1. `biblio/modele/protocole_verdict_anisotropie.md` (pré-enregistration + runbook)
 Contenu : la table de décision ci-dessus, le split d'essais, la commande exacte, et un
 runbook « quand la donnée #11 propre arrive → déposer le .txt, recaler duree_chauffe/totale,
 lancer `verdict_anisotropie.py`, coller la ligne de registre ». Mention explicite : barre
 figée le 2026-08-10 avant l'acquisition propre.
 
-### 2. `scripts/verdict_anisotropie.py` (wrapper « une commande »)
+### 2. `code/scripts/verdict_anisotropie.py` (wrapper « une commande »)
 Assemble, sans nouvelle physique :
 - **Calage** : importe `CalibrateurJoint`, `EssaiCalibre`, `table_comparaison` de
   `calibrer_joint.py` ; lance le calage `anisotrope=True` sur le split documenté.

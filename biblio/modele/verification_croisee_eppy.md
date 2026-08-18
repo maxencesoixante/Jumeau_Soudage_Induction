@@ -1,14 +1,14 @@
 # Vérification croisée du solveur EM — jumeau (Lin 1993) vs `eppy` (Nagel 2019)
 
-**Date : 2026-08-04.** Script : [`scripts/verif_eppy_reaction.py`](../../scripts/verif_eppy_reaction.py) ·
-Log : [`journaux/archive/resultats_verif_eppy_reaction.log`](../../journaux/archive/resultats_verif_eppy_reaction.log).
+**Date : 2026-08-04.** Script : [`code/scripts/verif_eppy_reaction.py`](../../scripts/verif_eppy_reaction.py) ·
+Log : [`donnees/journaux/archive/resultats_verif_eppy_reaction.log`](../../journaux/archive/resultats_verif_eppy_reaction.log).
 
 **Reproduction (hors-ligne, une commande) :** `eppy` est vendoré (copie MIT au commit
-`62f0030`, patchée numpy ≥ 2) sous [`third_party/eppy/`](../../third_party/eppy/) — rien à
-cloner. Provenance et régénération : [`third_party/eppy/NOTICE.md`](../../third_party/eppy/NOTICE.md).
+`62f0030`, patchée numpy ≥ 2) sous [`code/third_party/eppy/`](../../third_party/eppy/) — rien à
+cloner. Provenance et régénération : [`code/third_party/eppy/NOTICE.md`](../../third_party/eppy/NOTICE.md).
 
 ```bash
-.venv/bin/python scripts/verif_eppy_reaction.py
+.venv/bin/python code/scripts/verif_eppy_reaction.py
 ```
 
 ## Contexte

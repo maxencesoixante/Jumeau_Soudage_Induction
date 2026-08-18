@@ -1,10 +1,10 @@
 # Résultats **modèle numérique** (jumeau)
 
 Cette partie regroupe tout ce qui vient du **jumeau** : θ\* de référence, sorties de simulation,
-journaux de validation/calibration, figures et rapports. Le code est dans `src/jumeau/` et
-`scripts/` ; la config dans `config/`.
+journaux de validation/calibration, figures et rapports. Le code est dans `code/src/jumeau/` et
+`code/scripts/` ; la config dans `code/config/`.
 
-## θ\* de référence (canonique, dans `config/materiaux.yaml`)
+## θ\* de référence (canonique, dans `code/config/materiaux.yaml`)
 Modèle **2D**, consolidation 2026-07-30 :
 
 | Paramètre | Valeur | Note |
@@ -15,15 +15,15 @@ Modèle **2D**, consolidation 2026-07-30 :
 | `h_bord_x0` | **250** W/m²·K | effectif (chants libres), `=0` réfuté |
 | twill | **0,20 mm** | mesuré |
 
-Rejouer une validation : `python scripts/valider.py --modele 2D --facteur 6.0123 --decalage-x 0 --essais <nom>`.
+Rejouer une validation : `python code/scripts/valider.py --modele 2D --facteur 6.0123 --decalage-x 0 --essais <nom>`.
 
 ## Où sont les résultats
 
 | Type | Emplacement | Contenu |
 |---|---|---|
-| **Sorties de simulation** | `resultats/` (gitignoré, régénérable) | courbes/cartes de validation + `*_series_sim.csv` par essai. |
-| **Journaux** | `journaux/archive/resultats_*.log` | validation, calibration (`_calibration_exp7_200A_*`, `_phase3_*`), diagnostics, convergence/MMS. Cf. §6 du journal pour référence vs archive. |
-| **Figures — modèle** | `figures/` (= `docs/modele/figures/`) | figures **entièrement modélisées** (aucune data réelle) : empreinte, MFC réduit, procédé semi-statique, loi de réglage, schémas de montage, prédictions (`gen_empreinte_soudure.py`, `gen_mfc_reduit.py`, `gen_procede_semistatique.py`, `gen_loi_reglage.py`, `gen_schemas_montage.py`, `gen_prediction_courant.py`). |
+| **Sorties de simulation** | `donnees/resultats/` (gitignoré, régénérable) | courbes/cartes de validation + `*_series_sim.csv` par essai. |
+| **Journaux** | `donnees/journaux/archive/resultats_*.log` | validation, calibration (`_calibration_exp7_200A_*`, `_phase3_*`), diagnostics, convergence/MMS. Cf. §6 du journal pour référence vs archive. |
+| **Figures — modèle** | `figures/` (= `biblio/modele/figures/`) | figures **entièrement modélisées** (aucune data réelle) : empreinte, MFC réduit, procédé semi-statique, loi de réglage, schémas de montage, prédictions (`gen_empreinte_soudure.py`, `gen_mfc_reduit.py`, `gen_procede_semistatique.py`, `gen_loi_reglage.py`, `gen_schemas_montage.py`, `gen_prediction_courant.py`). |
 | **Figures — data** | `../labo/figures/` | figures **utilisant les mesures** (exp7/exp9, séries A/B) : profils M, courbes brutes, dissipation, loi en courant, fenêtre de soudage, variantes `presentation_*` (`gen_figures_elsevier.py`, `gen_fenetre_soudage.py`). |
 
 ## Galerie des figures (modèle) — `figures/`
@@ -33,7 +33,7 @@ Figures **entièrement modélisées** (aucune donnée réelle). Jeu complet dans
 ### Montage & géométrie
 
 ![Montage exp7](figures/schema_montage_exp7.png)
-*Montage exp7 : coupon, MFC, bobine hairpin, 5 TC — vue de dessus + coupe (cotes de `config/geometrie.yaml`).*
+*Montage exp7 : coupon, MFC, bobine hairpin, 5 TC — vue de dessus + coupe (cotes de `code/config/geometrie.yaml`).*
 
 ![Montage exp9](figures/schema_montage_exp9.png)
 *Montage exp9 : ligne de TC en longueur au bord (y=0).*
@@ -66,7 +66,7 @@ Figures **entièrement modélisées** (aucune donnée réelle). Jeu complet dans
 ![Distribution en longueur prédite](figures/fig_prediction_profil_longueur.png)
 *Distribution de température le long de l'échantillon au pic (pic sous le spot x=60 mm).*
 
-### Planification de soudage uniforme (`scripts/planifier_soudage.py`)
+### Planification de soudage uniforme (`code/scripts/planifier_soudage.py`)
 
 ![Plan de soudage — carte de couverture](figures/fig_plan_soudage_couverture.png)
 *Plan de passes (x, y, courant, durée, largeur MFC) généré par glouton + carte de couverture
@@ -89,7 +89,7 @@ Profil M et dissipation en longueur reproduits. Résidu : au **centre** le modè
 spot et sous-étale ; au **bord** le profil M est trop contrasté (lobes intermédiaires
 sous-estimés, chants sur-estimés).
 
-**Calibration jointe multi-familles (2026-07-30, `scripts/calibrer_joint.py`) — faite, NON
+**Calibration jointe multi-familles (2026-07-30, `code/scripts/calibrer_joint.py`) — faite, NON
 adoptée.** Fit conjoint bord (exp7) + centre (exp9 y=20). Résultats :
 - ✅ **`k_plan` devient identifiable ≈ 7,3 W/m·K** (vs 3,0 en config) grâce à la famille centre —
   la conductivité dans le plan est probablement ~2× plus élevée. Fort indice physique.
@@ -130,7 +130,7 @@ Après implémentation de la capacité **k(T)** (conduction flux-conservative à
 flag `k_plan_T`/`k_z_T`, cf. `audit_lionetto_2017.md` §3.1), un `k_plan(T)` **décroissant**
 (testé 7,3→3,0 W/m·K, borné par le k≈7,3 identifié en calibration jointe côté froid, le k=3
 config côté chaud) fournit le **modèle d'étalement in-plane non scalaire** que le résidu réclamait.
-À θ\* de référence **figé** (`scripts/diag/diag_kT_residu.py`) il améliore **SIMULTANÉMENT** :
+À θ\* de référence **figé** (`code/scripts/diag/diag_kT_residu.py`) il améliore **SIMULTANÉMENT** :
 - le **contraste du M** (exp7 200 A) : réf 3,13 → **2,46** (mesuré 2,08) ;
 - le **déficit hors-spot** (exp9 centre y=20) : extrémités TC1 norm 0,03 → **0,09** (= mesuré),
   RMSE moyen 16,9 → **11,0**.
@@ -168,7 +168,7 @@ référence. Logs : `../../journaux/archive/resultats_calibration_joint_kT{,_hba
 `kt-residu-structurel-piste`.
 
 **Combinaison source × conduction — carte de faisabilité 2D (2026-08-12,
-`scripts/diag/diag_pareto_source_conduction.py`) — NO-GO, fermeture confirmée.** Dernier levier
+`code/scripts/diag/diag_pareto_source_conduction.py`) — NO-GO, fermeture confirmée.** Dernier levier
 réellement non testé : adoucissement de source (`lambda_bord`) ET conduction in-plane (`k(T)`)
 ENSEMBLE, balayés sur une grille 2D. Le nœud isotrope de référence reproduit le contraste M 3,16
 (≈3,13) et le RMSE held-out 16,5 °C (RMSE_REF) ; **tout** nœud combinant les deux ingrédients est
@@ -180,7 +180,7 @@ ingrédients CUMULENT le sur-étalement au lieu de coopérer. **Conclusion : con
 (arc modèle clos)** avec preuve 2D — la dernière porte non testée est fermée ; θ\* de référence
 inchangé, `k_plan=3,0` reste la référence. Figure : `figures/pareto_source_conduction.png` ;
 données : `../../journaux/resultats_pareto_source_conduction_2026-08-12.csv` ; script :
-`scripts/diag/diag_pareto_source_conduction.py`.
+`code/scripts/diag/diag_pareto_source_conduction.py`.
 
 ---
 
@@ -210,24 +210,24 @@ sans en casser un autre. Le résidu est **compris, quantifié et irréductible**
   [`figures/fig_prediction_chauffe_par_courant.png`](figures/fig_prediction_chauffe_par_courant.png) (petits multiples : les **5 thermocouples** au fil du temps, un panneau par courant) et
   [`figures/fig_prediction_profil_M.png`](figures/fig_prediction_profil_M.png) (profil en « M » en largeur au pic),
   [`figures/fig_prediction_profil_longueur.png`](figures/fig_prediction_profil_longueur.png) (distribution en longueur au pic)
-  (`scripts/gen/gen_prediction_courant.py`).
+  (`code/scripts/gen/gen_prediction_courant.py`).
 - **Fenêtre de soudage — abaque opératoire** (courant × durée) : `../labo/figures/fig_fenetre_soudage.png`
-  (`scripts/gen/gen_fenetre_soudage.py`). Point chaud (lobe M) : zones sous-chauffe / soudage
+  (`code/scripts/gen/gen_fenetre_soudage.py`). Point chaud (lobe M) : zones sous-chauffe / soudage
   (337-450 °C) / dégradation. Enseignements : **soudage impossible sous ~180 A** avec un spot fixe ;
   la **fenêtre se resserre quand le courant monte** (200 A : ~21-39 s ; 300 A : ~7-11 s).
 - **Empreinte de soudure** (carte T(x,y) interface) : `figures/fig_empreinte_soudure.png`
-  (`scripts/gen/gen_empreinte_soudure.py`). À spot fixe, **seuls les 2 lobes du M (bords) fondent**
+  (`code/scripts/gen/gen_empreinte_soudure.py`). À spot fixe, **seuls les 2 lobes du M (bords) fondent**
   (~1-2 % de l'interface), le centre reste froid.
 - **Procédé semi-statique** (4 dwells, pas 30 mm) : `figures/fig_procede_semistatique.png`
-  (`scripts/gen/gen_procede_semistatique.py`). La soudure se forme en **deux rails le long des chants**
+  (`code/scripts/gen/gen_procede_semistatique.py`). La soudure se forme en **deux rails le long des chants**
   sur toute la longueur ; **le centre ne soude jamais** (spot fixe en largeur) — enseignement procédé
   (il faudrait élargir/adoucir le M pour souder pleine largeur).
 - **Loi de réglage atelier** (durée vs courant) : `figures/fig_loi_reglage.png`
-  (`scripts/gen/gen_loi_reglage.py`). Durée recommandée (cible 390 °C) + fenêtre + ajustement
+  (`code/scripts/gen/gen_loi_reglage.py`). Durée recommandée (cible 390 °C) + fenêtre + ajustement
   `t ≈ 9,6·10⁵/I²` (taux ∝ I²) + table (200 A→30 s, 250 A→15 s, 300 A→9 s).
 - Frontière dégradation conservatrice partout (modèle sur-estime le bord ~50 °C).
 - **MFC réduit (31,75 mm) — prédiction exploratoire** : `figures/fig_mfc_reduit.png`
-  (`scripts/gen/gen_mfc_reduit.py`). Le modèle standard **ne voit pas** l'effet d'un MFC plus petit (le
+  (`code/scripts/gen/gen_mfc_reduit.py`). Le modèle standard **ne voit pas** l'effet d'un MFC plus petit (le
   MFC n'entre que via le plan image + `mu_r` + un masque de PERTES, pas la source). Flag
   **`Essai(masque_source_mfc=True)`** (défaut OFF, no-op sur le MFC labo validé) qui confine la
   source à l'empreinte MFC. Résultat MFC réduit : le contraste s'adoucit (**4,10 → 1,69**), les

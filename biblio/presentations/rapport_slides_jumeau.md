@@ -134,14 +134,14 @@ c'est un choix de modèle adapté à la mesure disponible.
 
 ## Slide 7 — Ce que le modèle produit : l'empreinte thermique
 
-*Figure* : `resultats/serieA_A-1_empreinte_thermique_fig4_plafonne.png`
+*Figure* : `donnees/resultats/serieA_A-1_empreinte_thermique_fig4_plafonne.png`
 (4 panneaux — carte de température à l'interface à la fin de chaque empreinte, cadre MFC
 en pointillés rouges, échelle plafonnée à 480 °C)
 
 - Analogue **semi-statique** de la Fig. 4 de Lionetto *et al.* (2017), qui présentait une
   bobine avançant en continu ; ici la tête est **indexée sur 4 empreintes**.
 - La zone chaude progresse le long des 120 mm ; le refroidissement inter-passes est visible.
-- Script réutilisable : `scripts/figure_empreinte.py` (cache `.npz`, échelle réglable).
+- Script réutilisable : `code/scripts/figure_empreinte.py` (cache `.npz`, échelle réglable).
 
 *À dire* : c'est le livrable central — la carte que l'expérience ne donne pas.
 
@@ -219,7 +219,7 @@ validation 61 × 21 (dx = dy = 2 mm).
 | **A-3** (aveugle) | **200 A**, coupure 400 °C | **31,7 °C** | 41,3 °C | *32,0 / 28,4* |
 | **B-2** (aveugle) | 250 A, coupure 360 °C | 65,3 °C | 45,2 °C | *66,2 / 34,8* |
 
-*Figure* : `resultats/serieA_A-1_courbes_validation.png` (5 TC, 4 impulsions) — la plus
+*Figure* : `donnees/resultats/serieA_A-1_courbes_validation.png` (5 TC, 4 impulsions) — la plus
 lisible ; `serieA_A-3_courbes_validation.png` en variante pour l'essai aveugle à 200 A.
 
 - **Le modèle transfère à 200 A sans retouche** — l'essai aveugle à courant différent
@@ -255,7 +255,7 @@ encore.
 
 ## Slide 11 — Température et degré de fusion (analogue Lionetto Fig. 5)
 
-*Figure* : `resultats/chauffe_250A_3TC_fusion_fig5.png` (régénérée le 2026-07-27, modèle 2D,
+*Figure* : `donnees/resultats/chauffe_250A_3TC_fusion_fig5.png` (régénérée le 2026-07-27, modèle 2D,
 θ\* de référence).
 
 - Panneau haut : température d'interface, simulée + mesurée (interface TC2 / surface TC1).
@@ -500,7 +500,7 @@ sur 3 essais         + manips discriminantes      ↓
 
 Géométrie corrigée (entraxe + hauteur 5,0 mm), θ\* de référence
 (6,0123 / 30,09 / 37,42), grille 61 × 21 —
-`journaux/archive/resultats_validation_reference_figures.log` (2026-07-27).
+`donnees/journaux/archive/resultats_validation_reference_figures.log` (2026-07-27).
 
 **serieA_A-1** (calibration, 250 A)
 
@@ -577,37 +577,37 @@ de l'effet de la correction de géométrie (slide 13).
 
 ```bash
 # Calibration (grille 31x11, essai A-1)
-python scripts/calibrer.py --modele 2D --essai serieA_A-1 --n-lhs 25 --figer-decalage-x 0
+python code/scripts/calibrer.py --modele 2D --essai serieA_A-1 --n-lhs 25 --figer-decalage-x 0
 
 # Validation croisée au θ* de référence (grille 61x21, sans recalibrage)
-python scripts/valider.py --modele 2D --facteur 6.0123 --decalage-x 0 \
+python code/scripts/valider.py --modele 2D --facteur 6.0123 --decalage-x 0 \
     --h-haut 30.087 --h-bas-2d 37.424 --h-bord-x0 250
 
 # Figures de présentation (modèle 2D, cohérent avec la validation ci-dessus)
-python scripts/figure_empreinte.py config/essais/serieA_A-1.yaml --modele 2D \
+python code/scripts/figure_empreinte.py code/config/essais/serieA_A-1.yaml --modele 2D \
     --facteur 6.0123 --decalage-x 0 --h-haut 30.087 --h-bas-2d 37.424 --h-bord-x0 250 \
     --tmax-couleur 480 --suffixe _plafonne
-python scripts/figure_fusion.py config/essais/chauffe_250A_3TC.yaml --modele 2D \
+python code/scripts/figure_fusion.py code/config/essais/chauffe_250A_3TC.yaml --modele 2D \
     --facteur 6.0123 --decalage-x 0 --h-haut 30.087 --h-bas-2d 37.424 --h-bord-x0 250
 
 pytest    # 34 tests, ~3 min
 ```
 
-⚠ Le θ\* ci-dessus suppose la **géométrie corrigée** (`config/geometrie.yaml` :
+⚠ Le θ\* ci-dessus suppose la **géométrie corrigée** (`code/config/geometrie.yaml` :
 `entraxe_jambes: 0.01235`, `rayon_tube: 0.003`, `hauteur: 0.005`). Avec une géométrie
 antérieure, il ne reproduit rien.
 
-Journaux de référence dans `journaux/` :
-`journaux/archive/resultats_hauteur_5mm_recalibration.log` (**correction hauteur + θ\* courant**),
-`journaux/archive/resultats_geometrie_corrigee_recalibration.log` (correction d'entraxe, étape précédente),
-`journaux/archive/resultats_diag_hauteur_bobine.log` (diagnostic hauteur + plan image MFC vérifié sur CAO),
-`journaux/archive/resultats_validation_reference_figures.log` (validation au θ\* courant, figures associées),
-`journaux/archive/resultats_diag_b2_longueur.log` (résidu B-2 et les trois correctifs réfutés),
-`journaux/archive/resultats_convergence_maillage.log`, `journaux/archive/resultats_diagnostic_profil_M_em.log`,
-`journaux/archive/resultats_champ_reaction_em.log`, `journaux/archive/resultats_diag_cp_kplan.log`,
-`journaux/archive/resultats_test_position_thermostat.log`.
-*Les journaux antérieurs au 2026-07-23 (`journaux/archive/resultats_calibration_2d_postmaillage.log`,
-`journaux/archive/resultats_validation_2d_postcalib.log`, et la chaîne de diagnostics) sont établis sur
+Journaux de référence dans `donnees/journaux/` :
+`donnees/journaux/archive/resultats_hauteur_5mm_recalibration.log` (**correction hauteur + θ\* courant**),
+`donnees/journaux/archive/resultats_geometrie_corrigee_recalibration.log` (correction d'entraxe, étape précédente),
+`donnees/journaux/archive/resultats_diag_hauteur_bobine.log` (diagnostic hauteur + plan image MFC vérifié sur CAO),
+`donnees/journaux/archive/resultats_validation_reference_figures.log` (validation au θ\* courant, figures associées),
+`donnees/journaux/archive/resultats_diag_b2_longueur.log` (résidu B-2 et les trois correctifs réfutés),
+`donnees/journaux/archive/resultats_convergence_maillage.log`, `donnees/journaux/archive/resultats_diagnostic_profil_M_em.log`,
+`donnees/journaux/archive/resultats_champ_reaction_em.log`, `donnees/journaux/archive/resultats_diag_cp_kplan.log`,
+`donnees/journaux/archive/resultats_test_position_thermostat.log`.
+*Les journaux antérieurs au 2026-07-23 (`donnees/journaux/archive/resultats_calibration_2d_postmaillage.log`,
+`donnees/journaux/archive/resultats_validation_2d_postcalib.log`, et la chaîne de diagnostics) sont établis sur
 l'**ancienne géométrie** : leurs raisonnements restent valides, leurs chiffres non.*
 
 ## Annexe F — Bibliographie mobilisée
@@ -636,10 +636,10 @@ technique.
 **État des figures au 2026-07-27** : toutes les figures (validation `serieA_A-1`/`A-3`/
 `serieB_B-2`, empreinte Fig. 4, fusion Fig. 5) **ont été régénérées à la géométrie corrigée
 hauteur 5,0 mm et au θ\* de référence** (6,0123 / 30,09 / 37,42) ; les figures de validation
-reproduisent exactement `journaux/archive/resultats_validation_reference_figures.log`
+reproduisent exactement `donnees/journaux/archive/resultats_validation_reference_figures.log`
 (35,8/25,9 — 31,7/41,3 — 65,3/45,2). Toutes utilisables telles quelles.
 
-⚠ Les fichiers `resultats/*.png` sont **écrasés à chaque exécution** de `valider.py` : si
+⚠ Les fichiers `donnees/resultats/*.png` sont **écrasés à chaque exécution** de `valider.py` : si
 un run de diagnostic est lancé d'ici la présentation, relancer les commandes de l'annexe E
 (validation + figures) avant d'exporter les slides.
 

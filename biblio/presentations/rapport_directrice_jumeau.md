@@ -331,7 +331,7 @@ Le périmètre exact du jumeau se répartit en trois catégories.
 
 ## 5. Propriétés matériaux et leurs sources
 
-Un fichier de configuration unique (`config/materiaux.yaml`) consigne toutes les propriétés,
+Un fichier de configuration unique (`code/config/materiaux.yaml`) consigne toutes les propriétés,
 chaque valeur portant sa source. Les valeurs marquées « incertain » entrent dans la
 calibration.
 
@@ -613,7 +613,7 @@ chaque partie du code, et que les décisions transversales restent tracées.
 | **calibration-uq-specialist** | Problème inverse : LHS, moindres carrés pondérés, identifiabilité, quantification d'incertitude (module `identification/`). Porteur de la règle « ne jamais calibrer fréquence et facteur d'échelle ensemble ». |
 | **validation-data-engineer** | Données expérimentales : ingestion des thermocouples (CSV/TXT LabVIEW), nettoyage des aberrants, modèle de bruit, confrontation modèle↔mesure (module `validation/`). |
 | **simulation-verification-engineer** | Vérification : bilans de conservation, benchmarks analytiques, solutions manufacturées, tests de régression (dossier `tests/`). |
-| **scientific-python-reviewer** | Revue de code : vectorisation NumPy, matrices creuses, stabilité numérique, performance ; transverse à tout `src/jumeau/`. |
+| **scientific-python-reviewer** | Revue de code : vectorisation NumPy, matrices creuses, stabilité numérique, performance ; transverse à tout `code/src/jumeau/`. |
 | **composites-engineer** | Ingénierie des composites FRP : micromécanique des plis, théorie des stratifiés, physique de mise en œuvre. |
 | **matagent** | Pilote du framework MatAgent (informatique des matériaux) : prédiction de propriétés, revue de littérature, analyse de données. |
 | **matclaw-solver** | Pilote de calculs de science des matériaux (DFT, MD, MC), disponible pour des besoins ponctuels de propriétés. |
@@ -624,7 +624,7 @@ démarche (résultats négatifs chiffrés, vérifications analytiques, tests de 
 découle de cette organisation.
 
 Une suite d'agents dédiée à la recherche documentaire (« Academic Research Skills », ARS) a
-produit la section d'état de l'art (`docs/references/etat_art_induction.md`) : un corpus de 13 sources
+produit la section d'état de l'art (`biblio/references/etat_art_induction.md`) : un corpus de 13 sources
 vérifiées, chaque affirmation attribuée, sans référence hors corpus vérifié, avec vérification
 de l'existence réelle des citations (protection contre les citations hallucinées). Cette suite
 comprend des modes de revue de littérature, de vérification des faits, et de revue par les
@@ -702,7 +702,7 @@ réel, à lever par un modèle réduit.
 
 Les sources ci-dessous sont celles effectivement mobilisées dans la modélisation (fichiers de
 configuration, docstrings du code, section d'état de l'art vérifiée). La section d'état de
-l'art complète (`docs/references/etat_art_induction.md`) contient le corpus vérifié de 13 sources avec
+l'art complète (`biblio/references/etat_art_induction.md`) contient le corpus vérifié de 13 sources avec
 attribution systématique.
 
 **Modélisation électro-thermique du soudage par induction**
@@ -809,11 +809,11 @@ attribution systématique.
 
 ```
 Jumeau_Soudage_Induction/
-├── config/
+├── code/config/
 │   ├── materiaux.yaml       ← toutes les propriétés, avec source
 │   ├── geometrie.yaml       ← bobine, MFC, laminé, empreintes
 │   └── essais/*.yaml        ← un fichier par campagne d'essai
-├── src/jumeau/
+├── code/src/jumeau/
 │   ├── em/                  ← maillons 1-2-3 : champ, Foucault, source Joule
 │   │   ├── champ_coil.py    ← Biot–Savart + courants images du MFC
 │   │   ├── foucault.py      ← fonction de courant ψ (plaque mince)
@@ -826,10 +826,10 @@ Jumeau_Soudage_Induction/
 │   ├── procede.py           ← 4 empreintes + asservissement sur consigne
 │   ├── identification/      ← calibration LHS + moindres carrés
 │   └── validation/          ← ingestion mesures + métriques
-├── scripts/                 ← simuler / calibrer / valider / figures
+├── code/scripts/                 ← simuler / calibrer / valider / figures
 ├── tests/                   ← 34 tests (analytiques, conservation, régression)
 ├── ai_framework/            ← couche IA conversationnelle locale (démonstrateur)
-└── docs/                    ← état de l'art, rapports
+└── biblio/                    ← état de l'art, rapports
 ```
 
 ### Annexe C. Reproductibilité
@@ -841,32 +841,32 @@ pip install -e ".[dev]"
 pytest                       # 34 tests, environ 3 min
 
 # Calibration (essai A-1)
-python scripts/calibrer.py --modele 2D --essai serieA_A-1 --n-lhs 25 --figer-decalage-x 0
+python code/scripts/calibrer.py --modele 2D --essai serieA_A-1 --n-lhs 25 --figer-decalage-x 0
 
 # Validation croisée (paramètres calibrés, sans recalibrage)
-python scripts/valider.py --modele 2D --facteur 6.0123 --decalage-x 0 \
+python code/scripts/valider.py --modele 2D --facteur 6.0123 --decalage-x 0 \
     --h-haut 30.087 --h-bas-2d 37.424 --h-bord-x0 250
 
 # Figures type Lionetto (modèle 2D, cohérent avec la validation)
-python scripts/figure_empreinte.py config/essais/serieA_A-1.yaml --modele 2D \
+python code/scripts/figure_empreinte.py code/config/essais/serieA_A-1.yaml --modele 2D \
     --facteur 6.0123 --decalage-x 0 --h-haut 30.087 --h-bas-2d 37.424 --h-bord-x0 250 \
     --tmax-couleur 480 --suffixe _plafonne          # Fig. 4 (empreinte)
-python scripts/figure_fusion.py config/essais/chauffe_250A_3TC.yaml --modele 2D \
+python code/scripts/figure_fusion.py code/config/essais/chauffe_250A_3TC.yaml --modele 2D \
     --facteur 6.0123 --decalage-x 0 --h-haut 30.087 --h-bas-2d 37.424 --h-bord-x0 250  # Fig. 5
 ```
 
-Ces paramètres supposent la géométrie corrigée (`config/geometrie.yaml` :
+Ces paramètres supposent la géométrie corrigée (`code/config/geometrie.yaml` :
 `entraxe_jambes: 0.01235`, `rayon_tube: 0.003`, `hauteur: 0.005`). Les journaux antérieurs
 aux corrections de géométrie, et les valeurs de paramètres qu'ils contiennent, se rapportent
 à une géométrie antérieure : leurs raisonnements restent valides, leurs chiffres non.
 
-Chaque exécution se journalise dans `journaux/` (`journaux/archive/resultats_*.log`), et les figures
-s'écrivent dans `resultats/`. Journaux de référence pour l'état courant :
-`journaux/archive/resultats_hauteur_5mm_recalibration.log` (correction de hauteur et recalibration courante),
-`journaux/archive/resultats_geometrie_corrigee_recalibration.log` (correction d'entraxe, étape précédente),
-`journaux/archive/resultats_diag_hauteur_bobine.log` (diagnostic hauteur + plan image du MFC vérifié sur CAO),
-`journaux/archive/resultats_validation_reference_figures.log` (validation au jeu de paramètres courant) et
-`journaux/archive/resultats_diag_b2_longueur.log` (résidu à basse consigne et correctifs réfutés).
+Chaque exécution se journalise dans `donnees/journaux/` (`donnees/journaux/archive/resultats_*.log`), et les figures
+s'écrivent dans `donnees/resultats/`. Journaux de référence pour l'état courant :
+`donnees/journaux/archive/resultats_hauteur_5mm_recalibration.log` (correction de hauteur et recalibration courante),
+`donnees/journaux/archive/resultats_geometrie_corrigee_recalibration.log` (correction d'entraxe, étape précédente),
+`donnees/journaux/archive/resultats_diag_hauteur_bobine.log` (diagnostic hauteur + plan image du MFC vérifié sur CAO),
+`donnees/journaux/archive/resultats_validation_reference_figures.log` (validation au jeu de paramètres courant) et
+`donnees/journaux/archive/resultats_diag_b2_longueur.log` (résidu à basse consigne et correctifs réfutés).
 
 ---
 

@@ -7,7 +7,7 @@ corrections repliées, choix de l'essai de référence délégué (« fais ce qu
 Le jumeau est dans un état **divergent** et ses campagnes labo ne sont pas intégrées au
 pipeline formel :
 - **θ\* multiples** : les figures utilisent `facteur_couplage=6.0123, h_haut=30.087,
-  h_bas_2d=37.424, h_bord_x0=250` (overrides fig3), alors que `config/materiaux.yaml` porte
+  h_bas_2d=37.424, h_bord_x0=250` (overrides fig3), alors que `code/config/materiaux.yaml` porte
   `facteur_couplage=1.0, h_bas_2d=50.919`. Pas de θ\* canonique unique.
 - **Corrections préparées non appliquées** : twill 0,28→0,20 mm ; `h_bord_x0` (chants libres →
   effectif, non physique) ; loi thermostat « capteurs » (B-2) ; lissage source σ (centre-fill).
@@ -34,7 +34,7 @@ dans la config **seulement si** la validation croisée montre une amélioration 
 | Adoption | θ\*_new + corrections écrits en config **ssi** métriques ≥ référence actuelle |
 
 ## Orchestration par agents (séquentielle — la calibration est un maillon unique)
-1. **validation-data-engineer** — Intégration : créer les YAML `config/essais/` pour exp7
+1. **validation-data-engineer** — Intégration : créer les YAML `code/config/essais/` pour exp7
    (150/200/250 A) et exp9 (200 A monospot) sur le schéma de `serieA_A-1.yaml` ; appliquer
    twill 0,20 + doc `h_bord_x0` ; confronter le θ\* **actuel** à tous les essais → **table
    baseline** (métriques par TC).
@@ -49,7 +49,7 @@ dans la config **seulement si** la validation croisée montre une amélioration 
    `journal_avancees.md` (§θ\*, §3bis), README, mémoire ; commit.
 
 ## Garde-fous
-- Ne **rien écrire** dans `config/materiaux.yaml` comme nouveau θ\* de référence avant la table
+- Ne **rien écrire** dans `code/config/materiaux.yaml` comme nouveau θ\* de référence avant la table
   décision (phase 3). Les agents rapportent ; l'orchestrateur adopte.
 - Un seul agent modifie la config à la fois (pas de calibration parallèle).
 - Chaque phase = un livrable vérifiable ; on s'arrête si une phase régresse sans explication.

@@ -8,7 +8,7 @@ là où nous laissons un facteur d'échelle agrégé. Question : peut-on décomp
 ## Ce que `facteur_couplage` est aujourd'hui
 Un **scalaire multiplicatif unique** appliqué à la source Joule (`em/source_joule.py`,
 `return facteur_couplage * _lisser_source(Q, …)`), valeur canonique **6,0123**
-(`config/materiaux.yaml`). C'est **le seul facteur d'échelle libre de la source**. Il absorbe
+(`code/config/materiaux.yaml`). C'est **le seul facteur d'échelle libre de la source**. Il absorbe
 un **produit** de contributions (docstrings `source_joule.py`, `foucault.py`, README) :
 
 ```
@@ -65,5 +65,5 @@ contient et *pourquoi* il vaut ~6), sans hack ni sur-paramétrage non identifiab
 ## Références
 `../reference_brassard.md` · `verification_croisee_eppy.md` (blindage ≈ 1) ·
 `identification/calibration.py` (identifiabilité) · `em/source_joule.py` / `em/foucault.py`
-(docstrings) · `config/materiaux.yaml` (`facteur_couplage`) · `../labo/mesures_a_realiser.md`
+(docstrings) · `code/config/materiaux.yaml` (`facteur_couplage`) · `../labo/mesures_a_realiser.md`
 §5 (Mesure 10, déclencheur).

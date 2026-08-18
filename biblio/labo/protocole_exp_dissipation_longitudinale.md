@@ -12,7 +12,7 @@ Mesurer la **décroissance de température le long de la longueur** de l'échant
 s'éloignant du spot d'induction. C'est la mesure qui attaque **le seul résidu ouvert du jumeau** :
 le modèle valide le profil en largeur (« M ») et la loi en I², mais **son étalement de chaleur
 est trop lent** (le centre se remplit trop lentement, les points hors-spot chauffent trop
-lentement — cf. `journaux/archive/resultats_diag_taux_chauffe.log`, résidu n°2 du `journal_avancees.md`).
+lentement — cf. `donnees/journaux/archive/resultats_diag_taux_chauffe.log`, résidu n°2 du `journal_avancees.md`).
 
 `T(x)` donne :
 - la **longueur de décroissance** de la chaleur en longueur (empreinte source + conduction) ;
@@ -116,7 +116,7 @@ distingue.
 
 ## 8. Livrable
 
-- Déposer les fichiers dans **`data/exp9_dissipation-longitudinale_<date>/`**, avec sous-dossiers
+- Déposer les fichiers dans **`donnees/data/exp9_dissipation-longitudinale_<date>/`**, avec sous-dossiers
   par phase (`bord_y0/`, `centre_y20/`) et par courant si plusieurs.
 - **README** par campagne : courant, fréquence, positions x mesurées de chaque TC, `y` de la phase,
   ambiante, critère d'arrêt, fréquence d'acquisition.

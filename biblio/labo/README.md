@@ -2,19 +2,19 @@
 
 Cette partie regroupe tout ce qui vient des **essais physiques** : relevés thermocouples bruts,
 protocoles et décisions de terrain. Les données brutes sont dans **[`../../data/`](../../data/)**
-(non déplacées : référencées par les scripts et les essais formels `config/essais/`).
+(non déplacées : référencées par les scripts et les essais formels `code/config/essais/`).
 
-## Campagnes de mesures (`data/`)
+## Campagnes de mesures (`donnees/data/`)
 
 | Campagne | Dossier | Contenu |
 |---|---|---|
-| **Série A** | `data/Serie A/` | Essais historiques 3–5 TC (A-1 calibration, A-3 aveugle). |
-| **Série B** | `data/Serie B/` | Essai basse consigne B-2 (loi thermostat « capteurs »). |
-| **exp7 — profil M (largeur)** | `data/exp7_bord-centre_2026-07-28_avec-ceramique/` | Cartographie bord→centre, 5 TC, 5 courants (150/176/200/225/250 A), **avec céramique** (géométrie de référence). Profil en M validé. |
-| **exp9 — dissipation (bord y=0)** | `data/exp9_dissipation-longitudinale_2026-07-28/` | Décroissance longitudinale, spot fixe, monospot 175/200/226/250 A + semi-statique. Forme de source en longueur invariante en courant. |
-| **exp9 — dissipation (centre y=20)** | `data/exp9_dissipation-longitudinale_2026-07-30/` | Ligne centrale (conduction dominante) → sonde `k_plan` / résidu d'étalement. |
+| **Série A** | `donnees/data/Serie A/` | Essais historiques 3–5 TC (A-1 calibration, A-3 aveugle). |
+| **Série B** | `donnees/data/Serie B/` | Essai basse consigne B-2 (loi thermostat « capteurs »). |
+| **exp7 — profil M (largeur)** | `donnees/data/exp7_bord-centre_2026-07-28_avec-ceramique/` | Cartographie bord→centre, 5 TC, 5 courants (150/176/200/225/250 A), **avec céramique** (géométrie de référence). Profil en M validé. |
+| **exp9 — dissipation (bord y=0)** | `donnees/data/exp9_dissipation-longitudinale_2026-07-28/` | Décroissance longitudinale, spot fixe, monospot 175/200/226/250 A + semi-statique. Forme de source en longueur invariante en courant. |
+| **exp9 — dissipation (centre y=20)** | `donnees/data/exp9_dissipation-longitudinale_2026-07-30/` | Ligne centrale (conduction dominante) → sonde `k_plan` / résidu d'étalement. |
 
-Chaque campagne récente a son propre `README.md` détaillé dans son dossier `data/…`.
+Chaque campagne récente a son propre `README.md` détaillé dans son dossier `donnees/data/…`.
 
 ## Documents labo
 

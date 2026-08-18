@@ -58,7 +58,7 @@ reproduit le comportement actuel bit-à-bit.
 
 ### 3. Bibliothèque d'empreintes (`planification/empreinte.py`)
 Pré-calcule les empreintes sur une grille `(x_c × y_c)` et un jeu de courants ; mise en cache
-(en mémoire, et optionnellement sur disque `resultats/`) pour éviter de re-simuler dans la
+(en mémoire, et optionnellement sur disque `donnees/resultats/`) pour éviter de re-simuler dans la
 boucle gloutonne.
 
 ### 4. Planificateur glouton (`planification/planificateur.py`) — cœur, PUR
@@ -73,14 +73,14 @@ Logique de couverture indépendante du modèle (opère sur des cartes `Tmax` fou
 - Sorties : liste ordonnée de passes, `Tmax_combiné`, métriques (% soudé / non soudé /
   dégradé), et zone non couverte le cas échéant.
 
-### 5. Vérification séquentielle (`scripts/planifier_soudage.py`)
+### 5. Vérification séquentielle (`code/scripts/planifier_soudage.py`)
 Construit une séquence temporelle réelle des passes du plan (patron `Essai`/multi-empreintes,
 étendu aux offsets y) et simule → vrai `Tmax(x,y)`. Compare à l'estimation gloutonne (attendu
 séquentiel ≥ glouton).
 
-### 6. CLI & reporting (`scripts/planifier_soudage.py`)
-- **Plan** : imprimé + sauvé `resultats/plan_soudage.yaml`.
-- **Carte de couverture** : `docs/modele/figures/fig_plan_soudage_couverture.png` — `Tmax(x,y)`,
+### 6. CLI & reporting (`code/scripts/planifier_soudage.py`)
+- **Plan** : imprimé + sauvé `donnees/resultats/plan_soudage.yaml`.
+- **Carte de couverture** : `biblio/modele/figures/fig_plan_soudage_couverture.png` — `Tmax(x,y)`,
   contours 337/450, zones bleu (non soudé) / vert (soudé) / rouge (dégradé), positions des
   passes, métriques annotées.
 - **Verdict** : « X % soudé, Y % non atteint, Z % dégradé — uniforme : oui/non » ; si < 100 %,
@@ -92,7 +92,7 @@ Plan (console + YAML) :
 ```
 # | x_c (mm) | y_c (mm) | courant (A) | durée (s)
 ```
-Figure `fig_plan_soudage_couverture.png` (modèle pur → `docs/modele/figures/`).
+Figure `fig_plan_soudage_couverture.png` (modèle pur → `biblio/modele/figures/`).
 
 ## Tests (`tests/test_planification.py`)
 
@@ -115,16 +115,16 @@ plus étroit serait nécessaire, extension future).
 
 ## Structure du dépôt (fichiers)
 
-- **Nouveau** `src/jumeau/planification/__init__.py`, `empreinte.py`, `planificateur.py`
-- **Nouveau** `scripts/planifier_soudage.py`
+- **Nouveau** `code/src/jumeau/planification/__init__.py`, `empreinte.py`, `planificateur.py`
+- **Nouveau** `code/scripts/planifier_soudage.py`
 - **Nouveau** `tests/test_planification.py`
-- **Modifié (non-régressif)** `src/jumeau/em/source_joule.py` (param `decalage_y`)
-- **Sorties** `resultats/plan_soudage.yaml` (gitignoré), `docs/modele/figures/fig_plan_soudage_couverture.png`
+- **Modifié (non-régressif)** `code/src/jumeau/em/source_joule.py` (param `decalage_y`)
+- **Sorties** `donnees/resultats/plan_soudage.yaml` (gitignoré), `biblio/modele/figures/fig_plan_soudage_couverture.png`
 
 ## Vérification (bout-en-bout)
 
 1. `pytest tests/test_planification.py` — unités (source non-régressive, empreinte, glouton).
-2. `python scripts/planifier_soudage.py` — produit le plan, la vérif séquentielle et la carte.
+2. `python code/scripts/planifier_soudage.py` — produit le plan, la vérif séquentielle et la carte.
 3. Confirmer : couverture séquentielle ≥ gloutonne ; suite complète des tests toujours verte.
 
 ## Hors scope (v1)

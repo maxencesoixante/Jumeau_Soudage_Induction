@@ -27,7 +27,7 @@ reproduit (200 A mesuré à 390).
 **Conséquence modèle.** La fréquence NE varie PAS avec l'ampérage → **une seule valeur globale
 suffit** ; la correction « fréquence par essai » est **abandonnée**. La valeur config `388e3`
 reste bonne. Bénéfice de bord : ceci **confirme la loi en I² de la source** (pas de couplage
-fréquence↔courant), cf. loi taux-courant `docs/labo/figures/presentation_fig5`.
+fréquence↔courant), cf. loi taux-courant `biblio/labo/figures/presentation_fig5`.
 
 ---
 
@@ -38,7 +38,7 @@ marquée « à confirmer »).
 
 **Réponse utilisateur.** « Le pli de twill a une épaisseur de **0,20 mm**. »
 
-**Conséquence modèle.** Correction préparée dans `config/materiaux.yaml` (commentaire) :
+**Conséquence modèle.** Correction préparée dans `code/config/materiaux.yaml` (commentaire) :
 `0.00028 → 0.0002 m`. **À appliquer à la prochaine recalibration** — l'épaisseur du twill
 change la répartition de puissance entre couches, donc impose un refit de θ\*. Non appliquée
 immédiatement pour ne pas confondre avec l'expérience « thermostat capteurs ».
@@ -60,7 +60,7 @@ appui, aucun puits au chant x = 0). Seuls échanges verticaux : face inférieure
 → `h_bas`) et face supérieure (céramique d'espacement → MFC → `h_haut`). **`h_bord_x0 = 250`
 n'a donc AUCUNE base physique** — c'est un paramètre EFFECTIF qui compense autre chose
 (vraisemblablement le bord trop chaud du profil en « M » côté x = 0). Requalifié comme tel
-dans `config/materiaux.yaml`. **Candidat au retrait** à la prochaine recalibration : le tester
+dans `code/config/materiaux.yaml`. **Candidat au retrait** à la prochaine recalibration : le tester
 à 0, ou le remplacer par une convection latérale faible et uniforme sur les quatre chants.
 Contredit l'ancienne justification « montage bridé x=0 » (cf. mémoire `tc1-surchauffe-leviers`).
 
@@ -83,7 +83,7 @@ points inter-empreintes (résidu B-2). Correctif « loi capteurs » (couper sur 
 positions TC réelles) **implémenté derrière le flag `--thermostat-capteurs`** (défaut off,
 commit `b50bd76`) : recale les pics (B-2 |ΔT_max| 45 → 23 après recalibration) mais dégrade le
 RMSE (+5-6 °C), couplé au profil en « M ». Non adopté par défaut en attendant la cartographie
-bord→centre (exp 7). Détail : `journaux/archive/resultats_diag_b2_thermostat_capteurs.log`.
+bord→centre (exp 7). Détail : `donnees/journaux/archive/resultats_diag_b2_thermostat_capteurs.log`.
 
 ---
 
@@ -119,7 +119,7 @@ matière : impulsion de chaleur → vitesse d'étalement → `k_plan`. L'exp 6 e
 
 ## Exp 6/7 — Cartographie bord→centre, 1re série (2026-07-27)
 
-Données : `data/exp7_bord-centre_2026-07-27_sans-ceramique/` (README = analyse complète). Manips étiquetées
+Données : `donnees/data/exp7_bord-centre_2026-07-27_sans-ceramique/` (README = analyse complète). Manips étiquetées
 « exp 6 » mais qui réalisent la cartographie en largeur (exp 7) : 5 TC en largeur au spot 3,
 **150 / 200 / 250 A**, céramique + pression **retirées**.
 

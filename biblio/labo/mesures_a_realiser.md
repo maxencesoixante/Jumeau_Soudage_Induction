@@ -3,7 +3,7 @@
 
 > Ce fichier ne liste que **ce qui reste à faire**. Les réponses terrain, précisions et
 > résultats des manips déjà réalisées sont dans **[`releves_resolus.md`](releves_resolus.md)**
-> et les `data/exp*/README.md`.
+> et les `donnees/data/exp*/README.md`.
 
 > ✅ **Exp 7 — Cartographie bord→centre : CLOSE (2026-07-28).** Campagne aux **5 courants
 > (150 / 176 / 200 / 225 / 250 A, avec céramique ; 3 essais aux 150/200/250, 1 aux 176/225)**.
@@ -14,7 +14,7 @@
 > documentée. **Loi taux-courant** : la source suit **I²** (modèle `R=k·I²−L`, R²=0,999) ; la
 > fréquence mesurée est constante (388±2 kHz sur 5 courants) → couplage fréquence↔courant écarté.
 > Détail :
-> `data/exp7_bord-centre_2026-07-28_avec-ceramique/README.md`. Figures : `docs/labo/figures/`
+> `donnees/data/exp7_bord-centre_2026-07-28_avec-ceramique/README.md`. Figures : `biblio/labo/figures/`
 > (fig1-5).
 
 ---
@@ -25,7 +25,7 @@
 
 **Fait (2026-07-28) — phase 1 au bord (y=0), 200 A** : TC à x=0/30/60/90/120 mm. Monospot (x=60) et
 semi-statique confrontés au modèle → **la source en longueur est validée** (décroissance raide
-reproduite). Détail : `data/exp9_dissipation-longitudinale_2026-07-28/README.md`.
+reproduite). Détail : `donnees/data/exp9_dissipation-longitudinale_2026-07-28/README.md`.
 
 **Reste à faire** :
 - **Phase 2 — ligne au CENTRE (y=20)** : source ≈ 0 → conduction quasi pure → **probe direct de
@@ -123,7 +123,7 @@ est **close** : aucune correction en attente ne survit au garde-fou held-out.
   (`calibrer_joint.py --thermostat-capteurs`, essais exp7+exp9+serieB_B-2, held-out serieA_A-1/A-3)
   → **PIRE** que la référence OFF sur fit (31,6→42,2), held-out (30,0→41,2) et global (30,8→41,7) :
   le refit divise le facteur par ~2 et raile k_plan à 9,9 → pics effondrés. Le θ\* actuel (thermostat
-  OFF) reste l'optimum. Log : `journaux/archive/resultats_calibration_joint_thermostat.log`.
+  OFF) reste l'optimum. Log : `donnees/journaux/archive/resultats_calibration_joint_thermostat.log`.
 - ~~**Fréquence A-3 (200 A) 388 → 383 kHz**~~ — **abandonnée** : mesure 5 courants (2026-07-28)
   = 388±2 kHz constante, ancien relevé 383 infirmé ; une seule valeur globale suffit.
 - **Lissage de source** (`--source-sigma-mm`, défaut off) — testé exp 7 : remplit le centre mais
@@ -152,4 +152,4 @@ est **close** : aucune correction en attente ne survit au garde-fou held-out.
 | Exp 6 | Diffusivité latérale | → couverte par Exp 9 | `k_plan` |
 
 *Items résolus (relevés 2-5, **exp 7**) et résultats des manips déjà faites : voir
-[`releves_resolus.md`](releves_resolus.md) et les `data/exp*/README.md`.*
+[`releves_resolus.md`](releves_resolus.md) et les `donnees/data/exp*/README.md`.*

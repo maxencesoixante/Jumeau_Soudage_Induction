@@ -15,7 +15,7 @@ transitoire hors-spot) a été déclaré **irréductible** et l'arc modèle **cl
 2026-07-31 (`b84b462`), après avoir testé, **un levier à la fois**, la calibration
 jointe scalaire, `lambda_bord`, la 3D, l'anisotropie `kx≠ky`, puis `k(T)` (`b3ba298`).
 
-Or `docs/modele/README.md` (l.157-158) diagnostique explicitement le résidu comme
+Or `biblio/modele/README.md` (l.157-158) diagnostique explicitement le résidu comme
 ayant **deux ingrédients** :
 1. **conduction in-plane** (`k(T)` décroissant) — possède le déficit d'étalement hors-spot ;
 2. **raideur de source au chant** (`lambda_bord_mm`) — possède le sur-contraste du M.
@@ -55,12 +55,12 @@ Répondre à **une** question, sans lancer d'optimiseur multi-paramètre :
 
 ## Design
 
-**Nouveau script** `scripts/diag/diag_pareto_source_conduction.py` — **diagnostic pur** :
+**Nouveau script** `code/scripts/diag/diag_pareto_source_conduction.py` — **diagnostic pur** :
 ne modifie AUCUN flag, config, ni `θ*` de référence ; n'écrit que ses propres sorties
 (CSV + PNG). Réutilise la machinerie existante :
-- `scripts/calibrer_joint.py` : classes `EssaiCalibre` / `Calibrateur`, passthrough
+- `code/scripts/calibrer_joint.py` : classes `EssaiCalibre` / `Calibrateur`, passthrough
   `lambda_bord_mm`, mode `k(T)` (`--kT` → `cfg.materiau.k_plan_T`), fit `facteur_couplage`.
-- `scripts/diag/diag_anisotropie_kx_ky.py` : recette de **contraste M** (moyenne des pics
+- `code/scripts/diag/diag_anisotropie_kx_ky.py` : recette de **contraste M** (moyenne des pics
   normalisés chants y=0/40 mm sur le pic centre y=20 mm, exp7_200A ; = recette
   `gen_figures_elsevier.py::fig2`).
 
@@ -96,8 +96,8 @@ Un nœud est **faisable** si :
 Le script imprime `GO` (≥ 1 nœud faisable, avec la liste des nœuds) ou `NO-GO` (aucun).
 
 ### Sorties
-1. `journaux/resultats_pareto_source_conduction_2026-08-12.csv` — tous les nœuds.
-2. `docs/modele/figures/pareto_source_conduction.png` — nuage **contraste_M (x) vs
+1. `donnees/journaux/resultats_pareto_source_conduction_2026-08-12.csv` — tous les nœuds.
+2. `biblio/modele/figures/pareto_source_conduction.png` — nuage **contraste_M (x) vs
    rmse_holdout (y)**, un point par nœud (couleur = `lambda_bord`, forme/taille = `k_hot`),
    boîte de faisabilité et point de référence isotrope tracés. Style article (`_style`).
 3. Verdict `GO`/`NO-GO` en fin de console + court résumé.
@@ -114,18 +114,18 @@ Le script imprime `GO` (≥ 1 nœud faisable, avec la liste des nœuds) ou `NO-G
 ---
 
 ## Réutilisation (ne pas réécrire)
-- `EssaiCalibre.simuler/residus/rapport(..., lambda_bord_mm=...)` — `scripts/calibrer_joint.py`.
+- `EssaiCalibre.simuler/residus/rapport(..., lambda_bord_mm=...)` — `code/scripts/calibrer_joint.py`.
 - Application `k(T)` : `cfg.materiau.k_plan_T = [[T_lo, k_cold], [T_hi, k_hot]]` (mode `--kT`).
 - Fit 1-D `facteur_couplage` : même pondération bruit-capteur σ que `Calibrateur`.
-- Recette contraste : `scripts/diag/diag_anisotropie_kx_ky.py` (`--contraste`).
-- Style figure : `scripts/_style.py` (`apply_style`, `savefig`).
+- Recette contraste : `code/scripts/diag/diag_anisotropie_kx_ky.py` (`--contraste`).
+- Style figure : `code/scripts/_style.py` (`apply_style`, `savefig`).
 - Chargement/recalage mesures : `jumeau.validation.chargement`.
 
 ---
 
 ## Vérification (end-to-end)
-1. `python scripts/diag/diag_pareto_source_conduction.py` s'exécute en quelques minutes,
-   sans toucher config/flags (vérifier `git status` : seuls CSV + PNG + le script).
+1. `python code/scripts/diag/diag_pareto_source_conduction.py` s'exécute en quelques minutes,
+   sans toucher code/config/flags (vérifier `git status` : seuls CSV + PNG + le script).
 2. **Sanity** : le nœud isotrope de référence reproduit les nombres connus
    (contraste ≈ 3,13 ; `rmse_holdout` ≈ 16,5) — sinon le pipeline diverge d'un run
    antérieur et il faut le corriger avant d'interpréter.

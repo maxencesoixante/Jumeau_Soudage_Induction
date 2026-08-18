@@ -25,7 +25,7 @@ jumeau, sur deux plans : la **confection des figures** et l'**approche de modél
   log-log + polygone de la zone admissible.
 - Schémas de montage : **TikZ/pgfplots** (`Tikz/`), vectoriel LaTeX.
 
-### Notre chaîne (`scripts/gen/gen_figures_elsevier.py` + `gen_*.py`)
+### Notre chaîne (`code/scripts/gen/gen_figures_elsevier.py` + `gen_*.py`)
 - **Python + matplotlib** ; `rcParams` avec **police sans-serif** (DejaVu Sans/Arial),
   **palette Okabe-Ito explicite** (#0072B2 / #E69F00 / #009E73 / #D55E00 / #56B4E9), 600 dpi.
 - Deux presets (`elsevier` défaut, `presentation`) dans `gen_figures_elsevier.py`.
@@ -41,7 +41,7 @@ jumeau, sur deux plans : la **confection des figures** et l'**approche de modél
 | Point | Constat | Décision |
 |-------|---------|----------|
 | **Palette Okabe-Ito + trait plein/pointillé mesuré↔simulé** | **Convergence** : mêmes choix qu'un article SAGE/Elsevier publié | ✅ **Confirme** nos conventions — rien à changer |
-| **Thème unique réutilisé** | Eux : 1 `elsevier_theme`. Nous : chaque `gen_*.py` redéfinit son `rcParams` (~10 duplications) | 🔧 **Adopter** un module de style partagé `scripts/_style.py` (rcParams + palette + helper `savefig`) |
+| **Thème unique réutilisé** | Eux : 1 `elsevier_theme`. Nous : chaque `gen_*.py` redéfinit son `rcParams` (~10 duplications) | 🔧 **Adopter** un module de style partagé `code/scripts/_style.py` (rcParams + palette + helper `savefig`) |
 | **Export vectoriel multi-format** | Eux : PDF+SVG+TIFF 500 dpi LZW (journal-ready). Nous : PNG 600 dpi | ✅ **FAIT (#19)** : helper `_style.savefig` — `FIG_FORMATS="png,pdf,tiff"` produit PDF vectoriel + TIFF LZW ; PNG par défaut (byte-identique) |
 | **Colormap perceptuel homogène** | Nous : `jet` (non perceptuel, non colorblind-safe) dans `figure_empreinte.py` | 🔧 **Corriger** : remplacer `jet` par `inferno`/`viridis` partout |
 | **Schémas en TikZ** | Eux : TikZ vectoriel. Nous : matplotlib | ❌ **ÉCARTÉ (#20)** : matplotlib exporte déjà les schémas en PDF vectoriel (#19), pilotés par la config ; TikZ = nouvelle chaîne LaTeX + double maintenance pour un gain marginal. Cf. §Évaluation ci-dessous |
@@ -99,7 +99,7 @@ cotation nette.
   compact** (`schema_montage_exp7.pdf`, ~43 Ko avec polices embarquées, via `FIG_FORMATS`)
   — l'essentiel du bénéfice « vectoriel pour l'impression » sans nouvelle chaîne.
 - **Perte du pilotage par config** : les cotes du schéma matplotlib sont **tirées de
-  `config/geometrie.yaml`** (MFC 31,5×55, tubes 6 mm, interface z=3,36…) et se régénèrent si
+  `code/config/geometrie.yaml`** (MFC 31,5×55, tubes 6 mm, interface z=3,36…) et se régénèrent si
   la géométrie change. Un schéma TikZ fige les cotes à la main → re-synchronisation manuelle à
   chaque changement (exactement la dette combattue en #17).
 - **Double maintenance** : garder matplotlib pour les figures de données + TikZ pour les
@@ -124,7 +124,7 @@ avec typographie identique au corps, **ET** (b) une chaîne LaTeX est installée
 ---
 
 ## Sous-issues engendrées — toutes traitées
-1. ✅ **Centraliser le style des figures** (`scripts/_style.py`, palette Okabe-Ito, fix `jet`) — **#17 mergé**.
+1. ✅ **Centraliser le style des figures** (`code/scripts/_style.py`, palette Okabe-Ito, fix `jet`) — **#17 mergé**.
 2. ✅ **Export vectoriel des figures** (PDF + TIFF via `FIG_FORMATS`, PNG conservé) — **#19 mergé**.
 3. ❌ **Schémas de montage en TikZ** — **#20 écarté** (matplotlib + export vectoriel suffit ; pas de LaTeX ; pilotage config à préserver — cf. §Évaluation ci-dessus).
 4. ✅ **Décomposer `facteur_couplage`** — **#21 traité** : non identifiable depuis la température, verdict documenté (`../modele/facteur_couplage_decomposition.md`).

@@ -6,7 +6,7 @@
 
 **Architecture:** Sur le jumeau 2D calibré (θ\* figé) : (A) une fonction d'**empreinte** simule une passe unique → carte du pic `Tmax(x,y)` ; (B) une **bibliothèque** pré-calcule ces empreintes sur une grille de positions/courants ; (C) un **planificateur glouton pur** combine des empreintes (`Tmax=max`) pour couvrir la surface sous contrainte de non-dégradation ; (D) une **vérification séquentielle** rejoue le plan en une simulation multi-passes réelle ; (E) un **CLI** produit plan + carte de couverture.
 
-**Tech Stack:** Python, NumPy, matplotlib, pytest ; modules `src/jumeau/` (em, thermique, procédé), style figures `scripts/_style.py`.
+**Tech Stack:** Python, NumPy, matplotlib, pytest ; modules `code/src/jumeau/` (em, thermique, procédé), style figures `code/scripts/_style.py`.
 
 ## Global Constraints
 
@@ -14,7 +14,7 @@
 - **Fusion = 337.0 °C**, **dégradation = 450.0 °C** (constantes du domaine).
 - **Courant ∈ [150, 250] A** (fenêtre validée ; interpolation seulement).
 - **Non-régression** : toute modif du cœur physique (`source_spot`) doit être **bit-à-bit** identique par défaut (les 81 tests existants restent verts).
-- **Sorties figures modèle pur** → `docs/modele/figures/` ; plan → `resultats/` (gitignoré).
+- **Sorties figures modèle pur** → `biblio/modele/figures/` ; plan → `donnees/resultats/` (gitignoré).
 - Grille 2D de référence : `nx=61, ny=21, nz=15` (comme `gen_prediction_courant.py`).
 
 ---
@@ -22,7 +22,7 @@
 ### Task 1: Décalage en y de la source (`source_spot centre_y`)
 
 **Files:**
-- Modify: `src/jumeau/em/source_joule.py` (signature de `source_spot` ~ligne 282 + appel `sommets_bobine` ~ligne 332)
+- Modify: `code/src/jumeau/em/source_joule.py` (signature de `source_spot` ~ligne 282 + appel `sommets_bobine` ~ligne 332)
 - Test: `tests/test_planification.py`
 
 **Interfaces:**
@@ -51,7 +51,7 @@ def _essai():
     cfg.contact.h_haut = 30.087
     cfg.ambiant.h_bas_2d = 37.424
     cfg.ambiant.h_bord_x0 = 250.0
-    e = Essai(cfg, RACINE / "config/essais/exp7_200A.yaml", nx=61, ny=21, nz=15,
+    e = Essai(cfg, RACINE / "code/config/essais/exp7_200A.yaml", nx=61, ny=21, nz=15,
               facteur_couplage=6.0123, decalage_x=0.0, racine=RACINE)
     return cfg, e
 
@@ -86,7 +86,7 @@ Expected: FAIL — `source_spot() got an unexpected keyword argument 'centre_y'`
 
 - [ ] **Step 3: Add the `centre_y` parameter and thread it through**
 
-Dans `src/jumeau/em/source_joule.py`, ajouter le paramètre à la signature de `source_spot` (après `decalage_x`) :
+Dans `code/src/jumeau/em/source_joule.py`, ajouter le paramètre à la signature de `source_spot` (après `decalage_x`) :
 
 ```python
     decalage_x: float = 0.0,
@@ -109,7 +109,7 @@ Expected: les 2 tests PASS ; suite complète toujours verte (83 tests).
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/jumeau/em/source_joule.py tests/test_planification.py
+git add code/src/jumeau/em/source_joule.py tests/test_planification.py
 git commit -m "Planif (1/6) : décalage en y de la source (source_spot centre_y, non-régressif)"
 ```
 
@@ -118,8 +118,8 @@ git commit -m "Planif (1/6) : décalage en y de la source (source_spot centre_y,
 ### Task 2: Empreinte d'une passe (`Tmax(x,y)`)
 
 **Files:**
-- Create: `src/jumeau/planification/__init__.py` (vide)
-- Create: `src/jumeau/planification/empreinte.py`
+- Create: `code/src/jumeau/planification/__init__.py` (vide)
+- Create: `code/src/jumeau/planification/empreinte.py`
 - Test: `tests/test_planification.py` (ajouts)
 
 **Interfaces:**
@@ -147,7 +147,7 @@ Expected: FAIL — `ModuleNotFoundError: jumeau.planification`.
 - [ ] **Step 3: Implement the footprint**
 
 ```python
-# src/jumeau/planification/empreinte.py
+# code/src/jumeau/planification/empreinte.py
 """Empreinte thermique d'une passe unique : carte du pic Tmax(x,y) à l'interface."""
 from __future__ import annotations
 from pathlib import Path
@@ -190,7 +190,7 @@ Expected: PASS (quelques secondes — 2 simulations 2D).
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/jumeau/planification/__init__.py src/jumeau/planification/empreinte.py tests/test_planification.py
+git add code/src/jumeau/planification/__init__.py code/src/jumeau/planification/empreinte.py tests/test_planification.py
 git commit -m "Planif (2/6) : empreinte d'une passe (Tmax(x,y))"
 ```
 
@@ -199,7 +199,7 @@ git commit -m "Planif (2/6) : empreinte d'une passe (Tmax(x,y))"
 ### Task 3: Bibliothèque d'empreintes (grille de positions × courants)
 
 **Files:**
-- Modify: `src/jumeau/planification/empreinte.py` (ajout `bibliotheque`)
+- Modify: `code/src/jumeau/planification/empreinte.py` (ajout `bibliotheque`)
 - Test: `tests/test_planification.py` (ajouts)
 
 **Interfaces:**
@@ -227,7 +227,7 @@ Expected: FAIL — `ImportError: cannot import name 'bibliotheque'`.
 - [ ] **Step 3: Implement the library builder**
 
 ```python
-# append to src/jumeau/planification/empreinte.py
+# append to code/src/jumeau/planification/empreinte.py
 from itertools import product
 
 
@@ -253,7 +253,7 @@ Expected: PASS.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/jumeau/planification/empreinte.py tests/test_planification.py
+git add code/src/jumeau/planification/empreinte.py tests/test_planification.py
 git commit -m "Planif (3/6) : bibliothèque d'empreintes (grille positions × courants)"
 ```
 
@@ -262,7 +262,7 @@ git commit -m "Planif (3/6) : bibliothèque d'empreintes (grille positions × co
 ### Task 4: Planificateur glouton (cœur, PUR — testable sur cartes synthétiques)
 
 **Files:**
-- Create: `src/jumeau/planification/planificateur.py`
+- Create: `code/src/jumeau/planification/planificateur.py`
 - Test: `tests/test_planification.py` (ajouts — synthétiques, rapides)
 
 **Interfaces:**
@@ -318,7 +318,7 @@ Expected: FAIL — `ModuleNotFoundError` / `cannot import name`.
 - [ ] **Step 3: Implement the pure planner**
 
 ```python
-# src/jumeau/planification/planificateur.py
+# code/src/jumeau/planification/planificateur.py
 """Planificateur glouton PUR : couvre une surface avec des empreintes Tmax,
 sous contrainte de non-dégradation. Indépendant du modèle (opère sur des cartes)."""
 from __future__ import annotations
@@ -372,7 +372,7 @@ Expected: 4 PASS (instantané — synthétique).
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/jumeau/planification/planificateur.py tests/test_planification.py
+git add code/src/jumeau/planification/planificateur.py tests/test_planification.py
 git commit -m "Planif (4/6) : planificateur glouton pur + métriques (tests synthétiques)"
 ```
 
@@ -381,7 +381,7 @@ git commit -m "Planif (4/6) : planificateur glouton pur + métriques (tests synt
 ### Task 5: Vérification séquentielle du plan
 
 **Files:**
-- Modify: `src/jumeau/planification/planificateur.py` (ajout `verifier_sequentiel`)
+- Modify: `code/src/jumeau/planification/planificateur.py` (ajout `verifier_sequentiel`)
 - Test: `tests/test_planification.py` (ajouts — lent, 1 cas)
 
 **Interfaces:**
@@ -415,7 +415,7 @@ Expected: FAIL — `cannot import name 'verifier_sequentiel'`.
 - [ ] **Step 3: Implement the sequential verifier**
 
 ```python
-# append to src/jumeau/planification/planificateur.py
+# append to code/src/jumeau/planification/planificateur.py
 from pathlib import Path
 from ..materiaux import Config
 from ..procede import Essai
@@ -451,7 +451,7 @@ def verifier_sequentiel(cfg: Config, passes_params, *, facteur: float = 6.0123,
     return e.grille, champs.max(axis=0)
 ```
 
-Note d'intégration : vérifier que `Essai.simuler` consomme bien `e.spots` (liste de dicts avec `centre_x`, `t_debut`, `t_fin`) et `e._Q_spots`/`e._P_spots_2d` déjà posés — c'est le patron de `scripts/gen/gen_procede_semistatique.py` (4 dwells séquentiels). Si `Essai` reconstruit `_Q_spots` à partir des spots au lieu de réutiliser ceux fournis, s'aligner sur ce que fait `gen_procede_semistatique.py` (lire ce script avant d'implémenter).
+Note d'intégration : vérifier que `Essai.simuler` consomme bien `e.spots` (liste de dicts avec `centre_x`, `t_debut`, `t_fin`) et `e._Q_spots`/`e._P_spots_2d` déjà posés — c'est le patron de `code/scripts/gen/gen_procede_semistatique.py` (4 dwells séquentiels). Si `Essai` reconstruit `_Q_spots` à partir des spots au lieu de réutiliser ceux fournis, s'aligner sur ce que fait `gen_procede_semistatique.py` (lire ce script avant d'implémenter).
 
 - [ ] **Step 4: Run test to verify it passes**
 
@@ -461,7 +461,7 @@ Expected: PASS (~10-30 s, simulation multi-passes).
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/jumeau/planification/planificateur.py tests/test_planification.py
+git add code/src/jumeau/planification/planificateur.py tests/test_planification.py
 git commit -m "Planif (5/6) : vérification séquentielle du plan"
 ```
 
@@ -470,12 +470,12 @@ git commit -m "Planif (5/6) : vérification séquentielle du plan"
 ### Task 6: CLI + carte de couverture + verdict
 
 **Files:**
-- Create: `scripts/planifier_soudage.py`
+- Create: `code/scripts/planifier_soudage.py`
 - Modify: (aucun test auto ; sortie visuelle relue à la main via la boucle figure-review)
 
 **Interfaces:**
-- Consumes: `bibliotheque` (Task 3), `planifier`, `metriques`, `verifier_sequentiel` (Tasks 4-5), `scripts/_style.py` (`apply_style`, palette).
-- Produces: exécutable `python scripts/planifier_soudage.py` → `resultats/plan_soudage.yaml` + `docs/modele/figures/fig_plan_soudage_couverture.png` + verdict console.
+- Consumes: `bibliotheque` (Task 3), `planifier`, `metriques`, `verifier_sequentiel` (Tasks 4-5), `code/scripts/_style.py` (`apply_style`, palette).
+- Produces: exécutable `python code/scripts/planifier_soudage.py` → `donnees/resultats/plan_soudage.yaml` + `biblio/modele/figures/fig_plan_soudage_couverture.png` + verdict console.
 
 - [ ] **Step 1: Write the CLI script**
 
@@ -484,7 +484,7 @@ git commit -m "Planif (5/6) : vérification séquentielle du plan"
 """Planificateur de soudage uniforme — génère un plan de passes couvrant toute
 l'interface >= fusion sans dégradation, puis vérifie et trace la couverture.
 
-Sortie : resultats/plan_soudage.yaml + docs/modele/figures/fig_plan_soudage_couverture.png
+Sortie : donnees/resultats/plan_soudage.yaml + biblio/modele/figures/fig_plan_soudage_couverture.png
 """
 import sys
 from pathlib import Path
@@ -575,12 +575,12 @@ if __name__ == "__main__":
 
 - [ ] **Step 2: Run the CLI end-to-end**
 
-Run: `.venv/bin/python scripts/planifier_soudage.py`
-Expected: imprime le plan + le verdict, écrit `resultats/plan_soudage.yaml` et `docs/modele/figures/fig_plan_soudage_couverture.png` sans erreur.
+Run: `.venv/bin/python code/scripts/planifier_soudage.py`
+Expected: imprime le plan + le verdict, écrit `donnees/resultats/plan_soudage.yaml` et `biblio/modele/figures/fig_plan_soudage_couverture.png` sans erreur.
 
 - [ ] **Step 3: Relire la carte (boucle figure-review-loop)**
 
-Ouvrir `docs/modele/figures/fig_plan_soudage_couverture.png` (Read) et vérifier : zones bleu/vert/rouge lisibles, contours 337/450, marqueurs de passes, titre avec métriques, pas de chevauchement. Ajuster si besoin (échelle, contours) et re-lancer.
+Ouvrir `biblio/modele/figures/fig_plan_soudage_couverture.png` (Read) et vérifier : zones bleu/vert/rouge lisibles, contours 337/450, marqueurs de passes, titre avec métriques, pas de chevauchement. Ajuster si besoin (échelle, contours) et re-lancer.
 
 - [ ] **Step 4: Full suite + commit**
 
@@ -588,7 +588,7 @@ Run: `.venv/bin/python -m pytest -q`
 Expected: suite verte (les tests lents `-m slow` peuvent être exclus en routine).
 
 ```bash
-git add scripts/planifier_soudage.py docs/modele/figures/fig_plan_soudage_couverture.png
+git add code/scripts/planifier_soudage.py biblio/modele/figures/fig_plan_soudage_couverture.png
 git commit -m "Planif (6/6) : CLI planifier_soudage + carte de couverture + verdict"
 ```
 

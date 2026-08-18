@@ -4,13 +4,13 @@
 
 **Goal:** Un script diagnostic qui balaie une grille 2D (`lambda_bord_mm` × `k_hot`) et répond GO/NO-GO à « existe-t-il un couple source-softening × conduction qui approche le contraste M mesuré ET ne régresse pas le held-out ? ».
 
-**Architecture:** Un seul script `scripts/diag/diag_pareto_source_conduction.py` réutilisant `EssaiCalibre` (préchargement mesures + résidus σ-pondérés) de `scripts/calibrer_joint.py` et la recette de contraste de `scripts/diag/diag_anisotropie_kx_ky.py`. Par nœud de grille : (1) restaurer `facteur_couplage` par un fit 1-D sur le lot d'ajustement, (2) mesurer contraste M (exp7_200A) + RMSE held-out. Sorties : CSV + PNG + verdict console. Aucune modification de config/flags/θ*.
+**Architecture:** Un seul script `code/scripts/diag/diag_pareto_source_conduction.py` réutilisant `EssaiCalibre` (préchargement mesures + résidus σ-pondérés) de `code/scripts/calibrer_joint.py` et la recette de contraste de `code/scripts/diag/diag_anisotropie_kx_ky.py`. Par nœud de grille : (1) restaurer `facteur_couplage` par un fit 1-D sur le lot d'ajustement, (2) mesurer contraste M (exp7_200A) + RMSE held-out. Sorties : CSV + PNG + verdict console. Aucune modification de code/config/flags/θ*.
 
-**Tech Stack:** Python, NumPy, `scipy.optimize.least_squares`, pandas, matplotlib (via `scripts/_style.py`).
+**Tech Stack:** Python, NumPy, `scipy.optimize.least_squares`, pandas, matplotlib (via `code/scripts/_style.py`).
 
 ## Global Constraints
 
-- **Diagnostic en lecture seule côté modèle** : ne modifie AUCUN fichier de `config/`, aucun flag, aucun `θ*` de référence. N'écrit que ses propres sorties (CSV + PNG) et le script.
+- **Diagnostic en lecture seule côté modèle** : ne modifie AUCUN fichier de `code/config/`, aucun flag, aucun `θ*` de référence. N'écrit que ses propres sorties (CSV + PNG) et le script.
 - **Grille imposée** : `lambda_bord_mm ∈ {0, 1, 2, 3, 4, 6}` × `k_hot ∈ {2, 3, 4, 5, 6}` ; `k_cold` **figé = 7.5** W/m·K ; ancrages k(T) = `KT_T_LO=20.0`, `KT_T_HI=340.0` °C.
 - **θ figés au canonique** (jamais calibrés ici) : `h_haut=30.087`, `h_bas_2d=37.424`, `h_bord_x0=250.0`. Seul `facteur_couplage` est restauré (fit 1-D) par nœud.
 - **Grilles de simulation** : RMSE/résidus sur `(nx, ny, nz) = (31, 11, 13)` (grille de calibration) ; **contraste** sur `(41, 15, 9)` (grille de la recette `contraste_m` de référence, pour reproduire ~3.13).
@@ -25,7 +25,7 @@
 ### Task 1: Helper de contraste avec k(T) + lambda_bord
 
 **Files:**
-- Create: `scripts/diag/diag_pareto_source_conduction.py`
+- Create: `code/scripts/diag/diag_pareto_source_conduction.py`
 - Test: `tests/test_diag_pareto.py`
 
 **Interfaces:**
@@ -71,7 +71,7 @@ Expected: FAIL (ModuleNotFoundError / ImportError : `contraste_ktlb` inexistant)
 #!/usr/bin/env python
 """Carte de faisabilité SOURCE × CONDUCTION (réouverture du résidu in-plane).
 
-Étape C de la séquence C→A (cf. docs/superpowers/specs/2026-08-12-pareto-
+Étape C de la séquence C→A (cf. biblio/superpowers/specs/2026-08-12-pareto-
 source-conduction-design.md). Balaie lambda_bord_mm × k_hot (k_cold figé),
 restaure facteur_couplage par nœud, mesure contraste M + RMSE held-out, et
 imprime un verdict GO/QUASI-GO/NO-GO. Diagnostic pur : ne modifie ni config,
@@ -145,7 +145,7 @@ Expected: PASS (2 tests). (Chacun lance des simulations 2D coarse — quelques s
 - [ ] **Step 5: Commit**
 
 ```bash
-git add scripts/diag/diag_pareto_source_conduction.py tests/test_diag_pareto.py
+git add code/scripts/diag/diag_pareto_source_conduction.py tests/test_diag_pareto.py
 git commit -m "feat(pareto): helper contraste_ktlb (k(T)+lambda_bord) + tests sanity"
 ```
 
@@ -154,11 +154,11 @@ git commit -m "feat(pareto): helper contraste_ktlb (k(T)+lambda_bord) + tests sa
 ### Task 2: Restauration d'amplitude (fit 1-D) + RMSE held-out
 
 **Files:**
-- Modify: `scripts/diag/diag_pareto_source_conduction.py`
+- Modify: `code/scripts/diag/diag_pareto_source_conduction.py`
 - Test: `tests/test_diag_pareto.py`
 
 **Interfaces:**
-- Consumes: `EssaiCalibre` de `scripts/calibrer_joint.py` (`.residus(cfg, facteur, sigma_mm, lambda_bord_mm)`, `.rapport(...)` → DataFrame index TC, colonne `"rmse"`).
+- Consumes: `EssaiCalibre` de `code/scripts/calibrer_joint.py` (`.residus(cfg, facteur, sigma_mm, lambda_bord_mm)`, `.rapport(...)` → DataFrame index TC, colonne `"rmse"`).
 - Produces:
   - `restaurer_facteur(essais_fit: list, cfg, lambda_bord_mm: float, facteur0=6.0123, max_nfev=15) -> float`
   - `rmse_pooled(essais: list, cfg, facteur: float, lambda_bord_mm: float) -> float` (moyenne des RMSE par-TC sur tous les essais).
@@ -189,7 +189,7 @@ Expected: FAIL (ImportError : `restaurer_facteur` / `rmse_pooled` / `charger_ess
 - [ ] **Step 3: Écrire l'implémentation minimale**
 
 ```python
-# append to scripts/diag/diag_pareto_source_conduction.py
+# append to code/scripts/diag/diag_pareto_source_conduction.py
 from calibrer_joint import EssaiCalibre
 
 NX, NY, NZ = 31, 11, 13
@@ -226,7 +226,7 @@ Expected: PASS. (Note : lent — plusieurs simulations ; ~30-60 s.)
 - [ ] **Step 5: Commit**
 
 ```bash
-git add scripts/diag/diag_pareto_source_conduction.py tests/test_diag_pareto.py
+git add code/scripts/diag/diag_pareto_source_conduction.py tests/test_diag_pareto.py
 git commit -m "feat(pareto): restauration facteur 1-D + rmse_pooled held-out"
 ```
 
@@ -235,7 +235,7 @@ git commit -m "feat(pareto): restauration facteur 1-D + rmse_pooled held-out"
 ### Task 3: Classification des nœuds + verdict (fonctions pures)
 
 **Files:**
-- Modify: `scripts/diag/diag_pareto_source_conduction.py`
+- Modify: `code/scripts/diag/diag_pareto_source_conduction.py`
 - Test: `tests/test_diag_pareto.py`
 
 **Interfaces:**
@@ -275,7 +275,7 @@ Expected: FAIL (ImportError : `classer` / `verdict` inexistants).
 - [ ] **Step 3: Écrire l'implémentation minimale**
 
 ```python
-# append to scripts/diag/diag_pareto_source_conduction.py
+# append to code/scripts/diag/diag_pareto_source_conduction.py
 def classer(contraste, rmse_holdout, rmse_ref, cible=2.08, tol=0.15, marge_quasi=0.7):
     if abs(contraste - cible) > tol:
         return "hors"
@@ -302,7 +302,7 @@ Expected: PASS (rapide, aucune simulation).
 - [ ] **Step 5: Commit**
 
 ```bash
-git add scripts/diag/diag_pareto_source_conduction.py tests/test_diag_pareto.py
+git add code/scripts/diag/diag_pareto_source_conduction.py tests/test_diag_pareto.py
 git commit -m "feat(pareto): classification noeuds + verdict GO/QUASI-GO/NO-GO"
 ```
 
@@ -311,7 +311,7 @@ git commit -m "feat(pareto): classification noeuds + verdict GO/QUASI-GO/NO-GO"
 ### Task 4: Balayage de la grille + CSV + `main`
 
 **Files:**
-- Modify: `scripts/diag/diag_pareto_source_conduction.py`
+- Modify: `code/scripts/diag/diag_pareto_source_conduction.py`
 
 **Interfaces:**
 - Consumes: `contraste_ktlb`, `charger_essais`, `restaurer_facteur`, `rmse_pooled`, `classer`, `verdict`.
@@ -322,7 +322,7 @@ git commit -m "feat(pareto): classification noeuds + verdict GO/QUASI-GO/NO-GO"
 - [ ] **Step 1: Écrire le balayage et le main**
 
 ```python
-# append to scripts/diag/diag_pareto_source_conduction.py
+# append to code/scripts/diag/diag_pareto_source_conduction.py
 LAMBDAS = [0.0, 1.0, 2.0, 3.0, 4.0, 6.0]
 K_HOTS = [2.0, 3.0, 4.0, 5.0, 6.0]
 
@@ -387,13 +387,13 @@ if __name__ == "__main__":
 
 - [ ] **Step 2: Fumée sur une sous-grille (rapide)**
 
-Run: `python scripts/diag/diag_pareto_source_conduction.py --lambdas 0 6 --k-hots 3 --png /tmp/pareto_smoke.png --csv /tmp/pareto_smoke.csv 2>&1 | tail -15`
+Run: `python code/scripts/diag/diag_pareto_source_conduction.py --lambdas 0 6 --k-hots 3 --png /tmp/pareto_smoke.png --csv /tmp/pareto_smoke.csv 2>&1 | tail -15`
 Expected: le script tourne, imprime `[REF] ...`, 2 nœuds, un `=== VERDICT : ... ===`, et écrit le CSV. (`tracer_pareto` n'existe pas encore → cette étape échouera à l'appel figure ; c'est attendu, elle valide seulement le balayage. Commenter l'appel `tracer_pareto` temporairement OU enchaîner directement sur Task 5 avant de lancer le run complet.)
 
 - [ ] **Step 3: Commit**
 
 ```bash
-git add scripts/diag/diag_pareto_source_conduction.py
+git add code/scripts/diag/diag_pareto_source_conduction.py
 git commit -m "feat(pareto): balayage grille + CSV + main (verdict)"
 ```
 
@@ -402,20 +402,20 @@ git commit -m "feat(pareto): balayage grille + CSV + main (verdict)"
 ### Task 5: Figure Pareto (PNG) + relecture visuelle
 
 **Files:**
-- Modify: `scripts/diag/diag_pareto_source_conduction.py`
+- Modify: `code/scripts/diag/diag_pareto_source_conduction.py`
 
 **Interfaces:**
-- Consumes: `pandas.DataFrame` de `balayer` ; `apply_style`, `savefig` de `scripts/_style.py`.
+- Consumes: `pandas.DataFrame` de `balayer` ; `apply_style`, `savefig` de `code/scripts/_style.py`.
 - Produces: `tracer_pareto(df: pandas.DataFrame, png_path: str) -> None`.
 
 - [ ] **Step 1: Écrire la fonction figure**
 
 ```python
-# append near the top imports of scripts/diag/diag_pareto_source_conduction.py
+# append near the top imports of code/scripts/diag/diag_pareto_source_conduction.py
 import matplotlib.pyplot as plt
 from _style import apply_style, savefig
 
-# append to scripts/diag/diag_pareto_source_conduction.py
+# append to code/scripts/diag/diag_pareto_source_conduction.py
 def tracer_pareto(df, png_path):
     """Nuage contraste_M (x) vs rmse_holdout (y). Couleur=lambda_bord,
     taille=k_hot. Boîte de faisabilité + point de référence tracés."""
@@ -454,7 +454,7 @@ def tracer_pareto(df, png_path):
 
 - [ ] **Step 2: Run complet de la grille**
 
-Run: `python scripts/diag/diag_pareto_source_conduction.py 2>&1 | tail -40`
+Run: `python code/scripts/diag/diag_pareto_source_conduction.py 2>&1 | tail -40`
 Expected: 30 nœuds + REF imprimés, CSV + PNG écrits, `=== VERDICT : GO|QUASI-GO|NO-GO ===`. Durée ~10-25 min (≈27 sims/nœud × 30 nœuds). Vérifier `git status` : seuls le script, le CSV et le PNG changent (aucune config touchée).
 
 - [ ] **Step 3: Sanity de reproduction**
@@ -463,14 +463,14 @@ Ouvrir le CSV : la ligne `reference` doit donner `contraste_M ≈ 3.0-3.25` (rep
 
 - [ ] **Step 4: Relecture visuelle (figure-review-loop)**
 
-Ouvrir `docs/modele/figures/pareto_source_conduction.png` et le **regarder** à l'échelle cible : boîte de faisabilité et étoile de référence visibles, colorbar lisible, aucun chevauchement légende/points. Corriger un défaut à la fois puis re-rendre si besoin.
+Ouvrir `biblio/modele/figures/pareto_source_conduction.png` et le **regarder** à l'échelle cible : boîte de faisabilité et étoile de référence visibles, colorbar lisible, aucun chevauchement légende/points. Corriger un défaut à la fois puis re-rendre si besoin.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add scripts/diag/diag_pareto_source_conduction.py \
-        journaux/resultats_pareto_source_conduction_2026-08-12.csv \
-        docs/modele/figures/pareto_source_conduction.png
+git add code/scripts/diag/diag_pareto_source_conduction.py \
+        donnees/journaux/resultats_pareto_source_conduction_2026-08-12.csv \
+        biblio/modele/figures/pareto_source_conduction.png
 git commit -m "feat(pareto): figure Pareto + run complet (verdict GO/NO-GO)"
 ```
 
@@ -479,7 +479,7 @@ git commit -m "feat(pareto): figure Pareto + run complet (verdict GO/NO-GO)"
 ### Task 6: Décision C→A + traçabilité
 
 **Files:**
-- Modify: `docs/modele/README.md` (section résidu) — 2-4 lignes selon le verdict.
+- Modify: `biblio/modele/README.md` (section résidu) — 2-4 lignes selon le verdict.
 
 **Interfaces:** aucune (documentation).
 
@@ -492,7 +492,7 @@ Selon le verdict imprimé :
 - [ ] **Step 2: Commit**
 
 ```bash
-git add docs/modele/README.md
+git add biblio/modele/README.md
 git commit -m "docs(pareto): verdict carte source×conduction consigné (§résidu)"
 ```
 

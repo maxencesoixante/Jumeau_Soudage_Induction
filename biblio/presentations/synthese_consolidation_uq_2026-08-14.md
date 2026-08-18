@@ -29,11 +29,11 @@ Corrélations toutes |r|<0,95 (max facteur–h_bas = 0,81) → **identifiable**.
 - **RMSE held-out : réf 13,8 → new 19,3 °C (régression nette)**
 
 **VERDICT : NO-GO pour l'adoption** de θ*_consolidé en config (régresse le held-out) —
-cohérent avec tout l'historique. θ* canonique **inchangé** dans `config/materiaux.yaml`.
+cohérent avec tout l'historique. θ* canonique **inchangé** dans `code/config/materiaux.yaml`.
 L'acquis est l'**UQ** + la confirmation que le fit réclame k_plan ≈ 8 (≈2,7× la valeur
 physique 3,0), signature du déficit structurel d'étalement in-plane.
 
-Log complet : `journaux/archive/resultats_calibration_joint_consolide_2026-08-14.log`.
+Log complet : `donnees/journaux/archive/resultats_calibration_joint_consolide_2026-08-14.log`.
 
 ## Phase C — k_plan(I) indépendant du courant
 Sur exp9 y=0 monospot (4 courants), fit de k_plan SEUL (autres params figés à θ*_consolidé),
@@ -49,8 +49,8 @@ cible = **profil longitudinal normalisé au spot** (robuste au cutoff manuel).
 **k_plan moyen (pondéré) = 7,50 ± 1,03** ; test de constance **χ²/ddl = 0,18** →
 **COMPATIBLE avec un k_plan constant**. Léger trend montant non significatif.
 
-Driver : `scripts/tester_kplan_courant.py` ; CSV : `journaux/resultats_kplan_courant_2026-08-14.csv` ;
-figure : `docs/modele/figures/fig_kplan_courant.png` (script `scripts/gen/gen_figure_kplan_courant.py`).
+Driver : `code/scripts/tester_kplan_courant.py` ; CSV : `donnees/journaux/resultats_kplan_courant_2026-08-14.csv` ;
+figure : `biblio/modele/figures/fig_kplan_courant.png` (script `code/scripts/gen/gen_figure_kplan_courant.py`).
 
 ## Conclusion
 1. **k_plan effectif ≈ 7,5 W·m⁻¹·K⁻¹, indépendant du courant** (nouvelle donnée quantifiée
@@ -83,4 +83,4 @@ Conclusions :
 **VERDICT : anisotropie NO-GO sur la meilleure donnée.** Dernier levier de forme ouvert clos.
 La limite d'étalement in-plane est confirmée non-résoluble par les leviers paramétriques
 (recalage isotrope, anisotropie, k(T), R_c, forme de source — tous NO-GO). Log :
-`journaux/archive/resultats_calibration_joint_anisotrope_consolide_2026-08-14.log`.
+`donnees/journaux/archive/resultats_calibration_joint_anisotrope_consolide_2026-08-14.log`.
