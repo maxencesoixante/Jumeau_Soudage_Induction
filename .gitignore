@@ -8,13 +8,14 @@ venv/
 build/
 dist/
 resultats/
-journaux/resultats_calibration.log
-journaux/resultats_validation.log
-journaux/resultats_validation_thetafinal.log
-journaux/resultats_validation_2d.log
-journaux/resultats_validation_2d_thermostat.log
-journaux/resultats_validation_2d_final.log
-journaux/resultats_validation_2d_newpos.log
+donnees/resultats/
+donnees/journaux/resultats_calibration.log
+donnees/journaux/resultats_validation.log
+donnees/journaux/resultats_validation_thetafinal.log
+donnees/journaux/resultats_validation_2d.log
+donnees/journaux/resultats_validation_2d_thermostat.log
+donnees/journaux/resultats_validation_2d_final.log
+donnees/journaux/resultats_validation_2d_newpos.log
 .pytest_cache/
 
 # Couche IA (secrets et configs de session éphémères)
@@ -22,13 +23,13 @@ ai_framework/.env
 config/essais/_session_*.yaml
 
 # vidéos brutes caméra thermique (volumineuses ; garder hors dépôt)
-data/**/*.mp4
+donnees/data/**/*.mp4
 
-# diapos de réunion (volumineux ; garder hors dépôt) — tout sous-dossier de docs/
-docs/**/*.pptx
+# diapos de réunion (volumineux ; garder hors dépôt) — tout sous-dossier de biblio/
+biblio/**/*.pptx
 
 # vidéos de présentation (lourdes) — hors VCS comme les pptx
-docs/**/*.mp4
+biblio/**/*.mp4
 
 # exports vectoriels des figures (générés à la demande via FIG_FORMATS, #19) —
 # seul le PNG est versionné ; PDF/TIFF sont produits pour la soumission article
