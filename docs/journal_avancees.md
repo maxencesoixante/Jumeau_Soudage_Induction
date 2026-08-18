@@ -70,7 +70,7 @@ python scripts/valider.py --modele 2D --facteur 6.0123 --decalage-x 0 \
 
 ### 17 juillet — Fondations
 Chaîne EM → thermique complète (`src/jumeau/em`, `thermique`), config géométrie/matériaux,
-première calibration. Revue de littérature (`docs/etat_art_induction.md`).
+première calibration. Revue de littérature (`docs/references/etat_art_induction.md`).
 
 ### 18 juillet — Asservissement + comparaison littérature
 Thermostat de coupure sur consigne (« chauffe jusqu'à T_processing »). Figures type Lionetto
@@ -371,17 +371,22 @@ Détail archivé dans `docs/labo/releves_resolus.md`.
 
 **Documents (`docs/`)**
 - `journal_avancees.md` — **ce document** (point d'entrée, transverse).
-- `etat_art_induction.md` — revue de littérature (transverse).
+- **`docs/references/`** (littérature & dépôts de référence) :
+  - `references/etat_art_induction.md` — revue de littérature (état de l'art).
+  - `references/reference_brassard.md` — dépôt de référence figures (Brassard).
 - **`docs/labo/`** (résultats labo / mesures) :
   - `labo/protocole_exp_dissipation_longitudinale.md` — fiche protocole exp 9.
   - `labo/mesures_a_realiser.md` — mesures encore À FAIRE.
   - `labo/releves_resolus.md` — relevés terrain déjà tranchés (archive).
 - **`docs/modele/`** (résultats modèle numérique) :
-  - `modele/rapport_directrice_jumeau.md` — rapport complet pour la direction.
-  - `modele/rapport_slides_jumeau.md` — trame de présentation (slides).
   - `modele/figures_catalogue.md` — catalogue des figures.
-- `figures/` — dossier unique des figures (modèle + mesures ; variantes `presentation_*`), en place
-  (référencées par les scripts ; PNG 600 dpi).
+  - `modele/audit_lionetto_2017.md`, `modele/verification_croisee_eppy.md`, `modele/leviers_refutes.md`, `modele/facteur_couplage_decomposition.md`.
+- **`docs/presentations/`** (rapports & présentations) :
+  - `presentations/rapport_directrice_jumeau.md` — rapport complet pour la direction.
+  - `presentations/rapport_slides_jumeau.md` — trame de présentation (slides).
+  - `presentations/synthese_consolidation_uq_2026-08-14.md` — synthèse consolidation UQ.
+- `figures/` — **deux dossiers** : `docs/modele/figures/` (modèle) et `docs/labo/figures/` (mesures) ;
+  variantes `presentation_*`, en place (référencées par les scripts ; PNG 600 dpi).
 
 **Journaux de référence (`journaux/resultats_*.log`) — état courant**
 - `journaux/archive/resultats_hauteur_5mm_recalibration.log` — correction hauteur + θ\* courant.

@@ -77,8 +77,7 @@ PAS retenu par le glouton : le masque dur coupe les lobes de bord sans réchauff
 Un concentrateur vraiment localisant (hors modèle de masque 1er ordre) serait nécessaire.*
 
 ## Documents modèle
-- [`rapport_directrice_jumeau.md`](rapport_directrice_jumeau.md) — rapport complet pour la direction.
-- [`rapport_slides_jumeau.md`](rapport_slides_jumeau.md) — trame de présentation.
+- Rapports & slides déplacés vers [`../presentations/`](../presentations/) : [`rapport_directrice_jumeau.md`](../presentations/rapport_directrice_jumeau.md) (rapport direction), [`rapport_slides_jumeau.md`](../presentations/rapport_slides_jumeau.md) (trame de présentation).
 - [`figures_catalogue.md`](figures_catalogue.md) — catalogue des figures.
 - [`verification_croisee_eppy.md`](verification_croisee_eppy.md) — vérification code-à-code du solveur EM contre `eppy` (Grouve, Nagel 2019) : contraste M ~3 reproduit par un code indépendant ; champ de réaction négligeable au régime du jumeau.
 - [`leviers_refutes.md`](leviers_refutes.md) — registre des leviers réfutés conservés derrière flags (thermostat_capteurs, k(T), k_plan anisotrope, lambda_bord) : verdict, réf, comment les rejouer (issue #9).

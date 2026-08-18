@@ -409,7 +409,7 @@ ai_framework/          assistant conversationnel local (optionnel)
 - **Fluxtrol Inc.** — fiche *Ferrotron 559H* ($\mu_i = 16$, courbe de pertes).
 
 **Procédé voisin (référence méthodologique)**
-- **Brassard et al. 2020** (*J. Composite Materials*, [doi](https://doi.org/10.1177/0021998320957055)) — soudage par **résistance** CF/PEEK ; couplage électro-thermique, propriétés $k(T)/c_p(T)$ mesurées. Analysé dans [`docs/reference_brassard.md`](docs/reference_brassard.md).
+- **Brassard et al. 2020** (*J. Composite Materials*, [doi](https://doi.org/10.1177/0021998320957055)) — soudage par **résistance** CF/PEEK ; couplage électro-thermique, propriétés $k(T)/c_p(T)$ mesurées. Analysé dans [`docs/references/reference_brassard.md`](docs/references/reference_brassard.md).
 - **Samanis et al. 2026** — méthode des lignes 1D, identification.
 
 Les données de mesure sont des **copies** du vault Obsidian `Memoire_Soudage_Induction`

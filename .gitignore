@@ -24,11 +24,11 @@ config/essais/_session_*.yaml
 # vidéos brutes caméra thermique (volumineuses ; garder hors dépôt)
 data/**/*.mp4
 
-# diapos de réunion (volumineux ; garder hors dépôt)
-docs/*.pptx
+# diapos de réunion (volumineux ; garder hors dépôt) — tout sous-dossier de docs/
+docs/**/*.pptx
 
-# vidéos de présentation (lourdes) — hors VCS comme docs/*.pptx
-docs/*.mp4
+# vidéos de présentation (lourdes) — hors VCS comme les pptx
+docs/**/*.mp4
 
 # exports vectoriels des figures (générés à la demande via FIG_FORMATS, #19) —
 # seul le PNG est versionné ; PDF/TIFF sont produits pour la soumission article

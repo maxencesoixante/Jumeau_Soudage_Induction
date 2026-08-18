@@ -6,7 +6,7 @@ Remplace les blocs ``mpl.rcParams.update({...})`` dupliqués dans les scripts
 passe seulement ses réglages spécifiques (taille de police, marge…) en
 surcharge — le rendu reste identique.
 
-Voir ``docs/reference_brassard.md`` (§Axe figures) pour la motivation : le dépôt
+Voir ``docs/references/reference_brassard.md`` (§Axe figures) pour la motivation : le dépôt
 de référence Brassard réutilise un unique ``elsevier_theme`` là où nous
 redéfinissions le style dans chaque script.
 """
@@ -86,7 +86,7 @@ def apply_style(*, fonts_only: bool = False, **overrides) -> None:
 # Export multi-format.
 #   Défaut = PNG seul (rendu des slides, byte-identique à l'historique).
 #   Pour l'article : FIG_FORMATS="png,pdf,tiff" (PDF vectoriel + TIFF LZW).
-# Cf. dépôt Brassard (docs/reference_brassard.md), qui exporte PDF+SVG+TIFF.
+# Cf. dépôt Brassard (docs/references/reference_brassard.md), qui exporte PDF+SVG+TIFF.
 # --------------------------------------------------------------------------- #
 def formats_env() -> list[str]:
     """Formats d'export demandés via l'environnement ``FIG_FORMATS`` (défaut ``png``)."""

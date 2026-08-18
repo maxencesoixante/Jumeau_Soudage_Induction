@@ -127,4 +127,4 @@ avec typographie identique au corps, **ET** (b) une chaîne LaTeX est installée
 1. ✅ **Centraliser le style des figures** (`scripts/_style.py`, palette Okabe-Ito, fix `jet`) — **#17 mergé**.
 2. ✅ **Export vectoriel des figures** (PDF + TIFF via `FIG_FORMATS`, PNG conservé) — **#19 mergé**.
 3. ❌ **Schémas de montage en TikZ** — **#20 écarté** (matplotlib + export vectoriel suffit ; pas de LaTeX ; pilotage config à préserver — cf. §Évaluation ci-dessus).
-4. ✅ **Décomposer `facteur_couplage`** — **#21 traité** : non identifiable depuis la température, verdict documenté (`modele/facteur_couplage_decomposition.md`).
+4. ✅ **Décomposer `facteur_couplage`** — **#21 traité** : non identifiable depuis la température, verdict documenté (`../modele/facteur_couplage_decomposition.md`).

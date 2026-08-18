@@ -624,7 +624,7 @@ démarche (résultats négatifs chiffrés, vérifications analytiques, tests de 
 découle de cette organisation.
 
 Une suite d'agents dédiée à la recherche documentaire (« Academic Research Skills », ARS) a
-produit la section d'état de l'art (`docs/etat_art_induction.md`) : un corpus de 13 sources
+produit la section d'état de l'art (`docs/references/etat_art_induction.md`) : un corpus de 13 sources
 vérifiées, chaque affirmation attribuée, sans référence hors corpus vérifié, avec vérification
 de l'existence réelle des citations (protection contre les citations hallucinées). Cette suite
 comprend des modes de revue de littérature, de vérification des faits, et de revue par les
@@ -702,7 +702,7 @@ réel, à lever par un modèle réduit.
 
 Les sources ci-dessous sont celles effectivement mobilisées dans la modélisation (fichiers de
 configuration, docstrings du code, section d'état de l'art vérifiée). La section d'état de
-l'art complète (`docs/etat_art_induction.md`) contient le corpus vérifié de 13 sources avec
+l'art complète (`docs/references/etat_art_induction.md`) contient le corpus vérifié de 13 sources avec
 attribution systématique.
 
 **Modélisation électro-thermique du soudage par induction**
