@@ -82,14 +82,15 @@ calibré dans le jumeau.
 Le jumeau repose sur une formulation de plaque mince, valide tant que l'épaisseur de peau
 δ = √(2ρ/µ₀ω) excède l'épaisseur du stack conducteur. Les modèles éléments finis de référence
 résolvent le champ dans l'épaisseur sans nécessairement expliciter ce critère, et opèrent à des
-fréquences modérées — la bobine d'O'Shaughnessey et al. (2016) est conçue pour 150 kHz, tandis que
-Lionetto et al. (2017) couplent électromagnétisme, thermique et cinétique de fusion/cristallisation en
-régime continu. **Aucune des sources du corpus ne fournit toutefois de seuil chiffré universel « δ
-contre épaisseur » applicable directement au présent montage.** Cette lacune est d'autant plus saillante
-que la machine réelle opère ici à 388 kHz, soit une fréquence sensiblement supérieure aux 150 kHz de la
-littérature de modélisation la plus proche : puisque δ décroît en 1/√ω, la validité de l'hypothèse
-plaque mince doit être re-vérifiée explicitement à cette fréquence, et ne peut être présumée acquise sur
-la seule foi des modèles publiés. Ce point constitue une limite identifiée de l'état actuel des
+fréquences dont la plage recouvre partiellement celle du banc — le dispositif d'O'Shaughnessey et al.
+(2016) couvre 150–450 kHz et a été utilisé à 268 kHz (fréquence de couplage optimale auto-sélectionnée),
+tandis que Lionetto et al. (2017) couplent électromagnétisme, thermique et cinétique de
+fusion/cristallisation en régime continu. **Aucune des sources du corpus ne fournit toutefois de seuil
+chiffré universel « δ contre épaisseur » applicable directement au présent montage.** La machine réelle
+opère ici à 388 kHz : proche des 268 kHz d'O'Shaughnessey et à l'intérieur de la plage de son générateur,
+mais sans qu'un critère plaque mince explicite y soit associé. Puisque δ décroît en 1/√ω, la validité de
+l'hypothèse plaque mince doit être re-vérifiée explicitement à cette fréquence, et ne peut être présumée
+acquise sur la seule foi des modèles publiés. Ce point constitue une limite identifiée de l'état actuel des
 connaissances et un objet de vérification propre au présent travail.
 
 ## 2.x.5 Positionnement
