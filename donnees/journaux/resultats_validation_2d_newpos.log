@@ -1,0 +1,29 @@
+
+=== serieA_A-1 [2D] ===
+     rmse  T_max_sim  T_max_mes  delta_T_max  taux_sim  taux_mes
+TC                                                              
+TC1  77.1      729.4      398.0        331.4      32.5      19.0
+TC2  44.9      476.7      344.9        131.9      16.4      16.1
+TC3  38.3      429.7      383.5         46.2      13.8      10.4
+TC4  47.7      517.7      380.8        136.9      19.5       0.6
+TC5  33.7      493.5      399.3         94.2       0.3       0.6
+RMSE moyen : 48.3 °C ; écart T_max moyen : 148.1 °C
+
+=== serieA_A-3 [2D] ===
+     rmse  T_max_sim  T_max_mes  delta_T_max  taux_sim  taux_mes
+TC                                                              
+TC1  52.4      645.6      399.6        245.9      20.0      13.4
+TC2  43.2      428.2      399.6         28.6      10.2       6.9
+TC3  29.3      421.6      367.5         54.0       9.0       0.4
+TC4  32.6      482.7      379.2        103.5       0.1       0.4
+TC5  33.3      469.5      391.3         78.2       0.5       0.4
+RMSE moyen : 38.2 °C ; écart T_max moyen : 102.0 °C
+
+=== serieB_B-2 [2D] ===
+      rmse  T_max_sim  T_max_mes  delta_T_max  taux_sim  taux_mes
+TC                                                               
+TC1  102.8      667.6      362.4        305.2      32.5      18.9
+TC2   76.4      425.1      353.4         71.7      16.4      13.0
+TC3   63.1      343.5      366.0        -22.5      13.6       9.8
+TC4   71.4      468.4      361.3        107.2      19.4       0.6
+RMSE moyen : 78.4 °C ; écart T_max moyen : 126.6 °C
