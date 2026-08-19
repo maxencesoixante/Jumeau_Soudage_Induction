@@ -171,8 +171,7 @@ alignés en **longueur** à x=0/30/60/90/120 mm (pas 30 mm), y=0. Deux essais 20
   est reproduit (spots avançant de 30 mm, bonne paire de TC chauffée par dwell, décroissance raide) ;
   la balance intra-paire n'est pas fidèle (±15 mm d'incertitude sur la position, pas un défaut).
 - **Portée** : ceci valide la SOURCE en longueur, pas encore le résidu d'étalement. Le test décisif
-  = **phase 2 à y=20 (centre, dominé par la conduction)** → probe direct de `k_plan`. À venir (+
-  autres courants). Figures : `donnees/data/exp9_dissipation-longitudinale_2026-07-28/200A/analyse_*.png`.
+  = **phase 2 à y=20 (centre, dominé par la conduction)** → probe direct de `k_plan`. FAITE le 30-07 (centre y=20, 200 + 175 A) : k_plan≈7,3 identifié via fit conjoint, résidu structurel confirmé (cf. §2 et issue #11). Figures : `donnees/data/exp9_dissipation-longitudinale_2026-07-28/200A/analyse_*.png`.
 
 ### 29 juillet — Exp 9 monospot étendu à 4 courants (bord y=0)
 Ajout des monospots **175 / 226 / 250 A** (+ 175 A semi-statique) à côté du 200 A. Tous coupés au
