@@ -177,7 +177,7 @@ def fig1():
         peaks = []
         for fname in ESSAIS_VALIDES[I]:
             dfc, amb, tc_cols = clean(load_txt(DATA7 / f"{I}A" / fname))
-            peaks.append(dfc[tc_cols].max().to_numpy() - amb)
+            peaks.append(dfc[tc_cols].max().to_numpy())   # °C brut au pic
         peaks = np.array(peaks)
         ax.plot(Y_MM, peaks.mean(axis=0), "-o", color=colors[I], label=f"{I} A (mesuré)",
                 markeredgecolor="white", markeredgewidth=0.5)
@@ -186,7 +186,7 @@ def fig1():
     ax.set_xticks(Y_MM)
     ax.set_title("Profil de température en largeur au pic — 150 / 200 / 250 A")
     ax.set_xlabel("Position en largeur $y$ (mm)")
-    ax.set_ylabel(r"Élévation au pic $\Delta T$ (°C)")
+    ax.set_ylabel("Température au pic (°C)")
     legend_right(ax, title="Courant")
     savefig(fig, "fig1_profil_M.png")
 
@@ -204,8 +204,7 @@ def fig2():
     fig, ax = plt.subplots(figsize=(6.4, 3.4))
     # --- mesuré : pics ΔT par TC en largeur (exp7 200 A), normalisés au centre (TC3) ---
     dfc, amb, _ = clean(load_txt(DATA7 / "200A" / "200A_v6.txt"))
-    mes = np.array([dfc[f"TC{i}"].max() for i in range(1, 6)]) - amb
-    mesure = mes / mes[2]
+    mesure = np.array([dfc[f"TC{i}"].max() for i in range(1, 6)])   # °C brut au pic
     # --- modèle : simulation 2D au θ* de référence, pics ΔT aux 5 positions y ---
     from jumeau.materiaux import Config
     from jumeau.procede import Essai
@@ -213,12 +212,12 @@ def fig2():
     e = Essai(cfg, R / "code" / "config" / "essais" / "exp7_200A.yaml", nx=61, ny=21, nz=15,
               facteur_couplage=6.0123, decalage_x=0.0, racine=R)
     sv, sol = e.simuler(modele="2D")
-    mod = np.array([sv.serie_temporelle(sol, 0.060, y, "interface").max()
-                    for y in (0.0, 0.010, 0.020, 0.030, 0.040)])
+    modele = np.array([sv.serie_temporelle(sol, 0.060, y, "interface").max()
+                       for y in (0.0, 0.010, 0.020, 0.030, 0.040)])   # °C brut au pic
     amb_m = float(sv.serie_temporelle(sol, 0.060, 0.020, "interface")[0])
-    modele = (mod - amb_m) / (mod[2] - amb_m)
-    c_mes = (mesure[0] + mesure[4]) / 2
-    c_mod = (modele[0] + modele[4]) / 2
+    # contraste M = ratio d'élévation chant/centre (métrique interne, pas l'axe)
+    c_mes = ((mesure[0] + mesure[4]) / 2 - amb) / (mesure[2] - amb)
+    c_mod = ((modele[0] + modele[4]) / 2 - amb_m) / (modele[2] - amb_m)
     ax.plot(Y_MM, mesure, "-o", color=C200, markeredgecolor="white", markeredgewidth=0.5,
             label=f"Mesuré — exp7, 200 A (contraste {c_mes:.2f})".replace(".", ","))
     ax.plot(Y_MM, modele, "--s", color=C_MODEL, markeredgecolor="white", markeredgewidth=0.5,
@@ -226,10 +225,11 @@ def fig2():
     ax.set_xticks(Y_MM)
     ax.set_title("Forme du profil en largeur : mesuré vs modèle (200 A)")
     ax.set_xlabel("Position en largeur $y$ (mm)")
-    ax.set_ylabel("Température normalisée (–)")
+    ax.set_ylabel("Température au pic (°C)")
     ax.annotate("le modèle sur-contraste\nle M (chants trop chauds)",
-                xy=(0, modele[0]), xytext=(9, modele[0] - 0.1), fontsize=8, color="0.35",
-                ha="left", va="top", arrowprops=dict(arrowstyle="-", color="0.55", lw=0.6))
+                xy=(0, modele[0]), xytext=(38, -4), textcoords="offset points",
+                fontsize=8, color="0.35", ha="left", va="top",
+                arrowprops=dict(arrowstyle="-", color="0.55", lw=0.6))
     legend_right(ax)
     savefig(fig, "fig2_mesure_modele.png")
 
@@ -242,8 +242,8 @@ def fig3():
     first = True
     for fname in ["200A_v4_TC1ok.txt", "200A_v5.txt", "200A_v6.txt"]:
         dfc, amb, tc_cols = clean(load_txt(DATA7 / "200A" / fname))
-        chant = np.maximum(dfc["TC1"], dfc["TC5"]).to_numpy() - amb
-        centre = dfc["TC3"].to_numpy() - amb
+        chant = np.maximum(dfc["TC1"], dfc["TC5"]).to_numpy()   # °C brut
+        centre = dfc["TC3"].to_numpy()                          # °C brut
         i = int(np.argmax(chant))
         ax.plot(chant[:i + 1], centre[:i + 1], "-", color=C200, alpha=0.6, lw=1.1,
                 label="Mesuré (200 A, 3 essais)" if first else None)
@@ -257,24 +257,24 @@ def fig3():
     cfg.contact.h_haut = 30.087
     cfg.ambiant.h_bas_2d = 37.424
     cfg.ambiant.h_bord_x0 = 250.0
-    e = Essai(cfg, R / "config/essais/chauffe_250A_3TC.yaml", nx=61, ny=21, nz=15,
+    e = Essai(cfg, R / "code/config/essais/chauffe_250A_3TC.yaml", nx=61, ny=21, nz=15,
               facteur_couplage=6.0123, decalage_x=0.0, racine=R)
     e._Q_spots = [source_spot(e.grille, cfg, e.couches, 200.0, float(s["centre_x"]),
                   facteur_couplage=6.0123, decalage_x=0.0) for s in e.spots]
     e._P_spots_2d = [Q.sum(axis=2) * e.grille.dz for Q in e._Q_spots]
     sv, sol = e.simuler(modele="2D")
     amb_m = 23.9
-    cM = sv.serie_temporelle(sol, 0.060, 0.020, "interface") - amb_m
+    cM = sv.serie_temporelle(sol, 0.060, 0.020, "interface")   # °C brut
     eM = np.maximum(sv.serie_temporelle(sol, 0.060, 0.0, "interface"),
-                     sv.serie_temporelle(sol, 0.060, 0.040, "interface")) - amb_m
+                     sv.serie_temporelle(sol, 0.060, 0.040, "interface"))   # °C brut
     i = int(np.argmax(eM))
     ax.plot(eM[:i + 1], cM[:i + 1], "--", color=C_MODEL, lw=1.4, label="Modèle (2D, 200 A)")
 
     ax.set_title("Dynamique centre–chant : mesuré vs modèle (200 A)")
-    ax.set_xlabel(r"Température des chants $\Delta T$ (°C)")
-    ax.set_ylabel(r"Température du centre $\Delta T$ (°C)")
-    ax.set_xlim(0, 235)
-    ax.set_ylim(0, 110)
+    ax.set_xlabel("Température des chants (°C)")
+    ax.set_ylabel("Température du centre (°C)")
+    ax.set_xlim(20, 265)
+    ax.set_ylim(20, 140)
     legend_right(ax)
     savefig(fig, "fig3_dynamique_centre.png")
 
@@ -467,7 +467,7 @@ def fig_dissipation_monospot():
     (b) : profils normalisés au spot, qui se superposent en une seule courbe =
     forme de la source en longueur INVARIANTE avec le courant.
     """
-    fig, (axa, axb) = plt.subplots(1, 2, figsize=(9.4, 3.5))
+    fig, axa = plt.subplots(figsize=(6.6, 3.6))
     x = np.array([0, 30, 60, 90, 120])
     modele_norm = np.array([0.013, 0.094, 1.00, 0.094, 0.027])   # forme modèle (symétrique)
 
@@ -478,35 +478,21 @@ def fig_dissipation_monospot():
         dT = mesure - amb
         pics_dT.append(dT[2])
         col = DISSIP_COLOR[I]
-        # (a) absolu °C
         axa.plot(x, mesure, "-o", color=col, markeredgecolor="white", markeredgewidth=0.5,
-                 label=f"{I} A (mesuré)", zorder=3)
-        # (b) normalisé au spot
-        axb.plot(x, dT / dT[2], "-o", color=col, markeredgecolor="white", markeredgewidth=0.5,
                  label=f"{I} A (mesuré)", zorder=3)
 
     # Modèle : forme normalisée, remise à l'échelle absolue via le pic moyen mesuré
     dT_ref = float(np.mean(pics_dT))
     axa.plot(x, modele_norm * dT_ref + 25.0, "--s", color=C_MODEL, markeredgecolor="white",
              markeredgewidth=0.5, label="Modèle 2D", zorder=2)
-    axb.plot(x, modele_norm, "--s", color=C_MODEL, markeredgecolor="white",
-             markeredgewidth=0.5, label="Modèle 2D", zorder=2)
 
-    for ax in (axa, axb):
-        ax.axvline(60, ls=":", color="0.6", lw=0.8, zorder=0)
-        ax.set_xticks(x)
-        ax.set_xlabel("Position en longueur $x$ (mm)")
+    axa.axvline(60, ls=":", color="0.6", lw=0.8, zorder=0)
+    axa.set_xticks(x)
+    axa.set_xlabel("Position en longueur $x$ (mm)")
     axa.set_ylabel("Température de pic atteinte (°C)")
-    axb.set_ylabel("Profil normalisé au spot (–)")
-    panel_title(axa, "(a) pics absolus — 4 courants")
-    panel_title(axb, "(b) normalisé : forme invariante en courant")
-    # Légende partagée sous les deux panneaux (hors des courbes)
-    handles, labels = axb.get_legend_handles_labels()
-    fig.legend(handles, labels, loc="lower center", ncol=5, frameon=False,
-               fontsize=8.5, bbox_to_anchor=(0.5, -0.01))
-    fig.suptitle("Décroissance longitudinale : mesuré vs modèle (spot unique, $y$=0)",
-                 fontsize=12, fontweight="bold", y=1.02)
-    fig.tight_layout(rect=(0, 0.08, 1, 1))
+    axa.set_title("Décroissance longitudinale : mesuré vs modèle (spot unique, $y$=0)")
+    legend_right(axa, title="Courant")
+    fig.tight_layout()
     savefig(fig, "fig_dissipation_monospot.png")
 
 

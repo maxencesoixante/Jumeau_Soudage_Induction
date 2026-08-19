@@ -73,7 +73,7 @@ def analyse(path: Path, courant: int) -> dict:
     print(f"  tau = {tau:.0f} s ; alpha = {alpha*1e6:.2f}e-6 m2/s ; k_plan = {k:.1f} W/m·K")
     return dict(t=t, dT=dT, dTpk=dTpk, dist=dist, L=L, L_left=L_left,
                 L_right=L_right, tau=tau, tcut=tcut, alpha=alpha, k=k,
-                n_tau=len(taus), courant=courant)
+                n_tau=len(taus), courant=courant, Tinf=Tinf)
 
 
 import matplotlib.pyplot as plt  # noqa: E402
@@ -85,27 +85,27 @@ C_MES, C_FIT = "#0072B2", "#D55E00"           # Okabe-Ito bleu / orange
 fig, ax = plt.subplots(1, 2, figsize=(11, 4.2))
 r = r200
 
-ax[0].plot(XPOS * 1e3, r["dTpk"], "o", color=C_MES, ms=8, label="ΔT au pic (mesuré)")
+Tinf = r["Tinf"]
+ax[0].plot(XPOS * 1e3, r["dTpk"] + Tinf, "o", color=C_MES, ms=8, label="T au pic (mesuré)")
 xx = np.linspace(60, 120, 50)
 s, b = np.polyfit(r["dist"][[2, 3, 4]], np.log(r["dTpk"][[2, 3, 4]]), 1)
-ax[0].plot(xx, np.exp(b + s * (xx - 60) / 1e3), "--", color=C_FIT,
-           label=fr"$\exp(-x/L)$, $L\approx{r['L']*1e3:.0f}$ mm")
+ax[0].plot(xx, np.exp(b + s * (xx - 60) / 1e3) + Tinf, "--", color=C_FIT,
+           label=fr"décroissance, $L\approx{r['L']*1e3:.0f}$ mm")
 ax[0].axvline(60, color="0.6", ls=":", lw=1)
-ax[0].set_yscale("log")
 ax[0].set_xlabel("x (mm)  — spot à 60")
-ax[0].set_ylabel("ΔT au pic (°C)")
+ax[0].set_ylabel("Température au pic (°C)")
 ax[0].set_title("(a) Longueur de décroissance $L$")
 ax[0].legend(fontsize=8)
 
 j = 2
-ax[1].plot(r["t"], r["dT"][:, j], "-", color=C_MES, label="TC3 (spot) ΔT(t)")
+ax[1].plot(r["t"], r["dT"][:, j] + Tinf, "-", color=C_MES, label="TC3 (spot)")
 m = (r["t"] > r["tcut"] + 15) & (r["dT"][:, j] > 3)
 s, b = np.polyfit(r["t"][m], np.log(r["dT"][m, j]), 1)
-ax[1].plot(r["t"][m], np.exp(b + s * r["t"][m]), "--", color=C_FIT,
-           label=fr"$\exp(-t/\tau)$, $\tau\approx{r['tau']:.0f}$ s")
+ax[1].plot(r["t"][m], np.exp(b + s * r["t"][m]) + Tinf, "--", color=C_FIT,
+           label=fr"refroidissement, $\tau\approx{r['tau']:.0f}$ s")
 ax[1].axvline(r["tcut"], color="0.6", ls=":", lw=1)
 ax[1].set_xlabel("t (s)")
-ax[1].set_ylabel("ΔT (°C)")
+ax[1].set_ylabel("Température (°C)")
 ax[1].set_title(r"(b) Constante de refroidissement $\tau$")
 ax[1].legend(fontsize=8)
 

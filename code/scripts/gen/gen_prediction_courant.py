@@ -89,7 +89,7 @@ def construire_essai():
     cfg.contact.h_haut = 30.087
     cfg.ambiant.h_bas_2d = 37.424
     cfg.ambiant.h_bord_x0 = 250.0
-    e = Essai(cfg, R / "config/essais/exp7_200A.yaml", nx=NX, ny=NY, nz=NZ,
+    e = Essai(cfg, R / "code/config/essais/exp7_200A.yaml", nx=NX, ny=NY, nz=NZ,
               facteur_couplage=FACTEUR_COUPLAGE, decalage_x=DECALAGE_X, racine=R)
     # Protocole IDENTIQUE impose pour tous les courants (cf. docstring module) :
     # ecrase le t_fin du spot unique et la duree totale simulee de l'essai
