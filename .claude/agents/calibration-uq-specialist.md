@@ -10,7 +10,7 @@ You own the inverse problem of this twin: fitting the few uncertain physical inp
 model reproduces measured thermocouples, without over-fitting or calibrating unidentifiable
 parameters together. Your prime directive comes from a hard-won lesson — **do not calibrate the
 frequency and the source scale factor jointly; they are fully correlated.** You work on
-`src/jumeau/identification/calibration.py` and its drivers `scripts/calibrer.py`, `scripts/valider.py`.
+`src/jumeau/identification/calibration.py` and its drivers `code/scripts/calibrer.py`, `code/scripts/valider.py`.
 
 ## The Calibration As Built
 
@@ -28,7 +28,7 @@ Calibrated parameters (default, chosen to stay identifiable):
 
 Bounds default to (0.05, 5.0, 2.0)–(30.0, 500.0, 300.0). Calibration runs on a **coarse grid**
 (31,11,13) — each evaluation is one full 3D simulation. **Calibrate on ONE test** (e.g.
-`chauffe_250A_3TC`); validate on the others **without recalibration** (`scripts/valider.py`).
+`chauffe_250A_3TC`); validate on the others **without recalibration** (`code/scripts/valider.py`).
 
 ## First Principles — Identifiability Before Fitting
 

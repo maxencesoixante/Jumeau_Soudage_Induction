@@ -6,7 +6,7 @@ le modèle prédit **où et à quelle vitesse la matière chauffe** à l'interfa
 une carte de température 3D dans le temps puis la confronte aux **thermocouples** des
 essais réels (maîtrise, LIPEC/ÉTS).
 
-![Carte de température à l'interface de soudure prédite par le jumeau](docs/modele/figures/fig_empreinte_soudure.png)
+![Carte de température à l'interface de soudure prédite par le jumeau](biblio/modele/figures/fig_empreinte_soudure.png)
 
 > *Ce que produit le jumeau : la carte de température à l'interface sous l'empreinte de
 > chauffe, à la manière de Lionetto et al. 2017 (Fig. 4). Les deux lobes chauds vers les
@@ -44,7 +44,7 @@ Fluxtrol Ferrotron 559H) canalise le champ vers une empreinte étroite. Un pli *
 (tissu de carbone sergé, 0,20 mm) placé à l'interface sert de **suscepteur** : très
 conducteur, il concentre la dissipation au bon plan.
 
-![Montage exp7 — vue de dessus et coupe](docs/modele/figures/schema_montage_exp7.png)
+![Montage exp7 — vue de dessus et coupe](biblio/modele/figures/schema_montage_exp7.png)
 
 > *Le montage semi-statique : coupon CF/PEKK **120 × 40 mm**, concentrateur MFC
 > **31,5 × 55 mm**, bobine hairpin en tube Cu **6 × 6 mm** (entraxe des brins 12,35 mm),
@@ -99,7 +99,7 @@ $$
 \mathbf{B}(\mathbf{r}) = \frac{\mu_0 I}{4\pi} \int \frac{d\boldsymbol{\ell} \times (\mathbf{r}-\mathbf{r}')}{\lVert \mathbf{r}-\mathbf{r}' \rVert^{3}}
 $$
 
-![Définitions de la loi de Biot-Savart](docs/modele/figures/ext/biot_savart_grouve.png)
+![Définitions de la loi de Biot-Savart](biblio/modele/figures/ext/biot_savart_grouve.png)
 
 > *Géométrie de la loi de Biot-Savart : un élément de courant $I\,d\boldsymbol{\ell}$ en
 > $\mathbf{r}'$ contribue au champ en $\mathbf{r}$. (Figure reproduite du dépôt **eppy** de
@@ -146,7 +146,7 @@ traverser le chant** de la plaque. Les boucles de courant induites sont donc **�
 contre les bords libres**, ce qui concentre la dissipation aux chants et l'annule au centre
 de chaque boucle — c'est l'origine du **profil en « M »** en largeur :
 
-![Profil en M : température en largeur au pic, à 3 courants](docs/labo/figures/fig1_profil_M.png)
+![Profil en M : température en largeur au pic, à 3 courants](biblio/labo/figures/fig1_profil_M.png)
 
 > *Conséquence directe de $\psi=0$ au bord : la température au pic dessine un « M » sur la
 > largeur — chaude aux chants ($y = 0$ et $40$ mm), creuse au centre ($y = 20$ mm). Mesuré à
@@ -197,7 +197,7 @@ BDF implicite, jacobien creux).
 
 La source électromagnétique est calculée à un **facteur d'échelle** près (`facteur_couplage`,
 qui absorbe l'efficacité du couplage, l'incertitude sur σ et les contacts fibre-fibre — voir
-[`docs/modele/facteur_couplage_decomposition.md`](docs/modele/facteur_couplage_decomposition.md)).
+[`biblio/modele/facteur_couplage_decomposition.md`](biblio/modele/facteur_couplage_decomposition.md)).
 Ce facteur et 2-3 coefficients d'échange sont **calibrés par moindres carrés non linéaires**
 (pondérés par le bruit capteur, initialisés par un plan LHS) contre **un seul essai**, puis le
 modèle est **validé sur les autres essais sans recalibrage**.
@@ -215,7 +215,7 @@ on l'a faite, et ce qu'elle a montré.
 savoir si ce contraste est réel ou exagéré.* Cinq thermocouples en travers de la largeur
 ($y = 0/10/20/30/40$ mm), à 5 courants (150→250 A), avec céramique en place.
 
-![Forme du M : mesuré vs modèle, 200 A](docs/labo/figures/fig2_mesure_modele.png)
+![Forme du M : mesuré vs modèle, 200 A](biblio/labo/figures/fig2_mesure_modele.png)
 
 > *La **forme** du M est bien reproduite (chants chauds, centre creux), mais le modèle
 > **sur-contraste** le rapport bord/centre. Ce résidu est aujourd'hui la principale limite
@@ -228,12 +228,12 @@ conduction, ce qui permet de mesurer directement l'étalement thermique dans le 
 ligne de thermocouples en longueur ($x = 0 \ldots 120$ mm) valide la décroissance
 longitudinale de la source.
 
-![Montage exp9 — dissipation longitudinale](docs/modele/figures/schema_montage_exp9.png)
+![Montage exp9 — dissipation longitudinale](biblio/modele/figures/schema_montage_exp9.png)
 
 > *Montage exp9 : les 5 thermocouples sont alignés en **longueur** au bord ($y = 0$),
 > $x = 0/30/60/90/120$ mm, pour suivre la propagation de la chaleur le long du joint.*
 
-![Dissipation longitudinale — spot unique](docs/labo/figures/fig_dissipation_monospot.png)
+![Dissipation longitudinale — spot unique](biblio/labo/figures/fig_dissipation_monospot.png)
 
 > *Décroissance de $\Delta T$ le long de la longueur pour un spot centré : la décroissance
 > raide de la source en longueur est bien reproduite (phase 1, au bord). La phase au centre
@@ -244,7 +244,7 @@ longitudinale de la source.
 *Le vrai procédé n'est pas un point chaud statique mais une tête qui s'indexe le long du
 joint ; il fallait vérifier que le modèle enchaîne correctement les passes.*
 
-![Procédé semi-statique — 4 dwells](docs/modele/figures/fig_procede_semistatique.png)
+![Procédé semi-statique — 4 dwells](biblio/modele/figures/fig_procede_semistatique.png)
 
 > *Un panneau par empreinte : la bobine s'arrête successivement à 4 positions, chaque passe
 > réchauffant sa zone puis diffusant vers les voisines.*
@@ -254,7 +254,7 @@ joint ; il fallait vérifier que le modèle enchaîne correctement les passes.*
 *Pour piloter le procédé, on veut relier une grandeur réglable (le courant) à une grandeur
 utile (la vitesse de chauffe) ; cette loi sert de base à la prédiction.*
 
-![Loi en courant : taux de chauffe au chant vs courant](docs/labo/figures/fig5_loi_courant.png)
+![Loi en courant : taux de chauffe au chant vs courant](biblio/labo/figures/fig5_loi_courant.png)
 
 > *La puissance induite variant comme $I^2$, le taux de chauffe suit une loi en courant
 > mesurée (R² = 0,999), fréquence constante 388 ± 2 kHz.*
@@ -264,7 +264,7 @@ utile (la vitesse de chauffe) ; cette loi sert de base à la prédiction.*
 *Souder demande d'être au-dessus de la fusion sans dégrader le PEKK ; tracer cette fenêtre
 guide le choix courant × temps.*
 
-![Fenêtre de soudage](docs/labo/figures/fig_fenetre_soudage.png)
+![Fenêtre de soudage](biblio/labo/figures/fig_fenetre_soudage.png)
 
 > *La zone admissible entre l'atteinte de la fusion (337 °C) et la dégradation (~450 °C), en
 > fonction du courant et du temps de chauffe.*
@@ -279,8 +279,8 @@ indépendant** validé dans la littérature.
 Un code indépendant, isotrope, sans MFC, **reproduit le même contraste (~3,0)** : le M
 sur-contrasté est donc de la **vraie physique plaque-mince**, pas un artefact de notre
 implémentation. Détails :
-[`docs/modele/verification_croisee_eppy.md`](docs/modele/verification_croisee_eppy.md) ;
-solveur vendoré sous [`third_party/eppy/`](third_party/eppy/).
+[`biblio/modele/verification_croisee_eppy.md`](biblio/modele/verification_croisee_eppy.md) ;
+solveur vendoré sous [`code/third_party/eppy/`](code/third_party/eppy/).
 
 ---
 
@@ -291,9 +291,9 @@ reproduit bien la forme des profils et les taux de chauffe ; les écarts résidu
 documentés et tracés à un **seul défaut structurel** : un étalement de chaleur dans le plan
 un peu trop lent (le M trop contrasté). Ce diagnostic a été **corroboré par un second solveur
 EM indépendant** (§4) et par un audit ligne-à-ligne contre la référence Lionetto 2017
-([`docs/modele/audit_lionetto_2017.md`](docs/modele/audit_lionetto_2017.md)).
+([`biblio/modele/audit_lionetto_2017.md`](biblio/modele/audit_lionetto_2017.md)).
 
-![Historiques thermocouples bruts d'un essai](docs/labo/figures/fig4_courbes_brutes.png)
+![Historiques thermocouples bruts d'un essai](biblio/labo/figures/fig4_courbes_brutes.png)
 
 > *Exemple de données brutes : les 5 historiques température-temps d'un essai (200 A),
 > groupés par symétrie de position — le type de mesure auquel le modèle est confronté.*
@@ -332,11 +332,11 @@ Paramètres de référence 2D (θ\* canonique) : `facteur_couplage = 6,0123`,
 - **Pas de mécanique** (pression, squeeze-out) ni de **cristallisation** — hors périmètre du
   champ de température.
 - Écarts assumés vs Lionetto 2017 ($\sigma(T)$, forme de fusion, cristallisation) : verdicts
-  datés dans [`docs/modele/audit_lionetto_2017.md`](docs/modele/audit_lionetto_2017.md) §6.
+  datés dans [`biblio/modele/audit_lionetto_2017.md`](biblio/modele/audit_lionetto_2017.md) §6.
 
 La chronologie complète des diagnostics (corrections de géométrie, artefacts de maillage,
-leviers réfutés) est conservée dans [`docs/modele/`](docs/modele/) — notamment le registre
-des [leviers réfutés](docs/modele/leviers_refutes.md).
+leviers réfutés) est conservée dans [`biblio/modele/`](biblio/modele/) — notamment le registre
+des [leviers réfutés](biblio/modele/leviers_refutes.md).
 
 ---
 
@@ -344,48 +344,51 @@ des [leviers réfutés](docs/modele/leviers_refutes.md).
 
 ```bash
 python -m venv .venv && source .venv/bin/activate
-pip install -e ".[dev]"
-pytest                                    # vérifications analytiques + régression
+pip install -e "code[dev]"                # le package vit sous code/
+( cd code && pytest )                     # vérifications analytiques + régression (depuis code/)
 
-# simuler un essai + figures (dans resultats/)
-python scripts/simuler_essai.py config/essais/chauffe_250A_3TC.yaml
+# simuler un essai + figures (sorties dans donnees/resultats/)
+python code/scripts/simuler_essai.py code/config/essais/chauffe_250A_3TC.yaml
 
 # calibrer sur un essai, puis valider les autres SANS recalibrage
-python scripts/calibrer.py --essai serieA_A-1 --modele 2D
-python scripts/valider.py --modele 2D --facteur <F> --h-haut <H> --h-bas-2d <H>
+python code/scripts/calibrer.py --essai serieA_A-1 --modele 2D
+python code/scripts/valider.py --modele 2D --facteur <F> --h-haut <H> --h-bas-2d <H>
 ```
 
-**Figures.** Le jeu de figures se régénère avec les scripts `scripts/gen/gen_*.py` (style
-centralisé dans `scripts/_style.py`, palette Okabe-Ito). Par défaut en **PNG** ; pour la
+**Figures.** Le jeu de figures se régénère avec les scripts `code/scripts/gen/gen_*.py` (style
+centralisé dans `code/scripts/_style.py`, palette Okabe-Ito). Par défaut en **PNG** ; pour la
 soumission d'article, un export **vectoriel** est disponible :
 
 ```bash
-FIG_FORMATS="png,pdf,tiff" python scripts/gen/gen_figures_elsevier.py   # PDF vectoriel + TIFF LZW
+FIG_FORMATS="png,pdf,tiff" python code/scripts/gen/gen_figures_elsevier.py   # PDF vectoriel + TIFF LZW
 ```
 
-**Assistant conversationnel (optionnel).** Une couche IA locale (`ai_framework/`, orchestrateur
+**Assistant conversationnel (optionnel).** Une couche IA locale (`ia/`, orchestrateur
 Ollama + 3 outils) permet de piloter le jumeau en langage naturel — cf.
-[`ai_framework/README.md`](ai_framework/README.md).
+[`ia/README.md`](ia/README.md).
 
 ---
 
 ## 8. Structure du dépôt
 
 ```
-src/jumeau/            cœur du modèle
-  em/                  champ magnétique, courants de Foucault, source Joule
-  thermique/           solveurs thermiques 2D / 3D transitoires
-  materiaux.py         propriétés matériau, configuration
-  procede.py           essai, empreintes séquentielles, thermostat
-  identification/      calibration (LHS + NLSQ)
-  validation/          ingestion thermocouples, métriques
-config/                géométrie, matériaux, définitions d'essais (YAML)
-data/                  mesures thermocouples (copies du vault Obsidian)
-scripts/               simulation, calibration, validation, génération de figures
-docs/                  README modèle, audit, catalogue de figures, notes
-third_party/eppy/      solveur EM de référence (vendoré, MIT) pour la vérif croisée
-tests/                 vérifications analytiques + régression (pytest)
-ai_framework/          assistant conversationnel local (optionnel)
+code/                  tout le code du jumeau (auto-portant : pyproject.toml y vit)
+  code/src/jumeau/          cœur du modèle
+    em/                champ magnétique, courants de Foucault, source Joule
+    thermique/         solveurs thermiques 2D / 3D transitoires
+    materiaux.py       propriétés matériau, configuration
+    procede.py         essai, empreintes séquentielles, thermostat
+    identification/    calibration (LHS + NLSQ)
+    validation/        ingestion thermocouples, métriques
+  code/config/              géométrie, matériaux, définitions d'essais (YAML)
+  code/scripts/             simulation, calibration, validation, génération de figures
+  code/third_party/eppy/    solveur EM de référence (vendoré, MIT) pour la vérif croisée
+  tests/               vérifications analytiques + régression (pytest)
+donnees/               mesures thermocouples (donnees/data/), journaux de runs (donnees/journaux/),
+                       sorties de simulation (donnees/resultats/, gitignoré)
+biblio/                documentation & références : état de l'art, rapports, présentations,
+                       notes modèle/labo, plans & specs
+ia/                    assistant conversationnel local (optionnel, orchestrateur Ollama)
 ```
 
 ---
@@ -395,12 +398,12 @@ ai_framework/          assistant conversationnel local (optionnel)
 **Physique du modèle & homogénéisation**
 - **Lin 1993** — différences finies 2D, courants de Foucault en plaque mince (formulation $\psi$).
 - **Grouve 2020** — propriétés C/PEKK, $\mu_r = 1$, tenseur $\sigma$.
-- **Lionetto et al. 2017** (*Materials & Design* 120, 212–221, [doi](https://doi.org/10.1016/j.matdes.2017.02.024)) — modèle EF du soudage induction continu CF/PAEK ; **référence de l'audit** ([`docs/modele/audit_lionetto_2017.md`](docs/modele/audit_lionetto_2017.md)).
+- **Lionetto et al. 2017** (*Materials & Design* 120, 212–221, [doi](https://doi.org/10.1016/j.matdes.2017.02.024)) — modèle EF du soudage induction continu CF/PAEK ; **référence de l'audit** ([`biblio/modele/audit_lionetto_2017.md`](biblio/modele/audit_lionetto_2017.md)).
 - **O'Shaughnessey 2014** (même labo) — homogénéisation, conditions aux limites, sensibilité.
 - **Duhovic 2012** — profondeur de peau, maillage de peau, convection.
 
 **Vérification croisée & solveur de référence**
-- **Grouve — `eppy`** ([github.com/wjbg/eppy](https://github.com/wjbg/eppy), MIT, commit `62f0030`, validé contre **Nagel 2019**) — 2ᵉ solveur EM plaque mince indépendant (potentiel $T \equiv \psi$), **vendoré** sous [`third_party/eppy/`](third_party/eppy/) ; la figure Biot-Savart de ce README en provient (MIT).
+- **Grouve — `eppy`** ([github.com/wjbg/eppy](https://github.com/wjbg/eppy), MIT, commit `62f0030`, validé contre **Nagel 2019**) — 2ᵉ solveur EM plaque mince indépendant (potentiel $T \equiv \psi$), **vendoré** sous [`code/third_party/eppy/`](code/third_party/eppy/) ; la figure Biot-Savart de ce README en provient (MIT).
 
 **Conductivité, propriétés matériau**
 - **Buser et al. 2025 / 2026** (*Composites Part A*) — conductivité électrique longitudinale / transverse des CFRP UD.
@@ -409,7 +412,7 @@ ai_framework/          assistant conversationnel local (optionnel)
 - **Fluxtrol Inc.** — fiche *Ferrotron 559H* ($\mu_i = 16$, courbe de pertes).
 
 **Procédé voisin (référence méthodologique)**
-- **Brassard et al. 2020** (*J. Composite Materials*, [doi](https://doi.org/10.1177/0021998320957055)) — soudage par **résistance** CF/PEEK ; couplage électro-thermique, propriétés $k(T)/c_p(T)$ mesurées. Analysé dans [`docs/references/reference_brassard.md`](docs/references/reference_brassard.md).
+- **Brassard et al. 2020** (*J. Composite Materials*, [doi](https://doi.org/10.1177/0021998320957055)) — soudage par **résistance** CF/PEEK ; couplage électro-thermique, propriétés $k(T)/c_p(T)$ mesurées. Analysé dans [`biblio/references/reference_brassard.md`](biblio/references/reference_brassard.md).
 - **Samanis et al. 2026** — méthode des lignes 1D, identification.
 
 Les données de mesure sont des **copies** du vault Obsidian `Memoire_Soudage_Induction`

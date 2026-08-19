@@ -15,7 +15,7 @@ le bruit capteur, porté du notebook 1D validé (Samanis 2026 §2.3).
 ## Procédure
 1. **Activer le venv** puis lancer la calibration sur l'essai de référence (défaut : `chauffe_250A_3TC`, l'essai de chauffe simple spot avec gradient d'épaisseur — le plus propre) :
    ```bash
-   .venv/bin/python scripts/calibrer.py --essai chauffe_250A_3TC --n-lhs 12
+   .venv/bin/python code/scripts/calibrer.py --essai chauffe_250A_3TC --n-lhs 12
    ```
    Grille **grossière par défaut** (31×11×13) : chaque évaluation = une simulation 3D complète, donc on garde la grille légère pendant le fit.
 2. Lire la sortie : paramètres calibrés, `Coût final`, `succès`. Le script imprime directement la commande `valider.py` à lancer ensuite.

@@ -1,0 +1,42 @@
+# Essai exp9_200A_monospot — dissipation longitudinale, spot unique fixe,
+# 200 A, ligne de bord (y=0). Source : data/exp9_dissipation-longitudinale_
+# 2026-07-28/README.md, section « 200A/200A_y0_monospot.txt » (✔).
+# Fichier tab-séparé, décimale virgule ; auto-détecté par charger_mesures,
+# aucune modification nécessaire.
+#
+# Protocole : MFC centré sur TC3 (x=0.060), spot fixe, PAS de multi-passes,
+# PAS de consigne (chauffe continue à courant constant, coupure MANUELLE au
+# pic ~236-277 °C, échantillon réutilisable). Décroissance longitudinale
+# quasi symétrique (léger biais +x = asymétrie de montage, cf. README) —
+# sonde la FORME de la source en longueur (résidu d'étalement testé ici).
+#
+# centre_y du spot : NON configurable dans le modèle (source_spot /
+# masque_empreinte_cfc centrent toujours en y sur largeur/2=0.020, cf.
+# geometrie.py) -- seul centre_x est spécifiable. La position y=0 de la ligne
+# de TC (bord) capte donc le LOBE chaud du profil en « M » (écrasement du
+# courant de Foucault au bord, cf. serieA_A-1/B-2 -- même convention), pas un
+# déplacement du spot lui-même.
+#
+# Fenêtre de chauffe DÉTECTÉE (charger_mesures + recaler_a_la_chauffe, seuil
+# dT/dt=1 °C/s) : onset ≈ t=0 (recalé) ; pic combiné (TC3, au spot) atteint à
+# t≈13.0 s -> t_fin=13.0 s. Durée totale mesurée après recalage (fin de
+# fichier, incluant le refroidissement) : 241.0 s.
+# Pics mesurés (°C) : TC1=33.5 TC2=50.1 TC3=277.4 TC4=65.3 TC5=40.9
+# (ambiant ≈ 33.2 °C) — indicatif (pas de consigne active).
+nom: exp9_200A_monospot
+fichier_mesures: donnees/data/exp9_dissipation-longitudinale_2026-07-28/200A/200A_y0_monospot.txt
+courant: 200.0                # A
+duree_chauffe: 13.0             # s (fenêtre de chauffe détectée, coupure manuelle)
+duree_totale: 241.0             # s simulés (fenêtre + refroidissement mesuré)
+spots:
+  # Spot UNIQUE fixe, centré en longueur x=0.060 (= centre du coil).
+  - {centre_x: 0.060, t_debut: 0.0, t_fin: 13.0}
+thermocouples:
+  # 5 TC en LONGUEUR à y=0.000 (ligne de bord), tous à l'interface.
+  # x=0 / 30 / 60 (spot) / 90 / 120 mm.
+  TC1: {x: 0.000, y: 0.000, z: interface}
+  TC2: {x: 0.030, y: 0.000, z: interface}
+  TC3: {x: 0.060, y: 0.000, z: interface}   # au spot
+  TC4: {x: 0.090, y: 0.000, z: interface}
+  TC5: {x: 0.120, y: 0.000, z: interface}
+tc_valides: [TC1, TC2, TC3, TC4, TC5]

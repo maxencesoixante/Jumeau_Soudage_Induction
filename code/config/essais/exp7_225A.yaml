@@ -1,0 +1,31 @@
+# Essai exp7_225A — cartographie en largeur (profil « M »), AVEC céramique, 225 A.
+# Source : data/exp7_bord-centre_2026-07-28_avec-ceramique/225A/README.md — point
+# intermédiaire (200↔250 A) ajouté pour densifier la loi taux-courant ET la
+# calibration jointe consolidée (famille profil-M). 1 essai (225A_v1.txt),
+# TC1 fonctionnel. Fichier tab-séparé, décimale virgule ; auto-détecté.
+#
+# Protocole : identique à exp7_200A (chauffe continue à courant constant,
+# coupure MANUELLE au voisinage d'un pic bord ~270 °C, pas de consigne).
+#
+# Fenêtre DÉTECTÉE (charger_mesures + recaler_a_la_chauffe, seuil dT/dt=1 °C/s) :
+# onset ≈ t=0 (recalé) ; pic combiné (bord TC1/TC5) à t≈13.0 s -> t_fin=13.0 s.
+# Durée totale mesurée après recalage : 116.0 s.
+# Pics mesurés (°C) : TC1=279.6 TC2=225.7 TC3=154.7 TC4=191.5 TC5=277.3
+# (chauffe sur échantillon déjà chaud, ambiant local ≈ 60 °C) — indicatif.
+# Profil ΔT/chant (README) : 241/196/126/162/239, M symétrique (ratio 1,01).
+nom: exp7_225A
+fichier_mesures: donnees/data/exp7_bord-centre_2026-07-28_avec-ceramique/225A/225A_v1.txt
+courant: 225.0                # A
+duree_chauffe: 13.0             # s (fenêtre de chauffe détectée, coupure manuelle)
+duree_totale: 116.0             # s simulés (fenêtre + refroidissement mesuré)
+spots:
+  # Spot UNIQUE fixe, centré en longueur x=0.060. centre_y implicite =
+  # largeur/2 = 0.020 (non configurable, cf. exp7_150A.yaml).
+  - {centre_x: 0.060, t_debut: 0.0, t_fin: 13.0}
+thermocouples:
+  TC1: {x: 0.060, y: 0.000, z: interface}
+  TC2: {x: 0.060, y: 0.010, z: interface}
+  TC3: {x: 0.060, y: 0.020, z: interface}   # centre de largeur
+  TC4: {x: 0.060, y: 0.030, z: interface}
+  TC5: {x: 0.060, y: 0.040, z: interface}
+tc_valides: [TC1, TC2, TC3, TC4, TC5]

@@ -1,5 +1,0 @@
-# Couche IA (surcouche multi-agents sur le jumeau physique), 100 % locale.
-# Installer dans le venv du projet : .venv/bin/pip install -r ai_framework/requirements.txt
-# Nécessite aussi Ollama (serveur local + un modèle) : https://ollama.com/download
-ollama>=0.4
-gradio>=6.20

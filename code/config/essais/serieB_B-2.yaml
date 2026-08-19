@@ -1,0 +1,26 @@
+# Essai B-2 — 250 A, 25 N, consigne 360 °C (validation croisée)
+# TC5 défaillant (cahier §2.1.4) — exclu.
+nom: serieB_B-2
+fichier_mesures: donnees/data/Serie B/serieB_B-2_250A_25N_360C_2026-07-08.csv
+courant: 250.0
+consigne_interface: 360.0    # °C — consigne explicite de l'essai B-2
+duree_chauffe: 227.0         # s CUMULÉS de chauffe effective (4 impulsions détectées)
+duree_totale: 1240.0
+spots:
+  # Fenêtres d'impulsion DÉTECTÉES sur les courbes TC. Consigne 360 °C :
+  # tous les pics mesurés plafonnent à 354-361 °C (coupure sur température).
+  - {centre_x: 0.015875, t_debut: 35.0,  t_fin: 80.0}
+  - {centre_x: 0.045875, t_debut: 232.0, t_fin: 334.0}
+  - {centre_x: 0.075875, t_debut: 591.0, t_fin: 642.0}
+  - {centre_x: 0.105875, t_debut: 878.0, t_fin: 907.0}
+thermocouples:
+  # Positions CONFIRMÉES par l'utilisateur (2026-07-20) : 5 TC TOUS à l'interface
+  # (TC5 défaillant, cf. tc_valides). Repère cahier (x=longueur, z=largeur) origine
+  # milieu 120×40, converti modèle par x_m = x_cahier + 60 mm, y_m = z_cahier + 20 mm ;
+  # TC2-TC5 au bord de largeur (y=0, lobes chauds « M »), TC1 au centre. Cf. serieA_A-1.
+  TC1: {x: 0.000, y: 0.020, z: interface}
+  TC2: {x: 0.030, y: 0.000, z: interface}
+  TC3: {x: 0.060, y: 0.000, z: interface}
+  TC4: {x: 0.090, y: 0.000, z: interface}
+  TC5: {x: 0.120, y: 0.000, z: interface}
+tc_valides: [TC1, TC2, TC3, TC4]

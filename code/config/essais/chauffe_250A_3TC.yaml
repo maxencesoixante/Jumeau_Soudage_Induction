@@ -1,0 +1,19 @@
+# Essai de chauffe simple spot — gradient dans l'épaisseur (fichier clé de validation)
+# Source : 40_donnees/essais_chauffe/README.md du vault
+nom: chauffe_250A_3TC
+fichier_mesures: donnees/data/chauffe_250A_3TC-epaisseur_2026-05-20.txt
+courant: 250.0               # A (consigne, créneau)
+# La chauffe dure ~30 s (pic interface mesuré ~30 s après le début de la
+# montée, signal recalé par recaler_a_la_chauffe). Durée ajustable ici.
+duree_chauffe: 30.0          # s
+duree_totale: 300.0          # s simulés
+spots:                       # un seul spot, supposé centré sur le laminé (à confirmer)
+  - centre_x: 0.060
+    t_debut: 0.0
+    t_fin: 30.0
+thermocouples:
+  # Positions confirmées par le README essais_chauffe (TC4/TC5 débranchés)
+  TC1: {x: 0.060, y: 0.020, z: surface}     # surface côté bobine
+  TC2: {x: 0.060, y: 0.020, z: interface}   # interface (tissu PW)
+  TC3: {x: 0.060, y: 0.020, z: opposee}     # face opposée (côté tube/vessie)
+tc_valides: [TC1, TC2, TC3]
