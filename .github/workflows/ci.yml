@@ -9,9 +9,6 @@ jobs:
   tests:
     name: pytest (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: code
     strategy:
       fail-fast: false
       matrix:
