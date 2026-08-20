@@ -270,11 +270,11 @@ def fig3():
     i = int(np.argmax(eM))
     ax.plot(eM[:i + 1], cM[:i + 1], "--", color=C_MODEL, lw=1.4, label="Modèle")
 
-    ax.set_title("Température du centre en fonction des chants (200 A)")
-    ax.annotate("à chant égal, le centre mesuré est plus chaud\nque le modèle → le modèle sous-remplit le centre",
+    ax.set_title("Température du centre en fonction des bords (200 A)")
+    ax.annotate("à température de bord égale, le centre mesuré\nest plus chaud que le modèle (centre sous-rempli)",
                 xy=(210, 44), xytext=(48, 130), fontsize=8, color="0.35",
                 ha="left", va="top", arrowprops=dict(arrowstyle="-", color="0.55", lw=0.6))
-    ax.set_xlabel("Température des chants (°C)")
+    ax.set_xlabel("Température des bords (°C)")
     ax.set_ylabel("Température du centre (°C)")
     ax.set_xlim(20, 265)
     ax.set_ylim(20, 140)
@@ -340,7 +340,7 @@ def fig5():
     yerr = np.vstack([Rt - np.array(LO), np.array(HI) - Rt])
     ax.errorbar(I, Rt, yerr=yerr, fmt="o", color=C150, ecolor=C150, elinewidth=1.0,
                 capsize=3, markeredgecolor="white", markeredgewidth=0.5,
-                label="Mesuré — taux au chant (min–max, 5 courants)", zorder=3)
+                label="Mesuré — taux au bord (min–max, 5 courants)", zorder=3)
     for Ival, Rv in zip(I, Rt):
         ax.annotate(f"{int(Ival)} A", (Ival, Rv), textcoords="offset points",
                     xytext=(7, -11), fontsize=8, color="0.35")
@@ -350,7 +350,7 @@ def fig5():
     ax.plot(Ifit, k * Ifit**2, ":", color="0.6", label="$k\\,I^2$ pur")
     ax.set_title("Loi taux de chauffe – courant (5 courants)")
     ax.set_xlabel("Courant du générateur $I$ (A)")
-    ax.set_ylabel(r"Taux de chauffe au chant $dT/dt$ (°C/s)")
+    ax.set_ylabel(r"Taux de chauffe au bord $dT/dt$ (°C/s)")
     legend_right(ax)
     savefig(fig, "fig5_loi_courant.png")
 
@@ -377,9 +377,9 @@ def fig_essais_chant_superpose():
     add_temp_lines(ax)
     ax.set_xlim(0, 72)
     ax.set_ylim(0, 470)
-    ax.set_title("Historiques T(t) au chant — tous essais, 5 courants")
+    ax.set_title("Historiques T(t) au bord — tous essais, 5 courants")
     ax.set_xlabel("Temps depuis le début de chauffe (s)")
-    ax.set_ylabel("Température au chant (°C)")
+    ax.set_ylabel("Température au bord (°C)")
     legend_right(ax, title="Courant")
     savefig(fig, "fig_essais_chant_superpose.png")
 
@@ -403,14 +403,14 @@ def fig_essais_par_courant():
         ax.axhline(T_FUSION, color=COL_FUSION, ls="-", lw=0.9, zorder=0)
         panel_title(ax, f"({lab}) {I} A")
     axes_flat[5].axis("off")
-    axes_flat[5].plot([], [], "-", color="0.4", label="Essais (chant)")
+    axes_flat[5].plot([], [], "-", color="0.4", label="Essais (bord)")
     axes_flat[5].plot([], [], "-", color=COL_FUSION, label="Fusion PEKK (337 °C)")
     axes_flat[5].legend(loc="center", frameon=False, fontsize=10)
     axes_flat[0].set_xlim(0, 72)
     axes_flat[0].set_ylim(0, 360)
-    fig.suptitle("Répétabilité au chant par courant", fontsize=12, fontweight="bold", y=0.98)
+    fig.suptitle("Répétabilité au bord par courant", fontsize=12, fontweight="bold", y=0.98)
     fig.supxlabel("Temps depuis le début de chauffe (s)", fontsize=11, fontweight="bold")
-    fig.supylabel("Température au chant (°C)", fontsize=11, fontweight="bold")
+    fig.supylabel("Température au bord (°C)", fontsize=11, fontweight="bold")
     fig.tight_layout(rect=(0.02, 0.02, 1, 0.96))
     savefig(fig, "fig_essais_par_courant.png")
 
@@ -493,7 +493,7 @@ def fig_dissipation_monospot():
     axa.set_xticks(x)
     axa.set_xlabel("Position en longueur $x$ (mm)")
     axa.set_ylabel("Température (°C)")
-    axa.set_title("Décroissance longitudinale de la température (spot unique, $y$=0)")
+    axa.set_title("Décroissance longitudinale de la température ($y$=0)")
     legend_right(axa, title="Courant")
     fig.tight_layout()
     savefig(fig, "fig_dissipation_monospot.png")
