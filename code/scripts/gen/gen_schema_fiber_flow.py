@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 """Schéma noir & blanc du *fiber flow* au squeeze-out (soudage par induction).
 
-Coupe transverse, trait noir sur blanc, texte minimal. Deux adhérents CF/PEKK
-séparés par le plan de soudure : dans le volume les plis (fibres) restent
-droits, mais au bord libre la matière d'interface flue et les fibres se
-replient vers l'extérieur en bourrelet. Sortie : biblio/labo/figures/.
+Coupe transverse, trait noir sur blanc, texte minimal. Les deux adhérents
+CF/PEKK se touchent au plan de soudure (y=0). Sous la pression de
+consolidation, ce sont les fibres de la matière qui sont propulsées de chaque
+côté : chaque pli s'étend au-delà du bord d'une quantité gaussienne, maximale
+à l'interface (les fibres du centre ressortent le plus) et quasi nulle vers
+les peaux — comme le bourrelet observé en vue de dessus. Sortie :
+biblio/labo/figures/.
 """
 from __future__ import annotations
 import sys
@@ -20,53 +23,49 @@ from _style import apply_style, savefig  # noqa: E402
 apply_style()
 
 K = "black"
-L = 34.0          # longueur du joint
-H = 6.0           # demi-épaisseur (par adhérent)
-G = 0.45          # demi-interstice de l'interface (plan de soudure)
+H = 6.0                 # demi-épaisseur (adhérents empilés, ils se touchent en y=0)
+X0, X1 = 6.0, 54.0      # bords nominaux du joint
+A = 7.5                 # débordement maxi (au centre = interface)
+SIG = 2.6               # écart-type de la gaussienne (peaux ≈ pas de débordement)
 
 
-def bulk_plies(ax, x0, x1):
-    """Plis droits dans le volume des deux adhérents (hors zone d'interface)."""
-    for s in (+1, -1):
-        for y in np.linspace(G + 0.7, H - 0.4, 6) * s:
-            ax.plot([x0, x1], [y, y], color=K, lw=0.9, solid_capstyle="round")
+def prot(y):
+    """Débordement des fibres au bord : gaussien, maximal à l'interface y=0."""
+    return A * np.exp(-y ** 2 / (2 * SIG ** 2))
 
 
-def edge_bead(ax, xe, sgn):
-    """Bourrelet au bord libre : arcs emboîtés = fibres repliées/expulsées."""
-    th = np.linspace(-np.pi / 2, np.pi / 2, 90)
-    for r in (0.55, 1.05, 1.55, 2.05):
-        ax.plot(xe + sgn * r * np.cos(th), r * np.sin(th), color=K, lw=0.9)
-
-
-def interface_flow(ax, xe, sgn, xin):
-    """Plis d'interface qui dévient vers le bord et alimentent le bourrelet."""
-    for s in (+1, -1):
-        for y0, rt in ((0.6, 0.55), (1.2, 1.05)):
-            xx = np.linspace(xin, xe, 60)
-            t = (xx - xin) / (xe - xin)
-            yy = s * (y0 + (rt - y0) * t ** 2)
-            ax.plot(xx, yy, color=K, lw=0.9)
-
-
-fig, ax = plt.subplots(figsize=(8.0, 3.2))
-ax.set_xlim(-6, L + 6)
-ax.set_ylim(-H - 1.6, H + 3.4)
+fig, ax = plt.subplots(figsize=(8.6, 3.3))
+ax.set_xlim(X0 - A - 4, X1 + A + 4)
+ax.set_ylim(-H - 1.6, H + 3.8)
 ax.set_aspect("equal")
 ax.axis("off")
 
-# contour des deux adhérents (interstice = interface)
-for (yb, yt) in ((G, H), (-H, -G)):
-    ax.plot([0, L, L, 0, 0], [yb, yb, yt, yt, yb], color=K, lw=1.4)
+# fibres = plis horizontaux ; chacune propulsée de A·gauss(y) de part et d'autre
+ys = np.linspace(-H, H, 21)
+for y in ys:
+    if abs(y) < 1e-6:
+        lw = 1.7          # plan de soudure (interface) : les fibres qui sortent le plus
+    elif abs(y) > H - 1e-6:
+        lw = 1.4          # peaux
+    else:
+        lw = 0.9
+    ax.plot([X0 - prot(y), X1 + prot(y)], [y, y], color=K, lw=lw,
+            solid_capstyle="round")
 
-bulk_plies(ax, 0.5, L - 0.5)
-for xe, sgn, xin in ((L, +1, L - 15), (0.0, -1, 15)):
-    interface_flow(ax, xe, sgn, xin)
-    edge_bead(ax, xe, sgn)
+# enveloppe gaussienne des bourrelets (contour bombé) — ferme la pièce
+yy = np.linspace(-H, H, 240)
+ax.plot(X1 + prot(yy), yy, color=K, lw=1.4)
+ax.plot(X0 - prot(yy), yy, color=K, lw=1.4)
+
+# fibres propulsées : flèches vers l'extérieur à l'apex de chaque bourrelet
+ax.add_patch(FancyArrow(X1 + A + 0.6, 0, 3.4, 0, width=0.18, head_width=1.2,
+             head_length=1.1, color=K, length_includes_head=True))
+ax.add_patch(FancyArrow(X0 - A - 0.6, 0, -3.4, 0, width=0.18, head_width=1.2,
+             head_length=1.1, color=K, length_includes_head=True))
 
 # pression de consolidation (flèches, sans texte)
-for xf in np.linspace(7, L - 7, 3):
-    ax.add_patch(FancyArrow(xf, H + 2.7, 0, -2.0, width=0.18, head_width=1.1,
+for xf in np.linspace(X0 + 8, X1 - 8, 3):
+    ax.add_patch(FancyArrow(xf, H + 2.9, 0, -2.0, width=0.18, head_width=1.1,
                  head_length=1.0, color=K, length_includes_head=True))
 
 savefig(fig, R / "biblio" / "labo" / "figures" / "fig_fiber_flow")
