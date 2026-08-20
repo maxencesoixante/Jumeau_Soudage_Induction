@@ -186,7 +186,7 @@ def fig1():
     ax.set_xticks(Y_MM)
     ax.set_title("Profil de température en largeur au pic — 150 / 200 / 250 A")
     ax.set_xlabel("Position en largeur $y$ (mm)")
-    ax.set_ylabel("Température au pic (°C)")
+    ax.set_ylabel("Température (°C)")
     legend_right(ax, title="Courant")
     savefig(fig, "fig1_profil_M.png")
 
@@ -225,7 +225,7 @@ def fig2():
     ax.set_xticks(Y_MM)
     ax.set_title("Forme du profil en largeur : mesuré vs modèle (200 A)")
     ax.set_xlabel("Position en largeur $y$ (mm)")
-    ax.set_ylabel("Température au pic (°C)")
+    ax.set_ylabel("Température (°C)")
     ax.annotate("le modèle sur-contraste\nle M (chants trop chauds)",
                 xy=(0, modele[0]), xytext=(38, -4), textcoords="offset points",
                 fontsize=8, color="0.35", ha="left", va="top",
@@ -489,7 +489,7 @@ def fig_dissipation_monospot():
     axa.axvline(60, ls=":", color="0.6", lw=0.8, zorder=0)
     axa.set_xticks(x)
     axa.set_xlabel("Position en longueur $x$ (mm)")
-    axa.set_ylabel("Température de pic atteinte (°C)")
+    axa.set_ylabel("Température (°C)")
     axa.set_title("Décroissance longitudinale : mesuré vs modèle (spot unique, $y$=0)")
     legend_right(axa, title="Courant")
     fig.tight_layout()
@@ -538,7 +538,7 @@ def fig_dissipation_semistatique():
     fig.suptitle("Empreinte par dwell : modèle multi-spots vs mesuré",
                  fontsize=12, fontweight="bold", y=1.06)
     fig.supxlabel("Position en longueur $x$ (mm)", fontsize=11, fontweight="bold")
-    fig.supylabel("Température de pic atteinte (°C)", fontsize=11, fontweight="bold")
+    fig.supylabel("Température (°C)", fontsize=11, fontweight="bold")
     fig.tight_layout(rect=(0.02, 0.03, 1, 0.94))
     savefig(fig, "fig_dissipation_semistatique.png")
 

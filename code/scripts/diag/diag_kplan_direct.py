@@ -93,7 +93,7 @@ ax[0].plot(xx, np.exp(b + s * (xx - 60) / 1e3) + Tinf, "--", color=C_FIT,
            label=fr"décroissance, $L\approx{r['L']*1e3:.0f}$ mm")
 ax[0].axvline(60, color="0.6", ls=":", lw=1)
 ax[0].set_xlabel("x (mm)  — spot à 60")
-ax[0].set_ylabel("Température au pic (°C)")
+ax[0].set_ylabel("Température (°C)")
 ax[0].set_title("(a) Longueur de décroissance $L$")
 ax[0].legend(fontsize=8)
 
