@@ -109,9 +109,7 @@ ax[1].set_ylabel("Température (°C)")
 ax[1].set_title("(b) Refroidissement après coupure de la source")
 ax[1].legend(fontsize=8)
 
-fig.suptitle(
-    f"Mesure directe de la conductivité k_plan ≈ {r175['k']:.0f}–{r200['k']:.0f} W/m·K",
-    fontsize=11)
+fig.suptitle("Mesure directe de la conductivité dans le plan", fontsize=11)
 fig.tight_layout()
 savefig(fig, R / "biblio" / "labo" / "figures" / "fig_kplan_direct_exp9")
 print("figure -> biblio/labo/figures/fig_kplan_direct_exp9.png")
