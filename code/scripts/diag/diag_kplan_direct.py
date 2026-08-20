@@ -90,11 +90,11 @@ ax[0].plot(XPOS * 1e3, r["dTpk"] + Tinf, "o", color=C_MES, ms=8, label="T au pic
 xx = np.linspace(60, 120, 50)
 s, b = np.polyfit(r["dist"][[2, 3, 4]], np.log(r["dTpk"][[2, 3, 4]]), 1)
 ax[0].plot(xx, np.exp(b + s * (xx - 60) / 1e3) + Tinf, "--", color=C_FIT,
-           label=fr"décroissance, $L\approx{r['L']*1e3:.0f}$ mm")
+           label=fr"longueur caractéristique ≈ {r['L']*1e3:.0f} mm")
 ax[0].axvline(60, color="0.6", ls=":", lw=1)
 ax[0].set_xlabel("x (mm)  — spot à 60")
 ax[0].set_ylabel("Température (°C)")
-ax[0].set_title("(a) Longueur de décroissance $L$")
+ax[0].set_title("(a) Étalement de la chaleur dans la longueur")
 ax[0].legend(fontsize=8)
 
 j = 2
@@ -102,17 +102,16 @@ ax[1].plot(r["t"], r["dT"][:, j] + Tinf, "-", color=C_MES, label="TC3 (spot)")
 m = (r["t"] > r["tcut"] + 15) & (r["dT"][:, j] > 3)
 s, b = np.polyfit(r["t"][m], np.log(r["dT"][m, j]), 1)
 ax[1].plot(r["t"][m], np.exp(b + s * r["t"][m]) + Tinf, "--", color=C_FIT,
-           label=fr"refroidissement, $\tau\approx{r['tau']:.0f}$ s")
+           label=fr"constante de temps ≈ {r['tau']:.0f} s")
 ax[1].axvline(r["tcut"], color="0.6", ls=":", lw=1)
 ax[1].set_xlabel("t (s)")
 ax[1].set_ylabel("Température (°C)")
-ax[1].set_title(r"(b) Constante de refroidissement $\tau$")
+ax[1].set_title("(b) Refroidissement après coupure de la source")
 ax[1].legend(fontsize=8)
 
 fig.suptitle(
-    f"Extraction directe de k_plan (exp9 centre y=20, hors calage) — "
-    f"200 A : {r200['k']:.1f} · 175 A : {r175['k']:.1f} W/m·K   "
-    f"(config {K_CONFIG:.0f} ; calibré ~7,3)", fontsize=10.5)
+    "Conductivité thermique dans le plan mesurée directement (exp9 centre) — "
+    f"k_plan ≈ {r175['k']:.0f}–{r200['k']:.0f} W/m·K", fontsize=11)
 fig.tight_layout()
 savefig(fig, R / "biblio" / "labo" / "figures" / "fig_kplan_direct_exp9")
 print("figure -> biblio/labo/figures/fig_kplan_direct_exp9.png")

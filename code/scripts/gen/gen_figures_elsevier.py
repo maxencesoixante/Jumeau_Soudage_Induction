@@ -246,7 +246,7 @@ def fig3():
         centre = dfc["TC3"].to_numpy()                          # °C brut
         i = int(np.argmax(chant))
         ax.plot(chant[:i + 1], centre[:i + 1], "-", color=C200, alpha=0.6, lw=1.1,
-                label="Mesuré (200 A, 3 essais)" if first else None)
+                label="Mesuré" if first else None)
         first = False
 
     from jumeau.materiaux import Config
@@ -268,9 +268,12 @@ def fig3():
     eM = np.maximum(sv.serie_temporelle(sol, 0.060, 0.0, "interface"),
                      sv.serie_temporelle(sol, 0.060, 0.040, "interface"))   # °C brut
     i = int(np.argmax(eM))
-    ax.plot(eM[:i + 1], cM[:i + 1], "--", color=C_MODEL, lw=1.4, label="Modèle (2D, 200 A)")
+    ax.plot(eM[:i + 1], cM[:i + 1], "--", color=C_MODEL, lw=1.4, label="Modèle")
 
-    ax.set_title("Dynamique centre–chant : mesuré vs modèle (200 A)")
+    ax.set_title("Température du centre en fonction des chants (200 A)")
+    ax.annotate("à chant égal, le centre mesuré est plus chaud\nque le modèle → le modèle sous-remplit le centre",
+                xy=(210, 44), xytext=(48, 130), fontsize=8, color="0.35",
+                ha="left", va="top", arrowprops=dict(arrowstyle="-", color="0.55", lw=0.6))
     ax.set_xlabel("Température des chants (°C)")
     ax.set_ylabel("Température du centre (°C)")
     ax.set_xlim(20, 265)
@@ -490,7 +493,7 @@ def fig_dissipation_monospot():
     axa.set_xticks(x)
     axa.set_xlabel("Position en longueur $x$ (mm)")
     axa.set_ylabel("Température (°C)")
-    axa.set_title("Décroissance longitudinale : mesuré vs modèle (spot unique, $y$=0)")
+    axa.set_title("Décroissance longitudinale de la température (spot unique, $y$=0)")
     legend_right(axa, title="Courant")
     fig.tight_layout()
     savefig(fig, "fig_dissipation_monospot.png")
