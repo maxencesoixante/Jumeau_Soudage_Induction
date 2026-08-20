@@ -49,23 +49,21 @@ def pressure(ax, xc, ytop, n=3, span=26):
 
 
 def bead(ax, xedge, yc, sgn):
-    """Bourrelet (lentille) expulsé au bord ; sgn=-1 gauche, +1 droite."""
+    """Bourrelet (lentille) expulsé au bord ; sgn=-1 gauche, +1 droite.
+    Même matière que les plis -> même couleur que le laminé."""
     w, h = 7.0, 4.2
-    th = np.linspace(-np.pi / 2, np.pi / 2, 40) * sgn
-    xs = xedge + sgn * (w * np.cos(th) * 0 + 0)  # placeholder
-    # lentille : demi-ellipse qui déborde du bord
     t = np.linspace(0, np.pi, 40)
     ex = xedge + sgn * w * np.sin(t)
     ey = yc + h / 2 * np.cos(t)
     ax.fill(np.r_[xedge, ex, xedge], np.r_[yc + h / 2, ey, yc - h / 2],
-            facecolor=C_BEAD, edgecolor=C_LAM_E, lw=1.0, zorder=4, alpha=0.95)
-    # quelques fibres expulsées dans le bourrelet
+            facecolor=C_LAM, edgecolor=C_LAM_E, lw=1.0, zorder=4)
+    # quelques fibres expulsées dans le bourrelet (même couleur que les plis)
     for k in (-1, 0, 1):
         ax.plot([xedge, xedge + sgn * w * 0.85], [yc + k * 0.9, yc + k * 1.5],
-                color=C_FIB, lw=0.7, alpha=0.7, zorder=5)
-    # flèche d'expulsion
+                color=C_FIB, lw=0.7, alpha=0.6, zorder=5)
+    # flèche d'expulsion (neutre)
     ax.add_patch(FancyArrow(xedge + sgn * 1.5, yc, sgn * (w + 3), 0, width=0.35,
-                 head_width=1.8, head_length=2.0, color=C_BEAD, zorder=6,
+                 head_width=1.8, head_length=2.0, color=C_ARR, zorder=6,
                  length_includes_head=True))
 
 
@@ -77,45 +75,41 @@ for ax in (a, b):
     ax.set_aspect("equal")
     ax.axis("off")
 
-# géométrie verticale commune
-Y_SUP = (14.5, 21.5)      # adhérent supérieur (y0, y1)
-Y_INF = (6.5, 13.5)       # adhérent inférieur
-YC = 14.0                 # centre de l'interface
+# géométrie verticale commune : les deux adhérents se touchent à l'interface
+Y_SUP = (14.0, 21.5)      # adhérent supérieur (y0, y1)
+Y_INF = (6.5, 14.0)       # adhérent inférieur
+YC = 14.0                 # plan de soudure
 
-# --- (a) AVANT : plis alignés, interface solide, mise sous pression ---
+# --- (a) AVANT : plis alignés, mise sous pression ---
 X0, X1 = 18, 82
 laminate(a, X0, X1, *Y_SUP)
-a.add_patch(Rectangle((X0, 13.5), X1 - X0, 1.0, facecolor=C_HOT,
-            edgecolor=C_LAM_E, lw=1.0, zorder=3))     # interface = twill suscepteur
 laminate(a, X0, X1, *Y_INF)
+a.plot([X0, X1], [YC, YC], color=C_LAM_E, lw=1.4, zorder=4)     # plan de soudure
 pressure(a, (X0 + X1) / 2, Y_SUP[1])
-a.text((X0 + X1) / 2, YC, "interface / pli twill suscepteur", ha="center",
-       va="center", fontsize=7.5, color="#5a3d00", zorder=6)
-a.annotate("adhérents CF/PEKK\n(plis alignés)", xy=(X1, 18.5), xytext=(86, 20.5),
+a.annotate("adhérents CF/PEKK\n(plis alignés)", xy=(X1, 18.5), xytext=(84, 20.5),
            fontsize=8, color=C_ARR, ha="left", va="center",
            arrowprops=dict(arrowstyle="-", color="0.55", lw=0.6))
 a.set_title("(a) Avant — mise sous pression", loc="left", fontsize=10.5,
             fontweight="bold")
 
-# --- (b) APRÈS : interface fondue, fluage, squeeze-out aux bords ---
+# --- (b) APRÈS : fluage, squeeze-out aux bords ---
 X0b, X1b = 24, 76                          # empreinte plus étroite (matière expulsée)
 laminate(b, X0b, X1b, *Y_SUP)
-b.add_patch(Rectangle((X0b, 13.6), X1b - X0b, 0.8, facecolor=C_HOT,
-            edgecolor=C_LAM_E, lw=1.0, zorder=3))     # interface fondue, amincie
 laminate(b, X0b, X1b, *Y_INF)
+b.plot([X0b, X1b], [YC, YC], color=C_LAM_E, lw=1.4, zorder=4)   # plan de soudure
 pressure(b, (X0b + X1b) / 2, Y_SUP[1])
 bead(b, X0b, YC, -1)
 bead(b, X1b, YC, +1)
 for sgn in (-1, 1):
     b.add_patch(FancyArrow((X0b + X1b) / 2 + sgn * 6, YC, sgn * 9, 0, width=0.25,
-                head_width=1.2, head_length=1.6, color="#8a5a00", zorder=6,
+                head_width=1.2, head_length=1.6, color="0.4", zorder=6,
                 length_includes_head=True, alpha=0.85))
 b.text((X0b + X1b) / 2, 9.8, "fluage vers les bords", ha="center", va="center",
-       fontsize=7.5, color="#5a3d00", zorder=6)
+       fontsize=7.5, color=C_ARR, zorder=6)
 b.annotate("bourrelet : résine + fibres\nexpulsées (squeeze-out)",
-           xy=(X1b + 7, YC - 1), xytext=(58, 4.6), fontsize=8, color=C_BEAD,
+           xy=(X1b + 7, YC - 1), xytext=(58, 4.6), fontsize=8, color=C_ARR,
            ha="left", va="top",
-           arrowprops=dict(arrowstyle="-", color=C_BEAD, lw=0.7))
+           arrowprops=dict(arrowstyle="-", color="0.55", lw=0.7))
 b.set_title("(b) Après — squeeze-out", loc="left", fontsize=10.5,
             fontweight="bold")
 
