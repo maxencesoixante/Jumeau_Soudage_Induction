@@ -104,6 +104,14 @@ for (ox, oy) in ((-0.55, -0.55), (0.55, -0.55), (-0.55, 0.55), (0.55, 0.55)):
     ax.quiver(XC + ox, YC + oy, ZT + 1.9, 0, 0, -1.5, color=K, lw=2.4,
               arrow_length_ratio=0.5, zorder=10)
 
+# --- texte (simple) ---
+ax.text(XC, YC, ZT + 2.6, "pression", ha="center", va="bottom",
+        fontsize=10, color=K, zorder=11)
+ax.text(XC, -(A + 2.4), ZI, "bourrelet (squeeze-out)", ha="center", va="top",
+        fontsize=10, color=K, zorder=11)
+fig.suptitle("Squeeze-out sous le spot de pression", fontsize=12,
+             fontweight="bold", y=0.90)
+
 ax.set_box_aspect((LX + 2 * A, LY + 2 * A, ZT + 4))
 ax.set_xlim(-A - 1, LX + A + 1)
 ax.set_ylim(-A - 1, LY + A + 1)
