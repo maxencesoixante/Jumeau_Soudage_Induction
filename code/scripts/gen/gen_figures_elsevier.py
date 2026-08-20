@@ -184,7 +184,7 @@ def fig1():
         ax.fill_between(Y_MM, peaks.min(axis=0), peaks.max(axis=0),
                         color=colors[I], alpha=0.15, lw=0)
     ax.set_xticks(Y_MM)
-    ax.set_title("Profil de température en largeur au pic — 150 / 200 / 250 A")
+    ax.set_title("Profil de température sur la largeur")
     ax.set_xlabel("Position en largeur $y$ (mm)")
     ax.set_ylabel("Température (°C)")
     legend_right(ax, title="Courant")
@@ -219,14 +219,14 @@ def fig2():
     c_mes = ((mesure[0] + mesure[4]) / 2 - amb) / (mesure[2] - amb)
     c_mod = ((modele[0] + modele[4]) / 2 - amb_m) / (modele[2] - amb_m)
     ax.plot(Y_MM, mesure, "-o", color=C200, markeredgecolor="white", markeredgewidth=0.5,
-            label=f"Mesuré — exp7, 200 A (contraste {c_mes:.2f})".replace(".", ","))
+            label="Mesuré")
     ax.plot(Y_MM, modele, "--s", color=C_MODEL, markeredgecolor="white", markeredgewidth=0.5,
-            label=f"Modèle 2D, θ* réf. (contraste {c_mod:.2f})".replace(".", ","))
+            label="Modèle")
     ax.set_xticks(Y_MM)
-    ax.set_title("Forme du profil en largeur : mesuré vs modèle (200 A)")
+    ax.set_title("Profil de température sur la largeur à 200 A")
     ax.set_xlabel("Position en largeur $y$ (mm)")
     ax.set_ylabel("Température (°C)")
-    ax.annotate("le modèle sur-contraste\nle M (chants trop chauds)",
+    ax.annotate(f"le modèle sur-contraste le M\n(contraste {c_mod:.2f} vs {c_mes:.2f} mesuré)".replace(".", ","),
                 xy=(0, modele[0]), xytext=(38, -4), textcoords="offset points",
                 fontsize=8, color="0.35", ha="left", va="top",
                 arrowprops=dict(arrowstyle="-", color="0.55", lw=0.6))
