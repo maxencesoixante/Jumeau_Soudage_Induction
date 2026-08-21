@@ -124,8 +124,8 @@ travail : chaque hypothèse écartée l'est avec un chiffre.
 
 **Pourquoi ce passage au 2D** : les 5 thermocouples des Séries A/B sont **tous à
 l'interface** (confirmé 2026-07-20). Résoudre l'épaisseur ne sert alors qu'à alimenter un
-écart non corrigeable — le déficit de chauffe en surface (cf. slide 14) — au prix d'un
-facteur 10 sur le temps de calcul.
+écart non corrigeable — le gradient dans l'épaisseur / face opposée (cf. slide 14) — au prix
+d'un facteur 10 sur le temps de calcul.
 
 *À dire* : ce n'est pas un abandon du 3D — le 3D reste dans le dépôt et sert aux cartes ;
 c'est un choix de modèle adapté à la mesure disponible.
@@ -348,19 +348,20 @@ avant tout correctif » a évité de graver l'erreur dans le code.
 
 ---
 
-## Slide 14 — Le déficit TC1 (surface) : mécanisme non identifié
+## Slide 14 — Le gradient dans l'épaisseur : face opposée sur-chauffée
 
-- Sur l'essai de chauffe instrumenté en épaisseur, **TC1 chauffe 5–6× trop lentement** dans
-  le modèle : 37,7 °C/s mesuré contre ~6,3 °C/s simulé.
-- Trois explications testées et **écartées** : condition limite thermique, diffusion depuis
-  l'interface (τ ≈ 28,5 s ≫ 1 s), auto-échauffement du MFC, décalage de bobine.
-- Origine suspectée : **répartition de puissance entre couches** (le twill est ~40× plus
-  conducteur que le laminé) ou effet de champ proche non capturé par la plaque mince.
-- **Aucune mesure ne permet de trancher aujourd'hui** : aucun essai ne mesure la
-  température du MFC lui-même.
+- Sur l'essai de chauffe instrumenté en épaisseur, les **5 TC sont à l'interface** : recalculé,
+  **surface ≈ interface** (ratio ≈ 0,97) — l'ancien « TC1 5–6× trop lent en surface » était **faux**.
+- Le vrai écart : le modèle **sur-chauffe la face opposée** (opposée/interface ≈ 0,9 simulé vs
+  ≈ 0,42 mesuré) → **confinement transverse insuffisant**.
+- Explications testées et **écartées** : condition limite thermique, résistance de contact à
+  l'interface (reproduit le profil mais NO-GO en validation croisée), auto-échauffement du MFC,
+  décalage de bobine.
+- Mécanisme fin (répartition de puissance entre couches / champ proche) **à confirmer par une
+  mesure** (température du MFC).
 
-*À dire* : c'est la limite qu'on assume et qui justifie le passage au modèle 2D — on ne
-prétend pas prédire la surface.
+*À dire* : c'est la limite qu'on assume et qui justifie le passage au modèle 2D (les TC A/B
+sont à l'interface) — on ne prétend pas prédire le gradient dans l'épaisseur.
 
 ---
 
@@ -401,7 +402,7 @@ scientifique — la valeur est dans l'accessibilité de l'outil.
 - Régime **basse consigne** (B-2) : capteurs inter-empreintes 30–55 °C trop froids,
   écart de pic 35 °C — diagnostiqué, trois correctifs réfutés.
 - Plateau inter-passes trop froid.
-- Surface (TC1) non prédictible : mécanisme non identifié.
+- Gradient dans l'épaisseur (face opposée) : mécanisme fin non confirmé.
 - Pas de mécanique (pression, squeeze-out) ni de cinétique de cristallisation.
 - Propriétés matériaux **indépendantes de la température**.
 

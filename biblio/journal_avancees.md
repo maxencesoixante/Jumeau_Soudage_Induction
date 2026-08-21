@@ -314,8 +314,11 @@ vrai verrou A/B est la vitesse de chauffe (résidu n°2 ci-dessus).
 3. **Régime basse consigne (B-2).** Cause confirmée (le modèle coupe au centre du spot, le
    procédé coupait sur le max des TC d'interface) ; correctif « capteurs » prêt derrière flag,
    à activer conjointement avec la correction du M. Réf. `donnees/journaux/archive/resultats_diag_b2_thermostat_capteurs.log`.
-4. **Déficit de chauffe en surface (TC1).** 5-6× trop lent, mécanisme non identifié ; attaqué
-   par la mesure de la face du MFC (exp 8).
+4. **Gradient dans l'épaisseur trop faible (face opposée).** Recalculé sur l'essai 3-TC :
+   surface ≈ interface (ratio ≈ 0,97) — l'ancien « déficit de surface TC1 » était faux ; le
+   modèle sur-chauffe la face opposée (o/i ≈ 0,9 simulé vs ≈ 0,42 mesuré). Mécanisme =
+   confinement transverse insuffisant ; levier `r_contact_interface` NO-GO en validation
+   croisée (correction 2026-08-13). Mesure de la face du MFC (exp 8) pour le champ proche.
 
 ## 3 bis. Corrections préparées (à intégrer ensemble à la prochaine recalibration)
 

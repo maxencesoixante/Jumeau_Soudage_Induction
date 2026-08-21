@@ -4,8 +4,8 @@ Réduction du solveur 3D (``solveur3d.SolveurThermique3D``) au plan de
 l'interface de soudure : la physique pertinente pour la confrontation aux
 thermocouples des essais A/B (tous à l'interface) ne demande plus de
 résoudre le gradient dans l'épaisseur (cf. décision de modélisation du
-2026-07-20 — le déficit de chauffe de TC1/surface est un écart structurel
-non corrigeable, README § Limites connues). Le stack complet (laminé sup +
+2026-07-20 — le déficit de gradient dans l'épaisseur (face opposée) est un
+écart structurel non corrigeable, README § Limites connues). Le stack complet (laminé sup +
 film + twill interface + laminé inf) est lumpé en UNE seule maille dans
 l'épaisseur, de sorte que la température nodale (x, y) représente
 directement l'interface.

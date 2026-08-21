@@ -41,8 +41,9 @@ diffusivité `α = k_plan/(ρ·cp·e)`. Échantillons réutilisables (≤ 270 °
 
 **Objectif.** Mesurer la température du concentrateur pendant une chauffe (caméra FLIR A700 sur
 la face active, ou TC posé). Vue de dessus idéale ici (la face du MFC est directement visible).
-**Résout** : le déficit de chauffe en surface (TC1) — seule mesure qui l'attaque. Comparer la
-montée du MFC à celle de TC1. Un essai.
+**Résout** : la répartition de puissance en champ proche (MFC ↔ stack), qui sous-tend le
+gradient d'épaisseur (le modèle sur-chauffe la face opposée). Comparer la montée du MFC à
+celle de l'interface. Un essai.
 
 ### 3. Relevé 1 — Position longitudinale de la bobine
 
@@ -96,7 +97,7 @@ au-delà des points TC. Complètent Exp 9 (qui reste la mesure décisive de `k_p
 - **Mesure 14 — ★ Test décisif twill / sans-twill.** Même chauffe, un échantillon **avec** vs
   **sans** pli twill à l'interface. Valide (ou infirme) l'hypothèse « twill = siège **principal**
   des courants de Foucault » (Série A), fondation de toute la répartition de puissance
-  inter-couches — et donc du déficit de chauffe TC1/surface.
+  inter-couches — et donc du gradient dans l'épaisseur (face opposée).
 - **Mesure 15 — Gradient dans l'épaisseur** (TC surface / interface / face opposée, même spot).
   Teste l'hypothèse **plaque mince** à 388 kHz (décroissance de Bz dans l'épaisseur, audit §2.1 —
   la validité « δ vs épaisseur » restait explicitement non re-vérifiée à cette fréquence).
@@ -140,7 +141,7 @@ est **close** : aucune correction en attente ne survit au garde-fou held-out.
 | **Mesure 13** | **Thermographie IR plein champ** (chauffe statique) | ★ **haute** | profil « M » / résidu d'étalement (champ 2D) |
 | **Mesure 14** | **Twill / sans-twill** (test décisif) | ★ **haute** | hypothèse siège des courants (Série A), déficit TC1 |
 | Mesure 16 | Traînées de refroidissement (essais existants) | moyenne (gratuit) | `h_bas` / rayonnement / conduction support |
-| Exp 8 | Température face active du MFC | moyenne | déficit de surface TC1 |
+| Exp 8 | Température face active du MFC | moyenne | gradient d'épaisseur (face opposée) / champ proche |
 | Mesure 9 | k_plan(T), k_z(T) direct (labo) | moyenne (flag prêt) | alimente le flag k(T) implémenté |
 | Mesure 10 | σ indépendant (twill+laminé), σ(T) | moyenne | découple σ↔`facteur_couplage` ; σ(T) |
 | Mesure 11 | DSC PEKK (fusion + cristallisation) | moyenne | loi Xm réelle (éq. 9), Tf/Lf |

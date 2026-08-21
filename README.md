@@ -325,10 +325,12 @@ Paramètres de référence 2D (θ\* canonique) : `facteur_couplage = 6,0123`,
   mesuré (réduction requise ~−34 %). C'est de la **vraie physique** (écrasement du courant au
   chant), **pas** un bug EM (confirmé par eppy) : c'est la **limite d'étalement in-plane** du
   modèle plaque-mince, principale piste de travail restante.
-- **Déficit de chauffe de TC1** (surface côté bobine) — chauffe 5–6× trop lentement que la
-  mesure. Positionnement, condition limite et auto-échauffement du MFC ont été **écartés** ;
-  le mécanisme (répartition de puissance entre couches / champ proche) reste **non identifié**.
-  Mesure discriminante proposée : IR sur la face active du MFC.
+- **Gradient dans l'épaisseur trop faible** — les 5 TC des séries A/B sont **à l'interface**
+  (mesuré : surface ≈ interface, ratio ≈ 0,97) ; le modèle **sur-chauffe la face opposée**
+  (opposée/interface ≈ 0,9 simulé vs ≈ 0,42 mesuré). Mécanisme = **confinement transverse
+  insuffisant** entre l'interface et le laminé inférieur ; le levier `r_contact_interface`
+  reproduit le profil d'épaisseur mais reste **NO-GO** en validation croisée (cf. correction
+  2026-08-13 dans `code/src/jumeau/em/source_joule.py`).
 - **Pas de mécanique** (pression, squeeze-out) ni de **cristallisation** — hors périmètre du
   champ de température.
 - Écarts assumés vs Lionetto 2017 ($\sigma(T)$, forme de fusion, cristallisation) : verdicts

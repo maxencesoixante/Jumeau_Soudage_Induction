@@ -561,13 +561,17 @@ contact reste neutralisée par la régulation. La limite est assumée telle quel
 tranchera par une mesure, celle du point de coupure réel du thermostat, plutôt que par un
 modèle plus fin.
 
-**(c) Le déficit de chauffe en surface (TC1).** Sur l'essai instrumenté en épaisseur, le
-thermocouple de surface chauffe 5 à 6 fois trop lentement dans le modèle. Quatre explications
-ont été testées et écartées avec des chiffres : condition limite thermique, diffusion depuis
-l'interface, auto-échauffement du concentrateur (0,6 à 1,4 W, négligeable), et décalage de
-position de bobine. L'origine suspectée tient à la répartition de puissance entre couches ou à
-un effet de champ proche que la plaque mince ne capture pas. Aucune mesure actuelle ne
-tranche, car aucun essai ne mesure la température du concentrateur lui-même.
+**(c) Le gradient dans l'épaisseur trop faible.** Sur l'essai instrumenté en épaisseur, les
+cinq thermocouples sont à l'interface ; recalculé sur cet essai, la surface chauffe comme
+l'interface (rapport ≈ 0,97) — l'ancienne lecture d'un « déficit de chauffe en surface (TC1) »
+était fausse. Le vrai écart est que le modèle **sur-chauffe la face opposée** (rapport
+opposée/interface ≈ 0,9 simulé contre ≈ 0,42 mesuré), signe d'un **confinement transverse
+insuffisant** entre l'interface et le laminé inférieur. Plusieurs explications ont été testées
+et écartées avec des chiffres : condition limite thermique, résistance de contact à l'interface
+(reproduit le profil mais NO-GO en validation croisée), auto-échauffement du concentrateur
+(0,6 à 1,4 W, négligeable), et décalage de position de bobine. Le mécanisme fin — répartition
+de puissance entre couches ou effet de champ proche que la plaque mince ne capture pas — reste
+à confirmer par une mesure directe.
 
 **(d) Le champ de réaction EM, implémenté puis écarté.** Le champ de réaction (blindage) a été
 implémenté rigoureusement (auto-cohérent, complexe) et vérifié par 8 tests dédiés. Son effet
@@ -662,7 +666,8 @@ la mesure que par le code.
    l'interface. Cette mesure tranche le profil en « M » : le modèle prédit bord chaud / centre
    froid. Le cahier de laboratoire la décrit déjà.
 2. **Température du concentrateur.** Un thermocouple ou une caméra infrarouge sur sa face
-   active pendant une chauffe. Seule mesure capable d'attaquer le déficit de surface (TC1).
+   active pendant une chauffe. Mesure du champ proche (MFC ↔ stack), à l'origine suspectée
+   du gradient d'épaisseur (face opposée).
 3. **Relevé métrologique complet de la tête.** Position relative bobine / concentrateur /
    thermocouples, en particulier le décalage longitudinal `decalage_x`, aujourd'hui figé
    faute de mesure. Les cotes de section, d'entraxe et de hauteur des brins ont, elles, déjà
