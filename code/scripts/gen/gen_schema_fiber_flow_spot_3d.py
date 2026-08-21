@@ -20,7 +20,7 @@ from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 R = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())
 sys.path.insert(0, str(R / "code" / "scripts"))
 from _style import apply_style, savefig  # noqa: E402
-apply_style(**{"font.size": 9})
+apply_style()
 
 K = "black"
 LX, LY = 12.0, 8.0        # dimensions en plan
@@ -103,14 +103,6 @@ ax.plot(XC + 0.42 * RS * np.cos(th), YC + 0.42 * RS * np.sin(th),
 for (ox, oy) in ((-0.55, -0.55), (0.55, -0.55), (-0.55, 0.55), (0.55, 0.55)):
     ax.quiver(XC + ox, YC + oy, ZT + 1.9, 0, 0, -1.5, color=K, lw=2.4,
               arrow_length_ratio=0.5, zorder=10)
-
-# --- texte (simple, format article) ---
-ax.text(XC, YC, ZT + 2.7, "pression", ha="center", va="bottom",
-        fontsize=8.5, color=K, zorder=11)
-ax.text(XC - 2.0, -(A + 4.0), ZI - 1.6, "bourrelet (squeeze-out)",
-        ha="center", va="top", fontsize=8.5, color=K, zorder=11)
-fig.suptitle("Squeeze-out sous le spot de pression", fontsize=11,
-             fontweight="bold", y=0.88)
 
 ax.set_box_aspect((LX + 2 * A, LY + 2 * A, ZT + 4))
 ax.set_xlim(-A - 1, LX + A + 1)
