@@ -187,6 +187,8 @@ def fig1():
     ax.set_title("Profil de température sur la largeur")
     ax.set_xlabel("Position en largeur $y$ (mm)")
     ax.set_ylabel("Température (°C)")
+    ax.text(0.5, 0.98, "profils au pic de chauffe (le temps varie selon le courant)",
+            transform=ax.transAxes, ha="center", va="top", fontsize=8, color="0.35")
     legend_right(ax, title="Courant")
     savefig(fig, "fig1_profil_M.png")
 
@@ -230,6 +232,13 @@ def fig2():
                 xy=(0, modele[0]), xytext=(38, -4), textcoords="offset points",
                 fontsize=8, color="0.35", ha="left", va="top",
                 arrowprops=dict(arrowstyle="-", color="0.55", lw=0.6))
+    tcn = [f"TC{i}" for i in range(1, 6)]
+    onset = heating_onset_idx(dfc, tcn, amb)
+    t0 = dfc["t"].to_numpy()[onset]
+    t_pk = float(np.median([dfc["t"].to_numpy()[int(dfc[c].to_numpy().argmax())] - t0
+                            for c in tcn]))
+    ax.text(0.5, 0.98, f"profil au pic de chauffe (t ≈ {t_pk:.0f} s après le début)",
+            transform=ax.transAxes, ha="center", va="top", fontsize=8, color="0.35")
     legend_right(ax)
     savefig(fig, "fig2_mesure_modele.png")
 
@@ -292,7 +301,7 @@ def fig4():
     t = dfc["t"].to_numpy() - dfc["t"].to_numpy()[onset]
     mask = (t >= 0) & (t <= 72)
     ts = t[mask]
-    ax.plot(ts, dfc["TC1"].to_numpy()[mask], "-", color=C150, label="Chants — TC1/TC5 (bord, y=0/40 mm)")
+    ax.plot(ts, dfc["TC1"].to_numpy()[mask], "-", color=C150, label="Bords — TC1/TC5 (y=0/40 mm)")
     ax.plot(ts, dfc["TC5"].to_numpy()[mask], "--", color=C150)
     ax.plot(ts, dfc["TC2"].to_numpy()[mask], "-", color=C200, label="Intermédiaires — TC2/TC4 (y=10/30 mm)")
     ax.plot(ts, dfc["TC4"].to_numpy()[mask], "--", color=C200)
@@ -494,6 +503,8 @@ def fig_dissipation_monospot():
     axa.set_xlabel("Position en longueur $x$ (mm)")
     axa.set_ylabel("Température (°C)")
     axa.set_title("Décroissance longitudinale de la température ($y$=0)")
+    axa.text(0.02, 0.98, "profil au maximum de température\n(pic par courant)",
+             transform=axa.transAxes, ha="left", va="top", fontsize=8, color="0.35")
     legend_right(axa, title="Courant")
     fig.tight_layout()
     savefig(fig, "fig_dissipation_monospot.png")
@@ -530,18 +541,20 @@ def fig_dissipation_semistatique():
         # Modèle en °C absolu = ligne de base mesurée + ΔT modélisée du dwell
         modele_abs = base[key] + modele_dT[key]
         (h_model,) = ax.plot(x, modele_abs, "--s", color=C_MODEL, markeredgecolor="white",
-                             markeredgewidth=0.5, label="Modèle 2D (base + ΔT par dwell)")
+                             markeredgewidth=0.5, label="Modèle 2D (base + ΔT par spot)")
         (h_mes,) = ax.plot(x, mesure[key], "-o", color=C150, markeredgecolor="white",
-                           markeredgewidth=0.5, label="Mesuré (pic par dwell)")
-        panel_title(ax, f"({lab}) dwell {key[1]}")
+                           markeredgewidth=0.5, label="Mesuré (pic par spot)")
+        panel_title(ax, f"({lab}) spot {key[1]}")
         ax.set_xticks(x)
     axes[0].set_ylim(0, 260)
     fig.legend(handles=[h_mes, h_model], loc="upper center", ncol=2,
                bbox_to_anchor=(0.5, 0.99), frameon=False, fontsize=10)
-    fig.suptitle("Empreinte par dwell : modèle multi-spots vs mesuré",
+    fig.suptitle("Empreinte par spot : modèle multi-spots vs mesuré",
                  fontsize=12, fontweight="bold", y=1.06)
     fig.supxlabel("Position en longueur $x$ (mm)", fontsize=11, fontweight="bold")
     fig.supylabel("Température (°C)", fontsize=11, fontweight="bold")
+    fig.text(0.5, -0.02, "chaque profil = température maximale atteinte pendant le passage "
+             "du spot (fenêtre du spot)", ha="center", fontsize=8, style="italic", color="0.4")
     fig.tight_layout(rect=(0.02, 0.03, 1, 0.94))
     savefig(fig, "fig_dissipation_semistatique.png")
 

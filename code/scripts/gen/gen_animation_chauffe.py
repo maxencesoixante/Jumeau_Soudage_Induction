@@ -78,10 +78,11 @@ def field_at(t):
 # 2. Figure 16:9
 # ----------------------------------------------------------------------
 fig = plt.figure(figsize=(16, 9), dpi=100)
-axL = fig.add_axes([0.045, 0.16, 0.31, 0.60])
-axB = fig.add_axes([0.435, 0.16, 0.028, 0.60])     # barre centrale animée
-axR = fig.add_axes([0.545, 0.16, 0.31, 0.60])
-axCB = fig.add_axes([0.895, 0.16, 0.017, 0.60])    # colorbar droite (marge à droite OK)
+# cadres au ratio réel 120:40 = 3:1 (0.37*16 / 0.22*9 = 5.92/1.98 ≈ 3), côte à côte
+axL = fig.add_axes([0.045, 0.40, 0.37, 0.22])
+axB = fig.add_axes([0.435, 0.40, 0.020, 0.22])     # barre centrale animée
+axR = fig.add_axes([0.520, 0.40, 0.37, 0.22])
+axCB = fig.add_axes([0.905, 0.40, 0.014, 0.22])    # colorbar droite (marge à droite OK)
 
 fig.suptitle("Jumeau numérique du soudage par induction — exp7, 200 A, spot centré",
              fontsize=17, fontweight="bold", y=0.955)
@@ -90,7 +91,7 @@ fig.text(0.5, 0.90, "Champ électromagnétique appliqué (empreinte de la source
          ha="center", fontsize=11.5, color="0.25")
 
 # --- panneau gauche : source Joule (statique) ---
-imL = axL.imshow(P_src.T, origin="lower", extent=extent, aspect="auto",
+imL = axL.imshow(P_src.T, origin="lower", extent=extent, aspect="equal",
                  cmap="cividis", interpolation="bilinear")
 axL.set_title("Champ EM (source Joule) — empreinte du spot", fontsize=12, fontweight="bold")
 axL.set_xlabel("Longueur x (mm)"); axL.set_ylabel("Largeur y (mm)")
@@ -103,7 +104,7 @@ bar = Rectangle((0, 0), 1, 0.0, facecolor="#E69F00", edgecolor="none")
 axB.add_patch(bar)
 
 # --- panneau droit : température animée ---
-imR = axR.imshow(champs[0].T, origin="lower", extent=extent, aspect="auto",
+imR = axR.imshow(champs[0].T, origin="lower", extent=extent, aspect="equal",
                  cmap="inferno", vmin=Tamb, vmax=Tmax, interpolation="bilinear")
 axR.set_title("Température de surface (interface)", fontsize=12, fontweight="bold")
 axR.set_xlabel("Longueur x (mm)"); axR.set_ylabel("Largeur y (mm)")
@@ -114,7 +115,7 @@ for i, y in enumerate(ys_tc, start=1):
     axR.scatter([60], [y], marker="x", s=45, color="white", linewidths=1.6, zorder=5)
     axR.annotate(f"TC{i}", (60, y), xytext=(64, y + dy), fontsize=9, color="white",
                  va=va, fontweight="bold")
-axR.set_ylim(-1.5, 41.5)
+axR.set_ylim(0, 40)
 txt_t = axR.text(0.97, 0.93, "", transform=axR.transAxes, ha="right", va="top",
                  fontsize=13, color="white", fontweight="bold",
                  bbox=dict(facecolor="black", alpha=0.35, edgecolor="none", pad=2))
