@@ -19,6 +19,7 @@ Chaque campagne récente a son propre `README.md` détaillé dans son dossier `d
 ## Documents labo
 
 - [`protocole_exp_dissipation_longitudinale.md`](protocole_exp_dissipation_longitudinale.md) — fiche protocole exp 9.
+- [`protocole_mfc_reduit.md`](protocole_mfc_reduit.md) — fiche protocole MFC réduit (31,75 mm) : chauffe instrumentée en largeur, comparaison au MFC 55 mm, recalibration θ\* (COMPAAM).
 - [`mesures_a_realiser.md`](mesures_a_realiser.md) — mesures encore **à réaliser** (feuille de route terrain).
 - [`releves_resolus.md`](releves_resolus.md) — relevés/questions de terrain déjà **tranchés** (archive).
 

@@ -13,18 +13,31 @@ géométrie exp7 (spot fixe centré x=60 mm) :
                  (comportement de référence actuel -- non modifié) ;
   - MFC réduit : cfc.longueur=0.03175 m (override EN MÉMOIRE, PAS en config),
                  cfc.largeur=0.0315 m et cfc.hauteur=0.012 m (déjà les valeurs
-                 par défaut), masque_source_mfc=ON.
+                 par défaut), masque_source_mfc=ON, masque_source_mode="conserver".
 
-APPROXIMATION DE 1er ORDRE, À NE PAS SUR-INTERPRÉTER : le masque est un
+MODÈLE (mode "conserver", cf. jumeau.procede.Essai.masque_source_mode) :
+Q_masqué = Q · mask · (∫Q / ∫(Q·mask)) -- la puissance Joule TOTALE déposée par
+spot est CONSERVÉE, pas tronquée : un vrai concentrateur réduit canalise le
+même flux magnétique dans une empreinte plus petite (intensité locale PLUS
+FORTE sous l'empreinte), il ne le supprime pas hors empreinte. C'est le
+correctif du mode historique "tronquer" (encore le défaut de l'API, cf.
+Essai.masque_source_mode) qui, lui, met la source à zéro hors empreinte SANS
+redistribution -- physiquement faux pour ce cas (effondrement artificiel des
+températures). Le cas MFC LABO (masque OFF) reste inchangé bit-à-bit (θ*
+facteur_couplage=6.0123 continue d'être calibré dessus) : la renormalisation
+ne s'applique QUE côté MFC réduit.
+
+APPROXIMATION DE 1er ORDRE, À NE PAS SUR-INTERPRÉTER : le masque reste un
 rectangle DUR (0/1, pas de frange de champ proche à la lisière du bloc MFC) ;
-la puissance hors empreinte est PERDUE (tronquée), pas redistribuée vers
-l'intérieur par conservation -- un vrai MFC réduit concentrerait sans doute
-UNE PARTIE de ce flux vers le centre, ce que ce modèle ne capture pas. Cf.
-docstring jumeau.procede.Essai.masque_source_mfc. Extrapolation à une
-géométrie MFC neuve, non mesurée -- à confirmer expérimentalement (le MFC
-réduit est commandé, cf. config/geometrie.yaml:cfc).
+le champ image-current (µr, cf. champ_coil.py) N'EST PAS re-résolu pour la
+géométrie ferrite réduite -- seule la puissance totale est conservée et
+redéposée telle quelle (répartition spatiale sous l'empreinte non recalculée
+finement) ; θ* de référence n'est PAS recalibré pour ce mode. Extrapolation à
+une géométrie MFC neuve, non mesurée -- tendance attendue, niveaux absolus à
+confirmer expérimentalement (le MFC réduit est commandé, cf.
+config/geometrie.yaml:cfc).
 
-Sortie : docs/modele/figures/fig_mfc_reduit.png
+Sortie : biblio/modele/figures/fig_mfc_reduit.png
 """
 import copy
 import sys
@@ -62,28 +75,49 @@ assert cfg_reduit.geometrie["cfc"]["hauteur"] == 0.012
 assert cfg_labo.geometrie["cfc"]["longueur"] == 0.055   # config de référence NON modifiée
 
 
-def champ_interface(cfg, masque_source_mfc: bool, nx=81, ny=41, nz=15):
+def champ_interface(cfg, masque_source_mfc: bool, masque_source_mode: str = "tronquer",
+                    nx=81, ny=41, nz=15):
     """Carte T(x,y) d'interface au PIC, courant/durée forcés (comme
     fig_empreinte_soudure.py) -- reconstruit _Q_spots/_P_spots_2d à COURANT
-    et DURÉE choisis (le YAML exp7_200A fixe 200 A / 18 s par défaut)."""
+    et DURÉE choisis (le YAML exp7_200A fixe 200 A / 18 s par défaut).
+
+    ``masque_source_mode`` ("tronquer" | "conserver", cf. docstring
+    ``jumeau.procede.Essai``) -- n'a d'effet que si ``masque_source_mfc``.
+    Réplique ici EXACTEMENT la logique d'``Essai.__init__`` (même masque,
+    même renormalisation par rapport de sommes brutes -- grille régulière,
+    dx/dy/dz constants -> rapport de sommes = rapport d'intégrales de
+    volume) car ce script reconstruit Q à COURANT/DURÉE propres, en dehors
+    du constructeur d'Essai."""
     e = Essai(cfg, R / "code" / "config" / "essais" / "exp7_200A.yaml", nx=nx, ny=ny, nz=nz,
               facteur_couplage=FACTEUR, decalage_x=0.0, racine=R,
-              masque_source_mfc=masque_source_mfc)
+              masque_source_mfc=masque_source_mfc, masque_source_mode=masque_source_mode)
     e.spec["duree_chauffe"] = DUREE
     e.spec["duree_totale"] = DUREE
     e.spots[0]["t_fin"] = DUREE
     Q = [source_spot(e.grille, cfg, e.couches, COURANT, float(s["centre_x"]),
                      facteur_couplage=FACTEUR, decalage_x=0.0) for s in e.spots]
+    bilan = None
     if masque_source_mfc:
         # même logique que Essai.__init__ (masque_source_mfc) : réutiliser EXACTEMENT
         # le masque déjà construit par Essai (posé sur le spot, cfg de cette config)
+        Q_non_masque = Q
         Q = [q * m[:, :, None] for q, m in zip(Q, e._masques)]
+        if masque_source_mode == "conserver":
+            totaux_non_masques = [float(q.sum()) for q in Q_non_masque]
+            totaux_masques = [float(q.sum()) for q in Q]
+            Q = [
+                q * (t_nm / t_m if t_m > 0.0 else 1.0)
+                for q, t_nm, t_m in zip(Q, totaux_non_masques, totaux_masques)
+            ]
+            totaux_conserves = [float(q.sum()) for q in Q]
+            bilan = dict(non_masque=sum(totaux_non_masques), tronque=sum(totaux_masques),
+                        conserve=sum(totaux_conserves))
     e._Q_spots = Q
     e._P_spots_2d = [q.sum(axis=2) * e.grille.dz for q in Q]
     sv, sol = e.simuler(modele="2D")
     champs = np.array([sv.resultat_2d(sol, i) for i in range(sol.t.size)])  # (nt, nx, ny)
     Tmax = champs.max(axis=0)
-    return e.grille, Tmax
+    return e.grille, Tmax, bilan
 
 
 def diagnostics(nom, g, Tmax):
@@ -112,11 +146,18 @@ def diagnostics(nom, g, Tmax):
 print(f"Réglage : I={COURANT:.0f} A, durée={DUREE:.0f} s, facteur_couplage={FACTEUR} (référence, NON recalibré)")
 print()
 
-g_labo, T_labo = champ_interface(cfg_labo, masque_source_mfc=False)
+g_labo, T_labo, _ = champ_interface(cfg_labo, masque_source_mfc=False)
 d_labo = diagnostics("MFC labo (55 mm, masque source OFF -- reference)", g_labo, T_labo)
 print()
-g_red, T_red = champ_interface(cfg_reduit, masque_source_mfc=True)
-d_red = diagnostics("MFC réduit (31.75 mm, masque source ON)", g_red, T_red)
+g_red, T_red, bilan_red = champ_interface(cfg_reduit, masque_source_mfc=True,
+                                          masque_source_mode="conserver")
+d_red = diagnostics("MFC réduit (31.75 mm, masque source ON, mode conserver)", g_red, T_red)
+print(f"  bilan de puissance (flux conservé/concentré, 1er ordre) :")
+print(f"    integrale Q non masquee            : {bilan_red['non_masque']:.4e} (u. de sum brute)")
+print(f"    integrale Q tronquee (avant renorm): {bilan_red['tronque']:.4e}"
+     f"  ({100*bilan_red['tronque']/bilan_red['non_masque']:.1f} % du non-masque)")
+print(f"    integrale Q conservee (apres renorm): {bilan_red['conserve']:.4e}"
+     f"  ({100*bilan_red['conserve']/bilan_red['non_masque']:.2f} % du non-masque -- doit etre ~100 %)")
 print()
 
 point_chaud_deplace = d_red["y_pic_mm"] != d_labo["y_pic_mm"]
@@ -163,12 +204,12 @@ ax_prof.set_title("Profil en largeur — bord (M) vs centré ?", fontsize=10.5)
 ax_prof.legend(fontsize=8.2, loc="upper center", ncol=2)
 ax_prof.grid(alpha=0.25)
 
-fig.suptitle(f"Prédiction MFC réduit — masque de source (flag ON), {COURANT:.0f} A / {DUREE:.0f} s, "
-             f"$\\theta^*$ référence (facteur={FACTEUR}, non recalibré)",
+fig.suptitle(f"Prédiction MFC réduit — flux conservé/concentré (1er ordre), {COURANT:.0f} A / {DUREE:.0f} s, "
+             f"$\\theta^*$ référence NON recalibré (facteur={FACTEUR})",
              fontsize=11.5, fontweight="bold", y=0.995)
 fig.text(0.5, -0.01,
-        "Masque source = approximation 1er ordre (rectangle dur, pas de frange ; puissance hors empreinte "
-        "tronquée, pas redistribuée) -- extrapolation NON mesurée, à confirmer.",
+        "Masque source, mode conserver : puissance Joule totale conservée (concentrée, pas tronquée) sous\n"
+        "l'empreinte réduite -- 1er ordre, θ* réf. NON recalibré -- tendance attendue, niveaux à confirmer.",
         ha="center", fontsize=7.8, style="italic", color="#555555")
-savefig(fig, OUT, bbox_extra_artists=[fig.texts[-1]])
+savefig(fig, OUT, bbox_extra_artists=[fig.texts[-1], fig._suptitle])
 print("\nsaved", OUT)

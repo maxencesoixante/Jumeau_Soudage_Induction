@@ -60,7 +60,8 @@ class Essai:
                  thermostat_capteurs: bool = False,
                  source_sigma_mm: float = 0.0,
                  lambda_bord_mm: float = 0.0,
-                 masque_source_mfc: bool = False):
+                 masque_source_mfc: bool = False,
+                 masque_source_mode: str = "tronquer"):
         self.cfg = cfg
         self.spec = charger_yaml(chemin_essai)
         self.racine = Path(racine) if racine else Path(chemin_essai).resolve().parents[3]
@@ -162,14 +163,49 @@ class Essai:
         # bord/centre ~inchangé, 5.4->5.5), ce qui est physiquement suspect.
         # APPROXIMATION DE 1er ORDRE (à documenter comme telle) : un masque
         # DUR (0/1, pas de frange/diffusion du champ proche à la lisière du
-        # bloc MFC) ; le courant hors empreinte n'est pas redistribué à
-        # l'intérieur (la puissance totale déposée DIMINUE quand on masque,
-        # elle n'est pas concentrée par conservation -- cf. docstring module
-        # source_joule.py pour la distinction avec le blindage/couplage
-        # inter-couches). NE PAS activer sans recalibrer facteur_couplage (la
-        # puissance totale change). Défaut False -> non-régression bit-à-bit
-        # (cf. tests test_masque_source_mfc_off_est_identite).
+        # bloc MFC). Défaut False -> non-régression bit-à-bit (cf. tests
+        # test_masque_source_mfc_off_est_identite). NE PAS activer sans
+        # recalibrer facteur_couplage (la puissance totale change, cf.
+        # masque_source_mode ci-dessous).
         self.masque_source_mfc = bool(masque_source_mfc)
+        # masque_source_mode ("tronquer" | "conserver", n'a d'effet QUE si
+        # masque_source_mfc=True) : deux modèles EM 1er ordre distincts pour
+        # ce qui arrive au flux hors empreinte MFC.
+        #   - "tronquer" (DÉFAUT, comportement historique < 2026-08-22) : le
+        #     courant hors empreinte n'est pas redistribué à l'intérieur --
+        #     la puissance totale déposée DIMINUE quand on masque, elle n'est
+        #     PAS concentrée par conservation. Physiquement faux pour un vrai
+        #     MFC (un concentrateur réduit canalise le flux dans une
+        #     empreinte plus petite, il ne le supprime pas), mais conservé
+        #     tel quel car c'est SUR ce comportement que le MFC labo (masque
+        #     off, cf. plus bas) et θ* (facteur_couplage=6.0123) restent
+        #     calibrés -- cf. docstring module source_joule.py pour la
+        #     distinction avec le blindage/couplage inter-couches.
+        #   - "conserver" (NOUVEAU, cf. tâche masque MFC réduit 2026-08-22) :
+        #     renormalise Q_masqué = Q·mask·(∫Q / ∫(Q·mask)) -- intégrale de
+        #     volume sur la plaque entière (grille RÉGULIÈRE par axe, dx/dy/dz
+        #     constants -- cf. Grille3D.__post_init__ -- donc le rapport de
+        #     sommes ndarray brutes est EXACTEMENT le rapport des intégrales
+        #     de volume, le dV constant se simplifiant). Modèle 1er ordre :
+        #     conserve la puissance Joule TOTALE déposée par spot (couplage
+        #     bobine<->plaque inchangé), la reconcentre entièrement sous
+        #     l'empreinte réduite -- hypothèse cohérente avec un concentrateur
+        #     qui canalise (ne dissipe pas) le flux magnétique. LIMITES : pas
+        #     de re-résolution de Bz pour la géométrie ferrite réduite (le
+        #     champ image-current, cf. champ_coil.py, reste celui du MFC
+        #     labo), pas de frange de champ proche à la lisière du bloc
+        #     réduit (masque toujours dur 0/1), la répartition SPATIALE
+        #     post-renormalisation sous l'empreinte reste celle, non modifiée,
+        #     du champ non masqué (pas de re-calcul de la concentration fine
+        #     du flux par le nouveau bloc MFC). NE PAS activer sans recalibrer
+        #     facteur_couplage pour ce mode si on veut confronter aux niveaux
+        #     absolus -- utilisé ici en θ* de référence (NON recalibré,
+        #     tendance seulement, cf. gen_mfc_reduit.py).
+        if masque_source_mode not in ("tronquer", "conserver"):
+            raise ValueError(
+                f"masque_source_mode doit être 'tronquer' ou 'conserver', reçu {masque_source_mode!r}"
+            )
+        self.masque_source_mode = str(masque_source_mode)
 
         courant = float(self.spec["courant"])
         self.spots = self.spec["spots"]
@@ -191,9 +227,19 @@ class Essai:
             # pour la source, PAS un nouveau masque indépendant -- garantit
             # que "où la céramique appuie" et "où le flux est concentré"
             # restent le même rectangle géométrique par construction.
-            self._Q_spots = [
+            Q_masques = [
                 Q * m[:, :, None] for Q, m in zip(self._Q_spots, self._masques)
             ]
+            if self.masque_source_mode == "conserver":
+                Q_conserves = []
+                for Q, Qm in zip(self._Q_spots, Q_masques):
+                    total = float(Q.sum())
+                    total_m = float(Qm.sum())
+                    facteur_reconcentration = total / total_m if total_m > 0.0 else 1.0
+                    Q_conserves.append(Qm * facteur_reconcentration)
+                self._Q_spots = Q_conserves
+            else:
+                self._Q_spots = Q_masques
         self._Q_nul = np.zeros_like(self._Q_spots[0])
         # nœuds de contrôle du thermostat (asservissement de source_fn à T) —
         # un jeu de nœuds PAR SPOT : toute la colonne en y à l'abscisse du
