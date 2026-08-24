@@ -1,15 +1,14 @@
 """Animation MP4 de la chauffe exp7 200 A (slide 8 du deck) — VERSIONNÉ.
 
-Deux panneaux : (gauche) champ EM / source Joule à l'interface (statique) ;
-(droite) T(x, y, t) de la surface d'interface qui monte puis refroidit, avec
-les 5 TC. Barre centrale ANIMÉE = énergie surfacique déposée (cumulée, norm.).
+Deux panneaux EMPILÉS verticalement (l'un au-dessus de l'autre) :
+  - (haut)  champ EM / source Joule à l'interface (statique) ;
+  - (bas)   T(x, y, t) de la surface d'interface qui monte puis refroidit, avec
+            les 5 TC.
+Barre ANIMÉE = énergie surfacique déposée (cumulée, norm.), isolée dans sa
+propre colonne à droite pour qu'AUCUN élément (titre, label) ne chevauche la
+barre ni les panneaux.
 
-Corrige les deux défauts de l'ancienne vidéo :
-  - la barre centrale était vide/figée -> désormais animée (remplissage) ;
-  - le label du colorbar « Température (°C) » était coupé à droite -> marge
-    droite dédiée.
-
-Sortie : docs/chauffe_surface_exp7_200A.mp4  (ffmpeg via imageio-ffmpeg bundlé).
+Sortie : biblio/chauffe_surface_exp7_200A.mp4 (ffmpeg via imageio-ffmpeg bundlé).
 """
 import sys
 from pathlib import Path
@@ -75,35 +74,32 @@ def field_at(t):
     return (1 - w) * champs[j - 1] + w * champs[j]
 
 # ----------------------------------------------------------------------
-# 2. Figure 16:9
+# 2. Figure 16:9 — panneaux EMPILÉS verticalement, barre d'énergie isolée à droite
 # ----------------------------------------------------------------------
 fig = plt.figure(figsize=(16, 9), dpi=100)
-# cadres au ratio réel 120:40 = 3:1 (0.37*16 / 0.22*9 = 5.92/1.98 ≈ 3), côte à côte
-axL = fig.add_axes([0.045, 0.40, 0.37, 0.22])
-axB = fig.add_axes([0.435, 0.40, 0.020, 0.22])     # barre centrale animée
-axR = fig.add_axes([0.520, 0.40, 0.37, 0.22])
-axCB = fig.add_axes([0.905, 0.40, 0.014, 0.22])    # colorbar droite (marge à droite OK)
+# Chaque panneau au ratio réel 120:40 = 3:1. Box display 3:1 : largeur_px/hauteur_px
+# = 16*PW / 9*PH = 3  ->  PH = 16*PW/(27).  PW=0.52 -> PH≈0.308 (image remplit la box,
+# le colorbar reste aligné, pas de blanc parasite).
+PL, PW, PH = 0.11, 0.52, 0.308
+TOP_B, BOT_B = 0.545, 0.145
+axL = fig.add_axes([PL, TOP_B, PW, PH])                       # haut : source Joule
+axR = fig.add_axes([PL, BOT_B, PW, PH])                       # bas  : température
+axCB = fig.add_axes([PL + PW + 0.015, BOT_B, 0.014, PH])      # colorbar T (aligné au bas)
+axB = fig.add_axes([0.80, BOT_B, 0.028, TOP_B + PH - BOT_B])  # barre énergie (colonne isolée)
 
 fig.suptitle("Jumeau numérique du soudage par induction — exp7, 200 A, spot centré",
-             fontsize=17, fontweight="bold", y=0.955)
-fig.text(0.5, 0.90, "Champ électromagnétique appliqué (empreinte de la source Joule) "
+             fontsize=17, fontweight="bold", y=0.965)
+fig.text(0.5, 0.915, "Champ électromagnétique appliqué (empreinte de la source Joule) "
          "puis chauffe de la surface d'interface T(x, y, t)",
          ha="center", fontsize=11.5, color="0.25")
 
-# --- panneau gauche : source Joule (statique) ---
+# --- panneau HAUT : source Joule (statique) ---
 imL = axL.imshow(P_src.T, origin="lower", extent=extent, aspect="equal",
                  cmap="cividis", interpolation="bilinear")
 axL.set_title("Champ EM (source Joule) — empreinte du spot", fontsize=12, fontweight="bold")
 axL.set_xlabel("Longueur x (mm)"); axL.set_ylabel("Largeur y (mm)")
 
-# --- barre centrale animée : énergie déposée cumulée (normalisée) ---
-axB.set_xlim(0, 1); axB.set_ylim(0, 1); axB.set_xticks([])
-axB.set_title("dépôt", fontsize=9, color="0.3", pad=4)
-axB.set_ylabel("Énergie surfacique déposée (cumulée, norm.)", fontsize=11)
-bar = Rectangle((0, 0), 1, 0.0, facecolor="#E69F00", edgecolor="none")
-axB.add_patch(bar)
-
-# --- panneau droit : température animée ---
+# --- panneau BAS : température animée ---
 imR = axR.imshow(champs[0].T, origin="lower", extent=extent, aspect="equal",
                  cmap="inferno", vmin=Tamb, vmax=Tmax, interpolation="bilinear")
 axR.set_title("Température de surface (interface)", fontsize=12, fontweight="bold")
@@ -122,7 +118,17 @@ txt_t = axR.text(0.97, 0.93, "", transform=axR.transAxes, ha="right", va="top",
 cb = fig.colorbar(imR, cax=axCB)
 cb.set_label("Température (°C)", fontsize=12)
 
-txt_phase = fig.text(0.5, 0.065, "", ha="center", fontsize=12, color="0.2")
+# --- barre d'énergie ANIMÉE : colonne isolée à droite (aucun chevauchement) ---
+axB.set_xlim(0, 1); axB.set_ylim(0, 1); axB.set_xticks([])
+axB.set_title("Énergie\ndéposée", fontsize=11, fontweight="bold", color="0.2", pad=10)
+axB.set_ylabel("fraction cumulée (0 → 1)", fontsize=11)
+axB.yaxis.set_label_position("right"); axB.yaxis.tick_right()
+bar = Rectangle((0, 0), 1, 0.0, facecolor="#E69F00", edgecolor="none")
+axB.add_patch(bar)
+txt_e = axB.text(0.5, -0.045, "", transform=axB.transAxes, ha="center", va="top",
+                 fontsize=11, fontweight="bold", color="0.2")
+
+txt_phase = fig.text(0.5, 0.055, "", ha="center", fontsize=12, color="0.2")
 
 
 def update(k):
@@ -131,12 +137,13 @@ def update(k):
     frac = min(t / duree_chauffe, 1.0)          # énergie cumulée normalisée
     bar.set_height(frac)
     bar.set_facecolor("#E69F00" if t <= duree_chauffe else "#B0B0B0")
+    txt_e.set_text(f"{frac * 100:3.0f} %")
     txt_t.set_text(f"t = {t:5.1f} s")
     if t <= duree_chauffe:
         txt_phase.set_text("Phase : chauffe (courant établi)")
     else:
         txt_phase.set_text("Phase : refroidissement (courant coupé)")
-    return imR, bar, txt_t, txt_phase
+    return imR, bar, txt_t, txt_e, txt_phase
 
 
 if __name__ == "__main__":
