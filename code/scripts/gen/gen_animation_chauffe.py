@@ -82,14 +82,15 @@ fig = plt.figure(figsize=(16, 9), dpi=100)
 # le colorbar reste aligné, pas de blanc parasite).
 PL, PW, PH = 0.11, 0.52, 0.308
 TOP_B, BOT_B = 0.545, 0.145
-axL = fig.add_axes([PL, TOP_B, PW, PH])                       # haut : source Joule
-axR = fig.add_axes([PL, BOT_B, PW, PH])                       # bas  : température
-# Deux jauges verticales RÉDUITES, à côté du panneau température (bas, animé),
-# centrées verticalement dessus : colorbar T puis barre d'énergie.
-GH = 0.22                                     # hauteur réduite commune
-GB = BOT_B + (PH - GH) / 2                    # centrées sur le panneau température
-axCB = fig.add_axes([PL + PW + 0.015, GB, 0.012, GH])   # colorbar T (réduite)
-axB = fig.add_axes([PL + PW + 0.085, GB, 0.020, GH])    # barre énergie (à côté, réduite)
+axL = fig.add_axes([PL, TOP_B, PW, PH])                       # haut : champ EM (source Joule)
+axR = fig.add_axes([PL, BOT_B, PW, PH])                       # bas  : température à l'interface
+# Deux jauges verticales de MÊME TAILLE, chacune à droite de SON panneau et centrée
+# dessus : barre d'énergie déposée -> panneau CHAMP EM (haut, c'est la source qui
+# dépose l'énergie) ; colorbar T -> panneau température (bas).
+GH, GW = 0.22, 0.014                           # même taille pour les deux jauges
+GX = PL + PW + 0.015
+axB = fig.add_axes([GX, TOP_B + (PH - GH) / 2, GW, GH])   # énergie déposée (à côté du champ EM)
+axCB = fig.add_axes([GX, BOT_B + (PH - GH) / 2, GW, GH])  # colorbar T (à côté de la température)
 
 fig.suptitle("Jumeau numérique du soudage par induction — exp7, 200 A, spot centré",
              fontsize=17, fontweight="bold", y=0.965)
@@ -106,7 +107,7 @@ axL.set_xlabel("Longueur x (mm)"); axL.set_ylabel("Largeur y (mm)")
 # --- panneau BAS : température animée ---
 imR = axR.imshow(champs[0].T, origin="lower", extent=extent, aspect="equal",
                  cmap="inferno", vmin=Tamb, vmax=Tmax, interpolation="bilinear")
-axR.set_title("Température de surface (interface)", fontsize=12, fontweight="bold")
+axR.set_title("Température à l'interface", fontsize=12, fontweight="bold")
 axR.set_xlabel("Longueur x (mm)"); axR.set_ylabel("Largeur y (mm)")
 ys_tc = [0, 10, 20, 30, 40]
 for i, y in enumerate(ys_tc, start=1):
@@ -123,7 +124,7 @@ cb = fig.colorbar(imR, cax=axCB)
 cb.set_label("Température (°C)", fontsize=10)
 cb.ax.tick_params(labelsize=8)
 
-# --- barre d'énergie ANIMÉE : à côté du panneau température, réduite (aucun chevauchement) ---
+# --- barre d'énergie ANIMÉE : à côté du panneau CHAMP EM, même taille que la colorbar T ---
 axB.set_xlim(0, 1); axB.set_ylim(0, 1); axB.set_xticks([])
 axB.tick_params(labelsize=8)
 axB.set_title("Énergie\ndéposée", fontsize=9.5, fontweight="bold", color="0.2", pad=8)
