@@ -84,8 +84,12 @@ PL, PW, PH = 0.11, 0.52, 0.308
 TOP_B, BOT_B = 0.545, 0.145
 axL = fig.add_axes([PL, TOP_B, PW, PH])                       # haut : source Joule
 axR = fig.add_axes([PL, BOT_B, PW, PH])                       # bas  : température
-axCB = fig.add_axes([PL + PW + 0.015, BOT_B, 0.014, PH])      # colorbar T (aligné au bas)
-axB = fig.add_axes([0.80, BOT_B, 0.028, TOP_B + PH - BOT_B])  # barre énergie (colonne isolée)
+# Deux jauges verticales RÉDUITES, à côté du panneau température (bas, animé),
+# centrées verticalement dessus : colorbar T puis barre d'énergie.
+GH = 0.22                                     # hauteur réduite commune
+GB = BOT_B + (PH - GH) / 2                    # centrées sur le panneau température
+axCB = fig.add_axes([PL + PW + 0.015, GB, 0.012, GH])   # colorbar T (réduite)
+axB = fig.add_axes([PL + PW + 0.085, GB, 0.020, GH])    # barre énergie (à côté, réduite)
 
 fig.suptitle("Jumeau numérique du soudage par induction — exp7, 200 A, spot centré",
              fontsize=17, fontweight="bold", y=0.965)
@@ -116,17 +120,19 @@ txt_t = axR.text(0.97, 0.93, "", transform=axR.transAxes, ha="right", va="top",
                  fontsize=13, color="white", fontweight="bold",
                  bbox=dict(facecolor="black", alpha=0.35, edgecolor="none", pad=2))
 cb = fig.colorbar(imR, cax=axCB)
-cb.set_label("Température (°C)", fontsize=12)
+cb.set_label("Température (°C)", fontsize=10)
+cb.ax.tick_params(labelsize=8)
 
-# --- barre d'énergie ANIMÉE : colonne isolée à droite (aucun chevauchement) ---
+# --- barre d'énergie ANIMÉE : à côté du panneau température, réduite (aucun chevauchement) ---
 axB.set_xlim(0, 1); axB.set_ylim(0, 1); axB.set_xticks([])
-axB.set_title("Énergie\ndéposée", fontsize=11, fontweight="bold", color="0.2", pad=10)
-axB.set_ylabel("fraction cumulée (0 → 1)", fontsize=11)
+axB.tick_params(labelsize=8)
+axB.set_title("Énergie\ndéposée", fontsize=9.5, fontweight="bold", color="0.2", pad=8)
+axB.set_ylabel("fraction cumulée (0 → 1)", fontsize=9)
 axB.yaxis.set_label_position("right"); axB.yaxis.tick_right()
 bar = Rectangle((0, 0), 1, 0.0, facecolor="#E69F00", edgecolor="none")
 axB.add_patch(bar)
-txt_e = axB.text(0.5, -0.045, "", transform=axB.transAxes, ha="center", va="top",
-                 fontsize=11, fontweight="bold", color="0.2")
+txt_e = axB.text(0.5, -0.06, "", transform=axB.transAxes, ha="center", va="top",
+                 fontsize=10, fontweight="bold", color="0.2")
 
 txt_phase = fig.text(0.5, 0.055, "", ha="center", fontsize=12, color="0.2")
 
