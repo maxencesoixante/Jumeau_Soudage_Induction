@@ -105,6 +105,15 @@ def construire_essai(courant: float) -> Essai:
     e = Essai(cfg, SPEC_REF, nx=61, ny=21, nz=15, facteur_couplage=FACTEUR,
               decalage_x=0.0, racine=R)
     e.spec["courant"] = courant
+    # TC ALIGNÉS SUR LES SPOTS CHAUDS (choix utilisateur) : un TC au centre de
+    # chaque spot (bord y=0) = point chaud de la passe correspondante -> ce TC
+    # suit la courbe de contrôle pendant SA passe. + 1 TC de référence au centre
+    # froid en largeur (y=20 mm, mi-longueur) pour visualiser le contraste du M.
+    tcs = {f"TC{i + 1}": {"x": float(s["centre_x"]), "y": 0.0, "z": "interface"}
+           for i, s in enumerate(e.spots)}
+    tcs[f"TC{len(e.spots) + 1}"] = {"x": 0.060, "y": 0.020, "z": "interface"}
+    e.spec["thermocouples"] = tcs
+    e.spec["tc_valides"] = list(tcs)
     e._Q_spots = [
         source_spot(e.grille, cfg, e.couches, courant, float(s["centre_x"]),
                     facteur_couplage=FACTEUR, decalage_x=0.0)
@@ -339,7 +348,8 @@ def tracer_cycle(courant: float, resultat: dict, chemin_out: Path):
         f"puis coupure + refroidissement (fond clair) jusqu'à {T_REFROID:.0f} °C, puis avance.\n"
         "Biais connu : le modèle sur-estime le bord d'interface d'~50 °C -> 390 °C modèle "
         "$\\approx$ 340 °C réel (soudage propre).\n"
-        "TC1 = centre de largeur (référence froide) ; TC2-TC5 = bord y=0 (chaud)."
+        "TC1–TC4 = centres des 4 spots (bord y=0) = point chaud de chaque passe ; "
+        "TC5 = centre de largeur (y=20 mm, réf. froide)."
     )
     ax.text(0.5, -0.24, legende_bas, transform=ax.transAxes, ha="center", va="top",
             fontsize=6.0, color="0.35", linespacing=1.55)
