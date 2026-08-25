@@ -7,7 +7,7 @@ consolidation, ce sont les fibres de la matière qui sont propulsées de chaque
 côté : chaque pli s'étend au-delà du bord d'une quantité gaussienne, maximale
 à l'interface (les fibres du centre ressortent le plus) et quasi nulle vers
 les peaux — comme le bourrelet observé en vue de dessus. Sortie :
-biblio/labo/figures/.
+biblio/presentations/figures_schemas/.
 """
 from __future__ import annotations
 import sys
@@ -68,5 +68,7 @@ for xf in np.linspace(X0 + 8, X1 - 8, 3):
     ax.add_patch(FancyArrow(xf, H + 2.9, 0, -2.0, width=0.18, head_width=1.1,
                  head_length=1.0, color=K, length_includes_head=True))
 
-savefig(fig, R / "biblio" / "labo" / "figures" / "fig_fiber_flow")
-print("figure -> biblio/labo/figures/fig_fiber_flow.png")
+OUT = R / "biblio" / "presentations" / "figures_schemas"
+OUT.mkdir(parents=True, exist_ok=True)
+savefig(fig, OUT / "fig_fiber_flow")
+print("figure -> biblio/presentations/figures_schemas/fig_fiber_flow.png")

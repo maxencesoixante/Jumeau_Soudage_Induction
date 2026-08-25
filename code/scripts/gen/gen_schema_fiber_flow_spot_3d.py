@@ -7,7 +7,7 @@ de la plaque. Sous ce spot, la matière flue radialement vers TOUS les bords
 libres, où les fibres sont propulsées (squeeze-out) — le pourtour bombe
 (gaussienne double, maximale au centre de chaque bord). Faces dessus/dessous
 opaques, filet de plis en « jupe » sur le pourtour, flux radial figuré sur le
-dessus. Trait noir sur blanc, texte minimal. Sortie : biblio/labo/figures/.
+dessus. Trait noir sur blanc, texte minimal. Sortie : biblio/presentations/figures_schemas/.
 """
 from __future__ import annotations
 import sys
@@ -111,5 +111,7 @@ ax.set_zlim(0, ZT + 2.6)
 ax.view_init(elev=27, azim=-56)
 ax.set_axis_off()
 fig.tight_layout()
-savefig(fig, R / "biblio" / "labo" / "figures" / "fig_fiber_flow_spot_3d")
-print("figure -> biblio/labo/figures/fig_fiber_flow_spot_3d.png")
+OUT = R / "biblio" / "presentations" / "figures_schemas"
+OUT.mkdir(parents=True, exist_ok=True)
+savefig(fig, OUT / "fig_fiber_flow_spot_3d")
+print("figure -> biblio/presentations/figures_schemas/fig_fiber_flow_spot_3d.png")

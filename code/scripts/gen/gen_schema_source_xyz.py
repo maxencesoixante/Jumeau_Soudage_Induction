@@ -17,7 +17,7 @@ biblio/labo/explication_source_xyz.md pour le detail sourcé) :
 Schema (diagramme + coupes annotees), PAS un graphe de donnees. PNG only,
 palette Okabe-Ito, texte en francais, terminologie "MFC".
 
-Sortie : biblio/labo/figures/fig_schema_source_xyz.png
+Sortie : biblio/presentations/figures_schemas/fig_schema_source_xyz.png
 """
 from __future__ import annotations
 
@@ -39,7 +39,7 @@ apply_style(**{
     "savefig.pad_inches": 0.12, "figure.facecolor": "white", "savefig.facecolor": "white",
 })
 
-OUT = R / "biblio" / "labo" / "figures" / "fig_schema_source_xyz.png"
+OUT = R / "biblio" / "presentations" / "figures_schemas" / "fig_schema_source_xyz.png"
 
 # --------------------------------------------------------------------- #
 # Palette (Okabe-Ito, cf. _style.py)

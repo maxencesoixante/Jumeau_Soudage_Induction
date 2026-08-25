@@ -23,7 +23,7 @@ import sys
 from pathlib import Path
 
 R = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())
-OUT = R / "biblio" / "modele" / "figures"
+OUT = R / "biblio" / "presentations" / "figures_schemas"
 
 # ----------------------------------------------------------------------
 # rcParams -- meme style que gen_figures_elsevier.py (police sans-serif,
