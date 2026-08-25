@@ -5,7 +5,8 @@ Semi-statique = spot fixe qui avance de 30 mm par passe, 4 passes (positions
 essais réels serieA_A-1/serieB_B-2). « Parfait » = schéma RÉEL serieA/B :
 chaque passe (1) CHAUFFE le point chaud d'interface (lobe du M au bord, y=0,
 sous le spot ACTIF) jusqu'à la cible procédé 390 °C, (2) COUPE la source et
-REFROIDIT ce même point jusqu'à ≤120 °C, (3) AVANCE au spot suivant. Après la
+REFROIDIT ce même point jusqu'à ≤ Tg (159 °C par défaut, cf. T_REFROID : sous
+Tg le joint est figé/rigide), (3) AVANCE au spot suivant. Après la
 4e passe : chauffe->390 puis refroidissement final. C'est exactement le
 patron temporel de serieA_A-1.yaml (passe1 [0,79 s], passe2 [393,473 s], soit
 ~314 s de refroidissement ENTRE les passes) — le refroidissement à 120 °C
@@ -25,7 +26,7 @@ pilote le solveur 2D nous-mêmes, pas de flag), par passe ``i`` :
   2. sous-phase REFROIDISSEMENT : source coupée, masque MFC du MÊME spot ``i``
      conservé (pression maintenue avant de lever/avancer, cf.
      ``jumeau.procede.Essai.masque_fn``), fenêtre CAP_REFROID (600 s) ;
-     franchissement (descente) de 120 °C au MÊME point chaud -> interpolation
+     franchissement (descente) de T_REFROID (159 °C = Tg par défaut) au MÊME point chaud -> interpolation
      linéaire, warm-start de la passe suivante ;
   3. avance : la passe ``i+1`` réutilise le champ 2D complet issu de (2).
 
@@ -48,6 +49,7 @@ refroidissement/marge) imprimé sur stdout.
 """
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -76,7 +78,14 @@ OUT_DIR = R / "biblio" / "labo" / "figures"
 
 FACTEUR = 6.0123           # θ* canonique, modèle 2D (cf. docstring module)
 T_FUSION, T_PROCEDE, T_DEGRAD = 337.0, 390.0, 450.0
-T_REFROID = 120.0          # °C — seuil d'avance (« pièce assez froide pour repositionner »)
+# Seuil d'avance : « joint assez figé pour repositionner ». DÉFAUT = Tg du PEKK
+# (159 °C, datasheet Solvay APC/PEKK-FC) : sous Tg la phase amorphe est vitreuse
+# → joint rigide, critère physique adopté (gain ~20–34 % du temps de cycle vs
+# 120 °C, cf. fig_cycle_parfait_comparaison_seuil). SEUIL_REFROID=120 → ancien
+# critère conservateur (« pièce froide »).
+T_REFROID_DEFAUT = 159.0   # °C — Tg PEKK
+T_REFROID = float(os.environ.get("SEUIL_REFROID", T_REFROID_DEFAUT))  # °C
+TAG_SEUIL = "" if abs(T_REFROID - T_REFROID_DEFAUT) < 1e-6 else f"_seuil{T_REFROID:.0f}"
 T_AMB = 25.0
 CAP_CHAUFFE = 300.0        # s — plafond de sécurité par sous-phase de chauffe
 CAP_REFROID = 600.0        # s — plafond de sécurité par sous-phase de refroidissement
@@ -321,13 +330,13 @@ def tracer_cycle(courant: float, resultat: dict, chemin_out: Path):
     ax.set_xlabel("Temps (s)")
     ax.set_ylabel("Température (°C)")
     ax.set_title(f"Cycle de chauffe parfait — semi-statique 4 passes — $I$ = {courant:.0f} A "
-                 "(2D, $\\theta^*$, chauffe$\\to$390°C / refroid.$\\to$120°C / avance)", pad=22)
+                 f"(2D, $\\theta^*$, chauffe$\\to$390°C / refroid.$\\to${T_REFROID:.0f}°C / avance)", pad=22)
     ax.legend(loc="lower center", ncol=7, framealpha=0.92, fontsize=5.9,
               bbox_to_anchor=(0.5, 1.005), columnspacing=0.9, handlelength=1.4,
               handletextpad=0.4, borderaxespad=0.12)
     legende_bas = (
         "Chaque passe : chauffe (fond gris) jusqu'à 390 °C au point chaud (lobe M, bord y=0, spot actif),\n"
-        "puis coupure + refroidissement (fond clair) jusqu'à 120 °C, puis avance.\n"
+        f"puis coupure + refroidissement (fond clair) jusqu'à {T_REFROID:.0f} °C, puis avance.\n"
         "Biais connu : le modèle sur-estime le bord d'interface d'~50 °C -> 390 °C modèle "
         "$\\approx$ 340 °C réel (soudage propre).\n"
         "TC1 = centre de largeur (référence froide) ; TC2-TC5 = bord y=0 (chaud)."
@@ -365,7 +374,7 @@ if __name__ == "__main__":
         print(f"  marge minimale à 450°C (sur les 4 passes) : "
               f"{marge_min:.1f} s" if not np.isnan(marge_min) else "  marge minimale à 450°C : n/a")
 
-        out = OUT_DIR / f"fig_cycle_parfait_semistatique_{I:.0f}A.png"
+        out = OUT_DIR / f"fig_cycle_parfait_semistatique_{I:.0f}A{TAG_SEUIL}.png"
         chemins = tracer_cycle(I, res, out)
         for c in chemins:
             if c.suffix.lower() == ".png":

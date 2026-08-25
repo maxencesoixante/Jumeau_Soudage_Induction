@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Synthèse du cycle parfait semi-statique : temps total de cycle par courant,
-décomposé en chauffe (→390 °C) vs refroidissement (→120 °C), 4 passes cumulées.
+décomposé en chauffe (→390 °C) vs refroidissement (→ Tg 159 °C), 4 passes cumulées.
 
 Met en évidence que le REFROIDISSEMENT inter-passes domine la durée totale et
 qu'il est quasi indépendant du courant → le goulot du procédé semi-statique.
@@ -27,10 +27,10 @@ apply_style()
 # --- résultats cumulés (s) par courant : (chauffe totale, refroidissement total) ---
 # somme des 4 passes ; cf. gen_cycle_parfait_semistatique.py
 DATA = {
-    130: dict(chauffe=847.3, refroid=579.3, soude=False),   # P1 cappée (non atteint)
-    160: dict(chauffe=285.7, refroid=494.8, soude=True),
-    230: dict(chauffe=82.3,  refroid=370.7, soude=True),
-    275: dict(chauffe=49.2,  refroid=323.9, soude=True),
+    130: dict(chauffe=818.0, refroid=406.3, soude=False),   # P1 cappée (non atteint)
+    160: dict(chauffe=281.3, refroid=338.9, soude=True),
+    230: dict(chauffe=82.6,  refroid=234.9, soude=True),
+    275: dict(chauffe=49.6,  refroid=196.2, soude=True),
 }
 C_CHAUFFE, C_REFROID = "#D55E00", "#56B4E9"  # Okabe-Ito : chauffe (rouge) / refroid (bleu clair)
 
@@ -42,7 +42,7 @@ total = chauffe + refroid
 
 fig, ax = plt.subplots(figsize=(7.6, 4.8))
 b1 = ax.bar(x, chauffe, 0.62, color=C_CHAUFFE, label="Chauffe (→ 390 °C)")
-b2 = ax.bar(x, refroid, 0.62, bottom=chauffe, color=C_REFROID, label="Refroidissement (→ 120 °C)")
+b2 = ax.bar(x, refroid, 0.62, bottom=chauffe, color=C_REFROID, label="Refroidissement (→ Tg 159 °C)")
 
 # hachure + marque pour 130 A (ne soude pas)
 for k, i in enumerate(courants):
