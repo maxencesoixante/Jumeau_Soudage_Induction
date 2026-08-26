@@ -1,8 +1,8 @@
 """Cycle de chauffe PARFAIT en soudage semi-statique — chauffe/refroidit/avance.
 
-Semi-statique = spot fixe qui avance de 30 mm par passe, 4 passes (positions
-``empreintes.centres_pas30`` de ``geometrie.yaml`` — mêmes centres que les
-essais réels serieA_A-1/serieB_B-2). « Parfait » = schéma RÉEL serieA/B :
+Semi-statique = spot fixe qui avance par passe. Ici 5 spots ALIGNÉS avec 5 TC
+(x = 20/40/60/80/100 mm, bord y=0) — choix : TOUS les TC sur des points chauds,
+chaque TC suit le point chaud de sa passe. « Parfait » = schéma RÉEL serieA/B :
 chaque passe (1) CHAUFFE le point chaud d'interface (lobe du M au bord, y=0,
 sous le spot ACTIF) jusqu'à la cible procédé 390 °C, (2) COUPE la source et
 REFROIDIT ce même point jusqu'à ≤ Tg (159 °C par défaut, cf. T_REFROID : sous
@@ -54,6 +54,7 @@ import sys
 from pathlib import Path
 
 import numpy as np
+import yaml
 
 R = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())
 sys.path.insert(0, str(R / "code" / "src"))
@@ -94,33 +95,36 @@ DT_REFROID = 1.0           # s — résolution temporelle refroidissement (dynam
 COURANTS = [130.0, 160.0, 230.0, 275.0]  # A
 
 cfg = Config.charger(R / "code" / "config")
-SPEC_REF = R / "code" / "config" / "essais" / "serieA_A-1.yaml"  # 4 spots pas30 + 5 TC bord/centre
+
+# 5 spots de soudage ALIGNÉS avec 5 TC (choix utilisateur : TOUS les TC sur des
+# points chauds). Positions régulières sur la longueur, en retrait des bords (le
+# MFC fait 31,5 mm en x). Chaque passe soude un spot ; le TC posé dessus suit
+# donc le point chaud de sa passe. -> 5 passes.
+SPOTS_X = [0.020, 0.040, 0.060, 0.080, 0.100]   # m — x = 20/40/60/80/100 mm (pas 20 mm)
+SCRATCH = Path("/private/tmp/claude-501/-Users-maxencedubois-PycharmProjects-Jumeau-Soudage-Induction/5c5027dd-0011-4ba2-8410-1aea17859c4f/scratchpad")
+FICHIER_MESURES_STUB = "donnees/data/exp9_dissipation-longitudinale_2026-07-28/200A/200A_y0_monospot.txt"
 
 
 def construire_essai(courant: float) -> Essai:
-    """Essai 2D basé sur la géométrie serieA_A-1 (4 spots pas30, 5 TC), mais
-    la source Joule est RECALCULÉE pour ``courant`` (le YAML de référence est
-    à 250 A) -- ``t_debut``/``t_fin`` du YAML ne sont PAS utilisés (on pilote
-    la chauffe/le refroidissement/l'avance nous-mêmes, cf. docstring module)."""
-    e = Essai(cfg, SPEC_REF, nx=61, ny=21, nz=15, facteur_couplage=FACTEUR,
-              decalage_x=0.0, racine=R)
-    e.spec["courant"] = courant
-    # TC ALIGNÉS SUR LES SPOTS CHAUDS (choix utilisateur) : un TC au centre de
-    # chaque spot (bord y=0) = point chaud de la passe correspondante -> ce TC
-    # suit la courbe de contrôle pendant SA passe. + 1 TC de référence au centre
-    # froid en largeur (y=20 mm, mi-longueur) pour visualiser le contraste du M.
-    tcs = {f"TC{i + 1}": {"x": float(s["centre_x"]), "y": 0.0, "z": "interface"}
-           for i, s in enumerate(e.spots)}
-    tcs[f"TC{len(e.spots) + 1}"] = {"x": 0.060, "y": 0.020, "z": "interface"}
-    e.spec["thermocouples"] = tcs
-    e.spec["tc_valides"] = list(tcs)
-    e._Q_spots = [
-        source_spot(e.grille, cfg, e.couches, courant, float(s["centre_x"]),
-                    facteur_couplage=FACTEUR, decalage_x=0.0)
-        for s in e.spots
-    ]
-    e._P_spots_2d = [Q.sum(axis=2) * e.grille.dz for Q in e._Q_spots]
-    return e
+    """Essai 2D à 5 spots alignés avec 5 TC (mêmes x, bord y=0). Géométrie écrite
+    dans un YAML temporaire ; ``t_debut``/``t_fin`` NE sont PAS utilisés (on pilote
+    chauffe/refroidissement/avance nous-mêmes). La source Joule et les masques MFC
+    sont construits par ``Essai`` au ``courant`` demandé."""
+    spec = {
+        "nom": f"cycle_parfait_{courant:.0f}A",
+        "fichier_mesures": FICHIER_MESURES_STUB,       # non utilisé (pure simulation)
+        "courant": float(courant),
+        "duree_chauffe": 15.0, "duree_totale": 15.0,   # non utilisés (pilotage manuel)
+        "spots": [{"centre_x": float(x), "t_debut": 0.0, "t_fin": 15.0} for x in SPOTS_X],
+        "thermocouples": {f"TC{i + 1}": {"x": float(x), "y": 0.0, "z": "interface"}
+                          for i, x in enumerate(SPOTS_X)},
+        "tc_valides": [f"TC{i + 1}" for i in range(len(SPOTS_X))],
+    }
+    SCRATCH.mkdir(parents=True, exist_ok=True)
+    chemin = SCRATCH / f"_cycle_parfait_{courant:.0f}A.yaml"
+    chemin.write_text(yaml.safe_dump(spec, allow_unicode=True))
+    return Essai(cfg, chemin, nx=61, ny=21, nz=15, facteur_couplage=FACTEUR,
+                 decalage_x=0.0, racine=R)
 
 
 def premier_passage_montee(t: np.ndarray, T: np.ndarray, seuil: float):
@@ -338,7 +342,7 @@ def tracer_cycle(courant: float, resultat: dict, chemin_out: Path):
     ax.set_ylim(0, Y_TOP)
     ax.set_xlabel("Temps (s)")
     ax.set_ylabel("Température (°C)")
-    ax.set_title(f"Cycle de chauffe parfait — semi-statique 4 passes — $I$ = {courant:.0f} A "
+    ax.set_title(f"Cycle de chauffe parfait — semi-statique {len(passes)} passes — $I$ = {courant:.0f} A "
                  f"(2D, $\\theta^*$, chauffe$\\to$390°C / refroid.$\\to${T_REFROID:.0f}°C / avance)", pad=22)
     ax.legend(loc="lower center", ncol=7, framealpha=0.92, fontsize=5.9,
               bbox_to_anchor=(0.5, 1.005), columnspacing=0.9, handlelength=1.4,
@@ -348,8 +352,7 @@ def tracer_cycle(courant: float, resultat: dict, chemin_out: Path):
         f"puis coupure + refroidissement (fond clair) jusqu'à {T_REFROID:.0f} °C, puis avance.\n"
         "Biais connu : le modèle sur-estime le bord d'interface d'~50 °C -> 390 °C modèle "
         "$\\approx$ 340 °C réel (soudage propre).\n"
-        "TC1–TC4 = centres des 4 spots (bord y=0) = point chaud de chaque passe ; "
-        "TC5 = centre de largeur (y=20 mm, réf. froide)."
+        "TC1–TC5 = centres des 5 spots (bord y=0) = point chaud de chaque passe."
     )
     ax.text(0.5, -0.24, legende_bas, transform=ax.transAxes, ha="center", va="top",
             fontsize=6.0, color="0.35", linespacing=1.55)
@@ -395,7 +398,7 @@ if __name__ == "__main__":
         resume.append((I, res, toutes_atteintes, marge_min, duree_totale))
 
     print("\n=== Résumé ===")
-    print(f"{'I (A)':>6} | {'chauffe p1..p4 (s)':>36} | {'refroid. p1..p4 (s)':>36} | "
+    print(f"{'I (A)':>6} | {'chauffe par passe (s)':>36} | {'refroid. par passe (s)':>36} | "
           f"{'durée totale':>13} | {'soude?':>7} | {'marge min ->450°C':>18}")
     for I, res, ok, marge_min, duree in resume:
         ch = " ".join(f"{p['dwell']:6.1f}" for p in res["passes"])
