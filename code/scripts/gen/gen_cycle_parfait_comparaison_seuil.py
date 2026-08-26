@@ -2,13 +2,12 @@
 """Comparaison du seuil de refroidissement inter-passes : 120 °C vs Tg (159 °C).
 
 Gagner du temps procédé en repartant dès que le joint est figé (sous Tg du PEKK,
-159 °C) au lieu d'attendre 120 °C. Temps total de cycle (4 passes, chauffe+refroid)
+159 °C) au lieu d'attendre 120 °C. Temps total de cycle (5 passes, chauffe+refroid)
 par courant, pour les deux critères, avec le gain.
 
-Données = gen_cycle_parfait_semistatique.py (modèle 2D, θ*), campagne 2026-08-25 :
-  - 120 °C : run par défaut (déjà commité) ;
-  - 159 °C : SEUIL_REFROID=159 (juste sous Tg).
-130 A NE SOUDE PAS dans les deux cas (P1 n'atteint jamais 390 °C).
+Données = gen_cycle_parfait_semistatique.py (modèle 2D, θ*, 5 spots), campagne 2026-08-25 :
+  - Tg 159 °C : run par défaut ;  - 120 °C : SEUIL_REFROID=120.
+130 A soude mais très lentement (~21–26 min) — courant marginal.
 
 Sortie : biblio/labo/figures/fig_cycle_parfait_comparaison_seuil.png
 """
@@ -26,10 +25,10 @@ apply_style(**{"savefig.dpi": 200, "figure.dpi": 200})
 
 # temps total de cycle (s) : {courant: (seuil_120, seuil_159, soude)}
 TOTAL = {
-    130: (1426.6, 1224.4, False),
-    160: (780.5,  620.1,  True),
-    230: (453.0,  317.5,  True),
-    275: (373.1,  245.7,  True),
+    130: (1563.5, 1286.4, True),   # soude mais très lentement (~21–26 min)
+    160: (888.7,  676.7,  True),
+    230: (521.4,  353.5,  True),
+    275: (437.4,  283.9,  True),
 }
 C_120, C_TG = "#0072B2", "#009E73"  # Okabe-Ito : 120 °C (bleu) / Tg 159 °C (vert)
 
@@ -62,7 +61,7 @@ for k, i in enumerate(courants):
 
 ax.set_xticks(x)
 ax.set_xticklabels([f"{i} A" for i in courants])
-ax.set_ylabel("Temps total de cycle — 4 passes (s)")
+ax.set_ylabel("Temps total de cycle — 5 passes (s)")
 ax.set_xlabel("Courant du générateur")
 ax.set_ylim(0, t120.max() * 1.24)
 ax.set_title("Seuil de refroidissement inter-passes : 120 °C vs Tg (159 °C)\n"
