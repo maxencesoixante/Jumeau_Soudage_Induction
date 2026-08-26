@@ -108,6 +108,14 @@ def construire_essai(courant: float) -> Essai:
     e = Essai(cfg, SPEC_REF, nx=61, ny=21, nz=15, facteur_couplage=FACTEUR,
               decalage_x=0.0, racine=R)
     e.spec["courant"] = courant
+    # TC exactement comme exp9 (dissipation longitudinale) : 5 TC sur la ligne de
+    # BORD y=0, x = 0/30/60/90/120 mm. (serieA plaçait TC1 au centre y=20 ; corrigé
+    # pour coller au montage exp9 semi-statique, cf. README exp9.)
+    e.spec["thermocouples"] = {
+        f"TC{i + 1}": {"x": x, "y": 0.0, "z": "interface"}
+        for i, x in enumerate((0.0, 0.030, 0.060, 0.090, 0.120))
+    }
+    e.spec["tc_valides"] = [f"TC{i + 1}" for i in range(5)]
     e._Q_spots = [
         source_spot(e.grille, cfg, e.couches, courant, float(s["centre_x"]),
                     facteur_couplage=FACTEUR, decalage_x=0.0)
@@ -342,7 +350,7 @@ def tracer_cycle(courant: float, resultat: dict, chemin_out: Path):
         f"puis coupure + refroidissement (fond clair) jusqu'à {T_REFROID:.0f} °C, puis avance.\n"
         "Biais connu : le modèle sur-estime le bord d'interface d'~50 °C -> 390 °C modèle "
         "$\\approx$ 340 °C réel (soudage propre).\n"
-        "TC1 = centre de largeur (référence froide) ; TC2-TC5 = bord y=0 (chaud)."
+        "TC1–TC5 = ligne de bord y=0, x=0/30/60/90/120 mm (comme exp9 semi-statique)."
     )
     ax.text(0.5, -0.24, legende_bas, transform=ax.transAxes, ha="center", va="top",
             fontsize=6.0, color="0.35", linespacing=1.55)
