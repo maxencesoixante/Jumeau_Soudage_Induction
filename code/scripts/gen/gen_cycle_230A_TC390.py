@@ -142,11 +142,10 @@ if __name__ == "__main__":
         ax.axvline(p["t_fin_ch"], color="0.65", lw=0.5, ls=":", zorder=1)
         ax.axvline(p["t_fin_rf"], color="0.4", lw=0.6, ls="-", zorder=1)
         mc = 0.5 * (p["t_deb"] + p["t_fin_ch"])
-        ax.annotate(f"P{p['i'] + 1}\n{p['dwell']:.0f}s", (mc, 470), ha="center", va="center",
+        ax.annotate(f"P{p['i'] + 1}\n{p['dwell']:.0f}s", (mc, 535), ha="center", va="center",
                     fontsize=7, color="0.2")
     for nom, coul in zip(noms, couleurs):
         ax.plot(t, series[nom], color=coul, lw=1.2, label=nom)
-    ax.plot(t, pc, color="0.3", lw=0.9, ls=(0, (4, 1.6)), label="point chaud (interface au spot)", zorder=2.5)
     for seuil, coul, lab in ((g.T_FUSION, OKABE_ITO["cyan"], "fusion 337"),
                              (390.0, OKABE_ITO["vert"], "consigne 390 (réel)"),
                              (g.T_DEGRAD, OKABE_ITO["vermillon"], "dégrad. 450")):
@@ -154,17 +153,16 @@ if __name__ == "__main__":
     ax.axhline(g.T_REFROID, color="0.5", lw=0.9, ls=":", zorder=1)
 
     ax.set_xlim(0, t[-1])
-    ax.set_ylim(0, max(560, pc.max() * 1.05))
+    ax.set_ylim(0, 560)
     ax.set_xlabel("Temps (s)")
     ax.set_ylabel("Température (°C)")
     ax.set_title("Cycle 230 A piloté sur TC — couper quand le TC proche du spot atteint "
                  "390 °C réel (= 360 °C modèle)", fontsize=11.5, fontweight="bold", pad=20)
-    ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1.005), ncol=7, fontsize=6.6,
-              columnspacing=0.9, handlelength=1.4, handletextpad=0.4, framealpha=0.92)
+    ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1.005), ncol=5, fontsize=7.0,
+              columnspacing=1.0, handlelength=1.4, handletextpad=0.4, framealpha=0.92)
     note = ("Pilotage : chauffe jusqu'à TC de contrôle (proche du spot : TC2/TC3/TC4/TC4) = 360 °C modèle ≈ 390 °C réel, "
             "puis refroid.→Tg 159 °C, avance.\n"
-            "Les TC RÉELS piqueront ~30 °C au-dessus des courbes intérieures (TC2/3/4). Point chaud = interface au spot "
-            "(bien au-dessus de la fusion → soudage). TC5 (x=120, bord opposé) sur-prédit — indicatif.")
+            "Les TC RÉELS piqueront ~30 °C au-dessus des courbes intérieures (TC2/3/4). TC5 (x=120, bord opposé) sur-prédit — indicatif.")
     ax.text(0.5, -0.30, note, transform=ax.transAxes, ha="center", va="top", fontsize=6.4, color="0.35", linespacing=1.5)
     fig.tight_layout(rect=(0, 0.08, 1, 1))
     out = R / "biblio" / "labo" / "figures" / "fig_cycle_230A_TC390"
