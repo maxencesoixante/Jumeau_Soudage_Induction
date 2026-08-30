@@ -126,7 +126,7 @@ def test_convergence_basse_frequence(cfg):
         cfg_bf = copy.deepcopy(cfg)
         cfg_bf.geometrie["generateur"] = dict(cfg.geometrie["generateur"])
         cfg_bf.geometrie["generateur"]["frequence"] = f0 / fac
-        Q0 = source_spot(g, cfg_bf, couches, courant=250.0, centre_x=centre, champ_reaction=False)
+        Q0 = source_spot(g, cfg_bf, couches, courant=250.0, centre_x=centre, champ_reaction=False, lambda_bord_x_mm=0.0)  # correction bord x OFF pour isoler l'effet du champ de réaction (champ_reaction=True la force OFF)
         Q1 = source_spot(g, cfg_bf, couches, courant=250.0, centre_x=centre, champ_reaction=True)
         ecarts.append(np.abs(Q1 - Q0).max() / (np.abs(Q0).max() + 1e-300))
 
@@ -147,7 +147,7 @@ def test_conservation_puissance_champ_reaction(cfg):
     P_deposee = Q.sum() * g.dx * g.dy * g.dz
     assert np.isfinite(P_deposee) and P_deposee > 0.0
 
-    Q0 = source_spot(g, cfg, couches, courant=250.0, centre_x=centre, champ_reaction=False)
+    Q0 = source_spot(g, cfg, couches, courant=250.0, centre_x=centre, champ_reaction=False, lambda_bord_x_mm=0.0)  # correction bord x OFF pour isoler l'effet du champ de réaction (champ_reaction=True la force OFF)
     P0 = Q0.sum() * g.dx * g.dy * g.dz
     ratio = P_deposee / P0
     # Le bilan NET est une AUGMENTATION (pas une reduction) : desactiver
@@ -204,7 +204,7 @@ def test_convergence_maillage_ratio_reaction(cfg):
     ratios = []
     for nx, ny in [(31, 11), (61, 21)]:
         g, couches = _grille_couches(cfg, nx=nx, ny=ny, nz=9)
-        Q0 = source_spot(g, cfg, couches, courant=250.0, centre_x=centre, champ_reaction=False)
+        Q0 = source_spot(g, cfg, couches, courant=250.0, centre_x=centre, champ_reaction=False, lambda_bord_x_mm=0.0)  # correction bord x OFF pour isoler l'effet du champ de réaction (champ_reaction=True la force OFF)
         Q1 = source_spot(g, cfg, couches, courant=250.0, centre_x=centre, champ_reaction=True)
         ratios.append(Q1.sum() / Q0.sum())
     # le ratio de puissance totale (avec/sans reaction) doit etre stable en

@@ -220,9 +220,13 @@ Implémentation : STRICTEMENT le même dispositif que ``lambda_bord_mm``
 frontière étendue, ``foucault.py`` intouché, ∇·J=0 garanti puisque psi reste
 une fonction de courant sur tout le domaine résolu) -- appliqué en x au lieu
 de y, et combinable avec ``lambda_bord_mm`` (extension indépendante par axe).
-``lambda_bord_x_mm=0.0`` (défaut) reproduit EXACTEMENT (bit-à-bit) le chemin
-historique -- non-régression garantie (cf. tests). Non supporté avec
-``champ_reaction=True`` (même raison que ``lambda_bord_mm``).
+``lambda_bord_x_mm=None`` (DÉFAUT depuis 2026-08-30) = ACTIF/AUTO (longueur de
+relaxation = épaisseur propre de chaque couche) : la correction est activée par
+défaut (intérieur strictement inchangé -- exp7/exp9 Δ=0,0 ; seuls les TC posés
+aux bords x bougent). ``lambda_bord_x_mm=0.0`` reproduit EXACTEMENT (bit-à-bit)
+l'ancien chemin sans correction. Non supporté avec ``champ_reaction=True`` : le
+défaut ``None`` y cède silencieusement (désactivé), seule une valeur explicite
+positive lève une ``ValueError`` (même raison que ``lambda_bord_mm``).
 
 Convergence : itération de point fixe (Picard) jusqu'à
 ``max(|Δψ|)/max(|ψ|) < tol`` (défaut 1e-6) ou ``RuntimeError`` si non atteint
@@ -370,7 +374,7 @@ def source_spot(
     champ_reaction: bool = False,
     lissage_sigma_mm: float = 0.0,
     lambda_bord_mm: float = 0.0,
-    lambda_bord_x_mm: float | None = 0.0,
+    lambda_bord_x_mm: float | None = None,
 ) -> np.ndarray:
     """Champ source Q (nx, ny, nz) en W/m³ pour la bobine centrée en ``centre_x``.
 
@@ -405,20 +409,25 @@ def source_spot(
     avec ``champ_reaction=True`` (``ValueError`` explicite, interaction non
     explorée).
 
-    ``lambda_bord_x_mm`` (défaut 0.0 = inchangé, BIT-À-BIT) : même dispositif
-    que ``lambda_bord_mm`` mais appliqué au bord EN X (x=0/x=longueur, bords
-    RÉELS de longueur de la plaque) — cf. docstring module, section
+    ``lambda_bord_x_mm`` (défaut ``None`` = ACTIF/AUTO depuis 2026-08-30) : même
+    dispositif que ``lambda_bord_mm`` mais appliqué au bord EN X (x=0/x=longueur,
+    bords RÉELS de longueur de la plaque) — cf. docstring module, section
     « Adoucissement du bord EN X ». Corrige l'artefact localisé de bascule
     bord-piqué -> centre-piqué du profil q(y) sur les quelques mailles
     précédant le chant x pour un spot proche du bord (Jx forcé à 0 sur toute
     la ligne de bord par la BC ``psi=0``). Valeurs acceptées :
-    ``0.0`` (défaut) = désactivé, chemin historique inchangé ;
-    ``None`` = ACTIF, longueur de relaxation = épaisseur PROPRE de chaque
-    couche (``couche.epaisseur``, aucun paramètre libre supplémentaire) ;
+    ``None`` (DÉFAUT) = ACTIF, longueur de relaxation = épaisseur PROPRE de
+    chaque couche (``couche.epaisseur``, aucun paramètre libre supplémentaire) ;
+    ``0.0`` = désactivé, chemin historique bit-à-bit ;
     un ``float`` positif = ACTIF, même longueur (mm) pour toutes les
-    couches (ablation/tests). Incompatible avec ``champ_reaction=True``
-    (``ValueError`` explicite, interaction non explorée).
+    couches (ablation/tests). Incompatible avec ``champ_reaction=True`` : dans
+    ce cas le DÉFAUT (``None``) cède silencieusement (désactivé) ; seule une
+    valeur EXPLICITE positive lève une ``ValueError``.
     """
+    # Correction de bord x ACTIVE par défaut ; incompatible avec le champ de
+    # réaction -> le défaut (None) cède, on ne lève que si demandé explicitement (>0).
+    if champ_reaction and lambda_bord_x_mm is None:
+        lambda_bord_x_mm = 0.0
     bord_x_actif = (lambda_bord_x_mm is None) or (float(lambda_bord_x_mm) > 0.0)
     if (lambda_bord_mm > 0.0 or bord_x_actif) and champ_reaction:
         raise ValueError(

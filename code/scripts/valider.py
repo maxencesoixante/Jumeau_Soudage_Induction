@@ -139,20 +139,20 @@ def principale():
                          "physique en largeur -- adoucit le contraste chant/centre du "
                          "profil en \"M\" (defaut 0 = inchange). NECESSITE un theta* "
                          "recalibre -- cf. jumeau.em.source_joule (docstring module)")
-    ap.add_argument("--lambda-bord-x-mm", type=float, default=0.0,
-                    help="repousse la BC psi=0 de lambda_bord_x_mm (mm) au-dela du "
-                         "bord physique EN X (bords reels de longueur de la plaque) "
-                         "-- corrige l'artefact LOCALISE de bascule bord-pique -> "
-                         "centre-pique du profil q(y) pres du chant x (defaut 0 = "
-                         "inchange, chemin historique bit-a-bit). Ignore si "
-                         "--lambda-bord-x-auto est passe. Cf. jumeau.em.source_joule "
+    ap.add_argument("--lambda-bord-x-mm", type=float, default=None,
+                    help="valeur FIXE (mm) de la longueur de relaxation du bord x "
+                         "(repousse la BC psi=0 au-dela du bord physique). Par DEFAUT "
+                         "(non passe) : mode AUTO (= epaisseur propre de chaque couche, "
+                         "aucun parametre libre) -- correction ACTIVEE par defaut "
+                         "(2026-08-30). Passer 0 (ou --lambda-bord-x-off) pour l'ancien "
+                         "chemin bit-a-bit sans correction. Cf. jumeau.em.source_joule "
                          "(docstring module, section \"Adoucissement du bord EN X\")")
     ap.add_argument("--lambda-bord-x-auto", action="store_true",
-                    help="active lambda_bord_x_mm en mode AUTO (longueur de "
-                         "relaxation = epaisseur PROPRE de chaque couche, "
-                         "couche.epaisseur -- aucun parametre libre ajoute), en lieu "
-                         "et place de --lambda-bord-x-mm. Recommande plutot qu'une "
-                         "valeur fixe -- cf. docstring source_joule.source_spot")
+                    help="force le mode AUTO (deja le defaut) ; conserve pour "
+                         "explicitite -- cf. docstring source_joule.source_spot")
+    ap.add_argument("--lambda-bord-x-off", action="store_true",
+                    help="DESACTIVE la correction de bord x (chemin historique "
+                         "bit-a-bit, equivaut a --lambda-bord-x-mm 0)")
     ap.add_argument("--masque-source-mfc", action="store_true",
                     help="masque la source Joule a l'empreinte du MFC, par spot "
                          "(defaut False = source non masquee, chemin historique). "
@@ -183,7 +183,13 @@ def principale():
     for nom in args.essais:
         chemin = RACINE / "code" / "config" / "essais" / f"{nom}.yaml"
         print(f"\n=== {nom} [{args.modele}] ===")
-        lambda_bord_x_mm = None if args.lambda_bord_x_auto else args.lambda_bord_x_mm
+        # Défaut = AUTO (None) ; --lambda-bord-x-off ou -mm 0 => désactivé ; -mm >0 => fixe.
+        if args.lambda_bord_x_off:
+            lambda_bord_x_mm = 0.0
+        elif args.lambda_bord_x_auto or args.lambda_bord_x_mm is None:
+            lambda_bord_x_mm = None
+        else:
+            lambda_bord_x_mm = args.lambda_bord_x_mm
         essai = Essai(cfg, chemin, nx=args.nx, ny=args.ny, nz=args.nz,
                       facteur_couplage=args.facteur, decalage_x=args.decalage_x,
                       racine=RACINE, champ_reaction=args.champ_reaction,

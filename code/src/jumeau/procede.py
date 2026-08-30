@@ -60,7 +60,7 @@ class Essai:
                  thermostat_capteurs: bool = False,
                  source_sigma_mm: float = 0.0,
                  lambda_bord_mm: float = 0.0,
-                 lambda_bord_x_mm: float | None = 0.0,
+                 lambda_bord_x_mm: float | None = None,
                  masque_source_mfc: bool = False,
                  masque_source_mode: str = "tronquer"):
         self.cfg = cfg
