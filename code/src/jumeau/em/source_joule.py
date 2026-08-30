@@ -161,6 +161,69 @@ CALIBRABLE au même titre que ``lissage_sigma_mm``, PAS comme une valeur
 figée par une mesure indépendante -- cf. rapport dédié pour la valeur
 prototypée et son effet sur le contraste bord/centre et le RMSE.
 
+Adoucissement du bord EN X (``lambda_bord_x_mm``, 2026-08-28) — artefact
+--------------------------------------------------------------------------
+Diagnostic distinct de ``lambda_bord_mm`` ci-dessus (qui adoucit le contraste
+du « M » en LARGEUR, y, sur tout le domaine ; VERDICT refuté le 2026-07-31,
+conservé pour archivage). Ici : artefact localisé aux 2 colonnes de bord en x
+(x=0 et x=nx-1, les bords RÉELS de longueur de la plaque, PAS le bord bobine
+d'un spot).
+
+Mécanisme : la BC ``psi=0`` est imposée sur TOUTE la ligne de bord x (pour
+tout y), donc Jx=∂ψ/∂y y est identiquement nul (ψ plat le long de cette
+ligne) -- seul survit Jy=−∂ψ/∂x (courant tangentiel au bord). Loin du spot
+actif, ce résidu est négligeable ; mais pour un spot proche du bord réel
+(spot en bout de plaque, à quelques mm du chant), la boucle de courant induite
+n'a pas fini de se refermer avant d'atteindre le chant, et Jy hérite du
+maximum de ψ intérieur -- qui, en y, est maximal au CENTRE de largeur
+(ψ=0 aux 2 bords y). Le résultat est un profil q(y) qui bascule de
+bord-piqué (M, cohérent avec l'intérieur) à centre-piqué EXACTEMENT sur les
+~4 dernières mailles (~8 mm) avant le chant x.
+
+Vérification numérique (spot4, x_centre=105,875 mm, chant réel x=120 mm,
+courant 231 A, couche twill) : en relâchant PROGRESSIVEMENT la BC x (domaine
+étendu, cf. plus bas) jusqu'à la limite « pas de bord du tout » (extension
+>> toute échelle de décroissance de Bz), le ratio q(y=0)/q(y=20) au niveau du
+chant SATURE vers ≈0,60 -- PAS vers >1 (bord-piqué franc). En comparant à un
+spot INTÉRIEUR (spot2, loin de tout bord réel) à la MÊME distance relative du
+centre bobine (+14 mm), le même ratio ≈0,68 apparaît SANS AUCUN bord proche.
+CONCLUSION : la bascule vers un profil plus centré n'est PAS purement un
+artefact de BC -- c'est en bonne partie une caractéristique RÉELLE de la
+boucle de courant qui se referme au-delà de l'empreinte de la bobine (Jy
+domine quand on s'éloigne du bobinage en x, indépendamment de tout bord).
+Ce que la BC ``psi=0`` stricte AJOUTE en trop est la SUR-suppression
+localisée à la toute dernière ligne/colonne (q(y=0) forcé exactement à 0 au
+coin, alors que le même point sans bord proche vaudrait ≈0,6x le centre, pas
+0) -- c'est CETTE sur-suppression, pas le contraste bord/centre en général,
+que ``lambda_bord_x_mm`` corrige.
+
+Justification physique retenue : effet 3D d'épaisseur, PAS mésostructure de
+tissage (contrairement à ``lambda_bord_mm``). Le modèle plaque-mince suppose
+un courant purement planaire (Jz nul, cf. Buser 2026, σz≪σxy) ; mais au chant
+réel (coupe nette du stratifié, chaque couche ayant une épaisseur physique
+propre, de 0,2 mm pour le twill à 3,4 mm pour les laminés), le courant PEUT
+se redistribuer dans l'épaisseur de SA couche (plan y-z, hors du modèle
+purement 2D) sur une distance de l'ordre de cette épaisseur avant que Jn
+s'annule véritablement -- un effet purement 3D qu'une nappe strictement 2D
+(ψ=0 pile sur la ligne de maillage du chant) ne peut pas capturer. D'où une
+longueur de relaxation ``lambda_bord_x_mm`` PROPRE À CHAQUE COUCHE, prise par
+défaut égale à l'épaisseur de la couche (``couche.epaisseur``) quand
+``lambda_bord_x_mm`` est laissé à sa valeur sentinelle ``None`` -- PAS un
+scalaire arbitraire recalibrable : c'est une longueur déjà présente dans le
+modèle (aucun paramètre libre supplémentaire). Voir ``source_spot`` pour
+l'API (accepte soit un ``float`` unique en mm pour toutes les couches --
+ablation/tests -- soit ``None`` = épaisseur de couche par défaut, soit
+``0.0`` = désactivé, comportement historique).
+
+Implémentation : STRICTEMENT le même dispositif que ``lambda_bord_mm``
+(domaine étendu en x, ``_grille_x_etendue``, ``psi=0`` repoussé sur la
+frontière étendue, ``foucault.py`` intouché, ∇·J=0 garanti puisque psi reste
+une fonction de courant sur tout le domaine résolu) -- appliqué en x au lieu
+de y, et combinable avec ``lambda_bord_mm`` (extension indépendante par axe).
+``lambda_bord_x_mm=0.0`` (défaut) reproduit EXACTEMENT (bit-à-bit) le chemin
+historique -- non-régression garantie (cf. tests). Non supporté avec
+``champ_reaction=True`` (même raison que ``lambda_bord_mm``).
+
 Convergence : itération de point fixe (Picard) jusqu'à
 ``max(|Δψ|)/max(|ψ|) < tol`` (défaut 1e-6) ou ``RuntimeError`` si non atteint
 en ``max_iter`` (défaut 50) itérations — le rayon spectral de l'itération est
@@ -214,6 +277,17 @@ def _grille_y_etendue(grille: Grille3D, lambda_bord_mm: float) -> tuple[np.ndarr
     y_bas = grille.y[0] - grille.dy * np.arange(n_pad, 0, -1)
     y_haut = grille.y[-1] + grille.dy * np.arange(1, n_pad + 1)
     return np.concatenate([y_bas, grille.y, y_haut]), n_pad
+
+
+def _grille_x_etendue(grille: Grille3D, lambda_bord_x_mm: float) -> tuple[np.ndarray, int]:
+    """Grille en x étendue de ``lambda_bord_x_mm`` (mm) de part et d'autre du
+    domaine physique, même pas ``grille.dx`` -- analogue à ``_grille_y_etendue``
+    mais pour les bords x=0/x=nx-1 (bords RÉELS de longueur de la plaque, cf.
+    docstring module, ``lambda_bord_x_mm``). Renvoie ``(x_etendu, n_pad)``."""
+    n_pad = max(1, int(np.ceil((lambda_bord_x_mm * 1.0e-3) / grille.dx)))
+    x_bas = grille.x[0] - grille.dx * np.arange(n_pad, 0, -1)
+    x_haut = grille.x[-1] + grille.dx * np.arange(1, n_pad + 1)
+    return np.concatenate([x_bas, grille.x, x_haut]), n_pad
 
 
 def attenuation_blindage(couche: CoucheConductrice,
@@ -296,6 +370,7 @@ def source_spot(
     champ_reaction: bool = False,
     lissage_sigma_mm: float = 0.0,
     lambda_bord_mm: float = 0.0,
+    lambda_bord_x_mm: float | None = 0.0,
 ) -> np.ndarray:
     """Champ source Q (nx, ny, nz) en W/m³ pour la bobine centrée en ``centre_x``.
 
@@ -329,11 +404,26 @@ def source_spot(
     « M » sans toucher au reste du domaine ni à ``foucault.py``. Incompatible
     avec ``champ_reaction=True`` (``ValueError`` explicite, interaction non
     explorée).
+
+    ``lambda_bord_x_mm`` (défaut 0.0 = inchangé, BIT-À-BIT) : même dispositif
+    que ``lambda_bord_mm`` mais appliqué au bord EN X (x=0/x=longueur, bords
+    RÉELS de longueur de la plaque) — cf. docstring module, section
+    « Adoucissement du bord EN X ». Corrige l'artefact localisé de bascule
+    bord-piqué -> centre-piqué du profil q(y) sur les quelques mailles
+    précédant le chant x pour un spot proche du bord (Jx forcé à 0 sur toute
+    la ligne de bord par la BC ``psi=0``). Valeurs acceptées :
+    ``0.0`` (défaut) = désactivé, chemin historique inchangé ;
+    ``None`` = ACTIF, longueur de relaxation = épaisseur PROPRE de chaque
+    couche (``couche.epaisseur``, aucun paramètre libre supplémentaire) ;
+    un ``float`` positif = ACTIF, même longueur (mm) pour toutes les
+    couches (ablation/tests). Incompatible avec ``champ_reaction=True``
+    (``ValueError`` explicite, interaction non explorée).
     """
-    if lambda_bord_mm > 0.0 and champ_reaction:
+    bord_x_actif = (lambda_bord_x_mm is None) or (float(lambda_bord_x_mm) > 0.0)
+    if (lambda_bord_mm > 0.0 or bord_x_actif) and champ_reaction:
         raise ValueError(
-            "lambda_bord_mm > 0 avec champ_reaction=True : combinaison non "
-            "explorée (cf. docstring module) -- désactiver l'un des deux."
+            "lambda_bord_mm/lambda_bord_x_mm actif avec champ_reaction=True : "
+            "combinaison non explorée (cf. docstring module) -- désactiver l'un des deux."
         )
 
     omega = 2.0 * np.pi * float(cfg.geometrie["generateur"]["frequence"])
@@ -342,10 +432,9 @@ def source_spot(
     sommets = sommets_bobine(cfg, centre_x + decalage_x, centre_y=centre_y)
     X, Y = np.meshgrid(grille.x, grille.y, indexing="ij")
 
-    bord_souple = lambda_bord_mm > 0.0
-    if bord_souple:
-        y_ext, n_pad = _grille_y_etendue(grille, lambda_bord_mm)
-        X_ext, Y_ext = np.meshgrid(grille.x, y_ext, indexing="ij")
+    bord_souple_y = lambda_bord_mm > 0.0
+    if bord_souple_y:
+        y_ext, n_pad_y_global = _grille_y_etendue(grille, lambda_bord_mm)
 
     Q = np.zeros((grille.nx, grille.ny, grille.nz))
 
@@ -359,6 +448,29 @@ def source_spot(
             # conservation de la puissance surfacique q·t sur les nœuds retenus
             poids = couche.epaisseur / (len(iz) * grille.dz)
 
+            # lambda_bord_x_mm : longueur de relaxation en x PROPRE À LA
+            # COUCHE (défaut = épaisseur de la couche, cf. docstring module
+            # "Adoucissement du bord EN X") -- doit donc être résolue par
+            # couche, pas une fois pour tout l'appel (contrairement à
+            # lambda_bord_mm en y, un seul scalaire global).
+            if lambda_bord_x_mm is None:
+                lam_x_mm = couche.epaisseur * 1.0e3
+            else:
+                lam_x_mm = float(lambda_bord_x_mm)
+            bord_souple_x = lam_x_mm > 0.0
+            bord_souple = bord_souple_x or bord_souple_y
+
+            if bord_souple:
+                if bord_souple_x:
+                    x_dom, n_pad_x = _grille_x_etendue(grille, lam_x_mm)
+                else:
+                    x_dom, n_pad_x = grille.x, 0
+                if bord_souple_y:
+                    y_dom, n_pad_y = y_ext, n_pad_y_global
+                else:
+                    y_dom, n_pad_y = grille.y, 0
+                X_dom, Y_dom = np.meshgrid(x_dom, y_dom, indexing="ij")
+
             # Bz (et donc ψ, q) est échantillonné à la profondeur propre de
             # chaque nœud retenu plutôt qu'une seule fois au plan médian : une
             # couche homogénéisée épaisse (laminé sup/inf) peut couvrir plusieurs
@@ -366,16 +478,17 @@ def source_spot(
             for k in iz:
                 z_k = grille.z[k] if len(iz) > 1 else couche.z_mid
                 if bord_souple:
-                    # BC psi=0 repoussée de lambda_bord_mm au-delà du bord
-                    # physique en y (cf. docstring module, "Adoucissement du
-                    # bord") ; ρ, ω, Bz échantillonné exactement comme le
-                    # chemin historique, seule la frontière du domaine résolu
-                    # change -- foucault.resoudre_psi non modifié.
-                    Bz_ext = bz_plan(sommets, courant, X_ext, Y_ext, z_plan=-z_k,
+                    # BC psi=0 repoussée de lambda_bord_mm/lambda_bord_x_mm
+                    # au-delà du bord physique en y/x (cf. docstring module,
+                    # "Adoucissement du bord" / "Adoucissement du bord EN X") ;
+                    # ρ, ω, Bz échantillonné exactement comme le chemin
+                    # historique, seule la frontière du domaine résolu change
+                    # -- foucault.resoudre_psi non modifié.
+                    Bz_dom = bz_plan(sommets, courant, X_dom, Y_dom, z_plan=-z_k,
                                      mu_r_cfc=mu_r, z_miroir=z_miroir)
-                    psi_ext = resoudre_psi(Bz_ext, grille.dx, grille.dy,
+                    psi_dom = resoudre_psi(Bz_dom, grille.dx, grille.dy,
                                            couche.rho_xx, couche.rho_yy, omega)
-                    psi = psi_ext[:, n_pad:n_pad + grille.ny]
+                    psi = psi_dom[n_pad_x:n_pad_x + grille.nx, n_pad_y:n_pad_y + grille.ny]
                 else:
                     Bz = bz_plan(sommets, courant, X, Y, z_plan=-z_k,
                                 mu_r_cfc=mu_r, z_miroir=z_miroir)

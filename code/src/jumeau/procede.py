@@ -60,6 +60,7 @@ class Essai:
                  thermostat_capteurs: bool = False,
                  source_sigma_mm: float = 0.0,
                  lambda_bord_mm: float = 0.0,
+                 lambda_bord_x_mm: float | None = 0.0,
                  masque_source_mfc: bool = False,
                  masque_source_mode: str = "tronquer"):
         self.cfg = cfg
@@ -148,6 +149,29 @@ class Essai:
         # conservatif en puissance (aucun θ* joint gagnant) ; la CL ψ=0 correcte
         # est corroborée par eppy. Conservé (repro). Cf. docs/modele/leviers_refutes.md.
         self.lambda_bord_mm = float(lambda_bord_mm)
+        # lambda_bord_x_mm (défaut 0.0 = inchangé) : même dispositif que
+        # lambda_bord_mm mais au bord EN X (x=0/longueur, bords RÉELS de
+        # longueur de la plaque) -- corrige l'artefact LOCALISÉ de bascule
+        # bord-piqué -> centre-piqué du profil q(y) sur les quelques mailles
+        # avant le chant x pour un spot proche du bord (Jx forcé à 0 sur toute
+        # la ligne de bord par psi=0), cf. jumeau.em.source_joule (docstring
+        # module, section "Adoucissement du bord EN X"). Contrairement à
+        # lambda_bord_mm (RÉFUTÉ, correction globale du contraste M sur tout
+        # le domaine, non conservative), cette correction est LOCALE (2-3
+        # colonnes de bord) et son échelle par défaut (None) N'EST PAS un
+        # scalaire recalibrable : c'est l'épaisseur PROPRE de chaque couche
+        # (couche.epaisseur), déjà dans le modèle -- aucun paramètre libre
+        # ajouté. Défaut 0.0 -> non-régression bit-à-bit (chemin canonique
+        # inchangé). Cf. docs/modele/ (diagnostic 2026-08-28) pour la
+        # vérification numérique (le profil à x=chant NE redevient PAS
+        # franchement bord-piqué même à la limite BC totalement relâchée --
+        # ratio q(y=0)/q(y=centre) sature ~0,6, PAS >1 -- cf. docstring
+        # module : la bascule vers le centre est en partie une physique RÉELLE
+        # de fermeture de boucle au-delà de l'empreinte bobine, pas purement
+        # un artefact de bord ; ce paramètre supprime la SUR-suppression
+        # (collapse exact à 0) ajoutée par la BC stricte, sans prétendre
+        # inverser tout le contraste).
+        self.lambda_bord_x_mm = lambda_bord_x_mm
         # masque_source_mfc (défaut False = inchangé, bit-à-bit) : masque la
         # source Joule PAR SPOT à l'empreinte du MFC (masque_empreinte_cfc),
         # au lieu de la laisser rayonner sur tout le domaine résolu par
@@ -214,7 +238,8 @@ class Essai:
                         float(s["centre_x"]), facteur_couplage=facteur_couplage,
                         decalage_x=self.decalage_x, champ_reaction=self.champ_reaction,
                         lissage_sigma_mm=self.source_sigma_mm,
-                        lambda_bord_mm=self.lambda_bord_mm)
+                        lambda_bord_mm=self.lambda_bord_mm,
+                        lambda_bord_x_mm=self.lambda_bord_x_mm)
             for s in self.spots
         ]
         self._masques = [
