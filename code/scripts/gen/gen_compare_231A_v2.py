@@ -49,6 +49,14 @@ gaps = [starts[i + 1] - (starts[i] + dwells[i]) for i in range(3)] + [float(t[-1
 print("fenêtres v2 :", [f"P{i+1} dwell={dwells[i]:.0f} gap={gaps[i]:.0f}" for i in range(4)])
 
 E = g.construire_essai(231.0)
+# Cette figure illustre l'artefact de bord x AVANT correction (récit chronologique) :
+# on force la source CANONIQUE (lambda_bord_x_mm=0.0) même si la correction est active
+# par défaut ailleurs. La correction (OFF vs ON) est montrée par gen_compare_231A_v2_corrige.py.
+from jumeau.em.source_joule import source_spot  # noqa: E402
+E._Q_spots = [source_spot(E.grille, g.cfg, E.couches, 231.0, float(s["centre_x"]),
+                          facteur_couplage=g.FACTEUR, decalage_x=0.0, lambda_bord_x_mm=0.0)
+              for s in E.spots]
+E._P_spots_2d = [q.sum(axis=2) * E.grille.dz for q in E._Q_spots]
 GR, MAT, CONTACT = E.grille, E.cfg.materiau, E.cfg.contact
 amb = copy.deepcopy(E.cfg.ambiant); amb.T_amb = AMB
 field = np.full(GR.nx * GR.ny, AMB)
