@@ -472,11 +472,16 @@ class Essai:
         return self._masques[i]
 
     # ------------------------------------------------------------------
-    def simuler(self, dt_sortie: float = 1.0, modele: str = "3D", **kwargs):
+    def simuler(self, dt_sortie: float = 1.0, modele: str = "3D",
+                emissivite_face: float = 0.0, **kwargs):
         """Simule l'essai. ``modele`` : "3D" (défaut, API historique inchangée,
         résolution complète dans l'épaisseur) ou "2D" (lumpé à l'interface,
         cf. ``thermique/solveur2d.py`` — ~10x plus rapide, TC surface/opposée
-        non représentables, cf. ``series_tc``)."""
+        non représentables, cf. ``series_tc``).
+
+        ``emissivite_face`` (défaut 0.0 = OFF, bit-à-bit) : rayonnement T⁴ de la
+        face haut exposée, mode 2D uniquement (cf. ``SolveurThermique2D`` ; issue
+        #68). Ignoré en 3D."""
         duree = float(self.spec.get("duree_totale", self.spec["duree_chauffe"]))
         t_eval = np.arange(0.0, duree + dt_sortie / 2, dt_sortie)
         if modele == "3D":
@@ -489,7 +494,7 @@ class Essai:
         elif modele == "2D":
             solveur = SolveurThermique2D(
                 self.grille, self.cfg.materiau, self.cfg.ambiant, self.cfg.contact,
-                masque_ceramique=self.masque_fn,
+                masque_ceramique=self.masque_fn, emissivite_face=emissivite_face,
             )
             kwargs.setdefault("noeuds_controle", self._noeuds_controle_2d or None)
             sol = solveur.simuler(self.source_fn_2d, (0.0, duree), t_eval=t_eval, **kwargs)
