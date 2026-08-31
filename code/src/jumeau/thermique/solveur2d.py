@@ -108,12 +108,19 @@ class SolveurThermique2D:
         contact: ContactCeramique,
         masque_ceramique=None,
         epaisseur: float | None = None,
+        emissivite_face: float = 0.0,
     ):
         self.g = grille
         self.mat = materiau
         self.amb = ambiant
         self.contact = contact
         self.e_eff = float(epaisseur) if epaisseur is not None else float(grille.epaisseur)
+        # Rayonnement de la face SUPÉRIEURE exposée (hors zone MFC). 0.0 (DÉFAUT)
+        # = OFF, bilan bit-à-bit inchangé. > 0 = ajoute ε·σ·(T_amb⁴−T⁴) [W/m²] sur
+        # les mailles NON masquées, comblant le fait que la face haut exposée n'a
+        # sinon AUCUNE perte (perte_haut=0 hors masque) alors qu'elle rayonne à
+        # haute T — cf. diagnostic refroidissement inter-passes, issue #68.
+        self.emissivite_face = float(emissivite_face)
         if masque_ceramique is None:
             masque_ceramique = np.zeros((grille.nx, grille.ny), dtype=bool)
         self.masque_ceramique = masque_ceramique
@@ -222,9 +229,22 @@ class SolveurThermique2D:
         perte_haut = np.where(masque, contact.h_haut * (contact.T_puits - T), 0.0)
         perte_bas = amb.h_bas_2d * (amb.T_amb - T)
 
+        # Rayonnement T⁴ de la face haut EXPOSÉE (hors masque MFC). Défaut OFF
+        # (emissivite_face=0.0) -> terme nul, bilan bit-à-bit inchangé. Perte
+        # surfacique W/m² (même statut que perte_haut/perte_bas), diagonale en T
+        # (motif de sparsité inchangé). Cf. issue #68 (déficit de refroidissement
+        # concentré à haute T = perte radiative de face manquante).
+        if self.emissivite_face > 0.0:
+            TK = T + KELVIN
+            perte_rayt_face = np.where(
+                masque, 0.0,
+                self.emissivite_face * amb.stefan_boltzmann * (Ta_K**4 - TK**4))
+        else:
+            perte_rayt_face = 0.0
+
         # --- source Joule surfacique -> volumique lumpée + pertes, normalisées par (ρcp)_eff
         P_surf = source_fn(t, T)                     # W/m² (déjà intégrée sur z)
-        Q_vol = (P_surf + perte_haut + perte_bas) / self.e_eff   # W/m3
+        Q_vol = (P_surf + perte_haut + perte_bas + perte_rayt_face) / self.e_eff   # W/m3
         return ((dT + Q_vol) / rc).ravel()
 
     # ------------------------------------------------------------------
