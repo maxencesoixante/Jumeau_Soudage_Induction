@@ -62,9 +62,9 @@ if __name__ == "__main__":
 
     ax.set_xlim(0, max(t_sim[-1], t_reel[-1]))
     ax.set_ylim(0, 560)
-    ax.set_xlabel("Temps (s) — recalé sur l'amorçage")
+    ax.set_xlabel("Temps (s)")
     ax.set_ylabel("Température (°C)")
-    ax.set_title("Validation 231 A — TC mesurés (trait plein) vs prédits (pointillé), pilotage TC=390",
+    ax.set_title("Validation 231 A — TC mesurés vs prédits",
                  fontsize=12, fontweight="bold")
     ax.legend(loc="upper right", ncol=2, fontsize=7.5, framealpha=0.93)
     fig.tight_layout()
