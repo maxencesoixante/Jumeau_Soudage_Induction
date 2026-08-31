@@ -40,14 +40,16 @@
 
 ### Étape 1 — ✅ Essai réel 231 A v1 (26/08) : le jumeau est validé sur le procédé
 
-Premier essai réel exploitable, tous les TC au bord (y = 0), x = 0/30/60/90/120 mm. Confrontation directe modèle ↔ mesure.
+**1. Prédiction (modèle seul).** Avant l'essai, le jumeau prédit le cycle 4 passes à 231 A (θ\* canonique, pilotage TC = 360 °C modèle ≈ 390 °C réel). C'est la prédiction que l'on confronte ensuite au banc.
+→ `figures/fig_predit_231A_seul.png` — TC prédits seuls (modèle, sans données banc)
 
-**Chiffres.** Pics des TC **intérieurs** (TC2/3/4) reproduits à **±12–20 °C**. RMSE de cycle **36–70 °C**, dominé par un **décalage temporel** (le modèle refroidit ~10 % trop lentement), pas par les pics. Résidus : refroidissement lent, coin x = 0 sous-capté, TC5 (x = 120) sur-prédit.
+**2. Montage & essai réel.** On réalise le montage — tous les TC au **bord** (y = 0), x = 0/30/60/90/120 mm — et on applique **la même consigne en ampérage (231 A)** que la prédiction. Premier essai réel exploitable.
+→ `figures/fig_exp_231A_mesure.png` — mesure brute 231 A v1
+
+**3. Comparaison prédit ↔ mesuré.** Pics des TC **intérieurs** (TC2/3/4) reproduits à **±12–20 °C**. RMSE de cycle **36–70 °C**, dominé par un **décalage temporel** (le modèle refroidit ~10 % trop lentement), pas par les pics. Résidus : refroidissement lent, coin x = 0 sous-capté, TC5 (x = 120) sur-prédit.
+→ `figures/fig_compare_230A_vs_reel.png` — validation 231 A, TC mesurés vs prédits
 
 **Interprétation.** Le jumeau reproduit correctement le **niveau thermique** vu par le procédé sur les capteurs intérieurs. Les écarts restants = cinétique de refroidissement un peu lente + effets de bord, pas une erreur sur l'échauffement.
-
-- `figures/fig_exp_231A_mesure.png` — mesure brute 231 A v1
-- `figures/fig_compare_230A_vs_reel.png` — confrontation modèle vs réel 231 A v1
 
 ### Étape 2 — ✅ Correction de l'effet de coin (h_bord_x0 : 250 → 100)
 
