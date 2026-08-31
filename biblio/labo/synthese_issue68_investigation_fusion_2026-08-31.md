@@ -105,20 +105,34 @@ Il est **neutre** : RMSE moyen 17,48 → 17,42 °C (Δ = −0,05), et aucun essa
 | Peut-on corriger ? | Non — c'est la **limite structurelle `k_plan`** déjà actée ; TC4/TC5 aval non-pilotables | (synthèse) |
 | Un livrable adoptable ? | Oui — le **rayonnement de face** (flag OFF, held-out neutre) | held-out exp7/exp9 |
 
-Chaque étape a son script reproductible et son archive dans `biblio/labo/` ; le détail chiffré est dans les commentaires ci-dessous. Investigation close, sauf la décision d'activation du flag rayonnement de face.
+Chaque étape a son script reproductible ; le détail chiffré est dans les commentaires de l'issue #68. Investigation close, sauf la décision d'activation du flag rayonnement de face.
 
 
 ---
 
 ## Artefacts (repo)
 
-| Étape | Script | Archive détaillée | Figure |
-|---|---|---|---|
-| Axe 1 — ablation | `code/scripts/gen/gen_ablation_fusion_231A.py` | `ablation_fusion_231A_resultats.md` | `figures/fig_ablation_fusion_231A.png` |
-| Axe 2 — accumulation/bord | `gen_axe2_accumulation_bord_tc45_231A.py` | `axe2_accumulation_bord_tc45_231A_resultats.md` | `figures/fig_axe2_tc45_231A.png` |
-| Diagnostic refroidissement | `gen_diag_refroidissement_231A.py` | `diag_refroidissement_interpasses_231A.md` | `figures/fig_diag_refroidissement_231A.png` |
-| Test rayonnement de face | `gen_test_rayonnement_face_231A.py` | `test_rayonnement_face_231A.md` | `figures/fig_test_rayonnement_face_231A.png` |
-| Diagnostic conduction latérale | `gen_diag_conduction_laterale_231A.py` | `diag_conduction_laterale_231A.md` | `figures/fig_diag_conduction_laterale_231A.png` |
-| Held-out rayonnement de face | `gen_heldout_rayonnement_face.py` | `heldout_rayonnement_face.md` | `figures/fig_heldout_rayonnement_face.png` |
+Le détail chiffré de chaque étape vit dans les commentaires de l'issue #68 ; ce document en est la synthèse. Scripts reproductibles et figures :
+
+| Étape | Script | Figure |
+|---|---|---|
+| Axe 1 — ablation | `code/scripts/gen/gen_ablation_fusion_231A.py` | `figures/fig_ablation_fusion_231A.png` |
+| Axe 2 — accumulation/bord | `gen_axe2_accumulation_bord_tc45_231A.py` | `figures/fig_axe2_tc45_231A.png` |
+| Diagnostic refroidissement | `gen_diag_refroidissement_231A.py` | `figures/fig_diag_refroidissement_231A.png` |
+| Test rayonnement de face | `gen_test_rayonnement_face_231A.py` | `figures/fig_test_rayonnement_face_231A.png` |
+| Diagnostic conduction latérale | `gen_diag_conduction_laterale_231A.py` | `figures/fig_diag_conduction_laterale_231A.png` |
+| Held-out rayonnement de face | `gen_heldout_rayonnement_face.py` | `figures/fig_heldout_rayonnement_face.png` |
 
 **Code adopté** : flag `SolveurThermique2D(emissivite_face=)` et `Essai.simuler(emissivite_face=)` — **défaut 0.0 (OFF), conservé OFF par décision** (2026-08-31). Bit-à-bit, 123 tests verts. Held-out neutre (adoptable, non activé par défaut).
+
+---
+
+## En mots simples
+
+**Le problème de départ.** On chauffe une plaque composite par induction, en quatre passages successifs, et on surveille la température avec cinq capteurs alignés. Les capteurs du milieu montaient à la bonne température dans notre simulation, mais les **deux capteurs du bout chauffaient beaucoup trop** dans le modèle par rapport à la réalité. On voulait deux choses : comprendre *pourquoi* notre meilleur modèle marchait bien, et *pourquoi* ces deux capteurs débordaient.
+
+**Comment on l'a résolu, physiquement.** On a procédé comme un médecin qui éteint une cause à la fois pour voir laquelle compte. On a découvert, dans l'ordre : (1) ce qui empêche la matière de surchauffer, ce n'est pas l'énergie qu'elle absorbe en fondant, c'est que **la matière fondue étale la chaleur** plus vite ; (2) les capteurs du bout débordent parce que **la chaleur s'accumule** d'un passage au suivant, comme une pièce qu'on n'a pas le temps de refroidir entre deux feux ; (3) le vrai coupable, c'est que **notre modèle refroidit trop lentement** entre les passages. On a alors testé deux réparations physiques concrètes — ajouter le rayonnement de chaleur par la face du dessus, puis augmenter la façon dont la chaleur file sur les côtés. Aucune ne règle tout : la première aide un peu, la seconde déplace le problème au lieu de l'effacer. La raison est claire et honnête : **c'est une limite connue du matériau lui-même** (sa capacité à conduire la chaleur dans le plan), qu'on ne peut pas forcer sans casser tout le reste.
+
+**Ce qu'on a obtenu.** On comprend maintenant **exactement** pourquoi les deux capteurs du bout débordent, et on sait que c'est une **limite bornée et documentée**, pas un bug à chasser. On a aussi ajouté au passage **un vrai morceau de physique qui manquait** (le rayonnement de la face du dessus), qui améliore les cas les plus chauds sans rien dégrader ailleurs — c'est vérifié sur d'autres essais.
+
+**Pourquoi c'est une bonne chose pour la suite.** Concrètement, on sait désormais **sur quels capteurs se fier pour piloter le procédé** (ceux du milieu) et lesquels ne servent que d'indication (ceux du bout). On a **fermé plusieurs fausses pistes une bonne fois pour toutes**, donc on ne perdra plus de temps à les re-tester. Et on garde **un nouvel outil physique prêt à l'emploi** pour les cycles chauds si on en a besoin. Au total : le modèle est mieux compris, ses limites sont nettes, et on peut avancer avec confiance.
