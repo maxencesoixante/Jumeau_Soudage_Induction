@@ -15,7 +15,11 @@ import matplotlib.pyplot as plt
 
 R = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())
 sys.path.insert(0, str(R / "code" / "scripts"))
-from _style import savefig, OKABE_ITO  # noqa: E402
+from _style import apply_style, savefig, OKABE_ITO  # noqa: E402
+
+# Style maison (labels d'axes en gras, palette, bbox serré) à la MÊME résolution
+# que le reste de la famille 231 A (200 dpi), pour rester cohérent.
+apply_style(**{"savefig.dpi": 200, "figure.dpi": 200})
 
 FICH = R / "donnees" / "data" / "exp10_cycle-semistatique_231A_2026-08-26" / "231A_semistatique_bord_2026-08-26.txt"
 NOMS = [f"TC{i}" for i in range(1, 6)]
