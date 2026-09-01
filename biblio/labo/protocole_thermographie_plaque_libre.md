@@ -172,6 +172,74 @@ Si le radiométrique brut FLIR `.seq/.csq` est le seul export disponible, il fau
 ⚠️ Rappel du piège déjà rencontré : un **MP4 non finalisé** (sans atome `moov`) est **illisible** —
 vérifier que l'enregistrement/export est bien clôturé.
 
+## 5 bis. Mini-tuto export FLIR — sur quoi cliquer (deux méthodes)
+
+> ⚠️ Les **libellés exacts varient** selon l'appli (FLIR **ResearchIR** / **Thermal Studio** /
+> **Tools/Tools+**) et la version. Les chemins ci-dessous sont les plus courants ; si un bouton porte
+> un autre nom, cherche l'équivalent (« Export », « CSV », « Line profile », « All frames »).
+
+**Préalable commun (les deux méthodes)**
+1. Ouvrir l'enregistrement (`.seq` / `.csq` / `.ats`).
+2. Renseigner les **paramètres objet** (panneau *Object Parameters* / *Measurement Parameters*) :
+   **émissivité**, **température réfléchie**, **distance**, (humidité/atmosphère). C'est ce qui rend les
+   °C corrects — à faire **avant** tout export.
+3. Repérer l'instant **`t0`** (début de chauffe) sur la timeline et **noter le `fps`** (info de lecture /
+   propriétés de l'enregistrement).
+
+---
+
+### Méthode A — champ complet par pixel (RECOMMANDÉE, zéro perte)
+
+Tu me donnes tout le champ, je découpe moi-même **tes 10 lignes** (et n'importe quelle autre).
+
+**ResearchIR**
+1. Menu **`File → Export`** (ou **`Export → Export Movie / Export Data`**).
+2. Type de sortie : **CSV** en **« Radiometric » / « Temperature »** (°C) — *pas* « Image/PNG ».
+3. **Plage de frames** : de `t0` à la fin du refroidissement. Option **« every Nth frame »** pour
+   alléger (ex. 2 Hz effectif suffit).
+4. Lancer → tu obtiens une **série `frame_00001.csv`, `frame_00002.csv`…** (chaque fichier = matrice de
+   pixels en °C), ou un CSV multi-frames.
+
+**Thermal Studio** : **`Export → CSV`** (module *Data analysis / Advanced*), option **per-frame /
+sequence**, format température.
+
+**FLIR Tools/Tools+ (gratuit)** : l'export **séquence complète en CSV** est souvent **absent** → si tu
+ne le trouves pas, passe en **Méthode B**.
+
+➕ **À fournir** : le dossier de frames CSV **+ les 4 fiduciaux** (pixel ↔ mm) **+ `fps` + `t0` +
+émissivité + courant**. Rien d'autre à tracer.
+
+---
+
+### Méthode B — un profil par ligne, sur tout le temps (mappe tes 10 lignes)
+
+Le but : pour chaque ligne, une matrice **position × temps** (surtout **PAS** la moyenne de la ligne).
+
+**ResearchIR**
+1. Outil **Ligne** (barre d'outils *Line*) → tracer la ligne sur l'image.
+2. La **positionner précisément** : sélectionner la ligne → panneau **Propriétés** → saisir les
+   **coordonnées des extrémités** (px, ou mm si repère calibré). Refaire pour **Line1…Line10**.
+3. Ouvrir le panneau **`Plot` / `Profile`** : il affiche **T vs position** (frame courante) — c'est le
+   bon graphe, il reste à l'exporter **sur toutes les frames**.
+4. **`File → Export → Plot data / Profile data`** → cocher **« All frames »** → **CSV**. → une matrice
+   **position × temps** par ligne.
+5. Nommer les fichiers **`line1.csv … line10.csv`**.
+
+**Thermal Studio** : ajouter la ligne → onglet **`Plot` / `Line`** → **`Export CSV`** avec **« all
+frames »**.
+
+**FLIR Tools** : ligne → clic droit → **« Export line profile »** n'exporte souvent que la **frame
+courante** → Tools est **limité** ici ; préfère Méthode A ou ResearchIR.
+
+➕ **À fournir** : les **10 `line*.csv`** (position × temps) **+ les extrémités en mm** de chaque ligne
+(pour 6–10 : l'**étendue x du MFC**) **+ `fps` + `t0` + émissivité + courant**.
+
+---
+
+**Dans les deux cas** : vérifier que le fichier **s'ouvre et n'est pas tronqué**. Séparateur tabulation /
+décimale virgule : **je gère** (auto-détecté). **Envoie-moi d'abord UN fichier d'exemple** → j'écris le
+convertisseur calé sur ton format exact, puis j'assemble le schéma `roi_lignes.csv` et je lance le rejeu.
+
 ## 6. « Caméra virtuelle » — comment je reproduis la vue caméra à partir des seuls CSV
 
 Le jumeau expose déjà tout le nécessaire :
