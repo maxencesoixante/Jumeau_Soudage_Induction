@@ -279,5 +279,57 @@ rouvrirait la question (donnée nouvelle légitime, cf. clôture #68 « ne pas r
 1. **Absolus non comparables** aux essais soudage (pas de céramique/pression → couplage EM différent).
 2. **Face arrière + modèle lumpé** : comparaison en forme/cinétique, offset traversant à ancrer.
 3. **Émissivité** CF/PEKK à calibrer, sinon °C faux.
-4. **Format** : export CSV FLIR requis (radiométrique `.seq/.csq` hors de portée sans flirpy+exiftool ;
-   MP4 non finalisé = illisible).
+4. **Format** : `.seq` radiométrique décodé en local (flirpy+exiftool, cf. Volet 1 réalisé) OU export
+   CSV/TIFF radiométrique ; MP4 colorisé = inexploitable.
+
+---
+
+# Volet 2 — spot AU BORD de plaque (accumulation de bord)
+
+**Ajouté 2026-09-01 (issue #69).** Fait suite au Volet 1 (spot centré, réalisé le 2026-09-01 →
+verdict `k_plan≈3`, cf. `resultats_issue69_150A.md`). Ici on **déplace le spot au bout de la plaque**
+(comme la 1ʳᵉ / dernière passe de soudage) pour imager **l'accumulation de chaleur au bord** — la
+chaleur ne peut plus diffuser au-delà du chant.
+
+## V2.1 Pourquoi (deux cibles documentées)
+
+1. **Valider/remplacer `h_bord_x0`** — aujourd'hui le modèle met une conductance de bord effective
+   `h_bord_x0=250` au chant x=0 pour compenser la surchauffe du bord, **alors que les 4 chants sont
+   libres** (mémoire `reponses-terrain-2026-07-27`, `tc1-surchauffe-leviers`) → c'est un **fudge, pas
+   de la physique**. Le plein-champ au bord **mesure directement** l'accumulation au chant libre →
+   remplacer le fudge par la physique, ou confirmer son retrait.
+2. **Valider le correctif `lambda_bord_x`** (artefact source au bord x, activé par défaut le 2026-08-30,
+   mémoire `artefact-source-bord-x`) — validé jusqu'ici **seulement** sur l'intérieur exp7/exp9 (Δ=0) +
+   2 TC de bord. Le plein-champ au bord donne **la carte 2D** qui manque pour le valider/infirmer.
+
+Complémentarité : Volet 1 (centré) isole **source + conduction in-plane** ; Volet 2 (bord) isole
+**l'accumulation de bord**. Ensemble ils bouclent le traitement du bord du jumeau.
+
+## V2.2 Montage (delta vs Volet 1)
+
+- **Spot centré en largeur** (y=20) mais **au bout en longueur** : `centre_x` proche de **0 ou 120 mm**
+  (position réelle de la 1ʳᵉ/dernière passe). Une partie du champ MFC déborde hors plaque = attendu.
+- Reste **identique** : plaque libre suspendue, MFC+coil à couplage habituel (~5 mm), FLIR face opposée,
+  4 fiduciaux (mêmes coins), émissivité ancrée.
+- ⚠️ **Plafond Tg** : le chant chauffe **plus vite** (accumulation) → coupe sur le **max live FLIR ~140 °C**,
+  commence à **150 A**.
+
+## V2.3 Cibles falsifiables (ce que je comparerai)
+
+- **Profil longitudinal vers le bord** : la chaleur **pique-t-elle au chant** (pas de drainage au-delà)
+  et de combien ? Comparaison modèle **avec vs sans `h_bord_x0`** et **avec vs sans `lambda_bord_x`**.
+- Si l'accumulation mesurée ≈ modèle **sans** `h_bord_x0` → le fudge est **de trop** (à retirer).
+  Si elle exige `h_bord_x0` → il capture une vraie physique de bord → **calibrer sa valeur** sur la mesure.
+- **Contraste M** près du bord vs au centre (le M se déforme-t-il en approchant le chant ?).
+
+## V2.4 Réserve spécifique
+
+Le bord d'une **plaque libre = chant libre** (convection+rayonnement), **pas** la CL de contact réelle
+du soudage (empilement/consolidation/matière voisine au bout). Ce volet isole donc **l'accumulation par
+conduction** (la physique derrière `h_bord_x0`), à ne **pas** sur-interpréter comme « la 1ʳᵉ passe réelle ».
+
+## V2.5 Analyse
+
+Pipeline **identique** au Volet 1 (décodage `.seq`, recalage 4 fiduciaux, extraction, inpainting d'un
+éventuel marqueur). Fournir le `.seq` + les 4 fiduciaux + courant → je produis la carte de bord + les
+comparaisons `h_bord_x0`/`lambda_bord_x`.
