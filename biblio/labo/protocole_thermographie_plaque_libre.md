@@ -1,0 +1,157 @@
+# Thermographie plein-champ sur plaque CF/PEKK découplée — imager la SOURCE et l'étalement longitudinal hors-spot
+
+**Issue GitHub** : #69 (créée le 2026-09-01). Ce fichier = protocole de référence.
+**Labels** : `labo`, `modele`, `residu`, `statut: à faire`
+**Relié à** : #68 (résidu structurel `k_plan` / étalement in-plane), #15 (thermographie FLIR A700), #59 (empreinte IR plein champ MFC). **Ne double PAS** #15/#59 : voir « Positionnement ».
+**Chaîne de rejeu VALIDÉE** : `code/scripts/thermographie_virtuelle.py` (auto-test aller-retour Δ=0 sur exp7_200A le 2026-09-01 ; génère aussi le format CSV cible via `demo`).
+
+---
+
+## 1. Contexte & positionnement
+
+L'issue #68 a clos l'« arc modèle » : le résidu du jumeau se réduit à un **étalement de chaleur
+dans le plan trop lent**, piloté par un `k_plan` **scalaire** qui ne peut être simultanément bas
+sous le spot et haut hors-spot. La **répartition en largeur** (profil en M) est déjà **mesurée et
+validée** par 5 TC noyés (exp7, contraste 2,17 ≈ 2,43 modèle). Ce qui reste **ouvert** :
+
+- le **transitoire longitudinal hors-spot** (dissipation en x, −67 % en dT/dt) ;
+- la **forme réelle de la source** (dépôt Joule), aujourd'hui seulement *calibrée* via
+  `facteur_couplage`, jamais *mesurée* — désigné en mémoire comme le seul levier neuf restant
+  (précédent van den Berg 2024 : six-probe + FLIR A65).
+
+**Ce qui distingue cette issue de #15 / #59.** #15 vise la température du concentrateur MFC + le
+champ de surface *en configuration de soudage* ; #59 compare deux tailles de MFC. Ici : une plaque
+**suspendue, découplée** (pas de céramique, pas de pression, pas d'empilement) filmée sur la face
+**opposée au MFC**. Le but n'est pas le procédé mais **d'isoler la source + la conduction in-plane**
+des paramètres de contact/consolidation, et de produire des données **plein-champ 2D** (pas 5 points)
+que le jumeau peut **rejouer point par point**.
+
+## 2. Objectif (ce que ça apporte de neuf)
+
+1. **Imager la source** : sur une plaque nue, l'empreinte thermique précoce (avant que la conduction
+   n'ait tout étalé, ~premières secondes) est le dépôt Joule quasi-brut → test direct de la forme de
+   source (le M vient *entièrement* de l'écrasement du courant de Foucault au chant, cf. mémoire).
+2. **Mesurer la longueur d'étalement longitudinal** : le profil en x hors-spot décroît avec une
+   longueur caractéristique fixée par `k_plan`. `k_plan = 3,0` (physique) vs ≈ 7,5 (effectif) donnent
+   des longueurs de décroissance **mesurablement différentes** → la caméra tranche.
+3. **Test 2D de l'hypothèse scalaire** : un `k_plan` scalaire peut-il ajuster EN MÊME TEMPS le
+   contraste transverse (M, ~2,4×) ET la décroissance longitudinale, avec la MÊME valeur ? Le
+   plein-champ le teste en 2D, là où 5 TC ne le pouvaient pas.
+
+## 3. Montage expérimental
+
+- Échantillon CF/PEKK (mêmes plaque/QI que exp7/exp9), **suspendu** (supports ponctuels aux coins,
+  chants **libres** — cohérent avec le constat « 4 chants à l'air libre » de la mémoire terrain).
+- **MFC + coil** d'un côté, **à la même distance de couplage** que les essais (≈ 5 mm — à relever et
+  consigner ; sans céramique, le gap change le couplage EM → cf. Limites).
+- **Caméra FLIR** de l'autre côté, axe optique ⟂ à la plaque, cadrage englobant la plaque entière +
+  marge. Face imagée = **face opposée au MFC**.
+- Balayage courant reproduisant exp7 (p. ex. 150 / 200 / 250 A), maintien assez long pour atteindre
+  le **régime établi** (les essais précédents coupaient trop court : pic ~15–22 s vs ~46 s modèle).
+- **Émissivité** : coller ≥1 pastille de référence d'émissivité connue OU un TC de contact ponctuel
+  sur la face imagée pour ancrer le radiométrique (CF/PEKK ε ≈ 0,9 à confirmer).
+
+## 4. LE MOMENT « lignes / points / cercles » — placement des ROI et recalage
+
+**Quand.** Après acquisition, dans le logiciel FLIR (FLIR Tools / ResearchIR), sur la **séquence
+radiométrique**. On place les outils de mesure sur **une frame de référence** (le pic) ; comme la
+plaque est fixe, les ROI restent aux mêmes pixels sur toutes les frames. Puis **Export → CSV**.
+
+**Repère physique (obligatoire).** Le jumeau raisonne en `(x, y)` : `x` = **longueur**
+(longitudinal, dissipation en x), `y` = **largeur** (0 → largeur, centre = largeur/2, profil M).
+Origine choisie : **un coin de la plaque** ; on note aussi le **centre du spot** `(x_spot, y_spot)`.
+Toutes les ROI seront converties en mm dans ce repère.
+
+**Recalage pixel → mm (fiduciaux).** Avant/au début (frame froide), placer **4 spots fiduciaux**
+`F1…F4` sur des repères à coordonnées connues (les 4 coins de la plaque, ou 4 pastilles
+haute-émissivité aux mm relevés). Leurs coordonnées **pixel** + **mm** définissent une
+homographie/affine pixel→mm (plaque plane, caméra ~frontale). **Sans ces 4 fiduciaux, aucune donnée
+n'est rejouable par le modèle.**
+
+**ROI à poser** (identifiants à réutiliser tels quels dans les CSV) :
+
+| ROI | Type | Géométrie (repère plaque) | Ce que ça capte |
+|-----|------|---------------------------|------------------|
+| `F1…F4` | Spots | 4 coins / pastilles, mm connus | **Recalage** pixel→mm |
+| `LT` | **Ligne** transverse | `x = x_spot`, `y` de 0 → largeur (bord→bord) | Profil **M** (largeur) |
+| `LL` | **Ligne** longitudinale | `y = largeur/2`, `x` du bord d'attaque du spot → **≥ 3–4× la longueur du spot vers l'aval** | **Étalement hors-spot** (résidu ouvert) |
+| `P0…P4` | **Points** | `x = x_spot`, `y = 0,10,20,30,40 mm` | Pont de comparaison avec les **TC exp7** |
+| `C_spot` | **Cercle/ellipse** | sur l'empreinte du spot | Tmax/Tmin/Tmoy, saturation, homogénéité |
+| `A_plaque` | **Aire** | plaque entière | Bilan, dérive ambiante |
+
+> Les **points** `P0…P4` sont le pont de validation avec les 5 TC noyés de exp7 ; les **lignes**
+> `LT`/`LL` sont la vraie nouveauté (profil continu au lieu de 5 points) ; le **cercle** `C_spot`
+> donne le pic et l'homogénéité de la zone source.
+
+## 5. Schéma CSV standardisé (exports FLIR) — pour que je puisse tout rejouer
+
+Exporter dans **ce format** (unités : temps en s depuis le début de chauffe, positions en mm dans le
+repère plaque, températures en °C) :
+
+- `roi_points.csv` — colonnes : `t_s, roi_id, x_mm, y_mm, T_C`  (P0…P4, F1…F4)
+- `roi_lignes.csv` — colonnes : `t_s, roi_id, s_mm, x_mm, y_mm, T_C`  (LT, LL ; `s_mm` = abscisse le long de la ligne)
+- `roi_aires.csv`  — colonnes : `t_s, roi_id, Tmin_C, Tmax_C, Tmoy_C`  (C_spot, A_plaque)
+- `recalage.json`  — `{ fiduciaux: [{id, px, py, x_mm, y_mm}×4], emissivite, distance_mm, ambiante_C, dt_s, courant_A, couplage_mm }`
+- *(option, le plus riche)* `champ_t####.csv` — **matrice plein-champ** (°C) à quelques instants clés
+  (p. ex. 1 s, mi-montée, pic, mi-refroidissement) + le même `recalage.json`.
+
+Si le radiométrique brut FLIR `.seq/.csq` est le seul export disponible, il faut le décoder
+(`flirpy` + `exiftool`) — **hors de portée en l'état** ; privilégier l'**export CSV depuis FLIR Tools**.
+⚠️ Rappel du piège déjà rencontré : un **MP4 non finalisé** (sans atome `moov`) est **illisible** —
+vérifier que l'enregistrement/export est bien clôturé.
+
+## 6. « Caméra virtuelle » — comment je reproduis la vue caméra à partir des seuls CSV
+
+Le jumeau expose déjà tout le nécessaire :
+`SolveurThermique2D.serie_temporelle(sol, x, y)` (interpolation **bilinéaire** en `(x, y)`) et
+`resultat_2d(sol, i)` (champ 2D). Pipeline (script `scripts/thermographie_virtuelle.py` à créer) :
+
+1. **Simuler** l'essai correspondant (même courant, même durée) → objet `sol`.
+2. **Lire la GÉOMÉTRIE** des CSV caméra (les colonnes `x_mm, y_mm, t_s` uniquement — pas les `T_C`).
+3. **Échantillonner le modèle aux mêmes points** : pour chaque `(x_mm, y_mm)`, convertir mm→m et
+   appeler `serie_temporelle(sol, x, y)`, puis **rééchantillonner en temps** sur les `t_s` caméra.
+4. **Émettre le MÊME schéma** : `roi_points_SIM.csv`, `roi_lignes_SIM.csv`, `roi_aires_SIM.csv`.
+5. **Diff CSV ↔ CSV** : superposition des profils `LT`/`LL` (mesure vs modèle), séries `P0…P4`, cartes
+   d'écart. Pour le plein-champ : rééchantillonner `resultat_2d` sur la grille pixel via le recalage
+   → **image synthétique** comparable pixel à pixel à `champ_t####.csv`.
+
+**Contrainte modèle lumpé (cadrage obligatoire).** Le 2D n'a **qu'une température dans l'épaisseur**
+(`z="surface"/"opposee"` lève une erreur) → il ne distingue pas face avant/arrière, alors que la
+caméra voit la face **arrière**. Conséquences pour la comparaison :
+
+- Comparer **la FORME** (profils **normalisés** `LT`/`LL`) et **la CINÉTIQUE** (`dT/dt`, temps
+  caractéristiques, longueur de décroissance de `LL`), **pas les °C absolus**.
+- Traiter l'écart traversant comme un **décalage vertical** (1 paramètre) OU l'ancrer via le TC de
+  contact ponctuel sur la face imagée.
+- Ne **pas** comparer les absolus aux cibles de soudage : sans céramique/pression, le couplage EM
+  diffère (déjà constaté en mémoire : « absolus non comparables »).
+
+## 7. Prédiction falsifiable du jumeau
+
+- **Profil `LT` (M)** : contraste chant/centre ≈ 2,4× (forme normalisée superposable) — reconfirme
+  l'acquis exp7 sur plaque découplée.
+- **Profil `LL` (longitudinal)** : décroissance hors-spot avec une **longueur caractéristique**
+  fixée par `k_plan`. `k_plan = 3,0` prédit une décroissance **plus raide** que `k_plan ≈ 7,5`
+  (effectif). → **La caméra tranche entre les deux**, et teste si UNE seule valeur ajuste `LT` **et**
+  `LL` simultanément (cœur du résidu #68).
+- **Source précoce** (`C_spot`, premières secondes) : empreinte ≈ dépôt Joule → forme de source.
+
+**Interprétation** : `LL` mesuré plus étalé que `k_plan=3` mais `LT` toujours à contraste ~2,4× ⇒
+confirme le sur-étalement anisotrope irréductible (arc #68). `LL` compatible avec `k_plan=3` ⇒
+rouvrirait la question (donnée nouvelle légitime, cf. clôture #68 « ne pas rouvrir sans donnée neuve »).
+
+## 8. Livrables & critères d'acceptation
+
+- [ ] Jeu de CSV au schéma §5 (≥ 3 courants), avec `recalage.json` + fiduciaux.
+- [ ] `scripts/thermographie_virtuelle.py` (rejoue la vue caméra depuis les CSV).
+- [ ] Figures : superposition mesure/modèle de `LT`, `LL` (normalisés), séries `P0…P4`, carte d'écart
+      plein-champ (PNG, style article — cf. préférence figures).
+- [ ] Verdict `LL` : longueur d'étalement mesurée vs `k_plan` 3,0 / 7,5 → confirme ou rouvre #68.
+
+## 9. Limites assumées
+
+1. **Absolus non comparables** aux essais soudage (pas de céramique/pression → couplage EM différent).
+2. **Face arrière + modèle lumpé** : comparaison en forme/cinétique, offset traversant à ancrer.
+3. **Émissivité** CF/PEKK à calibrer, sinon °C faux.
+4. **Format** : export CSV FLIR requis (radiométrique `.seq/.csq` hors de portée sans flirpy+exiftool ;
+   MP4 non finalisé = illisible).
