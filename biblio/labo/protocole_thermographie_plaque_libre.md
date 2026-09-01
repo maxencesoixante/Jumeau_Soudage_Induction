@@ -40,6 +40,9 @@ que le jumeau peut **rejouer point par point**.
 
 ## 3. Montage expérimental
 
+- **Configuration = MONOSPOT** : une seule empreinte, **fixe**, centrée en longueur à **x = 60 mm**
+  (centre de largeur `y = largeur/2`), identique à la géométrie exp7 → les données se **recoupent
+  directement** avec exp7 (mêmes positions TC / mêmes courants).
 - Échantillon CF/PEKK (mêmes plaque/QI que exp7/exp9), **suspendu** (supports ponctuels aux coins,
   chants **libres** — cohérent avec le constat « 4 chants à l'air libre » de la mémoire terrain).
 - **MFC + coil** d'un côté, **à la même distance de couplage** que les essais (≈ 5 mm — à relever et
@@ -50,6 +53,34 @@ que le jumeau peut **rejouer point par point**.
   le **régime établi** (les essais précédents coupaient trop court : pic ~15–22 s vs ~46 s modèle).
 - **Émissivité** : coller ≥1 pastille de référence d'émissivité connue OU un TC de contact ponctuel
   sur la face imagée pour ancrer le radiométrique (CF/PEKK ε ≈ 0,9 à confirmer).
+
+## 3 bis. Courant admissible & plafond de température (anti-déconsolidation)
+
+**Contrainte matériau.** PEKK `T_fusion = 337 °C` (onset ≈ 330 °C, largeur DSC 15 °C ; `config/materiaux.yaml`).
+Sur une plaque **libre (sans pression)**, franchir la fusion = **déconsolidation** de la matrice.
+`Tg = 159 °C` = ramollissement (repère, pas une limite dure). Le **point chaud** est le **chant**
+(lobes du M, `y = 0`/`largeur` à l'interface) — c'est LUI qui doit rester sous le plafond, pas le centre.
+
+**Le courant ne fixe pas la T max — la coupure la fixe.** Constat exp7 (avec céramique) : les pics
+chants mesurés sont **~271–280 °C à TOUS les courants 150→250 A**, parce que la coupure était
+**manuelle** au chant ~270–274 °C. Le courant fixe seulement la **vitesse de montée** (source ∝ I²) :
+temps jusqu'au plafond ∝ 1/I² (indicatif avec céramique : ~30 s @150 A, ~18 s @200 A, ~11 s @250 A).
+
+**Règle de conduite (plaque libre) :**
+
+- **Plafond de coupure sur le MAX live FLIR : ≤ 300 °C** (≈ 30 °C sous l'onset de fusion 330 °C) ;
+  pour rester dans l'enveloppe validée soudage, viser **~280 °C**. ⚠️ la caméra lit la face **arrière**,
+  légèrement plus froide que le chant à l'interface → **garder la marge** (le vrai chant est un peu au-dessus).
+- **Couper sur la température, PAS sur une durée figée.** La plaque libre n'a **pas** le puits céramique
+  en face basse → elle chauffe **plus vite / plus chaud** qu'exp7 à courant-temps égal → encore moins de
+  marge. Coupure live obligatoire.
+- **Plage à balayer : 150 / 200 / 250 A** (réplique exp7 → recoupement direct). **Commencer à 150 A**
+  (montée la plus lente, valide le réflexe de coupure), puis monter.
+- **Éviter ≥ ~275–300 A** en plaque libre : montée trop raide pour réagir, risque de franchir 337 °C
+  avant la coupure (le modèle prédit un chant ~962 °C à 300 A si maintenu — cf. mémoire exp7).
+- **Compromis mesure ↔ sécurité** : le courant élevé donne le transitoire raide qui **expose le mieux
+  l'étalement longitudinal `LL`** (le discriminant `k_plan`) ; le courant faible donne la marge de
+  réaction. **150–200 A** est le bon compromis pour une coupure manuelle.
 
 ## 4. LE MOMENT « lignes / points / cercles » — placement des ROI et recalage
 
