@@ -16,11 +16,15 @@ dev = [
     "pytest>=8.0",
     # lecture/analyse des exports caméra thermique (vidéo MP4/AVI/MOV, frames) —
     # utilisé pour dépouiller les manips exp 6/8 (cf. data/exp6_diffusivite_*/).
-    # NB : le radiométrique FLIR brut (.seq/.csq) demanderait flirpy + exiftool
-    # (binaire système), non inclus ; préférer un export CSV radiométrique.
     "imageio>=2.37",
     "imageio-ffmpeg>=0.6",        # binaire ffmpeg embarqué (pas besoin du système)
     "opencv-python-headless>=4.9",
+    # radiométrique FLIR brut (.seq/.csq -> °C) pour l'issue #69 (thermographie
+    # plein-champ). flirpy convertit via les constantes Planck ; il requiert le
+    # binaire SYSTÈME exiftool (macOS : `brew install exiftool`), non pip.
+    # tifffile lit les TIFF radiométriques (frames exportées / sortie flirpy).
+    "flirpy>=0.6",
+    "tifffile>=2026.8",
 ]
 
 [build-system]
