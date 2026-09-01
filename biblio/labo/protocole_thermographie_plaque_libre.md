@@ -66,21 +66,62 @@ chants mesurés sont **~271–280 °C à TOUS les courants 150→250 A**, parce 
 **manuelle** au chant ~270–274 °C. Le courant fixe seulement la **vitesse de montée** (source ∝ I²) :
 temps jusqu'au plafond ∝ 1/I² (indicatif avec céramique : ~30 s @150 A, ~18 s @200 A, ~11 s @250 A).
 
+**Décision : rester SOUS Tg = 159 °C.** Double justification :
+- **Sécurité** : sous Tg la matrice est vitreuse/rigide → **aucune mobilité, aucun risque de
+  déconsolidation ni de warping** sur plaque libre (marge maximale ; on ne s'approche même pas de la
+  fusion 337 °C).
+- **Qualité de mesure** : sous Tg on reste dans le **régime linéaire** — pas de pic de `cp` de fusion,
+  pas de dérive `k(T)` marquée → mesure **propre** de la forme de source et de la longueur d'étalement
+  `k_plan`. Or la **répartition spatiale** (M, décroissance `LL`) est présente **dès les faibles ΔT** :
+  pas besoin de monter en température.
+
 **Règle de conduite (plaque libre) :**
 
-- **Plafond de coupure sur le MAX live FLIR : ≤ 300 °C** (≈ 30 °C sous l'onset de fusion 330 °C) ;
-  pour rester dans l'enveloppe validée soudage, viser **~280 °C**. ⚠️ la caméra lit la face **arrière**,
-  légèrement plus froide que le chant à l'interface → **garder la marge** (le vrai chant est un peu au-dessus).
+- **Plafond de coupure sur le MAX live FLIR : ≈ 140 °C** (marge ~15–20 °C sous Tg=159 °C). ⚠️ la caméra
+  lit la face **arrière**, un peu plus froide que le chant à l'interface → le vrai point chaud est
+  **au-dessus** de la lecture → cette marge garantit l'interface < Tg.
 - **Couper sur la température, PAS sur une durée figée.** La plaque libre n'a **pas** le puits céramique
-  en face basse → elle chauffe **plus vite / plus chaud** qu'exp7 à courant-temps égal → encore moins de
-  marge. Coupure live obligatoire.
-- **Plage à balayer : 150 / 200 / 250 A** (réplique exp7 → recoupement direct). **Commencer à 150 A**
-  (montée la plus lente, valide le réflexe de coupure), puis monter.
-- **Éviter ≥ ~275–300 A** en plaque libre : montée trop raide pour réagir, risque de franchir 337 °C
-  avant la coupure (le modèle prédit un chant ~962 °C à 300 A si maintenu — cf. mémoire exp7).
-- **Compromis mesure ↔ sécurité** : le courant élevé donne le transitoire raide qui **expose le mieux
-  l'étalement longitudinal `LL`** (le discriminant `k_plan`) ; le courant faible donne la marge de
-  réaction. **150–200 A** est le bon compromis pour une coupure manuelle.
+  en face basse → elle chauffe **plus vite** qu'exp7 à courant-temps égal → coupure live obligatoire.
+- **Courant** : **150 A recommandé** (montée la plus lente → coupure manuelle confortable) ; **200 A**
+  avec vigilance ; **≥ 250 A uniquement avec coupure automatique** (temps-jusqu'au-plafond ∝ 1/I², très
+  court à ce plafond bas). Balayer 150/200 A donne déjà le recoupement exp7 et le test `LL`.
+- **Ne jamais viser un pic élevé** : inutile ici (la forme suffit) et dangereux sans pression.
+
+## Mode opératoire — étapes claires
+
+**A. Préparation (avant chauffe)**
+1. **Échantillon** : plaque CF/PEKK consolidée ; relever QI, épaisseur, dimensions. Face imagée
+   (opposée au MFC) matte / peu réfléchissante ; coller **1 pastille d'émissivité connue** (ou fixer
+   **1 TC de contact** ponctuel hors zone chaude) pour ancrer le radiométrique.
+2. **Fiduciaux** : marquer **4 repères** (les 4 coins, ou 4 pastilles) et **relever leurs mm** (repère
+   plaque : origine au coin, x = longueur, y = largeur).
+3. **Montage** : suspendre la plaque sur appuis **ponctuels** (4 chants libres). **MFC + coil** d'un
+   côté à la **distance de couplage ≈ 5 mm** (la **relever et la consigner**). **FLIR** de l'autre côté,
+   axe optique ⟂ plaque, plaque entière + marge dans le champ, mise au point faite.
+4. **Réglage caméra** : renseigner **émissivité**, **température ambiante réfléchie**, **distance** ;
+   cadence **≥ 10 Hz** ; **enregistrement radiométrique ON**. ⚠️ faire un **clip test de 5 s** et
+   **vérifier qu'il s'ouvre** (piège du MP4 non finalisé / atome `moov` manquant déjà rencontré).
+5. **Frame froide de référence** : enregistrer quelques secondes AVANT chauffe (fiduciaux + ambiante).
+
+**B. Exécution (par courant : 150 A, puis 200 A)**
+6. Régler le **courant** (commencer à **150 A**).
+7. Démarrer **l'enregistrement FLIR** puis **la chauffe** ; noter `t0` (ou trigger synchronisé).
+8. **Surveiller le MAX live FLIR** et **couper le courant dès ≈ 140 °C** (sous Tg). **Jamais** sur une
+   durée figée.
+9. **Continuer d'enregistrer le refroidissement** ~60–120 s (la décroissance `LL` et l'info
+   inter-passes sont aussi dans le refroidissement).
+10. Arrêter l'enregistrement, **confirmer que le fichier est finalisé/lisible**.
+11. Laisser la plaque **revenir à l'ambiante**, puis **répéter à 200 A** (même plafond de coupure).
+
+**C. Post-traitement (ROI → CSV → rejeu modèle)**
+12. Dans FLIR Tools, sur la **frame de pic**, placer : `F1…F4`, lignes `LT`/`LL`, points `P0…P4`,
+    cercle `C_spot`, aire `A_plaque` (détails §4).
+13. **Exporter les CSV** au schéma §5 : `roi_points.csv`, `roi_lignes.csv`, `roi_aires.csv` +
+    `recalage.json` (positions en **mm**, temps en **s**, T en **°C**).
+14. **Me transmettre les CSV** → je lance
+    `python code/scripts/thermographie_virtuelle.py rejouer code/config/essais/<manip>.yaml --csv-dir <dossier>`
+    → superpositions `LT`/`LL` normalisées + séries `P0…P4` + **verdict sur la longueur d'étalement
+    (`k_plan` 3 vs 7,5)**.
 
 ## 4. LE MOMENT « lignes / points / cercles » — placement des ROI et recalage
 
