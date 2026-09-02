@@ -58,6 +58,25 @@ thermique** (la diffusion l'écrase) vs **16 % mesuré** ; µr/fréquence/rayon 
 de proximité** dans cette formulation. Conclusion : le modèle manque réellement une structure de source ;
 correctif justifié → **flag source bimodale calibrable** (défaut OFF, bit-identique).
 
+## Ré-ouverture k_plan (2026-09-02) — source + tilt traités → k_plan ÉLEVÉ confirmé
+
+Une fois la **source bimodale** (`bimodal_sigma_mm=2,5`) ET le **tilt** (symétrisation) retirés, la
+**largeur longitudinale** mesurée (FWHM 30–34 mm) exige un **k_plan ÉLEVÉ (≥7,5–9)** et **décisivement
+PAS 3** (k=3 → FWHM 22–24 mm, bien trop étroit ; cf. `figures/issue69/kplan_reouvert.png`). RMSE décroît
+monotone de k=3 (0,35) à k=9 (0,20).
+
+**Conséquence : l'effectif `k_plan ≈ 7,5+` pour l'étalement in-plane est RÉEL, pas un artefact de source.**
+Ça **CORRIGE le « k≈3 » du jour 1** (fondé sur le contraste M, métrique confondue par l'erreur de source
+et le tilt) et **reconfirme le résidu structurel / la tension anisotrope** : le **M transverse** veut un
+k modéré, l'**étalement longitudinal** veut un k élevé — aucun scalaire ne ferme les deux (cf.
+`residu-unifie-etalement-in-plane`). Valeur exacte **dégénérée avec la perte de face** (optimum au bord de
+grille k≥9) → énoncer **≥7,5**, pas un chiffre précis.
+
+**Bilan de l'arc issue #69** : le plein-champ a (1) révélé + corrigé un défaut de **source bimodale**
+(flag livré), (2) identifié un **tilt d'image** (symétrisation), et (3) une fois ces deux confondants
+retirés, **reconfirmé le k_plan effectif élevé** — le jumeau 2D lumpé à `k_plan=3` physique garde sa
+**limite structurelle** d'étalement in-plane, désormais mesurée en plein champ.
+
 ## Prochaines étapes (par priorité)
 
 1. **Source bimodale** (2 pôles, entraxe) dans le jumeau → re-comparer les 3 runs. C'est le levier
