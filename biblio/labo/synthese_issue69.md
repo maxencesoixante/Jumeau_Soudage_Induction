@@ -86,3 +86,20 @@ retirés, **reconfirmé le k_plan effectif élevé** — le jumeau 2D lumpé à 
 
 Figures : `figures/issue69/` (champ_mm_pic, transverses_pic, longitudinaux_pic, compare_rigoureux_longi,
 champ_mm_bord, compare_bord, compare_200_longi).
+
+## Ré-ouverture h_bord_x0 (2026-09-02) — sur le run bord, avec source+k traités
+
+Modèle bord (150A, spot ~x=15) avec source bimodale (σ=2,5) + k=7,5, BC plaque libre, pic aligné :
+`figures/issue69/hbord_reouvert.png`.
+
+- ⚠️ Le **pixel du chant x=0 est un artefact** (chute brutale 0,75→0,41 sur le dernier pixel = fond froid
+  au-delà de la plaque). Valeur fiable au près-bord (x≈2-3 mm) ≈ **0,75**.
+- Comparaison au près-bord : **h_bord_x0=0 → 0,73** (colle) ; 100 → 0,68 ; **250 (défaut) → 0,61** (trop
+  froid). → **la donnée soutient h_bord_x0 ≈ 0** (chant libre, PAS de puits conductif), cohérent avec le
+  fait terrain « 4 chants libres » (`reponses-terrain-2026-07-27`). **Le fudge de 250 sur-refroidit** le près-bord.
+
+**Réserves** : le run bord est la donnée la PLUS FAIBLE (recalage foreshortené — espacement des bosses
+22 mm vs entraxe 12,35 mm ; contamination du pixel de bord). Le modèle ne capture pas la 2ᵉ bosse large
+mesurée (x≈37, = étalement + registration stretch). Verdict **suggestif, pas définitif** : h_bord_x0=250
+n'est pas justifié par la donnée de bord ; candidat au **retrait** (le mettre à 0), à confirmer sur un run
+bord mieux recalé (caméra sans tilt, marge autour de la plaque pour éviter la contamination de chant).
