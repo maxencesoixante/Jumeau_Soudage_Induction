@@ -44,6 +44,20 @@ pas. **C'est le défaut de modèle le plus net révélé par le plein-champ** (i
 - **Métrique de contraste M instable** à temps court (dénominateur → 0).
 - BC libre lumpée, modèle lumpé (face arrière), chant libre ≠ CL soudage.
 
+## Contrôle de robustesse + mécanisme (2026-09-02)
+
+**Double-bosse CONFIRMÉE réelle** (`figures/issue69/robustesse.png`) : présente en **pixels bruts**
+(pas un artefact d'homographie), **cohérente 150 A / 200 A** (bosses ~52/66 mm, espacement ~14–16 mm ≈
+entraxe 12,35 mm), et **distincte du marqueur** (qui fait sa propre encoche ; le creux subsiste après
+inpainting). Le « 22 mm » du run bord = distorsion de recalage, pas un vrai écart. Note : **asymétrie
+réelle** (pic ~8–10 mm à gauche du repère → spot posé légèrement excentré), effet de positionnement à part.
+
+**Mécanisme (sweep EM)** : la chaîne quasi-statique ψ produit la bimodalité **trop plate** à TOUS les
+paramètres physiques. Le **couplage** est le levier dominant (2 mm→13 % de creux *source*) mais **≤3 %
+thermique** (la diffusion l'écrase) vs **16 % mesuré** ; µr/fréquence/rayon négligeables → **pas l'effet
+de proximité** dans cette formulation. Conclusion : le modèle manque réellement une structure de source ;
+correctif justifié → **flag source bimodale calibrable** (défaut OFF, bit-identique).
+
 ## Prochaines étapes (par priorité)
 
 1. **Source bimodale** (2 pôles, entraxe) dans le jumeau → re-comparer les 3 runs. C'est le levier
