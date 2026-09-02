@@ -1,36 +1,35 @@
-# Issue #69 — Calibration jointe `bimodal_sigma_mm` × `decalage_x` : résultat
+# Issue #69 — Calibration `bimodal_sigma_mm` (après dé-tilt)
 
-Objectif : caler conjointement les 2 paramètres sur les 3 runs plein-champ (150A/200A centrés + 150A bord
-en held-out), en ajustant le profil longitudinal (largeur-moyenné, normalisé). Grille
-`decalage_x ∈ [-12,0] mm` × `bimodal_sigma_mm ∈ [2,4] mm`, RMSE sommé sur les 2 centrés.
+## Dé-tilt (l'asymétrie était un tilt d'image, PAS physique — confirmé terrain)
 
-## Résultat : NÉGATIF (les 2 paramètres ne suffisent pas)
+Le pic mesuré décalé/asymétrique venait d'une **inclinaison d'image** (caméra ⟂ plaque OK, mais tilt au
+niveau de l'image). Correction : **symétrisation** du profil longitudinal autour de son centre (la
+déposition est physiquement symétrique, bobine centrée) → retire l'asymétrie sans imposer la réponse.
+Résultat : gauche/droite se superposent, **centres cohérents ~58 mm** (150 A et 200 A).
+`decalage_x` n'est donc PAS requis (l'asymétrie n'était pas une translation physique).
+Figure `figures/issue69/detilt_calibration.png`.
 
-Optimum **au bord de grille** (`decalage_x=-2 mm`, `bimodal_sigma_mm=4 mm`, RMSE 0,32) → mauvais fit
-(`figures/issue69/calibration_bimodal.png`). **Diagnostic** :
+## Calibration de `bimodal_sigma_mm` (sur le CREUX central, |x−centre|≤10 mm)
 
-- **`bimodal_sigma_mm` marche** pour la PROFONDEUR du creux (validé séparément : σ≈3,3 mm → creux 16 %).
-- **`decalage_x` est le mauvais outil.** La mesure est **asymétrique** : pic décalé ~10 mm à gauche
-  (x≈50 vs 60) et **plus large côté x=0**, alors que le bord droit (x≈70) colle déjà au modèle centré.
-  `decalage_x` étant une **translation**, décaler à gauche casse le bord droit → la grille se rabat sur
-  dx≈-2 (quasi centré) + σ=4 (creux le plus plat) = compromis qui rate le creux ET l'asymétrie.
+Minimum intérieur net : **`bimodal_sigma_mm ≈ 2,5 mm`**.
 
-**Conclusion** : le résidu dominant est une **asymétrie de déposition** (la source s'étale vers x=0),
-qu'aucun des deux paramètres ne capture. Held-out bord (RMSE 0,31) confirme.
+| run | creux mesuré | modèle σ=2,5 |
+|---|---|---|
+| 200 A centré (13 s) | 26 % | 27 % ✅ |
+| 150 A centré (35 s) | 19 % | 7 % ⚠️ (sous-reproduit) |
 
-## Causes possibles de l'asymétrie (à trancher AVANT de re-calibrer)
+→ σ≈2,5 mm reproduit bien le 200 A ; **sous-reproduit le 150 A** : à 35 s le modèle diffuse trop le
+creux (un seul σ ne cale pas les 2 temps de chauffe) = **résidu de vitesse de diffusion (k_plan)**.
 
-1. **Physique** : jambe du hairpin plus couplée que l'autre (coil/plaque non parallèle, une jambe plus
-   proche), OU asymétrie du MFC. → demanderait un poids de pôle **asymétrique** (pas juste σ+dx).
-2. **Mesure/visée** : gradient d'émissivité-angle si la plaque est légèrement inclinée (le run bord
-   montrait un fort raccourci vertical → inclinaison plausible). → corriger les images (flat-field /
-   angle) avant calibration.
+## Résidu SÉPARÉ : largeur
 
-## Acquis / prochaine étape
+Après dé-tilt, le profil mesuré reste **plus large** que le modèle (à tout σ) → c'est la question
+**k_plan / largeur de source**, distincte du creux, que le flag bimodal ne traite pas.
 
-- Acquis : `bimodal_sigma_mm` (le flag livré) **reproduit le creux** — le mécanisme est bon. Valeur
-  provisoire σ≈3,3 mm (dip). `decalage_x` seul **NE convient PAS** pour l'asymétrie.
-- Suite : **déterminer si l'asymétrie est physique ou un artefact de visée** (mesurer l'inclinaison
-  plaque/caméra ; vérifier en pixels bruts si l'asymétrie suit un gradient de bord d'image). Selon le
-  verdict : soit corriger les images, soit ajouter un **poids de pôle asymétrique** au flag. PUIS
-  seulement finaliser la calibration et ré-ouvrir k_plan/h_bord_x0.
+## Bilan
+
+- `bimodal_sigma_mm ≈ 2,5 mm` = valeur calibrée (creux), défaut du flag reste OFF.
+- `decalage_x` non requis (asymétrie = tilt, retiré par symétrisation).
+- Deux résidus restants, tous deux liés à la **vitesse/largeur de diffusion = k_plan** : (1) creux
+  150 A sous-reproduit, (2) largeur globale. → ré-ouvrir k_plan MAINTENANT que source (bimodalité) et
+  tilt sont traités.
