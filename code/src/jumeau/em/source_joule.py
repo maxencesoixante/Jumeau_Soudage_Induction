@@ -271,6 +271,37 @@ def _lisser_source(Q: np.ndarray, grille: Grille3D, sigma_mm: float) -> np.ndarr
     return out
 
 
+def _bimodaliser_source(Q: np.ndarray, grille: Grille3D, xc: float,
+                        entraxe: float, sigma_mm: float) -> np.ndarray:
+    """Re-module la source en x en DEUX pôles (les deux jambes du hairpin)
+    centrés en ``xc ± entraxe/2``, de largeur ``sigma_mm`` (mm), en CONSERVANT la
+    puissance de chaque tranche z (renormalisation).
+
+    Corrige la SOUS-bimodalité de la chaîne ψ quasi-statique : la source EM sort
+    en plateau quasi plat (creux central ~3 % à la distance de couplage réelle),
+    alors que la thermographie plein-champ montre DEUX pôles nets espacés de
+    l'entraxe (creux thermique ~16 %, cf. issue #69). Aucun paramètre physique
+    (couplage, µr, fréquence) ne reproduit cette profondeur ; ce facteur EFFECTIF
+    l'impose, à CALIBRER sur les mesures plein-champ (comme ``lissage_sigma_mm``).
+    ``sigma_mm <= 0`` -> identité (chemin historique inchangé, bit-à-bit)."""
+    if sigma_mm <= 0.0:
+        return Q
+    sig = sigma_mm * 1e-3
+    x = grille.x
+    W = (np.exp(-((x - (xc - entraxe / 2.0)) ** 2) / (2.0 * sig ** 2))
+         + np.exp(-((x - (xc + entraxe / 2.0)) ** 2) / (2.0 * sig ** 2)))
+    out = Q.copy()
+    for k in range(Q.shape[2]):
+        s = Q[:, :, k]
+        tot = float(s.sum())
+        if tot <= 0.0:
+            continue
+        sm = s * W[:, None]
+        ssum = float(sm.sum())
+        out[:, :, k] = sm * (tot / ssum) if ssum > 0.0 else s
+    return out
+
+
 def _grille_y_etendue(grille: Grille3D, lambda_bord_mm: float) -> tuple[np.ndarray, int]:
     """Grille en y étendue de ``lambda_bord_mm`` (mm) de part et d'autre du
     domaine physique, même pas ``grille.dy`` (cf. docstring module,
@@ -375,6 +406,7 @@ def source_spot(
     lissage_sigma_mm: float = 0.0,
     lambda_bord_mm: float = 0.0,
     lambda_bord_x_mm: float | None = None,
+    bimodal_sigma_mm: float = 0.0,
 ) -> np.ndarray:
     """Champ source Q (nx, ny, nz) en W/m³ pour la bobine centrée en ``centre_x``.
 
@@ -437,6 +469,8 @@ def source_spot(
 
     omega = 2.0 * np.pi * float(cfg.geometrie["generateur"]["frequence"])
     mu_r = float(cfg.geometrie["cfc"]["mu_r"])
+    entraxe = float(cfg.geometrie["coil"]["entraxe_jambes"])
+    xc_bobine = centre_x + decalage_x            # centre bobine en x (pôles à ±entraxe/2)
     z_miroir = plan_miroir_cfc(cfg)
     sommets = sommets_bobine(cfg, centre_x + decalage_x, centre_y=centre_y)
     X, Y = np.meshgrid(grille.x, grille.y, indexing="ij")
@@ -506,7 +540,9 @@ def source_spot(
                 q = densite_joule(psi, grille.dx, grille.dy, couche.rho_xx, couche.rho_yy)
                 Q[:, :, k] += q * att * poids
 
-        return facteur_couplage * _lisser_source(Q, grille, lissage_sigma_mm)
+        return facteur_couplage * _lisser_source(
+            _bimodaliser_source(Q, grille, xc_bobine, entraxe, bimodal_sigma_mm),
+            grille, lissage_sigma_mm)
 
     # --- chemin champ de réaction : une nappe équivalente par couche ---
     Bz0_mid = []
@@ -538,4 +574,6 @@ def source_spot(
             q = densite_joule(psi, grille.dx, grille.dy, couche.rho_xx, couche.rho_yy)
             Q[:, :, k] += q * ratio_couche * poids
 
-    return facteur_couplage * _lisser_source(Q, grille, lissage_sigma_mm)
+    return facteur_couplage * _lisser_source(
+            _bimodaliser_source(Q, grille, xc_bobine, entraxe, bimodal_sigma_mm),
+            grille, lissage_sigma_mm)

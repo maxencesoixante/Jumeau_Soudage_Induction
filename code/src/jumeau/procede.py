@@ -62,7 +62,8 @@ class Essai:
                  lambda_bord_mm: float = 0.0,
                  lambda_bord_x_mm: float | None = None,
                  masque_source_mfc: bool = False,
-                 masque_source_mode: str = "tronquer"):
+                 masque_source_mode: str = "tronquer",
+                 bimodal_sigma_mm: float = 0.0):
         self.cfg = cfg
         self.spec = charger_yaml(chemin_essai)
         self.racine = Path(racine) if racine else Path(chemin_essai).resolve().parents[3]
@@ -172,6 +173,11 @@ class Essai:
         # (collapse exact à 0) ajoutée par la BC stricte, sans prétendre
         # inverser tout le contraste).
         self.lambda_bord_x_mm = lambda_bord_x_mm
+        # bimodal_sigma_mm (défaut 0.0 = OFF, bit-à-bit) : re-module la source en
+        # 2 pôles (jambes hairpin, entraxe) de largeur sigma_mm — corrige la
+        # sous-bimodalité de la chaîne ψ (cf. source_joule._bimodaliser_source,
+        # issue #69). Facteur EFFECTIF à calibrer sur la thermographie plein-champ.
+        self.bimodal_sigma_mm = float(bimodal_sigma_mm)
         # masque_source_mfc (défaut False = inchangé, bit-à-bit) : masque la
         # source Joule PAR SPOT à l'empreinte du MFC (masque_empreinte_cfc),
         # au lieu de la laisser rayonner sur tout le domaine résolu par
@@ -239,7 +245,8 @@ class Essai:
                         decalage_x=self.decalage_x, champ_reaction=self.champ_reaction,
                         lissage_sigma_mm=self.source_sigma_mm,
                         lambda_bord_mm=self.lambda_bord_mm,
-                        lambda_bord_x_mm=self.lambda_bord_x_mm)
+                        lambda_bord_x_mm=self.lambda_bord_x_mm,
+                        bimodal_sigma_mm=self.bimodal_sigma_mm)
             for s in self.spots
         ]
         self._masques = [

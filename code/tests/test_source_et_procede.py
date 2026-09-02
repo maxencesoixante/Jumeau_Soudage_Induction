@@ -227,6 +227,30 @@ def test_lissage_source_conserve_puissance_et_remplit_centre(cfg):
     assert Q6.max() < Q0.max()                                 # pic abaissé
 
 
+# --- source bimodale 2 pôles (jambes hairpin, cf. source_joule._bimodaliser_source) ---
+
+def test_bimodal_source_off_est_identite(cfg):
+    """bimodal_sigma_mm=0 (défaut) : source strictement inchangée (non-régression)."""
+    g = construire_grille(cfg, nx=25, ny=11, nz=9)
+    c = construire_couches(cfg)
+    Q0 = source_spot(g, cfg, c, 250.0, 0.06)
+    Q0b = source_spot(g, cfg, c, 250.0, 0.06, bimodal_sigma_mm=0.0)
+    assert np.array_equal(Q0, Q0b)
+
+
+def test_bimodal_source_conserve_puissance_et_creuse_centre(cfg):
+    """sigma>0 : puissance totale conservée, creux central (entre les 2 pôles)
+    plus profond qu'en source unique."""
+    g = construire_grille(cfg, nx=97, ny=21, nz=9)
+    c = construire_couches(cfg)
+    Q0 = source_spot(g, cfg, c, 250.0, 0.06)
+    Qb = source_spot(g, cfg, c, 250.0, 0.06, bimodal_sigma_mm=3.0)
+    assert Qb.sum() == pytest.approx(Q0.sum(), rel=1e-6)          # puissance conservée
+    qx0 = Q0.sum(axis=(1, 2)); qxb = Qb.sum(axis=(1, 2))          # profil en x
+    ix = int(np.argmin(np.abs(g.x - 0.06)))                       # centre du spot
+    assert qxb[ix] / qxb.max() < qx0[ix] / qx0.max()             # centre relativement creusé
+
+
 # --- adoucissement du bord (psi=0 repoussé, cf. source_joule.lambda_bord_mm) ---
 
 def test_lambda_bord_off_est_identite(cfg):
