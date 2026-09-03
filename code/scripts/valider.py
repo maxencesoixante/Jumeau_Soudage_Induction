@@ -158,6 +158,11 @@ def principale():
                          "(defaut False = source non masquee, chemin historique). "
                          "NECESSITE un theta* recalibre (la puissance totale change) "
                          "-- cf. jumeau.procede.Essai.masque_source_mfc")
+    ap.add_argument("--bimodal-sigma-mm", type=float, default=0.0,
+                    help="re-module la source en 2 poles (jambes hairpin, entraxe) de "
+                         "largeur sigma_mm (defaut 0 = OFF, bit-a-bit). Corrige la "
+                         "sous-bimodalite de la source revelee en plein champ (issue #69) ; "
+                         "calibre ~2.5 mm sur les runs FLIR. Cf. source_joule._bimodaliser_source.")
     ap.add_argument("--ny", type=int, default=21)
     ap.add_argument("--nz", type=int, default=15,
                     help="défaut 15 (= défaut Essai/construire_grille) ; nz n'a "
@@ -197,7 +202,8 @@ def principale():
                       source_sigma_mm=args.source_sigma_mm,
                       lambda_bord_mm=args.lambda_bord_mm,
                       lambda_bord_x_mm=lambda_bord_x_mm,
-                      masque_source_mfc=args.masque_source_mfc)
+                      masque_source_mfc=args.masque_source_mfc,
+                      bimodal_sigma_mm=args.bimodal_sigma_mm)
         solveur, sol = essai.simuler(modele=args.modele)
         series = essai.series_tc(solveur, sol)
         df = recaler_a_la_chauffe(charger_mesures(essai.fichier_mesures))

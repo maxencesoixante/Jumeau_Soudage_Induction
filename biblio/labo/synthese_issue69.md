@@ -103,3 +103,21 @@ Modèle bord (150A, spot ~x=15) avec source bimodale (σ=2,5) + k=7,5, BC plaque
 mesurée (x≈37, = étalement + registration stretch). Verdict **suggestif, pas définitif** : h_bord_x0=250
 n'est pas justifié par la donnée de bord ; candidat au **retrait** (le mettre à 0), à confirmer sur un run
 bord mieux recalé (caméra sans tilt, marge autour de la plaque pour éviter la contamination de chant).
+
+## Adoption du flag bimodal — held-out sur les essais de soudage (2026-09-02) : NON adopté (garder OFF)
+
+CLI `--bimodal-sigma-mm` ajoutée à `valider.py`. Held-out au θ* canonique (facteur=6,0123) :
+
+| essai | RMSE bimodal OFF | RMSE bimodal σ=2,5 |
+|---|---|---|
+| serieA_A-1 | 36,5 | 39,7 (+3,2) |
+| serieA_A-3 | 33,4 | 38,2 (+4,8) |
+| serieB_B-2 | 65,6 | 68,2 (+2,6) |
+| exp7_200A | 21,8 | 25,6 (+3,8 RMSE, mais écart pic 40,6→19,7 ✅) |
+
+**Verdict : le flag bimodal RÉGRESSE la validation A/B → garder défaut OFF, θ\* inchangé.** Même
+mécanisme que `lissage_sigma_mm` (cf. `forme-source-profil-m`) : la source bimodale déplace la puissance
+du centre (x=60, où sont les TC de contrôle) vers les jambes → refroidit les points de contrôle. Le flag
+reste un **outil de diagnostic / plein-champ** (il reproduit le creux mesuré), pas un défaut de production.
+Confirme que le résidu structurel A/B n'est PAS la forme de source en x mais la **vitesse de chauffe /
+étalement (k_plan)**, cohérent avec la ré-ouverture k_plan ci-dessus.
