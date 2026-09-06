@@ -299,7 +299,10 @@ EM indépendant** (§4) et par un audit ligne-à-ligne contre la référence Lio
 > groupés par symétrie de position — le type de mesure auquel le modèle est confronté.*
 
 Paramètres de référence 2D (θ\* canonique) : `facteur_couplage = 6,0123`,
-`h_haut = 30,087`, `h_bas_2d = 37,424`, `h_bord_x0 = 250` W/m²·K.
+`h_haut = 30,087`, `h_bas_2d = 37,424`, `h_bord_x0 = 125` W/m²·K
+(`h_bord_x0` re-calibré 250 → 125 le 2026-09-06 en held-out, après l'activation par défaut
+de la correction de bord en x qui agit sur le même chant — cf.
+`biblio/labo/reouverture_h_bord_x0_heldout.md`).
 
 ---
 

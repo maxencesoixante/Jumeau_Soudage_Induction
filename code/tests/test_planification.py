@@ -18,7 +18,7 @@ def _essai():
     cfg = Config.charger(RACINE / "config")
     cfg.contact.h_haut = 30.087
     cfg.ambiant.h_bas_2d = 37.424
-    cfg.ambiant.h_bord_x0 = 250.0
+    cfg.ambiant.h_bord_x0 = 125.0   # θ* canonique (re-calibré 250->125 le 2026-09-06)
     e = Essai(cfg, RACINE / "config/essais/exp7_200A.yaml", nx=61, ny=21, nz=15,
               facteur_couplage=6.0123, decalage_x=0.0, racine=RACINE)
     return cfg, e

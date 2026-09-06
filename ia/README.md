@@ -110,5 +110,6 @@ Le même comportement est visible dans l'UI (`.venv/bin/python ia/app.py`) avec 
 3 requêtes d'exemple ci-dessus.
 
 > **Params synchronisés le 2026-08-04** : `outils.py` passe désormais le θ\* de référence
-> 2D canonique (`facteur_couplage=6.0123, h_haut=30.087, h_bas_2d=37.424, h_bord_x0=250`,
+> 2D canonique (`facteur_couplage=6.0123, h_haut=30.087, h_bas_2d=37.424, h_bord_x0=125`
+> — `h_bord_x0` re-calibré 250→125 le 2026-09-06,
 > cf. `config/materiaux.yaml`), et non plus les anciennes valeurs périmées du 2026-07-20.

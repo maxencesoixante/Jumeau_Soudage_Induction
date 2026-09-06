@@ -12,7 +12,7 @@ Modèle **2D**, consolidation 2026-07-30 :
 | `facteur_couplage` | **6,0123** | argument runtime (par modèle×essai) |
 | `h_haut` | **30,087** W/m²·K | config |
 | `h_bas_2d` | **37,424** W/m²·K | config |
-| `h_bord_x0` | **250** W/m²·K | effectif (chants libres), `=0` réfuté |
+| `h_bord_x0` | **125** W/m²·K | effectif (chants libres), `=0` réfuté ; re-calibré 250→125 le 2026-09-06 ([note](../labo/reouverture_h_bord_x0_heldout.md)) |
 | twill | **0,20 mm** | mesuré |
 
 Rejouer une validation : `python code/scripts/valider.py --modele 2D --facteur 6.0123 --decalage-x 0 --essais <nom>`.

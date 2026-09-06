@@ -121,3 +121,18 @@ du centre (x=60, où sont les TC de contrôle) vers les jambes → refroidit les
 reste un **outil de diagnostic / plein-champ** (il reproduit le creux mesuré), pas un défaut de production.
 Confirme que le résidu structurel A/B n'est PAS la forme de source en x mais la **vitesse de chauffe /
 étalement (k_plan)**, cohérent avec la ré-ouverture k_plan ci-dessus.
+
+## Suite — `h_bord_x0` tranché en held-out (2026-09-06) : 250 → 125, pas 0
+
+La réouverture ci-dessus concluait « `h_bord_x0 = 250` n'est pas justifié par la donnée de bord ;
+candidat au retrait (→ 0) ». Le held-out sur les essais de soudage tranche autrement, et la nuance
+compte : **`h_bord_x0 = 0` reste réfuté** (TC1 de A-1 dépasse de +98 °C ; +185 °C sans la correction
+de bord en x, ce qui reproduit exactement la réfutation de juillet 2026) — **mais 250 n'est plus
+l'optimum**. L'optimum a migré vers **100–125**, parce que la correction `lambda_bord_x` (AUTO par
+défaut depuis le 2026-08-30) agit sur le même nœud `x=0` et a périmé la calibration de 250.
+
+Valeur adoptée en config : **125 W/m².K** (held-out A-3+B-2 : 49,5 → 48,4 °C ; exp7/exp9 strictement
+insensibles). Le près-bord FLIR avait donc **la bonne direction** (250 sur-refroidit) mais **pas la
+bonne amplitude** — cohérent avec son statut de donnée la plus faible de l'arc.
+
+Détail complet, protocole et matrice d'attribution : `reouverture_h_bord_x0_heldout.md`.

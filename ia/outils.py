@@ -38,7 +38,7 @@ FACTEUR_COUPLAGE = 6.0123
 DECALAGE_X = 0.0
 H_HAUT = 30.087
 H_BAS_2D = 37.424
-H_BORD_X0 = 250.0  # puits de bord (montage bridé x=0), θ* canonique
+H_BORD_X0 = 125.0  # puits de bord effectif au chant x=0, θ* canonique (re-calibré 250->125 le 2026-09-06)
 
 # Collecteur des images produites pendant un tour de conversation. app.py le vide
 # au début de chaque message utilisateur puis affiche ce qui s'y trouve.

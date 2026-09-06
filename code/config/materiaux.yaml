@@ -81,7 +81,8 @@ ceramique:
   # PAS une valeur calibrée pour le 2D — à recalibrer. Borne suggérée pour
   # la calibration à venir : [1, 50] W/m2.K (même enveloppe que h_contact).
   # ADOPTÉ 2026-07-29 (consolidation) : θ* de référence 2D canonique
-  # (facteur_couplage=6.0123, h_haut=30.087, h_bas_2d=37.424, h_bord_x0=250),
+  # (facteur_couplage=6.0123, h_haut=30.087, h_bas_2d=37.424, h_bord_x0=125
+  # -- h_bord_x0 re-calibré 250->125 le 2026-09-06, cf. bloc h_bord_x0 plus bas),
   # validé MEILLEUR sur le jeu tenu à l'écart (held-out) par la recalibration
   # groupée -- une recalibration naïve à twill 0.20 ne l'a PAS battu. Adopté
   # en config comme point de départ 2D, PAS comme calibration finale.
@@ -110,11 +111,25 @@ ambiant:
   # l'utilisateur confirme que les QUATRE chants latéraux sont À L'AIR LIBRE
   # (aucune bride ni appui). => h_bord_x0 n'a AUCUNE base physique : c'est un
   # PARAMÈTRE EFFECTIF qui compense autre chose (vraisemblablement le bord trop
-  # chaud du profil en "M" côté x=0). CANDIDAT AU RETRAIT à la prochaine
-  # recalibration : tester h_bord_x0=0, ou le remplacer par une convection
-  # latérale FAIBLE et UNIFORME sur les quatre chants (physique, symétrique).
-  # Valeur active laissée à 250 pour l'instant (ne pas confondre avec
-  # l'expérience thermostat 'capteurs' en cours). 0.0 = pas de puits.
-  # CONFIRMÉ 2026-07-29 (consolidation) : fait partie du θ* de référence 2D
-  # canonique, validé meilleur sur held-out ; valeur inchangée (250.0).
-  h_bord_x0: 250.0           # W/m2.K — EFFECTIF (pas physique, cf. ci-dessus), à retravailler
+  # chaud du profil en "M" côté x=0). 0.0 = pas de puits.
+  #
+  # RE-CALIBRÉ 250 -> 125 le 2026-09-06 (held-out, cf.
+  # biblio/labo/reouverture_h_bord_x0_heldout.md). Motif : la correction de bord
+  # en x (`lambda_bord_x_mm`, mode AUTO) est ACTIVÉE PAR DÉFAUT depuis le
+  # 2026-08-30 et agit sur LE MÊME nœud x=0 -> elle a périmé la calibration de
+  # 250, faite sur le modèle non corrigé. Balayage à θ* canonique par ailleurs
+  # inchangé (facteur=6.0123, decalage_x=0), sans recalibration :
+  #   h_bord_x0    A-1     A-3     B-2    held-out(A-3,B-2)
+  #        0      40.0    32.8    69.1        50.95
+  #      100      35.2    31.4    65.2        48.30
+  #      125      35.0    31.6    65.1        48.35   <- adopté
+  #      250      36.5    33.4    65.6        49.50   (ancienne valeur)
+  #      350      38.1    34.8    66.5        50.65
+  # Optimum INTÉRIEUR retrouvé sur les trois essais séparément ; exp7 (150/200/
+  # 250 A) et exp9 STRICTEMENT insensibles (leurs TC sont loin du chant).
+  # h_bord_x0 = 0 (suggéré par le près-bord FLIR, issue #69) reste RÉFUTÉ en
+  # held-out : TC1 de A-1 dépasse alors de +98 °C (et de +185 °C sans la
+  # correction de bord x -> la réfutation de juillet est reproduite).
+  # Reste un paramètre EFFECTIF, pas physique : candidat au remplacement par une
+  # convection latérale faible et uniforme sur les quatre chants (symétrique).
+  h_bord_x0: 125.0           # W/m2.K — EFFECTIF (pas physique, cf. ci-dessus), à retravailler
