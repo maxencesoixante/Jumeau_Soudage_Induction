@@ -179,7 +179,7 @@ vmax = max(c.max() for c in cartes)
 norme = Normalize(0.0, vmax)
 pic_seule = cartes[0].max()
 
-for (nom, titre, avec_mfc, _, longueur_mfc, avertissement), carte in zip(CAS, cartes):
+for (nom, _titre, avec_mfc, _, longueur_mfc, _avert), carte in zip(CAS, cartes):
     fig, (axg, axd) = plt.subplots(1, 2, figsize=(13.4, 5.2),
                                    gridspec_kw={"width_ratios": [1.0, 1.12]})
 
@@ -221,14 +221,8 @@ for (nom, titre, avec_mfc, _, longueur_mfc, avertissement), carte in zip(CAS, ca
         axg.text(xc, (Z_TUBE_BAS + Z_TUBE_HAUT) / 2, marque, ha="center",
                  va="center", fontsize=taille, fontweight="bold", color="0.1",
                  zorder=10)
-    if avec_mfc:
-        axg.plot([x0, x1], [z_miroir * 1e3] * 2, color="#7A5EA8", lw=1.0,
-                 ls=(0, (6, 3)), zorder=6)
-        axg.text(x1 - 0.6, z_miroir * 1e3 + 0.5, "plan image du calcul",
-                 fontsize=7.8, color="#7A5EA8", ha="right", va="bottom", zorder=12)
 
-    axg.set_title("Coupe x–z — lignes de champ ; plaque colorée par la "
-                  "chauffe (max en largeur)", pad=7, fontsize=10.2)
+    axg.set_title("Coupe de côté", pad=7, fontsize=12)
     axg.set_xlabel("x (mm) — longueur de la plaque")
     axg.set_ylabel("z (mm) — hauteur")
     axg.set_xlim(x0, x1); axg.set_ylim(zs[0] * 1e3, zs[-1] * 1e3)
@@ -245,30 +239,13 @@ for (nom, titre, avec_mfc, _, longueur_mfc, avertissement), carte in zip(CAS, ca
                                  (centre_y - longueur_mfc / 2) * 1e3),
                                 mfc_x * 1e3, longueur_mfc * 1e3, facecolor="none",
                                 edgecolor="#39D0C6", linewidth=2.0, zorder=4))
-    axd.set_title("Vue en plan — chauffe induite" +
-                  (" et empreinte du MFC" if avec_mfc else ""), pad=7)
+    axd.set_title("Vue de dessus", pad=7, fontsize=12)
     axd.set_xlabel("x (mm) — longueur"); axd.set_ylabel("y (mm) — largeur")
     axd.set_aspect("equal")
     cb = fig.colorbar(im, ax=axd, fraction=0.032, pad=0.02)
     cb.set_label("Puissance Joule induite (W/m²)")
 
-    # Rapport de pic affiche UNIQUEMENT pour le MFC actuel : c'est le seul cas
-    # ou il compare deux champs calcules de la meme facon. Pour le MFC
-    # raccourci, le pic est fixe par le masque dur (qui annule les lobes de
-    # bord) et non par la physique -- l'afficher laisserait croire a tort que
-    # le bloc raccourci "chauffe moins".
-    if nom.startswith("2"):
-        axg.text(0.985, 0.04, f"pic ×{carte.max() / pic_seule:.1f}".replace(".", ",")
-                 + " vs bobine seule", transform=axg.transAxes, ha="right",
-                 va="bottom", fontsize=10.5, fontweight="bold", color="0.12",
-                 zorder=14, bbox=dict(facecolor="white", alpha=0.9,
-                                      edgecolor="0.6", pad=3.0))
-    if avertissement:
-        fig.text(0.5, 0.012, avertissement, ha="center", va="bottom", fontsize=8.6,
-                 color="#8A2A2A", linespacing=1.45)
-
-    fig.suptitle(titre, fontsize=13, fontweight="bold", y=0.985)
-    fig.tight_layout(rect=(0, 0.17 if avertissement else 0.01, 1, 0.94))
+    fig.tight_layout()
     out = R / "biblio" / "modele" / "figures" / f"fig_champ_em_{nom}.png"
     fig.savefig(out); plt.close(fig)
     print(f"écrit : {out.name}   pic = {carte.max():.3e} W/m² "
