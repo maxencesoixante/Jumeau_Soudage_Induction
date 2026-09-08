@@ -73,6 +73,11 @@ apply_style(**{
 
 COURANT = 250.0
 CENTRE_X = 0.060
+# theta* canonique : SANS lui, source_spot rend la puissance EM BRUTE (son
+# defaut facteur_couplage=1.0), soit ~6x sous la puissance reellement deposee
+# par le modele. Indispensable des lors que la figure affiche des W/m2 absolus
+# et qu'on en deduit une vitesse de chauffe.
+FACTEUR_COUPLAGE = 6.0123
 LONGUEUR_MFC_REDUIT = 0.03175          # m -- valeur commandee (cfc.longueur)
 
 C_COIL, C_MFC, C_CERAM = "#E69F00", "#B4B4B4", "#6E6E6E"
@@ -141,7 +146,8 @@ def chauffe(mu_r, longueur_mfc=None):
     try:
         Q = source_spot(grille, cfg, couches, courant=COURANT,
                         centre_x=CENTRE_X, centre_y=centre_y,
-                        decalage_x=DECALAGE_X)
+                        decalage_x=DECALAGE_X,
+                        facteur_couplage=FACTEUR_COUPLAGE)
         if longueur_mfc is not None:
             geo["cfc"]["longueur"] = longueur_mfc
             m = masque_empreinte_cfc(grille, cfg, CENTRE_X, centre_y)[:, :, None]

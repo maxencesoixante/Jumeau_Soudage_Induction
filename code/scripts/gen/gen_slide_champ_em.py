@@ -1,8 +1,10 @@
 """Ajoute au deck hebdo une slide "champ electromagnetique" (issue #59 / MFC reduit).
 
-ATTENTION : ce script N'EST PAS IDEMPOTENT -- il INSERE une slide a chaque
-execution. Le deck live est la source de verite ; faire une sauvegarde datee
-avant de le lancer, et ne le relancer qu'apres avoir retire la slide precedente.
+REJOUABLE : si la slide existe deja, son CONTENU est remplace en place (on ne
+garde que le chrome herite du gabarit) ; sinon elle est creee et inseree juste
+avant la slide fiber flow. On ne supprime JAMAIS une slide du paquet : retirer
+une entree de `sldIdLst` (meme avec `drop_rel`) laisse la piece XML orpheline
+et produit une archive invalide -- "Duplicate name: ppt/slides/slideNN.xml".
 
 La slide reprend les trois cartes produites par `gen_carte_champ_em.py` en n'en
 gardant que les panneaux utiles (recadrage a la volee, images embarquees dans le
@@ -20,6 +22,7 @@ from pptx import Presentation
 from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN
+from pptx.enum.shapes import MSO_SHAPE
 
 R = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())
 DECK = R / "biblio/presentations/Point d'avancement hebdomadaire — LIPeC  ÉTS.pptx"
@@ -32,8 +35,6 @@ NS_R = "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}"
 GABARIT = 15                                  # slide clonee pour le chrome
 
 prs = Presentation(str(DECK))
-
-
 def sid(sl, i):
     return next(x for x in sl.shapes if x.shape_id == i)
 
@@ -82,17 +83,31 @@ def bloc(sl, x, y, w, h, contenu):
         p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
         r = p.add_run(); r.text = txt
         if st == "t":
-            r.font.size, r.font.bold, r.font.color.rgb = Pt(15), True, ROUGE
+            r.font.size, r.font.bold, r.font.color.rgb = Pt(14.5), True, ROUGE
             p.space_after = Pt(4)
         else:
-            r.font.size, r.font.bold, r.font.color.rgb = Pt(13.5), False, GRIS
+            r.font.size, r.font.bold, r.font.color.rgb = Pt(12.5), False, GRIS
             p.space_after = Pt(10)
     return tb
 
 
-sl = dupliquer(GABARIT)
-for i in (17, 18):                            # figure + texte herites du gabarit
-    e = sid(sl, i)._element; e.getparent().remove(e)
+# Le chrome (bandeau rouge, titres, pied de page, logos) = les formes du gabarit
+# hors sa figure et son bloc de texte. Calcule, pas code en dur.
+CHROME = {sh.shape_id for sh in prs.slides[GABARIT].shapes} - {17, 18}
+
+existante = next((s for s in prs.slides
+                  if any(sh.has_text_frame and "CHAMP EM" in sh.text_frame.text
+                         for sh in s.shapes)), None)
+if existante is None:
+    sl = dupliquer(GABARIT)
+    for i in (17, 18):                        # figure + texte herites du gabarit
+        e = sid(sl, i)._element; e.getparent().remove(e)
+    neuve = True
+else:
+    sl = existante                            # on remplace le CONTENU, pas la slide
+    for sh in [x for x in sl.shapes if x.shape_id not in CHROME]:
+        sh._element.getparent().remove(sh._element)
+    neuve = False
 sid(sl, 12).text_frame.paragraphs[0].runs[0].text = "MODÉLISATION SUR PYTHON — CHAMP EM"
 sid(sl, 14).text_frame.paragraphs[0].runs[0].text = (
     "Ce que le concentrateur change — et ce qu'il ne change pas")
@@ -115,7 +130,7 @@ def poser(nom, boite, x, y, hauteur, lg, taille=10.5):
     return largeur
 
 
-H_RANGEE = 3.02
+H_RANGEE = 2.82
 # --- haut : le MFC concentre (coupes de cote) ------------------------------ #
 x = 0.70
 for nom, lg in [("fig_champ_em_1_bobine_seule.png", "Bobine seule"),
@@ -128,33 +143,70 @@ for nom, lg in [("fig_champ_em_2_mfc_actuel.png", "MFC actuel (55 mm) — lobes 
                 ("fig_champ_em_3_mfc_reduit.png", "MFC raccourci (31,75 mm) — chauffe recentrée")]:
     x += poser(nom, PLAN, x, 6.72, H_RANGEE, lg, taille=10) + 0.45
 
-bloc(sl, 13.05, 3.10, 6.35, 7.0, [
-    ("t", "Le concentrateur double la chauffe"),
-    ("c", "Le modèle calcule le champ de la bobine et son image dans le MFC. Le pic de chauffe "
-          "induite passe ×2,5 par rapport à la bobine seule."),
+def cadre_formule(x, y, w, h):
+    """Encadre la conversion puissance -> temperature."""
+    sh = sl.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(x), Inches(y),
+                             Inches(w), Inches(h))
+    sh.fill.solid(); sh.fill.fore_color.rgb = RGBColor(0xF4, 0xF6, 0xF9)
+    sh.line.color.rgb = ROUGE; sh.line.width = Pt(1.4)
+    sh.shadow.inherit = False
+    tf = sh.text_frame; tf.word_wrap = True
+    tf.margin_left = tf.margin_right = Inches(0.12)
+    tf.margin_top = Inches(0.07)
+    lignes = [
+        ("De la puissance à la température", 13.5, True, ROUGE),
+        ("ρ · c𝑝 · e · dT/dt  =  q″  −  pertes", 14, True, GRIS),
+        ("dans les premiers instants :   dT/dt ≈ q″ / (ρ c𝑝 e)", 12, False, GRIS),
+        ("ρ c𝑝 e ≈ 13 100 J/(m²·K)   pour 6,8 mm de CF/PEKK", 12, False, GRIS),
+        ("→ 100 000 W/m² ≈ 7,6 °C/s   ·   pic de la carte ≈ 67 °C/s", 12.5, True, GRIS),
+        ("Borne haute : conduction et pertes freinent ensuite.", 11, False,
+         RGBColor(0x7A, 0x7A, 0x7A)),
+    ]
+    for i, (txt, taille, gras, coul) in enumerate(lignes):
+        p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
+        r = p.add_run(); r.text = txt
+        r.font.size, r.font.bold, r.font.color.rgb = Pt(taille), gras, coul
+        p.space_after = Pt(3)
+
+
+XT, WT = 12.55, 6.85
+bloc(sl, XT, 3.08, WT, 1.55, [
+    ("t", "La puissance Joule induite, c'est quoi ?"),
+    ("c", "La bobine ne touche jamais la pièce. Son champ magnétique alternatif (388 kHz) fait "
+          "circuler des courants dans les fibres de carbone ; ces courants chauffent le matériau "
+          "de l'intérieur, comme une plaque à induction chauffe une casserole. La carte montre "
+          "OÙ la chaleur est déposée."),
+])
+cadre_formule(XT, 4.78, WT, 1.92)
+bloc(sl, XT, 6.85, WT, 1.30, [
     ("t", "Le raccourcir ne change RIEN au champ (x, z)"),
-    ("c", "La méthode des images ne dépend que de la perméabilité et du plan miroir, pas de la "
-          "taille du bloc : à bobine identique, la coupe x–z est strictement la même. Ce n'est "
-          "donc pas là qu'il faut regarder."),
-    ("t", "Mais la chauffe devient plus uniforme en (x, y)"),
-    ("c", "L'empreinte plus courte recentre la puissance : les lobes chauds de bord s'effacent et "
-          "le profil s'aplatit — contraste bord/centre 4,1 → 1,7 selon le modèle."),
+    ("c", "Le MFC double la chauffe (pic ×2,5 vs bobine seule), mais sa TAILLE n'entre pas dans "
+          "le calcul du champ : la coupe est strictement la même."),
+])
+bloc(sl, XT, 8.22, WT, 1.25, [
+    ("t", "Ce qui change : l'uniformité en (x, y)"),
+    ("c", "L'empreinte plus courte recentre la puissance. Mesuré sur la carte de TEMPÉRATURE "
+          "(250 A, 15 s) : contraste bord/centre 4,1 → 1,7."),
+])
+bloc(sl, XT, 9.50, WT, 0.95, [
     ("t", "Pourquoi ça compte : le fiber flow"),
-    ("c", "C'est sur cette uniformité qu'on compte pour réduire le fiber flow observé à CHAQUE "
-          "soudage avec le MFC actuellement monté sur la station (cf. slide suivante)."),
-    ("c", "Réserve : la réduction est représentée par un masque d'empreinte à puissance "
-          "conservée — approximation du 1er ordre, sans frange de bord et non recalibrée. "
-          "Tendance, pas niveau absolu. À confirmer au banc dès réception du bloc."),
+    ("c", "C'est sur cette uniformité qu'on compte pour le réduire. Réserve : masque 1er ordre, "
+          "non recalibré — à confirmer au banc."),
 ])
 
-# insertion juste AVANT la slide "fiber flow"
-lst = prs.slides._sldIdLst
-ids = list(lst)
-cible = next(i for i, s in enumerate(prs.slides)
-             if any(sh.has_text_frame and "Le problème" in sh.text_frame.text
-                    for sh in s.shapes))
-lst.remove(ids[-1])
-lst.insert(cible, ids[-1])
+# insertion juste AVANT la slide "fiber flow" -- uniquement pour une slide neuve
+if neuve:
+    lst = prs.slides._sldIdLst
+    ids = list(lst)
+    cible = next(i for i, s in enumerate(prs.slides)
+                 if any(sh.has_text_frame and "Le problème" in sh.text_frame.text
+                        for sh in s.shapes))
+    lst.remove(ids[-1])
+    lst.insert(cible, ids[-1])
+    position = cible + 1
+else:
+    position = next(i for i, s in enumerate(prs.slides, 1) if s is sl)
 
 prs.save(str(DECK))
-print(f"slide insérée en position {cible + 1} ; deck à {len(prs.slides)} slides")
+print(f"slide {'créée' if neuve else 'mise à jour'} en position {position} ; "
+      f"deck à {len(prs.slides)} slides")
