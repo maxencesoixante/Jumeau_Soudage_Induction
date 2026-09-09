@@ -60,7 +60,21 @@ twill_suscepteur:
   # changement.
   epaisseur: 0.00020         # m — MESURÉ (twill suscepteur), cf. commentaire ci-dessus
   sigma_plan: 1.1e+4         # S/m — isotrope plan (ordre sigma_0/2, tissé équilibré), incertain
-  facteur_couplage: 1.0      # facteur d'efficacité calibré (blindage, contacts fibre-fibre, σ)
+  # PAS DE `facteur_couplage` ICI — VOLONTAIREMENT. Retiré le 2026-09-08 : la clef
+  # existait avec la valeur 1.0 mais n'était LUE PAR AUCUN CODE (seuls `epaisseur`
+  # et `sigma_plan` de cette section sont consommés, cf. geometrie.py `construire_couches`).
+  # Elle induisait donc en erreur : qui relisait ce fichier pour vérifier une puissance
+  # déposée sous-estimait d'un facteur ~6. Un cas réel s'est produit (figures de champ EM
+  # tracées à la puissance brute).
+  #
+  # Le facteur d'efficacité calibré (blindage négligé, contacts fibre-fibre, σ) est un
+  # ARGUMENT RUNTIME, passé à `Essai(facteur_couplage=...)` / `source_spot(...)`, parce
+  # qu'il vaut PAR MODÈLE × ESSAI et non globalement :
+  #     modèle 2D lumpé — θ* canonique : facteur_couplage = 6.0123
+  #     modèle 3D       — valeur historique distincte (5.2189, cf. materiaux.py)
+  # Le défaut des deux signatures Python est 1.0 = puissance EM brute, non calibrée :
+  # tout script qui affiche des W/m² absolus doit donc passer le facteur explicitement.
+  #
   # Décomposition en contributions physiques : non identifiable depuis la température
   # (dégénérescence multiplicative) — voir docs/modele/facteur_couplage_decomposition.md
   # (issue #21) ; déclencheur = Mesure 10 (σ mesuré) qui isole η_géom×contact.
