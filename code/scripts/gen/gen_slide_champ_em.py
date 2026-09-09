@@ -144,56 +144,67 @@ for nom, lg in [("fig_champ_em_2_mfc_actuel.png", "MFC actuel (55 mm) — lobes 
     x += poser(nom, PLAN, x, 6.72, H_RANGEE, lg, taille=10) + 0.45
 
 def cadre_formule(x, y, w, h):
-    """Encadre la conversion puissance -> temperature."""
+    """Encadre la conversion puissance -> temperature, chaque symbole nomme et unite.
+
+    Valeurs verifiees contre le depot (config/materiaux.yaml l.8-9,
+    config/geometrie.yaml l.7-9) et recalculees independamment :
+    rho.cp.e = 1600 x 1200 x 0,00682 = 13 094 J/(m2.K).
+    Les deux reserves affichees sont chiffrees, pas decoratives :
+      - cp_apparent (materiaux.py l.140-150) vaut x6,8 le cp_base a Tf=337 C
+        -> la montee reelle y est jusqu'a 7 fois plus lente (chaleur latente) ;
+      - la borne adiabatique au noeud le plus chaud (67 C/s) vaut ~2x le taux
+        reellement simule ET mesure au meme point a 250 A (30-34 C/s,
+        biblio/journal_avancees.md l.154) : la conduction evacue aussitot.
+    """
     sh = sl.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(x), Inches(y),
                              Inches(w), Inches(h))
     sh.fill.solid(); sh.fill.fore_color.rgb = RGBColor(0xF4, 0xF6, 0xF9)
     sh.line.color.rgb = ROUGE; sh.line.width = Pt(1.4)
     sh.shadow.inherit = False
     tf = sh.text_frame; tf.word_wrap = True
-    tf.margin_left = tf.margin_right = Inches(0.12)
-    tf.margin_top = Inches(0.07)
+    tf.margin_left = tf.margin_right = Inches(0.13)
+    tf.margin_top = Inches(0.08)
+    GRIS_C = RGBColor(0x7A, 0x7A, 0x7A)
     lignes = [
-        ("De la puissance à la température", 13.5, True, ROUGE),
-        ("ρ · c𝑝 · e · dT/dt  =  q″  −  pertes", 14, True, GRIS),
-        ("dans les premiers instants :   dT/dt ≈ q″ / (ρ c𝑝 e)", 12, False, GRIS),
-        ("ρ c𝑝 e ≈ 13 100 J/(m²·K)   pour 6,8 mm de CF/PEKK", 12, False, GRIS),
-        ("→ 100 000 W/m² ≈ 7,6 °C/s   ·   pic de la carte ≈ 67 °C/s", 12.5, True, GRIS),
-        ("Borne haute : conduction et pertes freinent ensuite.", 11, False,
-         RGBColor(0x7A, 0x7A, 0x7A)),
+        ("De la puissance à la température", 13, True, ROUGE, 4),
+        ("ρ · c𝑝 · e · dT/dt  =  q″  −  pertes  −  conduction", 13, True, GRIS, 5),
+        ("q″   puissance Joule induite, par m² de plaque . . . . . W/m²", 10.5, False, GRIS, 1),
+        ("ρ    masse volumique du CF/PEKK . . . . . . . 1 600 kg/m³", 10.5, False, GRIS, 1),
+        ("c𝑝   capacité thermique, hors fusion . . . 1 200 J/(kg·K)", 10.5, False, GRIS, 1),
+        ("e    épaisseur de l'empilement soudé . . . . . . . 6,82 mm", 10.5, False, GRIS, 1),
+        ("dT/dt  vitesse de chauffe . . . . . . . . . . . . . . . . . . °C/s", 10.5, False, GRIS, 5),
+        ("ρ c𝑝 e = 13 100 J/(m²·K)   →   100 000 W/m² ≈ 7,6 °C/s", 12, True, GRIS, 4),
+        ("Valable loin de la fusion. À 337 °C la chaleur latente absorbe l'énergie : "
+         "la montée y est jusqu'à 7× plus lente.", 9.5, False, GRIS_C, 2),
+        ("Au pic de la carte cette borne donne 67 °C/s, mais modèle et mesure montent "
+         "à 30–34 °C/s à 250 A — la conduction évacue aussitôt.", 9.5, False, GRIS_C, 0),
     ]
-    for i, (txt, taille, gras, coul) in enumerate(lignes):
+    for i, (txt, taille, gras, coul, apres) in enumerate(lignes):
         p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
         r = p.add_run(); r.text = txt
         r.font.size, r.font.bold, r.font.color.rgb = Pt(taille), gras, coul
-        p.space_after = Pt(3)
+        p.space_after = Pt(apres)
 
 
 XT, WT = 12.55, 6.85
-bloc(sl, XT, 3.08, WT, 1.55, [
+bloc(sl, XT, 3.06, WT, 1.30, [
     ("t", "La puissance Joule induite, c'est quoi ?"),
-    ("c", "La bobine ne touche jamais la pièce. Son champ magnétique alternatif (388 kHz) fait "
-          "circuler des courants dans les fibres de carbone ; ces courants chauffent le matériau "
-          "de l'intérieur, comme une plaque à induction chauffe une casserole. La carte montre "
-          "OÙ la chaleur est déposée."),
+    ("c", "La bobine ne touche jamais la pièce. Son champ alternatif (388 kHz) fait circuler des "
+          "courants dans les fibres de carbone ; ils chauffent le matériau de l'intérieur, comme "
+          "une plaque à induction chauffe une casserole."),
 ])
-cadre_formule(XT, 4.78, WT, 1.92)
-bloc(sl, XT, 6.85, WT, 1.30, [
+cadre_formule(XT, 4.34, WT, 3.62)
+bloc(sl, XT, 8.06, WT, 1.10, [
     ("t", "Le raccourcir ne change RIEN au champ (x, z)"),
     ("c", "Le MFC double la chauffe (pic ×2,5 vs bobine seule), mais sa TAILLE n'entre pas dans "
           "le calcul du champ : la coupe est strictement la même."),
 ])
-bloc(sl, XT, 8.22, WT, 1.25, [
+bloc(sl, XT, 9.16, WT, 0.90, [
     ("t", "Ce qui change : l'uniformité en (x, y)"),
-    ("c", "L'empreinte plus courte recentre la puissance. Mesuré sur la carte de TEMPÉRATURE "
-          "(250 A, 15 s) : contraste bord/centre 4,1 → 1,7."),
+    ("c", "L'empreinte plus courte recentre la puissance : contraste bord/centre 4,1 → 1,7, "
+          "mesuré sur la carte de TEMPÉRATURE (250 A, 15 s). C'est là-dessus qu'on compte pour "
+          "réduire le fiber flow. Réserve : masque 1er ordre, non recalibré."),
 ])
-bloc(sl, XT, 9.50, WT, 0.95, [
-    ("t", "Pourquoi ça compte : le fiber flow"),
-    ("c", "C'est sur cette uniformité qu'on compte pour le réduire. Réserve : masque 1er ordre, "
-          "non recalibré — à confirmer au banc."),
-])
-
 # insertion juste AVANT la slide "fiber flow" -- uniquement pour une slide neuve
 if neuve:
     lst = prs.slides._sldIdLst
