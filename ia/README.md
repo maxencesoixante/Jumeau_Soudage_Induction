@@ -113,3 +113,49 @@ Le même comportement est visible dans l'UI (`.venv/bin/python ia/app.py`) avec 
 > 2D canonique (`facteur_couplage=6.0123, h_haut=30.087, h_bas_2d=37.424, h_bord_x0=125`
 > — `h_bord_x0` re-calibré 250→125 le 2026-09-06,
 > cf. `config/materiaux.yaml`), et non plus les anciennes valeurs périmées du 2026-07-20.
+
+---
+
+## Dépouillement de la littérature (`extraction_litterature.py`)
+
+Quatre agents, un par problème ouvert du jumeau (k_plan, gradient d'épaisseur,
+fiber flow, MFC/σ(T)), lisent le corpus converti PDF→markdown et en extraient les
+valeurs réutilisables ; un cinquième recoupe les fiches. Modèle **local** — aucun
+article ne sort de la machine, ce qui compte pour de la littérature sous licence.
+
+```bash
+python3.13 -m venv ~/.venvs/jumeau-ia          # venv séparé : autogen est lourd
+~/.venvs/jumeau-ia/bin/pip install autogen-agentchat "autogen-ext[openai]"
+~/.venvs/jumeau-ia/bin/python ia/extraction_litterature.py
+~/.venvs/jumeau-ia/bin/python ia/extraction_litterature.py --reprendre --probleme P4
+```
+
+Le rapport va dans `biblio/references/extraction_litterature.md`.
+
+**Trois pièges, tous rencontrés et traités dans le code :**
+
+1. **Ollama sert 4096 tokens de contexte par défaut**, quelle que soit la fenêtre du
+   modèle. Un prompt plus long est tronqué *en silence*, et c'est le début — donc la
+   consigne de format — qui saute. Le script crée un modèle dérivé à `num_ctx` fixé.
+2. **La sélection des extraits décide de la réponse.** Remplir un budget dans l'ordre
+   du répertoire concentre tout le prompt sur les premiers articles de l'alphabet ;
+   classer sur la simple présence d'un chiffre fait gagner les articles bavards. On
+   classe sur l'adjacence *nombre–unité* (champ `valeurs` de chaque problème), le plus
+   concis départageant à égalité. Avant de conclure qu'un modèle est trop faible,
+   **vérifier que la réponse cherchée est bien dans le prompt envoyé**.
+3. **Sur une machine juste en mémoire** (8 Go), le processus se fait tuer. D'où
+   l'écriture du rapport après *chaque* fiche et l'option `--reprendre`, qui ne
+   retraite que les problèmes manquants : plusieurs runs courts valent un run complet.
+   `--budget` réduit la taille des extraits si les interruptions persistent.
+
+**Contrôles automatiques** (reprise d'un essai si l'un échoue, bannière dans le
+rapport sinon) : titres attendus présents, pas de dérive de langue, gabarit non
+recopié tel quel, et **toute source citée vérifiée contre la liste réelle des
+fichiers du corpus**. Ce dernier contrôle est le plus utile : une citation fabriquée
+est indiscernable d'une vraie à la lecture.
+
+**Limites connues du rapport actuel** (modèle `qwen2.5:7b-instruct-q3_K_M`) :
+la section « Valeurs numériques réutilisables » reste souvent vide alors que les
+valeurs figurent sous « Mécanismes » ; plusieurs énoncés ne portent pas de citation
+alors que la consigne l'exige. **Les fiches sont un point de départ à relire, pas une
+source.**
