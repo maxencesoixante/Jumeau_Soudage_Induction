@@ -27,7 +27,8 @@ normalisé (règle du projet).
 Sorties (biblio/modele/figures/) :
   fig_mfc_cmp_1_puissance.png   densité de puissance déposée, en largeur -> la CAUSE
   fig_mfc_cmp_2_profils.png     T(y) d'interface au pic + les 5 TC -> l'EFFET
-  fig_mfc_cmp_3_cartes.png      cartes T(x,y) d'interface, 4 panneaux
+  fig_mfc_cmp_3{a,b,c,d}_*.png  cartes T(x,y) d'interface, UNE PAR CONFIGURATION
+                                (echelle de couleur commune aux quatre)
   fig_mfc_cmp_4_cycles.png      T(t) au chant et au centre -> la DYNAMIQUE
   fig_mfc_cmp_5_joule_cartes.png  cartes de puissance Joule (x,y) -> l'empreinte de la SOURCE
   fig_mfc_cmp_6_joule_epaisseur.png  Q(z) dans l'epaisseur -> ou la puissance se depose
@@ -141,37 +142,32 @@ def main() -> None:
     savefig(fig, FIGS / "fig_mfc_cmp_2_profils.png")
     plt.close(fig)
 
-    # --- 3. cartes d'interface ----------------------------------------------
+    # --- 3. cartes d'interface — UNE IMAGE PAR CONFIGURATION -----------------
+    # Fichiers separes plutot qu'une grille : chacun se lit en pleine largeur,
+    # et peut etre repris seul (issue, slide) sans recadrage. L'ECHELLE DE
+    # COULEUR EST COMMUNE aux quatre — sinon les cartes ne seraient plus
+    # comparables entre elles, ce qui est tout l'objet de la serie.
     vmax = max(r["Tmax"].max() for r in resultats)
-    # ASPECT VRAI, obligatoire : l'echantillon fait 120 x 40 mm, soit 3:1. Avec
-    # aspect="auto" (utilise a tort dans une version precedente) matplotlib etire
-    # la largeur pour remplir le panneau et la plaque parait presque carree — la
-    # geometrie affichee est alors fausse, meme si les axes portent les bons
-    # nombres. On empile donc 4 lignes plutot que 4 colonnes.
-    # Grille 2x2 : a rapport contraint, 4 panneaux empiles dans une figure trop
-    # large laissaient une large marge laterale vide. 2x2 remplit le cadre.
-    fig, axes = plt.subplots(2, 2, figsize=(11.6, 4.9), sharex=True, sharey=True)
-    for ax, (nom, _, _), r in zip(axes.ravel(), CONFIGS, resultats):
+    noms_fichiers = ["fig_mfc_cmp_3a_sans_mfc.png", "fig_mfc_cmp_3b_mfc_55.png",
+                     "fig_mfc_cmp_3c_reduit_A.png", "fig_mfc_cmp_3d_reduit_B.png"]
+    for (nom, _, _), r, fichier in zip(CONFIGS, resultats, noms_fichiers):
+        fig, ax = plt.subplots(figsize=(7.8, 2.9))
         im = ax.pcolormesh(x_mm, y_mm, r["Tmax"].T, cmap="inferno", vmin=20, vmax=vmax,
                            shading="auto")
         ax.contour(x_mm, y_mm, r["Tmax"].T, levels=[T_FUSION], colors="white", linewidths=1.2)
-        ax.set_title(nom, fontsize=10, pad=4)
         ax.set_aspect("equal")
-    for ax in axes[:, 0]:
-        ax.set_ylabel("$y$ (mm)")
-    for ax in axes[-1, :]:
         ax.set_xlabel("$x$ (mm)   —   longueur de l'échantillon")
-    cb = fig.colorbar(im, ax=axes, fraction=0.020, pad=0.02)
-    cb.set_label("Température d'interface au pic (°C)")
-    # Le rendu a montré qu'AUCUN contour de fusion n'apparaît : à 200 A aucune
-    # configuration n'y arrive. Annoncer un élément de légende absent trompe ;
-    # le fait lui-même est le résultat, on l'écrit.
-    atteint = [n for (n, _, _), r in zip(CONFIGS, resultats) if r["Tmax"].max() >= T_FUSION]
-    mention = (f"contour blanc = fusion ({', '.join(atteint)})" if atteint
-               else f"à 200 A, AUCUNE configuration n'atteint la fusion ({T_FUSION:.0f} °C)")
-    fig.suptitle(f"Empreinte thermique à l'interface au pic — {mention}", y=1.02)
-    savefig(fig, FIGS / "fig_mfc_cmp_3_cartes.png")
-    plt.close(fig)
+        ax.set_ylabel("$y$ (mm)")
+        pic = r["Tmax"].max()
+        ax.set_title(f"{nom} — pic d'interface {pic:.0f} °C"
+                     f"{'' if pic >= T_FUSION else f' (fusion {T_FUSION:.0f} °C non atteinte)'}",
+                     fontsize=10.5, pad=6)
+        cb = fig.colorbar(im, ax=ax, fraction=0.030, pad=0.015)
+        cb.set_label("T interface au pic (°C)", fontsize=9)
+        cb.ax.tick_params(labelsize=8)
+        savefig(fig, FIGS / fichier)
+        plt.close(fig)
+        print(f"  {fichier:32s} pic {pic:6.1f} °C   (echelle commune 20-{vmax:.0f} °C)")
 
     # --- 4. dynamique au chant et au centre ---------------------------------
     fig, axes = plt.subplots(1, 2, figsize=(10.4, 4.0), sharey=True)
