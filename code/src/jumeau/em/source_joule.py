@@ -407,6 +407,8 @@ def source_spot(
     lambda_bord_mm: float = 0.0,
     lambda_bord_x_mm: float | None = None,
     bimodal_sigma_mm: float = 0.0,
+    image_mfc_finie: bool = False,
+    mode_troncature_image: str = "observation",
 ) -> np.ndarray:
     """Champ source Q (nx, ny, nz) en W/m³ pour la bobine centrée en ``centre_x``.
 
@@ -455,6 +457,32 @@ def source_spot(
     couches (ablation/tests). Incompatible avec ``champ_reaction=True`` : dans
     ce cas le DÉFAUT (``None``) cède silencieusement (désactivé) ; seule une
     valeur EXPLICITE positive lève une ``ValueError``.
+
+    ``image_mfc_finie`` (défaut False = inchangé, BIT-À-BIT) : au lieu de
+    l'image de demi-espace perméable INFINI (comportement historique, cf.
+    ``champ_coil.bz_plan``), pondère la contribution IMAGE par une fenêtre
+    spatiale tronquant/adoucissant son effet à l'empreinte RÉELLE du bloc MFC
+    (``cfc.largeur`` en x, ``cfc.longueur`` en y, posée au spot ``centre_x``/
+    ``centre_y`` comme ``masque_empreinte_cfc``), marge = ``cfc.hauteur`` (déjà
+    dans le modèle, aucun paramètre libre ajouté) — cf. docstring
+    ``champ_coil`` pour la dérivation, les alternatives écartées et les
+    limites. C'EST le mécanisme qui fait enfin dépendre Bz (donc ψ, donc q) de
+    la LONGUEUR du bloc — contrairement au masque de puissance a posteriori
+    (``Essai.masque_source_mfc``), qui ne touche que Q après le solve complet
+    et n'affecte jamais Bz lui-même. Incompatible avec ``champ_reaction=True``
+    (``ValueError`` explicite, interaction non explorée — même politique que
+    ``lambda_bord_mm``).
+
+    ``mode_troncature_image`` (défaut ``"observation"``, n'a d'effet QUE si
+    ``image_mfc_finie=True``) : quelle moitié du calcul porte la troncature
+    du bloc fini, cf. ``champ_coil.bz_plan`` (docstring, "Variante 2") --
+      - ``"observation"`` (DÉFAUT) : pondère le POINT D'OBSERVATION (x,y).
+      - ``"source"`` : pondère la portion de la polyligne IMAGE réellement
+        sous le bloc (objection retenue en revue -- ce qui manque sous un
+        MFC raccourci est une portion du CONCENTRATEUR, les jambes du
+        hairpin restant 55 mm quel que soit le bloc). Les deux variantes
+        sont conservées, l'une n'écrase pas l'autre -- comparables à
+        ``image_mfc_finie`` égal, cf. rapport de comparaison agent EM.
     """
     # Correction de bord x ACTIVE par défaut ; incompatible avec le champ de
     # réaction -> le défaut (None) cède, on ne lève que si demandé explicitement (>0).
@@ -466,6 +494,11 @@ def source_spot(
             "lambda_bord_mm/lambda_bord_x_mm actif avec champ_reaction=True : "
             "combinaison non explorée (cf. docstring module) -- désactiver l'un des deux."
         )
+    if image_mfc_finie and champ_reaction:
+        raise ValueError(
+            "image_mfc_finie=True avec champ_reaction=True : combinaison non "
+            "explorée (cf. docstring module) -- désactiver l'un des deux."
+        )
 
     omega = 2.0 * np.pi * float(cfg.geometrie["generateur"]["frequence"])
     mu_r = float(cfg.geometrie["cfc"]["mu_r"])
@@ -474,6 +507,22 @@ def source_spot(
     z_miroir = plan_miroir_cfc(cfg)
     sommets = sommets_bobine(cfg, centre_x + decalage_x, centre_y=centre_y)
     X, Y = np.meshgrid(grille.x, grille.y, indexing="ij")
+
+    # image_mfc_finie : géométrie du bloc MFC posée au spot, même convention
+    # que masque_empreinte_cfc (centre_x nominal du spot, PAS xc_bobine -- le
+    # MFC suit le spot, pas le décalage bobine<->montage ; centre_y défaut =
+    # centre de largeur du laminé, même repli que sommets_bobine ci-dessus).
+    kw_image_finie: dict = {}
+    if image_mfc_finie:
+        cfc = cfg.geometrie["cfc"]
+        centre_y_cfc = (float(cfg.geometrie["laminate"]["largeur"]) / 2.0
+                        if centre_y is None else float(centre_y))
+        kw_image_finie = dict(
+            centre_x_cfc=float(centre_x), centre_y_cfc=centre_y_cfc,
+            mode_troncature_image=mode_troncature_image,
+            demi_x_cfc=float(cfc["largeur"]) / 2.0, demi_y_cfc=float(cfc["longueur"]) / 2.0,
+            marge_cfc=float(cfc["hauteur"]),
+        )
 
     bord_souple_y = lambda_bord_mm > 0.0
     if bord_souple_y:
@@ -528,13 +577,13 @@ def source_spot(
                     # historique, seule la frontière du domaine résolu change
                     # -- foucault.resoudre_psi non modifié.
                     Bz_dom = bz_plan(sommets, courant, X_dom, Y_dom, z_plan=-z_k,
-                                     mu_r_cfc=mu_r, z_miroir=z_miroir)
+                                     mu_r_cfc=mu_r, z_miroir=z_miroir, **kw_image_finie)
                     psi_dom = resoudre_psi(Bz_dom, grille.dx, grille.dy,
                                            couche.rho_xx, couche.rho_yy, omega)
                     psi = psi_dom[n_pad_x:n_pad_x + grille.nx, n_pad_y:n_pad_y + grille.ny]
                 else:
                     Bz = bz_plan(sommets, courant, X, Y, z_plan=-z_k,
-                                mu_r_cfc=mu_r, z_miroir=z_miroir)
+                                mu_r_cfc=mu_r, z_miroir=z_miroir, **kw_image_finie)
                     psi = resoudre_psi(Bz, grille.dx, grille.dy,
                                        couche.rho_xx, couche.rho_yy, omega)
                 q = densite_joule(psi, grille.dx, grille.dy, couche.rho_xx, couche.rho_yy)

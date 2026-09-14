@@ -63,7 +63,9 @@ class Essai:
                  lambda_bord_x_mm: float | None = None,
                  masque_source_mfc: bool = False,
                  masque_source_mode: str = "tronquer",
-                 bimodal_sigma_mm: float = 0.0):
+                 bimodal_sigma_mm: float = 0.0,
+                 image_mfc_finie: bool = False,
+                 mode_troncature_image: str = "observation"):
         self.cfg = cfg
         self.spec = charger_yaml(chemin_essai)
         self.racine = Path(racine) if racine else Path(chemin_essai).resolve().parents[3]
@@ -178,6 +180,46 @@ class Essai:
         # sous-bimodalité de la chaîne ψ (cf. source_joule._bimodaliser_source,
         # issue #69). Facteur EFFECTIF à calibrer sur la thermographie plein-champ.
         self.bimodal_sigma_mm = float(bimodal_sigma_mm)
+        # image_mfc_finie (défaut False = inchangé, bit-à-bit) : REMPLACE
+        # l'image de demi-espace perméable INFINI (cf. champ_coil.bz_plan)
+        # par une image TRONQUÉE/ADOUCIE à l'empreinte RÉELLE du bloc MFC
+        # (longueur/largeur/hauteur de config/geometrie.yaml:cfc) -- fait
+        # enfin dépendre Bz (donc psi, donc q) de la TAILLE du bloc, ce que le
+        # modèle historique ne peut PAS faire (verrouillé identique par
+        # test_masque_source_mfc_off_est_non_regression, qui reste vert :
+        # cette option est SÉPARÉE de masque_source_mfc/masque_source_mode
+        # ci-dessous et n'affecte rien tant qu'elle n'est pas activée). Cf.
+        # docstring jumeau.em.champ_coil (dérivation, alternatives écartées,
+        # limites) et jumeau.em.source_joule.source_spot. Contrairement à
+        # masque_source_mfc (masque Q A POSTERIORI, après le solve complet),
+        # celui-ci agit sur le CHAMP Bz lui-même, avant la résolution de psi
+        # -- les deux mécanismes sont indépendants et combinables (rien
+        # n'empêche de les activer ensemble, non testé ici -- hors mandat).
+        # NE PAS activer sans recalibrer facteur_couplage. Incompatible avec
+        # champ_reaction=True (ValueError explicite, cf. source_joule).
+        self.image_mfc_finie = bool(image_mfc_finie)
+        # mode_troncature_image ("observation" | "source", n'a d'effet QUE si
+        # image_mfc_finie=True) : DEUX variantes indépendantes et conservées
+        # (pas l'une au détriment de l'autre, cf. revue 2026-09-14) de la
+        # troncature d'image côté champ_coil.bz_plan --
+        #   - "observation" (DÉFAUT, comportement inchangé depuis l'ajout
+        #     d'image_mfc_finie) : pondère le POINT D'OBSERVATION.
+        #   - "source" : pondère la portion de la polyligne IMAGE réellement
+        #     sous le bloc -- objection retenue en revue : ce qui manque
+        #     physiquement sous un MFC raccourci est une portion du
+        #     CONCENTRATEUR (les jambes du hairpin restent 55 mm, fixées par
+        #     le fil, quel que soit le bloc MFC posé dessus), pas une zone
+        #     d'observation. Aussi défendable que "observation" a priori --
+        #     cf. docstring jumeau.em.champ_coil pour la dérivation complète
+        #     des deux variantes et leurs limites propres.
+        # Valeur invalide -> ValueError (levée par bz_plan, propagée telle
+        # quelle -- SEULEMENT si image_mfc_finie=True, sinon jamais évaluée).
+        if mode_troncature_image not in ("observation", "source"):
+            raise ValueError(
+                "mode_troncature_image doit être 'observation' ou 'source', "
+                f"reçu {mode_troncature_image!r}"
+            )
+        self.mode_troncature_image = str(mode_troncature_image)
         # masque_source_mfc (défaut False = inchangé, bit-à-bit) : masque la
         # source Joule PAR SPOT à l'empreinte du MFC (masque_empreinte_cfc),
         # au lieu de la laisser rayonner sur tout le domaine résolu par
@@ -246,7 +288,9 @@ class Essai:
                         lissage_sigma_mm=self.source_sigma_mm,
                         lambda_bord_mm=self.lambda_bord_mm,
                         lambda_bord_x_mm=self.lambda_bord_x_mm,
-                        bimodal_sigma_mm=self.bimodal_sigma_mm)
+                        bimodal_sigma_mm=self.bimodal_sigma_mm,
+                        image_mfc_finie=self.image_mfc_finie,
+                        mode_troncature_image=self.mode_troncature_image)
             for s in self.spots
         ]
         self._masques = [

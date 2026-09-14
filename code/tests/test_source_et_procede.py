@@ -371,6 +371,113 @@ def test_masque_source_mfc_reduit_confine_les_chants(cfg):
     assert cfg.geometrie["cfc"]["longueur"] == 0.055
 
 
+# --- image de bloc MFC fini au niveau du CHAMP (image_mfc_finie, défaut off) ---
+# Distinct de masque_source_mfc (masque Q a posteriori) : celui-ci pondère Bz
+# avant la résolution de psi, cf. jumeau.em.champ_coil/source_joule.
+
+def test_image_mfc_finie_off_est_non_regression(cfg):
+    """Flag off (défaut, explicite ou implicite) : source strictement
+    inchangée, bit-à-bit -- non-régression, même style que
+    test_masque_source_mfc_off_est_non_regression."""
+    chemin = RACINE / "config" / "essais" / "exp7_200A.yaml"
+    e_defaut = Essai(cfg, chemin, nx=25, ny=17, nz=9, racine=RACINE)
+    e_off = Essai(cfg, chemin, nx=25, ny=17, nz=9, racine=RACINE, image_mfc_finie=False)
+    assert e_defaut.image_mfc_finie is False
+    assert np.array_equal(e_defaut._Q_spots[0], e_off._Q_spots[0])
+    assert np.array_equal(e_defaut._P_spots_2d[0], e_off._P_spots_2d[0])
+
+
+def test_image_mfc_finie_distingue_enfin_la_longueur_du_mfc(cfg):
+    """C'EST le résultat que ``masque_source_mfc`` seul ne peut pas produire
+    au niveau du CHAMP : à ``image_mfc_finie=True``, le MFC labo (55 mm) et
+    le MFC réduit (31,75 mm, override EN MÉMOIRE) donnent maintenant des Bz
+    (donc Q) DIFFÉRENTS -- alors que image_mfc_finie=False (par construction,
+    cf. test_masque_source_mfc_off_est_non_regression côté champ_coil) les
+    laisse identiques."""
+    import copy
+    cfg_reduit = copy.deepcopy(cfg)
+    cfg_reduit.geometrie["cfc"]["longueur"] = 0.03175
+    chemin = RACINE / "config" / "essais" / "exp7_200A.yaml"
+
+    e_labo_off = Essai(cfg, chemin, nx=25, ny=21, nz=9, racine=RACINE)
+    e_reduit_off = Essai(cfg_reduit, chemin, nx=25, ny=21, nz=9, racine=RACINE)
+    assert np.array_equal(e_labo_off._Q_spots[0], e_reduit_off._Q_spots[0])  # verrou historique
+
+    e_labo_on = Essai(cfg, chemin, nx=25, ny=21, nz=9, racine=RACINE, image_mfc_finie=True)
+    e_reduit_on = Essai(cfg_reduit, chemin, nx=25, ny=21, nz=9, racine=RACINE, image_mfc_finie=True)
+    assert not np.array_equal(e_labo_on._Q_spots[0], e_reduit_on._Q_spots[0])
+    # les deux sources restent physiques (positives, non dégénérées)
+    assert e_labo_on._Q_spots[0].sum() > 0.0 and e_reduit_on._Q_spots[0].sum() > 0.0
+
+
+def test_image_mfc_finie_incompatible_champ_reaction(cfg):
+    """image_mfc_finie=True + champ_reaction=True : combinaison non
+    explorée, ValueError explicite (même politique que lambda_bord_mm)."""
+    chemin = RACINE / "config" / "essais" / "exp7_200A.yaml"
+    with pytest.raises(ValueError):
+        Essai(cfg, chemin, nx=15, ny=9, nz=7, racine=RACINE,
+              image_mfc_finie=True, champ_reaction=True)
+
+
+# --- variante 2, troncature côté SOURCE (mode_troncature_image), niveau Essai ---
+
+def test_mode_troncature_image_defaut_observation(cfg):
+    """Défaut 'observation' : Essai(image_mfc_finie=True) sans préciser le
+    mode reproduit EXACTEMENT Essai(..., mode_troncature_image='observation')
+    -- non-régression du défaut ajouté par la revue."""
+    chemin = RACINE / "config" / "essais" / "exp7_200A.yaml"
+    e_defaut = Essai(cfg, chemin, nx=17, ny=11, nz=7, racine=RACINE, image_mfc_finie=True)
+    e_obs = Essai(cfg, chemin, nx=17, ny=11, nz=7, racine=RACINE,
+                  image_mfc_finie=True, mode_troncature_image="observation")
+    assert e_defaut.mode_troncature_image == "observation"
+    assert np.array_equal(e_defaut._Q_spots[0], e_obs._Q_spots[0])
+
+
+def test_mode_troncature_image_invalide_leve(cfg):
+    """Valeur invalide -- ValueError explicite, dès la construction de
+    l'Essai (même si image_mfc_finie=False -- échec rapide, même politique
+    que masque_source_mode)."""
+    chemin = RACINE / "config" / "essais" / "exp7_200A.yaml"
+    with pytest.raises(ValueError):
+        Essai(cfg, chemin, nx=15, ny=9, nz=7, racine=RACINE,
+              mode_troncature_image="ni_obs_ni_source")
+
+
+def test_mode_troncature_image_source_distingue_longueur_mfc(cfg):
+    """Même résultat structurant que la variante 'observation' (déjà testé
+    par test_image_mfc_finie_distingue_enfin_la_longueur_du_mfc), obtenu
+    cette fois en tronquant la SOURCE : le verrou historique (Bz identique
+    entre MFC 55/31,75 mm) tombe aussi avec mode_troncature_image='source'."""
+    import copy
+    cfg_reduit = copy.deepcopy(cfg)
+    cfg_reduit.geometrie["cfc"]["longueur"] = 0.03175
+    chemin = RACINE / "config" / "essais" / "exp7_200A.yaml"
+
+    e_labo = Essai(cfg, chemin, nx=25, ny=21, nz=9, racine=RACINE,
+                   image_mfc_finie=True, mode_troncature_image="source")
+    e_reduit = Essai(cfg_reduit, chemin, nx=25, ny=21, nz=9, racine=RACINE,
+                     image_mfc_finie=True, mode_troncature_image="source")
+    assert not np.array_equal(e_labo._Q_spots[0], e_reduit._Q_spots[0])
+    assert e_labo._Q_spots[0].sum() > 0.0 and e_reduit._Q_spots[0].sum() > 0.0
+
+
+def test_mode_troncature_image_source_et_observation_different(cfg):
+    """Les deux variantes, à géométrie MFC réduite identique, donnent des
+    sources DIFFÉRENTES -- confirme qu'aucune des deux n'est un simple
+    ré-étiquetage de l'autre au niveau Essai (déjà établi au niveau bz_plan,
+    reconfirmé après tout le câblage source_spot/Essai)."""
+    import copy
+    cfg_reduit = copy.deepcopy(cfg)
+    cfg_reduit.geometrie["cfc"]["longueur"] = 0.03175
+    chemin = RACINE / "config" / "essais" / "exp7_200A.yaml"
+
+    e_obs = Essai(cfg_reduit, chemin, nx=25, ny=21, nz=9, racine=RACINE,
+                  image_mfc_finie=True, mode_troncature_image="observation")
+    e_src = Essai(cfg_reduit, chemin, nx=25, ny=21, nz=9, racine=RACINE,
+                  image_mfc_finie=True, mode_troncature_image="source")
+    assert not np.array_equal(e_obs._Q_spots[0], e_src._Q_spots[0])
+
+
 # --- bilan de conservation d'énergie (θ* de référence, essai réaliste) ---
 
 def test_bilan_energie_exp7_200A_theta_reference(cfg):
