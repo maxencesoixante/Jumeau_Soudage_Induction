@@ -143,16 +143,25 @@ def main() -> None:
 
     # --- 3. cartes d'interface ----------------------------------------------
     vmax = max(r["Tmax"].max() for r in resultats)
-    fig, axes = plt.subplots(1, 4, figsize=(12.6, 3.2), sharey=True)
-    for ax, (nom, _, _), r in zip(axes, CONFIGS, resultats):
+    # ASPECT VRAI, obligatoire : l'echantillon fait 120 x 40 mm, soit 3:1. Avec
+    # aspect="auto" (utilise a tort dans une version precedente) matplotlib etire
+    # la largeur pour remplir le panneau et la plaque parait presque carree — la
+    # geometrie affichee est alors fausse, meme si les axes portent les bons
+    # nombres. On empile donc 4 lignes plutot que 4 colonnes.
+    # Grille 2x2 : a rapport contraint, 4 panneaux empiles dans une figure trop
+    # large laissaient une large marge laterale vide. 2x2 remplit le cadre.
+    fig, axes = plt.subplots(2, 2, figsize=(11.6, 4.9), sharex=True, sharey=True)
+    for ax, (nom, _, _), r in zip(axes.ravel(), CONFIGS, resultats):
         im = ax.pcolormesh(x_mm, y_mm, r["Tmax"].T, cmap="inferno", vmin=20, vmax=vmax,
                            shading="auto")
         ax.contour(x_mm, y_mm, r["Tmax"].T, levels=[T_FUSION], colors="white", linewidths=1.2)
-        ax.set_title(nom, fontsize=10)
-        ax.set_xlabel("$x$ (mm)")
-        ax.set_aspect("auto")
-    axes[0].set_ylabel("$y$ (mm)")
-    cb = fig.colorbar(im, ax=axes, fraction=0.020, pad=0.012)
+        ax.set_title(nom, fontsize=10, pad=4)
+        ax.set_aspect("equal")
+    for ax in axes[:, 0]:
+        ax.set_ylabel("$y$ (mm)")
+    for ax in axes[-1, :]:
+        ax.set_xlabel("$x$ (mm)   —   longueur de l'échantillon")
+    cb = fig.colorbar(im, ax=axes, fraction=0.020, pad=0.02)
     cb.set_label("Température d'interface au pic (°C)")
     # Le rendu a montré qu'AUCUN contour de fusion n'apparaît : à 200 A aucune
     # configuration n'y arrive. Annoncer un élément de légende absent trompe ;
@@ -201,15 +210,18 @@ def main() -> None:
     # On imprime donc AUSSI le pic réel du profil et sa position.
     # --- 5. cartes de puissance Joule déposée (l'empreinte de la SOURCE) -----
     pmax = max(r["P2d"].max() for r in resultats) * 1e-3
-    fig, axes = plt.subplots(1, 4, figsize=(12.6, 3.2), sharey=True)
-    for ax, (nom, _, _), r in zip(axes, CONFIGS, resultats):
+    # aspect vrai (120 x 40 mm), meme raison que pour les cartes de temperature
+    fig, axes = plt.subplots(2, 2, figsize=(11.6, 4.9), sharex=True, sharey=True)
+    for ax, (nom, _, _), r in zip(axes.ravel(), CONFIGS, resultats):
         im = ax.pcolormesh(x_mm, y_mm, r["P2d"].T * 1e-3, cmap="viridis",
                            vmin=0, vmax=pmax, shading="auto")
-        ax.set_title(nom, fontsize=10)
-        ax.set_xlabel("$x$ (mm)")
-        ax.set_aspect("auto")
-    axes[0].set_ylabel("$y$ (mm)")
-    cb = fig.colorbar(im, ax=axes, fraction=0.020, pad=0.012)
+        ax.set_title(nom, fontsize=10, pad=4)
+        ax.set_aspect("equal")
+    for ax in axes[:, 0]:
+        ax.set_ylabel("$y$ (mm)")
+    for ax in axes[-1, :]:
+        ax.set_xlabel("$x$ (mm)   —   longueur de l'échantillon")
+    cb = fig.colorbar(im, ax=axes, fraction=0.020, pad=0.02)
     cb.set_label("Puissance Joule déposée (kW/m²)")
     fig.suptitle("Empreinte de la SOURCE — puissance Joule intégrée dans l'épaisseur", y=1.02)
     savefig(fig, FIGS / "fig_mfc_cmp_5_joule_cartes.png")
