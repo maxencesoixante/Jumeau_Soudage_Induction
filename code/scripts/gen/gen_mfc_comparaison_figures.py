@@ -29,6 +29,8 @@ Sorties (biblio/modele/figures/) :
   fig_mfc_cmp_2_profils.png     T(y) d'interface au pic + les 5 TC -> l'EFFET
   fig_mfc_cmp_3_cartes.png      cartes T(x,y) d'interface, 4 panneaux
   fig_mfc_cmp_4_cycles.png      T(t) au chant et au centre -> la DYNAMIQUE
+  fig_mfc_cmp_5_joule_cartes.png  cartes de puissance Joule (x,y) -> l'empreinte de la SOURCE
+  fig_mfc_cmp_6_joule_epaisseur.png  Q(z) dans l'epaisseur -> ou la puissance se depose
 """
 from __future__ import annotations
 
@@ -92,7 +94,8 @@ def main() -> None:
         ix = int(np.argmin(np.abs(e.grille.x - X_SPOT)))
         resultats.append(dict(
             grille=e.grille, Tmax=Tmax, profil=Tmax[ix, :],
-            P2d=e._P_spots_2d[0], t=sol.t, series=e.series_tc(sv, sol)))
+            P2d=e._P_spots_2d[0], Q3d=e._Q_spots[0],
+            t=sol.t, series=e.series_tc(sv, sol)))
 
     y_mm = resultats[0]["grille"].y * 1e3
     x_mm = resultats[0]["grille"].x * 1e3
@@ -196,6 +199,78 @@ def main() -> None:
     # Le rendu a montré que le maximum de la famille A n'est PAS au chant : un
     # ratio « bord/centre » y mesure autre chose que ce que son nom annonce.
     # On imprime donc AUSSI le pic réel du profil et sa position.
+    # --- 5. cartes de puissance Joule déposée (l'empreinte de la SOURCE) -----
+    pmax = max(r["P2d"].max() for r in resultats) * 1e-3
+    fig, axes = plt.subplots(1, 4, figsize=(12.6, 3.2), sharey=True)
+    for ax, (nom, _, _), r in zip(axes, CONFIGS, resultats):
+        im = ax.pcolormesh(x_mm, y_mm, r["P2d"].T * 1e-3, cmap="viridis",
+                           vmin=0, vmax=pmax, shading="auto")
+        ax.set_title(nom, fontsize=10)
+        ax.set_xlabel("$x$ (mm)")
+        ax.set_aspect("auto")
+    axes[0].set_ylabel("$y$ (mm)")
+    cb = fig.colorbar(im, ax=axes, fraction=0.020, pad=0.012)
+    cb.set_label("Puissance Joule déposée (kW/m²)")
+    fig.suptitle("Empreinte de la SOURCE — puissance Joule intégrée dans l'épaisseur", y=1.02)
+    savefig(fig, FIGS / "fig_mfc_cmp_5_joule_cartes.png")
+    plt.close(fig)
+
+    # --- 6. répartition de la puissance Joule DANS L'ÉPAISSEUR ---------------
+    # ATTENTION, défaut attrapé par la boucle de revue : au CENTRE exact de la
+    # largeur (y = 20 mm = largeur/2), la puissance déposée est nulle A LA
+    # PRÉCISION MACHINE (~4e-28 kW/m² contre 4,3e+02 au chant) — c'est une ligne
+    # nodale de la dissipation, pas une petite valeur. Tracer ce point sur une
+    # échelle log affichait du bruit de virgule flottante sous la forme d'une
+    # structure crédible. Le 2e panneau prend donc y = 5 mm, sous l'empreinte du
+    # MFC réduit, où les quatre configurations existent réellement.
+    z_mm = resultats[0]["grille"].z * 1e3
+    z_interface = 3.36                       # mm — epaisseur_sup du laminé
+    iy_bord = 0
+    iy_lobe = int(np.argmin(np.abs(y_mm - 5.0)))
+    p_centre = resultats[1]["P2d"][ix, int(np.argmin(np.abs(y_mm - 20.0)))] * 1e-3
+    fig, axes = plt.subplots(1, 2, figsize=(9.6, 4.8), sharey=True)
+    for ax, iy, titre in zip(axes, (iy_bord, iy_lobe),
+                             ("Au chant ($y$ = 0 mm)",
+                              "Sous l'empreinte réduite ($y$ = 5 mm)")):
+        for (nom, col, ls), r in zip(CONFIGS, resultats):
+            q = r["Q3d"][ix, iy, :] * 1e-6                      # W/m3 -> MW/m3
+            if q.max() <= 0:
+                continue                                        # A hors empreinte
+            ax.plot(q, z_mm, color=col, ls=ls, lw=2.0, marker="o", ms=3, label=nom)
+        ax.axhline(z_interface, color=OKABE_ITO["rose"], ls="--", lw=1.3)
+        ax.set_xscale("log")
+        ax.set_xlabel("Puissance Joule volumique (MW/m³)")
+        ax.set_title(titre, fontsize=10.5)
+        ax.grid(alpha=0.25, which="both")
+    axes[0].set_ylabel("Profondeur $z$ (mm)   —   0 = côté bobine")
+    axes[0].invert_yaxis()
+    # annotations posées À DROITE des courbes, qui montent vers la gauche
+    axes[1].annotate("interface de soudure\n(twill suscepteur)",
+                     xy=(axes[1].get_xlim()[1] * 0.30, z_interface + 0.75),
+                     fontsize=8.5, color=OKABE_ITO["rose"], va="top", ha="right")
+    axes[0].annotate("A : puissance NULLE ici\n(le chant est hors empreinte)",
+                     xy=(axes[0].get_xlim()[1] * 0.42, 6.4), fontsize=8.5,
+                     color=OKABE_ITO["vermillon"], ha="right")
+    # légende construite sur le panneau DROIT : le gauche omet la config A
+    # (puissance nulle au chant), la légende y aurait montré 3 courbes sur 4.
+    axes[1].legend(frameon=False, fontsize=9, ncol=4, loc="upper center",
+                   bbox_to_anchor=(-0.05, -0.17), handlelength=1.8, columnspacing=1.4)
+    fig.suptitle("Où la puissance se dépose dans l'épaisseur — le twill concentre la chauffe "
+                 f"à l'interface\nAu CENTRE de la largeur ($y$ = 20 mm) la puissance déposée est "
+                 f"NULLE ({p_centre:.0e} kW/m²) : le centre ne chauffe que par conduction",
+                 y=1.02, fontsize=10.5)
+    savefig(fig, FIGS / "fig_mfc_cmp_6_joule_epaisseur.png")
+    plt.close(fig)
+
+    for (nom, _, _), r in zip(CONFIGS, resultats):
+        q = r["Q3d"][ix, iy_bord, :] * 1e-6
+        if q.max() > 0:
+            k = int(np.argmax(q))
+            print(f"{nom:22s} Q max epaisseur {q[k]:8.1f} MW/m3 a z={z_mm[k]:.2f} mm"
+                  f"  (surface {q[0]:7.1f}, fond {q[-1]:6.1f})")
+        else:
+            print(f"{nom:22s} Q nulle au chant (hors empreinte)")
+
     for (nom, _, _), r in zip(CONFIGS, resultats):
         p = np.interp(y_tc, y_mm, r["profil"])
         i_pic = int(np.argmax(r["profil"]))
