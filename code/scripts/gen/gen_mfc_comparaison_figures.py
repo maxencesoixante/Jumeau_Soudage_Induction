@@ -30,7 +30,7 @@ Sorties (biblio/modele/figures/) :
   fig_mfc_cmp_3{a,b,c,d}_*.png  cartes T(x,y) d'interface, UNE PAR CONFIGURATION
                                 (echelle de couleur commune aux quatre)
   fig_mfc_cmp_4_cycles.png      T(t) au chant et au centre -> la DYNAMIQUE
-  fig_mfc_cmp_5_joule_cartes.png  cartes de puissance Joule (x,y) -> l'empreinte de la SOURCE
+  fig_mfc_cmp_5{a,b,c,d}_*.png  cartes de puissance Joule, UNE PAR CONFIGURATION
   fig_mfc_cmp_6_joule_epaisseur.png  Q(z) dans l'epaisseur -> ou la puissance se depose
 """
 from __future__ import annotations
@@ -113,7 +113,7 @@ def main() -> None:
                 ha="center", va="center", fontsize=9, color=OKABE_ITO["vert"])
     ax.set_xlabel("Position en largeur $y$ (mm)")
     ax.set_ylabel("Puissance déposée (kW/m²)")
-    ax.set_title("Ce que le concentrateur change à la SOURCE (coupe au spot, $x$ = 60 mm)")
+    ax.set_title("Puissance déposée en largeur ($x$ = 60 mm)")
     ax.set_xlim(0, 40)
     ax.legend(frameon=False, fontsize=9, loc="upper center", ncol=2)
     ax.grid(alpha=0.25)
@@ -131,8 +131,7 @@ def main() -> None:
                 color=OKABE_ITO["rose"])
     ax.set_xlabel("Position en largeur $y$ (mm)")
     ax.set_ylabel("Température d'interface au pic (°C)")
-    ax.set_title("Profil en largeur prédit — 200 A, 18 s\n"
-                 "points : les 5 thermocouples de la campagne #55", fontsize=10.5)
+    ax.set_title("Profil en largeur — 200 A, 18 s")
     ax.set_xlim(0, 40)
     ax.set_ylim(40, 380)
     # légende SOUS les axes : en interne elle recouvrait la courbe « sans MFC »
@@ -156,12 +155,10 @@ def main() -> None:
                            shading="auto")
         ax.contour(x_mm, y_mm, r["Tmax"].T, levels=[T_FUSION], colors="white", linewidths=1.2)
         ax.set_aspect("equal")
-        ax.set_xlabel("$x$ (mm)   —   longueur de l'échantillon")
+        ax.set_xlabel("$x$ (mm)")
         ax.set_ylabel("$y$ (mm)")
         pic = r["Tmax"].max()
-        ax.set_title(f"{nom} — pic d'interface {pic:.0f} °C"
-                     f"{'' if pic >= T_FUSION else f' (fusion {T_FUSION:.0f} °C non atteinte)'}",
-                     fontsize=10.5, pad=6)
+        ax.set_title(f"{nom} — pic {pic:.0f} °C", fontsize=10.5, pad=6)
         cb = fig.colorbar(im, ax=ax, fraction=0.030, pad=0.015)
         cb.set_label("T interface au pic (°C)", fontsize=9)
         cb.ax.tick_params(labelsize=8)
@@ -190,38 +187,41 @@ def main() -> None:
     # LE discriminant que la figure a révélé : sous la famille A le chant est hors
     # empreinte, il ne chauffe que par conduction latérale et culmine APRÈS la
     # coupure. Un décalage temporel ne dépend ni de θ*, ni du niveau absolu.
-    axes[0].annotate("A : pic ~7 s APRÈS la coupure\n(le chant ne chauffe que\npar conduction)",
-                     xy=(25.5, 176), xytext=(34, 250), fontsize=8.5,
+    axes[0].annotate("A : pic après la coupure",
+                     xy=(25.5, 176), xytext=(33, 262), fontsize=9,
                      color=OKABE_ITO["vermillon"], ha="left",
                      arrowprops=dict(arrowstyle="->", color=OKABE_ITO["vermillon"], lw=1.1))
     # légende sous les deux panneaux, comme la figure des profils
     axes[0].legend(frameon=False, fontsize=9, ncol=4, loc="upper center",
                    bbox_to_anchor=(1.03, -0.18), handlelength=1.8, columnspacing=1.4)
-    fig.suptitle("Dynamique prédite — chauffe 18 s puis refroidissement", y=1.0)
+    fig.suptitle("Chauffe 18 s puis refroidissement", y=1.0)
     savefig(fig, FIGS / "fig_mfc_cmp_4_cycles.png")
     plt.close(fig)
 
     # Le rendu a montré que le maximum de la famille A n'est PAS au chant : un
     # ratio « bord/centre » y mesure autre chose que ce que son nom annonce.
     # On imprime donc AUSSI le pic réel du profil et sa position.
-    # --- 5. cartes de puissance Joule déposée (l'empreinte de la SOURCE) -----
+    # --- 5. cartes de puissance Joule — UNE IMAGE PAR CONFIGURATION ---------
+    # Meme parti que les cartes de temperature : un fichier par configuration,
+    # echelle de couleur COMMUNE pour qu'elles restent comparables.
     pmax = max(r["P2d"].max() for r in resultats) * 1e-3
-    # aspect vrai (120 x 40 mm), meme raison que pour les cartes de temperature
-    fig, axes = plt.subplots(2, 2, figsize=(11.6, 4.9), sharex=True, sharey=True)
-    for ax, (nom, _, _), r in zip(axes.ravel(), CONFIGS, resultats):
+    fichiers_q = ["fig_mfc_cmp_5a_sans_mfc.png", "fig_mfc_cmp_5b_mfc_55.png",
+                  "fig_mfc_cmp_5c_reduit_A.png", "fig_mfc_cmp_5d_reduit_B.png"]
+    for (nom, _, _), r, fichier in zip(CONFIGS, resultats, fichiers_q):
+        fig, ax = plt.subplots(figsize=(7.8, 2.9))
         im = ax.pcolormesh(x_mm, y_mm, r["P2d"].T * 1e-3, cmap="viridis",
                            vmin=0, vmax=pmax, shading="auto")
-        ax.set_title(nom, fontsize=10, pad=4)
         ax.set_aspect("equal")
-    for ax in axes[:, 0]:
+        ax.set_xlabel("$x$ (mm)")
         ax.set_ylabel("$y$ (mm)")
-    for ax in axes[-1, :]:
-        ax.set_xlabel("$x$ (mm)   —   longueur de l'échantillon")
-    cb = fig.colorbar(im, ax=axes, fraction=0.020, pad=0.02)
-    cb.set_label("Puissance Joule déposée (kW/m²)")
-    fig.suptitle("Empreinte de la SOURCE — puissance Joule intégrée dans l'épaisseur", y=1.02)
-    savefig(fig, FIGS / "fig_mfc_cmp_5_joule_cartes.png")
-    plt.close(fig)
+        ax.set_title(f"{nom} — max {r['P2d'].max() * 1e-3:.0f} kW/m²",
+                     fontsize=10.5, pad=6)
+        cb = fig.colorbar(im, ax=ax, fraction=0.030, pad=0.015)
+        cb.set_label("Puissance déposée (kW/m²)", fontsize=9)
+        cb.ax.tick_params(labelsize=8)
+        savefig(fig, FIGS / fichier)
+        plt.close(fig)
+        print(f"  {fichier:32s} max {r['P2d'].max() * 1e-3:6.1f} kW/m2")
 
     # --- 6. répartition de la puissance Joule DANS L'ÉPAISSEUR ---------------
     # ATTENTION, défaut attrapé par la boucle de revue : au CENTRE exact de la
@@ -253,20 +253,16 @@ def main() -> None:
     axes[0].set_ylabel("Profondeur $z$ (mm)   —   0 = côté bobine")
     axes[0].invert_yaxis()
     # annotations posées À DROITE des courbes, qui montent vers la gauche
-    axes[1].annotate("interface de soudure\n(twill suscepteur)",
+    axes[1].annotate("interface (twill)",
                      xy=(axes[1].get_xlim()[1] * 0.30, z_interface + 0.75),
                      fontsize=8.5, color=OKABE_ITO["rose"], va="top", ha="right")
-    axes[0].annotate("A : puissance NULLE ici\n(le chant est hors empreinte)",
-                     xy=(axes[0].get_xlim()[1] * 0.42, 6.4), fontsize=8.5,
-                     color=OKABE_ITO["vermillon"], ha="right")
+    axes[0].annotate("A : puissance nulle ici", xy=(axes[0].get_xlim()[1] * 0.45, 6.4),
+                     fontsize=9, color=OKABE_ITO["vermillon"], ha="right")
     # légende construite sur le panneau DROIT : le gauche omet la config A
     # (puissance nulle au chant), la légende y aurait montré 3 courbes sur 4.
     axes[1].legend(frameon=False, fontsize=9, ncol=4, loc="upper center",
                    bbox_to_anchor=(-0.05, -0.17), handlelength=1.8, columnspacing=1.4)
-    fig.suptitle("Où la puissance se dépose dans l'épaisseur — le twill concentre la chauffe "
-                 f"à l'interface\nAu CENTRE de la largeur ($y$ = 20 mm) la puissance déposée est "
-                 f"NULLE ({p_centre:.0e} kW/m²) : le centre ne chauffe que par conduction",
-                 y=1.02, fontsize=10.5)
+    fig.suptitle("Puissance Joule dans l'épaisseur", y=1.0)
     savefig(fig, FIGS / "fig_mfc_cmp_6_joule_epaisseur.png")
     plt.close(fig)
 
