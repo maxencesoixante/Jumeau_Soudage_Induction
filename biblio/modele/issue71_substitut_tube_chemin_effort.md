@@ -19,7 +19,7 @@ Le tube CF/PEKK ne sera pas disponible pour le projet. Le substitut envisagé :
 
 **Comment faire passer les efforts transmis par la cellule de force dans la vessie, et non dans les parois du U ?**
 
-![Cheminement de l'effort](https://raw.githubusercontent.com/maxencesoixante/Jumeau_Soudage_Induction/main/biblio/labo/figures/fig_substitut_tube_chemins_effort.png?v=2)
+![Cheminement de l'effort](https://raw.githubusercontent.com/maxencesoixante/Jumeau_Soudage_Induction/main/biblio/labo/figures/fig_substitut_tube_chemins_effort.png?v=3)
 
 *À gauche : la coupe transverse, le contact posé (pointillés) et le trajet de l'effort. À droite : les deux cas d'empilement — celui où les parois ne portent pas, et celui où elles court-circuitent.*
 
