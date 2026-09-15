@@ -39,6 +39,18 @@ Or une paroi de verre en compression est **raide**, une vessie sous pression est
 
 ⚠️ **Le chemin qu'on veut privilégier est précisément le plus souple — donc celui qui refuse naturellement l'effort.** « De préférence dans la vessie » ne peut pas s'obtenir par un réglage : il faut agir sur la topologie du montage. Tant que les deux chemins coexistent, la cellule mesure surtout la raideur du U.
 
+### La cellule est au-dessus de l'empilement — et cela décide de tout
+
+**Position confirmée : la cellule est au-dessus de l'empilement.** Elle est donc en série avec l'ensemble, et en parallèle avec les deux chemins réunis :
+
+$$F_{\text{cellule}} = F_{\text{vessie}} + F_{\text{paroi}}$$
+
+Elle mesure la **somme**, sans pouvoir la répartir. Or, $k_{\text{paroi}} \gg k_{\text{vessie}}$ donnant $F_{\text{paroi}} \approx F_{\text{cellule}}$ et $F_{\text{vessie}} \approx 0$ :
+
+⚠️ **Telle qu'elle est placée, la cellule mesure presque exclusivement le chemin parasite — c'est-à-dire précisément la grandeur dont on ne veut pas.** Elle est quasi aveugle à l'effort qui atteint les interfaces, qui est pourtant le seul qui compte pour la soudure.
+
+Deux conséquences pour les pistes ci-dessous. La piste 1 devient celle qui **rend la cellule utile** : sans contact des ailes, $F_{\text{cellule}} = F_{\text{vessie}}$ exactement, et la mesure redevient celle de l'interface. La piste 2 n'est plus une option de câblage mais un **déplacement de la cellule**, puisqu'on sait maintenant qu'elle n'est pas en série avec la vessie.
+
 ## Pistes à évaluer
 
 Rien de ce qui suit n'est vérifié — ce sont les familles de solutions à instruire, pas une recommandation.
@@ -52,7 +64,6 @@ Rien de ce qui suit n'est vérifié — ce sont les familles de solutions à ins
 
 - **Référence et caractéristiques de la vessie** — attendues de RCF Technologies. Sans sa raideur et sa plage de pression, le rapport $k_{\text{paroi}}/k_{\text{vessie}}$ n'est pas chiffrable, et aucune piste ne peut être comparée.
 - **Section du U** : hauteur, largeur intérieure, épaisseur des ailes. Seule la plaque est cotée (120 × 40 mm).
-- **Où se situe la cellule** dans la chaîne actuelle du banc — au-dessus de l'empilement, ou en réaction sous le bâti ? La réponse change complètement laquelle des pistes 2 et 3 s'applique.
 - **Rôle mécanique attendu du U pendant la soudure** : s'il doit tenir la géométrie sous pression, il ne peut pas être rendu souple.
 
 ## Ce montage est une conception neuve, pas une adaptation
