@@ -61,10 +61,10 @@ T_FUSION = 337.0
 # Cotes du bloc : longueur selon y (largeur de l'echantillon), largeur selon x.
 # A et B designent deux MODELES du meme bloc physique 31,75 mm, pas deux blocs.
 CONFIGS = [
-    ("Sans MFC",                            OKABE_ITO["noir"],      "-"),
-    ("Avec MFC (55 × 31,5 mm)",             OKABE_ITO["bleu"],      "-"),
-    ("Avec MFC (31,75 × 31,5 mm) — A",      OKABE_ITO["vermillon"], "-"),
-    ("Avec MFC (31,75 × 31,5 mm) — B",      OKABE_ITO["vert"],      "-"),
+    ("Sans MFC",                          OKABE_ITO["noir"],      "-"),
+    ("Avec MFC (55mm x 31,5mm)",          OKABE_ITO["bleu"],      "-"),
+    ("Avec MFC (31,75mm x 31,5mm) A",     OKABE_ITO["vermillon"], "-"),
+    ("Avec MFC (31,75mm x 31,5mm) B",     OKABE_ITO["vert"],      "-"),
 ]
 
 
