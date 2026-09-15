@@ -65,25 +65,24 @@ Rien de ce qui suit n'est vérifié — ce sont les familles de solutions à ins
 - **Référence et caractéristiques de la vessie** — attendues de RCF Technologies. Sans sa raideur et sa plage de pression, le rapport $k_{\text{paroi}}/k_{\text{vessie}}$ n'est pas chiffrable, et aucune piste ne peut être comparée.
 - **Section du U** : hauteur, largeur intérieure, épaisseur des ailes. Seule la plaque est cotée (120 × 40 mm).
 
-## ⚠️ Une question préalable, que je ne sais pas trancher
+## Ce que fait la vessie — et la question que cela déplace
 
-Le U doit tenir la géométrie **sous pression** : il travaille donc déjà, indépendamment de la cellule. Or ses deux rôles chargent les ailes **dans des sens opposés** :
+**Réponse confirmée : la vessie pousse la plaque contre l'outil supérieur.** La pression de consolidation s'applique donc **sur la plaque**, la réaction étant fournie par l'outil au-dessus. Ce n'est pas la vessie qui referme les soudures des ailes.
 
-- la **vessie**, en se gonflant, écarte la plaque du U — elle met les ailes en **traction** ;
-- la **cellule**, en poussant vers le bas, met les ailes en **compression**.
+Deux conséquences.
 
-D'où une question que je n'ai pas les éléments pour trancher, et qui précède le choix d'une piste : **qu'est-ce qui referme les interfaces de soudure ?**
+**Les soudures d'ailes ne sont pas consolidées par la vessie.** La plaque étant poussée vers le haut et retenue par l'outil, les ailes travaillent en **traction** : la vessie tend à écarter la plaque du U, non à la plaquer sur les ailes. Ce qui met ces interfaces-là en compression pendant la soudure reste à identifier — c'est une question distincte de celle posée ici, mais elle ne peut pas rester ouverte indéfiniment.
 
-Si la vessie pousse la plaque **vers le haut**, elle tend à **ouvrir** le joint plutôt qu'à le consolider — à moins qu'un appui extérieur au-dessus de la plaque ne fournisse la réaction, auquel cas c'est cet appui, et non la vessie, qui met l'interface en compression. Le rôle de la vessie serait alors d'appliquer la pression de consolidation **sur la plaque elle-même** contre un outil, et non de refermer les soudures des ailes.
+**Et surtout, la nature de la cellule redevient incertaine.** Deux montages sont compatibles avec ce qui est décrit, et ils n'ont pas le même problème :
 
-Selon la réponse, « faire passer l'effort dans la vessie » ne désigne pas la même chose :
+| montage | rôle de la cellule | le partage d'effort dans les ailes |
+|---|---|---|
+| **A — presse au-dessus** : un vérin pousse l'outil vers le bas, la vessie pousse vers le haut ; la plaque est prise en étau | la cellule **transmet** l'effort de la presse | **pollue la mesure** — l'analyse de cette issue s'applique intégralement |
+| **B — vessie seule actionneur** : la vessie pousse, l'outil supérieur ne fait que réagir | la cellule **mesure la réaction** de l'outil | ne la pollue **pas** : la cellule lit $p \cdot A_{\text{plaque}}$, le circuit des ailes est séparé (vessie → âme → bâti) |
 
-| si la vessie… | alors l'objectif est… |
-|---|---|
-| referme les interfaces des ailes | maximiser $F_{\text{vessie}}$ — la formulation initiale s'applique telle quelle |
-| consolide la plaque contre un outil | maîtriser la **pression** vessie, la cellule mesurant la réaction de l'outil ; le partage d'effort dans les ailes devient secondaire |
+⚠️ **Dans le montage B, le problème posé par cette issue n'existe pas.** La cellule n'est plus en parallèle avec les ailes mais en série avec la vessie — ce que la piste 2 cherchait précisément à obtenir, et qui serait déjà acquis. La figure de cette issue suppose le montage A.
 
-**Cette clarification conditionne le reste** : elle décide si la piste 1 est la bonne cible ou si le problème est en réalité celui de la piste 3.
+**C'est donc la question à trancher en premier :** la cellule transmet-elle l'effort d'une presse, ou mesure-t-elle la réaction d'un outil que seule la vessie sollicite ?
 
 ## Ce montage est une conception neuve, pas une adaptation
 
