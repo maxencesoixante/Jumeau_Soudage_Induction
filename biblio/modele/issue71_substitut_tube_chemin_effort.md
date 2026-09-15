@@ -58,13 +58,32 @@ Rien de ce qui suit n'est vérifié — ce sont les familles de solutions à ins
 1. **Supprimer le chemin parasite par un jeu.** La plaque ne repose pas sur les ailes : un jeu les sépare, la vessie seule porte, et les ailes ne servent que de butée au-delà d'une course donnée. Demande de maîtriser ce jeu à chaud, alors que la soudure le referme.
 2. **Mettre la cellule en série avec la vessie et non en parallèle avec la structure.** La cellule mesure la réaction de la vessie (piston, ligne de pression) plutôt que l'effort global du bâti. Le partage cesse d'être un problème : on ne mesure que ce qui traverse la vessie.
 3. **Piloter en pression plutôt qu'en effort.** La pression d'interface vaut la pression vessie (à la géométrie près), indépendamment du chemin parasite ; la cellule ne sert plus que de sécurité. Demande de connaître la pression réellement transmise par la vessie.
-4. **Assouplir localement les ailes** (évidements, découpes) pour abaisser leur raideur sous celle de la vessie. Probablement peu réaliste sur un U verre qui doit aussi tenir la géométrie pendant la soudure, et cité pour mémoire.
+4. ~~**Assouplir localement les ailes**~~ — **écartée.** Le U doit tenir la géométrie sous pression pendant la soudure (confirmé) : il ne peut pas être rendu souple. La piste est close, pas en attente.
 
 ## Ce qu'il faut savoir avant de trancher
 
 - **Référence et caractéristiques de la vessie** — attendues de RCF Technologies. Sans sa raideur et sa plage de pression, le rapport $k_{\text{paroi}}/k_{\text{vessie}}$ n'est pas chiffrable, et aucune piste ne peut être comparée.
 - **Section du U** : hauteur, largeur intérieure, épaisseur des ailes. Seule la plaque est cotée (120 × 40 mm).
-- **Rôle mécanique attendu du U pendant la soudure** : s'il doit tenir la géométrie sous pression, il ne peut pas être rendu souple.
+
+## ⚠️ Une question préalable, que je ne sais pas trancher
+
+Le U doit tenir la géométrie **sous pression** : il travaille donc déjà, indépendamment de la cellule. Or ses deux rôles chargent les ailes **dans des sens opposés** :
+
+- la **vessie**, en se gonflant, écarte la plaque du U — elle met les ailes en **traction** ;
+- la **cellule**, en poussant vers le bas, met les ailes en **compression**.
+
+D'où une question que je n'ai pas les éléments pour trancher, et qui précède le choix d'une piste : **qu'est-ce qui referme les interfaces de soudure ?**
+
+Si la vessie pousse la plaque **vers le haut**, elle tend à **ouvrir** le joint plutôt qu'à le consolider — à moins qu'un appui extérieur au-dessus de la plaque ne fournisse la réaction, auquel cas c'est cet appui, et non la vessie, qui met l'interface en compression. Le rôle de la vessie serait alors d'appliquer la pression de consolidation **sur la plaque elle-même** contre un outil, et non de refermer les soudures des ailes.
+
+Selon la réponse, « faire passer l'effort dans la vessie » ne désigne pas la même chose :
+
+| si la vessie… | alors l'objectif est… |
+|---|---|
+| referme les interfaces des ailes | maximiser $F_{\text{vessie}}$ — la formulation initiale s'applique telle quelle |
+| consolide la plaque contre un outil | maîtriser la **pression** vessie, la cellule mesurant la réaction de l'outil ; le partage d'effort dans les ailes devient secondaire |
+
+**Cette clarification conditionne le reste** : elle décide si la piste 1 est la bonne cible ou si le problème est en réalité celui de la piste 3.
 
 ## Ce montage est une conception neuve, pas une adaptation
 
