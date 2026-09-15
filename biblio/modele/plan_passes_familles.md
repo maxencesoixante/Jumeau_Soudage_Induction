@@ -49,6 +49,38 @@ Une seule passe centrée en `x = 60 mm`, `y = 20 mm`, 235 A, 20 s. Le centre de 
 
 Aucune hypothèse n'amène le centre à la fusion (337 °C). La seule qui l'en rapproche est celle où le flux se reconcentre — et elle y parvient en portant les chants au-delà du seuil de dégradation.
 
+## Les quatre passes du procédé, au MFC réduit
+
+La séquence réelle — quatre dwells au pas de 30 mm (`x` = 15,9 / 45,9 / 75,9 /
+105,9 mm), spot centré en largeur, 235 A, 20 s — jouée avec le MFC réduit dans
+l'hypothèse **la plus favorable** des quatre (le flux se reconcentre, famille A).
+C'est une **borne optimiste**, pas une prédiction : c'est précisément l'hypothèse
+que les deux variantes de la famille B contredisent en s'accordant entre elles.
+
+![Quatre passes au MFC réduit](figures/fig_sequence_4passes_mfc_reduit.png)
+
+| après | soudé | dégradé | T max (°C) |
+|---|---|---|---|
+| 1 passe | 1,2 % | 0 % | 345,1 |
+| 2 passes | 2,8 % | 0 % | 345,1 |
+| 3 passes | 5,7 % | 0 % | 345,1 |
+| 4 passes | 8,0 % | 0 % | 392,3 |
+
+Pour comparaison, les mêmes quatre passes donnent **7,5 %** au MFC labo 55 mm et
+**3,3 %** au MFC réduit sous l'hypothèse corroborée (famille B).
+
+**Ce que la figure montre.** Le MFC réduit fait bien ce qu'on attendait de lui :
+le profil en largeur **s'inverse**. Le M des chants disparaît, remplacé par un
+plateau qui culmine à 330 °C vers `y` = 8 et 32 mm et retombe à 297 °C au centre.
+La largeur entière passe donc dans une bande de 35 °C — mais **sous** le seuil de
+fusion, qu'aucun point n'atteint. À 235 A, il manque une quarantaine de degrés
+partout à la fois.
+
+Les seules zones fondues sont les croissants entre passes : elles ne viennent pas
+d'une passe mais du **recouvrement** de deux dwells successifs, c'est-à-dire de la
+chaleur résiduelle. Ce qui soude dans cette séquence, ce n'est pas le
+concentrateur, c'est l'accumulation.
+
 ## Ce que ce calcul ne prouve pas
 
 - **Le taux de dégradation de la famille A est à prendre avec réserve.** Le seuil 450 °C est appliqué à une température d'interface calculée avec la config canonique, dont la chaleur latente vaut 130 J/g (valeur 100 % cristallin, ~3× trop) et qui n'a pas de plateau de fusion. Sur le cycle 231 A, cette config donne 865 °C là où le modèle de fusion donne 508 °C : au-delà du point de fusion, elle **surestime systématiquement** l'interface. Les 33 % dégradés sont donc un majorant, pas une mesure. Le verdict « non uniforme » ne repose pas dessus : 44.9 % de soudé n'est de toute façon pas une couverture.
