@@ -36,6 +36,15 @@ COURANTS = [200.0, 235.0]
 # Largeurs de MFC physiques (#39) : labo 55 mm (None) et réduit commandé 31,75 mm.
 MFC_LONGUEURS = [None, 0.03175]
 DUREE = 20.0
+# Hypothèse de MFC réduit — il y en a QUATRE, qui diffèrent par une affirmation
+# physique sur le flux qui n'est plus sous le bloc (cf. empreinte.py et
+# biblio/modele/plan_passes_familles.md). "tronquer" = le flux disparaît, celle
+# des plans d'origine (#31/#37/#39) et la plus défavorable des quatre. Le
+# verdict ci-dessous a été vérifié identique dans les quatre.
+FAMILLE = "tronquer"
+# θ* : None = valeur de la config (h_bord_x0 canonique 125 depuis le
+# 2026-09-06). Passer 250.0 pour reproduire les plans antérieurs à cette date.
+H_BORD_X0 = None
 
 
 def main():
@@ -45,7 +54,8 @@ def main():
           f"({len(X_CS)}×{len(Y_CS)}×{len(COURANTS)}×{len(MFC_LONGUEURS)} = "
           f"{n_cand} passes candidates)…")
     grille, lib = bibliotheque(cfg, X_CS, Y_CS, COURANTS, DUREE,
-                               mfc_longueurs=MFC_LONGUEURS)
+                               mfc_longueurs=MFC_LONGUEURS, famille=FAMILLE,
+                               h_bord_x0=H_BORD_X0)
     passes, Tc, m = planifier(lib, fusion=FUSION, degrad=DEGRAD)
 
     print(f"\nPlan glouton : {len(passes)} passe(s) — soudé {m['pct_soude']:.1f} %, "
@@ -65,7 +75,8 @@ def main():
 
     if passes_params:
         print("\nVérification séquentielle (chaleur résiduelle incluse)…")
-        _, T_seq = verifier_sequentiel(cfg, passes_params)
+        _, T_seq = verifier_sequentiel(cfg, passes_params, famille=FAMILLE,
+                                       h_bord_x0=H_BORD_X0)
         m_seq = metriques(T_seq, fusion=FUSION, degrad=DEGRAD)
         print(f"  séquentiel : soudé {m_seq['pct_soude']:.1f} %, "
               f"non soudé {m_seq['pct_non_soude']:.1f} %, dégradé {m_seq['pct_degrade']:.1f} %")
@@ -79,10 +90,16 @@ def main():
     if not uniforme:
         print("  Seules de fines bandes de bord (lobes du M) se soudent sans dégrader.")
         if not utilise_mfc_reduit:
-            print("  Le MFC réduit (31,75 mm, masque 1er ordre) n'a PAS été retenu : il coupe "
-                  "les lobes de bord sans réchauffer le centre (creux du M) -> n'améliore pas "
-                  "la couverture. Un MFC vraiment localisant (non capturé par le masque dur) "
-                  "serait nécessaire. Cf. spec §Risque de faisabilité + issue #39.")
+            print("  Le MFC réduit (31,75 mm) n'a PAS été retenu : il coupe les lobes de bord "
+                  "sans réchauffer le centre (creux du M) -> n'améliore pas la couverture.")
+        print("  Ce verdict ne dépend PAS de l'hypothèse de MFC réduit : il a été rejoué dans "
+              "les quatre (flux qui disparaît / se reconcentre / ne se reconcentre pas, deux "
+              "variantes) et reste NON dans toutes. La seule qui fasse retenir le MFC réduit "
+              "est celle où le flux se reconcentre, et elle n'atteint que 45 % de soudé en "
+              "brûlant un tiers de la plaque. Le centre de la largeur est la ligne nodale de "
+              "la dissipation : il ne chauffe que par conduction latérale, et aucune géométrie "
+              "de concentrateur ne change cela. Cf. biblio/modele/plan_passes_familles.md, "
+              "issue #39.")
 
     _tracer(grille, T_seq, passes_params, m_seq)
 

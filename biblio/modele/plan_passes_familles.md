@@ -11,6 +11,15 @@ Avant toute comparaison, la configuration historique est rejouée : troncature d
 | soudé, plan glouton | 6.1 % | 6.1 % |
 | soudé, séquentiel | 7.0 % | 7.0 % |
 
+Deux choses séparent ce contrôle de la matrice qui suit : le θ* et la grille de courants. Les découpler évite d'attribuer à l'un ce qui vient de l'autre.
+
+| grille de courants | h_bord_x0 | soudé, séquentiel |
+|---|---|---|
+| {200, 235} A | 250 (historique) | 7.0 % |
+| {200, 235} A | 125 (canonique) | 7.0 % |
+
+**Le θ* ne bouge rien ici**, et c'est attendu : `h_bord_x0` n'agit que sur le chant `x = 0`, alors que la couverture se joue sur les lobes du M, c'est-à-dire sur les chants en `y`. Tout l'écart avec la matrice ci-dessous vient donc de l'ajout de 250 A à la grille — la correction de θ* était nécessaire par cohérence, pas parce qu'elle changeait le verdict.
+
 ## Les quatre hypothèses, à θ* canonique
 
 `h_bord_x0 = 125` (canonique depuis le 2026-09-06) et courants {200, 235, 250} A — la grille est ÉLARGIE vers le haut, donc le planificateur ne peut qu'y faire mieux.

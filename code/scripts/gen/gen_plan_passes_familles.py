@@ -133,6 +133,14 @@ def main() -> None:
           f"{'REPRODUIT' if abs(ctrl['seq']['pct_soude'] - 7.0) < 1.0 else 'ÉCART'}",
           flush=True)
 
+    # Deux choses changent entre le contrôle et la matrice : le θ* et la grille
+    # de courants. Cette cellule les sépare, sans quoi on attribuerait à l'un ce
+    # qui vient de l'autre.
+    print("θ* canonique (125), grille de courants HISTORIQUE…", flush=True)
+    theta = cellule(cfg, "tronquer", COURANTS_HIST, None)
+    print(f"  glouton {theta['glouton']['pct_soude']:.1f} %  "
+          f"séquentiel {theta['seq']['pct_soude']:.1f} %", flush=True)
+
     resultats = {}
     for famille in ("tronquer", "conserver", "image_observation", "image_source"):
         print(f"θ* canonique (125) · {famille} · courants {COURANTS_ETENDUS}…",
@@ -178,6 +186,22 @@ def main() -> None:
         f"|---|---|---|",
         f"| soudé, plan glouton | 6.1 % | {ctrl['glouton']['pct_soude']:.1f} % |",
         f"| soudé, séquentiel | 7.0 % | {ctrl['seq']['pct_soude']:.1f} % |",
+        "",
+        "Deux choses séparent ce contrôle de la matrice qui suit : le θ* et la "
+        "grille de courants. Les découpler évite d'attribuer à l'un ce qui vient "
+        "de l'autre.",
+        "",
+        "| grille de courants | h_bord_x0 | soudé, séquentiel |",
+        "|---|---|---|",
+        f"| {{200, 235}} A | 250 (historique) | {ctrl['seq']['pct_soude']:.1f} % |",
+        f"| {{200, 235}} A | 125 (canonique) | {theta['seq']['pct_soude']:.1f} % |",
+        "",
+        "**Le θ* ne bouge rien ici**, et c'est attendu : `h_bord_x0` n'agit que "
+        "sur le chant `x = 0`, alors que la couverture se joue sur les lobes du "
+        "M, c'est-à-dire sur les chants en `y`. Tout l'écart avec la matrice "
+        "ci-dessous vient donc de l'ajout de 250 A à la grille — la correction "
+        "de θ* était nécessaire par cohérence, pas parce qu'elle changeait le "
+        "verdict.",
         "",
         "## Les quatre hypothèses, à θ* canonique",
         "",
