@@ -11,14 +11,15 @@ Le tube CF/PEKK ne sera pas disponible pour le projet. Le substitut envisagé :
 
 - un **U en fibre de verre**,
 - refermé par une **plaque CF/PEKK consolidée 120 × 40 mm** (presse chauffante, comme les échantillons actuels),
-- soudée sur les deux ailes du U — l'ensemble formant un tube,
+- refermant le U pour en faire un **tube** — le U est **structurel**, pas un substrat de soudure,
+- **une seconde plaque CF/PEKK de même longueur soudée sur la première** : c'est là qu'est l'interface étudiée, comme sur le montage plan actuel,
 - une **vessie** gonflable dans la cavité (référence à venir de **RCF Technologies**).
 
 ## La question
 
 **Comment faire passer les efforts transmis par la cellule de force dans la vessie, et non dans les parois du U ?**
 
-![Cheminement de l'effort](https://raw.githubusercontent.com/maxencesoixante/Jumeau_Soudage_Induction/main/biblio/labo/figures/fig_substitut_tube_chemins_effort.png)
+![Cheminement de l'effort](https://raw.githubusercontent.com/maxencesoixante/Jumeau_Soudage_Induction/main/biblio/labo/figures/fig_substitut_tube_chemins_effort.png?v=1)
 
 *À gauche : la coupe transverse et les deux trajets possibles de l'effort. À droite : le même montage réduit à deux raideurs en parallèle.*
 
@@ -55,8 +56,8 @@ Deux conséquences pour les pistes ci-dessous. La piste 1 devient celle qui **re
 
 Rien de ce qui suit n'est vérifié — ce sont les familles de solutions à instruire, pas une recommandation.
 
-1. **Supprimer le chemin parasite par un jeu.** La plaque ne repose pas sur les ailes : un jeu les sépare, la vessie seule porte, et les ailes ne servent que de butée au-delà d'une course donnée. Demande de maîtriser ce jeu à chaud, alors que la soudure le referme.
-2. **Mettre la cellule en série avec la vessie et non en parallèle avec la structure.** La cellule mesure la réaction de la vessie (piston, ligne de pression) plutôt que l'effort global du bâti. Le partage cesse d'être un problème : on ne mesure que ce qui traverse la vessie.
+1. **Découpler les ailes de l'empilement.** Si les plaques ne sont pas solidaires des ailes, celles-ci ne peuvent plus tirer vers le bas : toute la poussée de la vessie traverse l'interface. C'est la piste la plus directe au vu du circuit établi. Reste à savoir comment le U tient alors la géométrie — les deux fonctions doivent être portées par des éléments distincts.
+2. ~~**Mettre la cellule en série avec la vessie**~~ — **sans objet.** La cellule mesure déjà la réaction de l'outil, donc l'effort qui traverse l'interface, sous réserve du point de vérification ci-dessus.
 3. **Piloter en pression plutôt qu'en effort.** La pression d'interface vaut la pression vessie (à la géométrie près), indépendamment du chemin parasite ; la cellule ne sert plus que de sécurité. Demande de connaître la pression réellement transmise par la vessie.
 4. ~~**Assouplir localement les ailes**~~ — **écartée.** Le U doit tenir la géométrie sous pression pendant la soudure (confirmé) : il ne peut pas être rendu souple. La piste est close, pas en attente.
 
@@ -65,24 +66,29 @@ Rien de ce qui suit n'est vérifié — ce sont les familles de solutions à ins
 - **Référence et caractéristiques de la vessie** — attendues de RCF Technologies. Sans sa raideur et sa plage de pression, le rapport $k_{\text{paroi}}/k_{\text{vessie}}$ n'est pas chiffrable, et aucune piste ne peut être comparée.
 - **Section du U** : hauteur, largeur intérieure, épaisseur des ailes. Seule la plaque est cotée (120 × 40 mm).
 
-## Ce que fait la vessie — et la question que cela déplace
+## Le circuit, maintenant établi
 
-**Réponse confirmée : la vessie pousse la plaque contre l'outil supérieur.** La pression de consolidation s'applique donc **sur la plaque**, la réaction étant fournie par l'outil au-dessus. Ce n'est pas la vessie qui referme les soudures des ailes.
+Trois réponses ont fermé les inconnues de conception :
 
-Deux conséquences.
+1. la **cellule est au-dessus** de l'empilement ;
+2. la **vessie pousse l'empilement vers le haut contre l'outil supérieur** ;
+3. la soudure se fait **CF/PEKK sur CF/PEKK**, deux plaques de même longueur — le U ne porte aucune soudure.
 
-**Les soudures d'ailes ne sont pas consolidées par la vessie.** La plaque étant poussée vers le haut et retenue par l'outil, les ailes travaillent en **traction** : la vessie tend à écarter la plaque du U, non à la plaquer sur les ailes. Ce qui met ces interfaces-là en compression pendant la soudure reste à identifier — c'est une question distincte de celle posée ici, mais elle ne peut pas rester ouverte indéfiniment.
+Le circuit voulu est donc : **vessie → plaque inférieure → interface de soudure → plaque supérieure → outil → cellule**. La pression de consolidation vient de la vessie, et c'est l'outil supérieur qui fournit la réaction.
 
-**Et surtout, la nature de la cellule redevient incertaine.** Deux montages sont compatibles avec ce qui est décrit, et ils n'ont pas le même problème :
+### Ce que les ailes du U détournent
 
-| montage | rôle de la cellule | le partage d'effort dans les ailes |
-|---|---|---|
-| **A — presse au-dessus** : un vérin pousse l'outil vers le bas, la vessie pousse vers le haut ; la plaque est prise en étau | la cellule **transmet** l'effort de la presse | **pollue la mesure** — l'analyse de cette issue s'applique intégralement |
-| **B — vessie seule actionneur** : la vessie pousse, l'outil supérieur ne fait que réagir | la cellule **mesure la réaction** de l'outil | ne la pollue **pas** : la cellule lit $p \cdot A_{\text{plaque}}$, le circuit des ailes est séparé (vessie → âme → bâti) |
+Les ailes relient l'âme (poussée vers le bas par la vessie) aux plaques (retenues en haut par l'outil) : elles travaillent donc en **traction**, et cette traction **soustrait** à ce qui traverse l'interface. Sur la plaque inférieure :
 
-⚠️ **Dans le montage B, le problème posé par cette issue n'existe pas.** La cellule n'est plus en parallèle avec les ailes mais en série avec la vessie — ce que la piste 2 cherchait précisément à obtenir, et qui serait déjà acquis. La figure de cette issue suppose le montage A.
+$$p \cdot A = R_{\text{outil}} + T_{\text{ailes}}$$
 
-**C'est donc la question à trancher en premier :** la cellule transmet-elle l'effort d'une presse, ou mesure-t-elle la réaction d'un outil que seule la vessie sollicite ?
+Autrement dit, **plus les ailes sont raides, moins la pression de la vessie atteint la soudure** — il faut alors gonfler davantage pour une même pression d'interface, et le rapport entre les deux devient inconnu. C'est exactement la crainte formulée au départ, et elle est fondée.
+
+### Un point favorable, qu'il faut vérifier
+
+Si rien d'autre que l'outil ne touche la plaque supérieure, la cellule mesure $R_{\text{outil}}$, c'est-à-dire **l'effort qui traverse réellement l'interface** — pas la somme polluée. Dans ce cas l'instrumentation est saine, et le problème se réduit à un rendement : quelle fraction de $p \cdot A$ arrive à la soudure.
+
+⚠️ **À confirmer sur le montage réel** : la plaque supérieure ne doit toucher que l'outil. Tout appui latéral ou toute reprise sur le U rouvrirait le problème de mesure.
 
 ## Ce montage est une conception neuve, pas une adaptation
 

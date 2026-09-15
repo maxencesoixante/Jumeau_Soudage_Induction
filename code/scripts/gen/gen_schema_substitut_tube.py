@@ -1,8 +1,16 @@
 """Schéma du problème de cheminement d'effort — substitut de tube en U (issue à ouvrir).
 
 Le tube CF/PEKK ne sera pas disponible. Le substitut envisagé : un U en fibre de
-verre refermé par une plaque CF/PEKK consolidée 120 x 40 mm, soudée sur les deux
-ailes du U — l'ensemble formant un tube. Une vessie gonflable occupe la cavité.
+verre refermé par une plaque CF/PEKK consolidée 120 x 40 mm — l'ensemble formant
+un tube. Une vessie gonflable occupe la cavité.
+
+LA SOUDURE EST ENTRE DEUX PLAQUES CF/PEKK de même longueur, posées sur le tube,
+comme sur le montage plan actuel. Le U n'est PAS un substrat de soudure : il est
+purement structurel. (Une version antérieure de ce schéma plaçait à tort les
+interfaces sur les ailes du U.)
+
+LA VESSIE pousse l'empilement vers le haut contre l'OUTIL SUPÉRIEUR : c'est cette
+réaction qui comprime l'interface de soudure.
 
 LA QUESTION : faire passer l'effort de la cellule de force DANS LA VESSIE, et non
 dans les parois du U.
@@ -59,43 +67,46 @@ def panneau_montage(ax) -> None:
                                 facecolor="#F6D9C3", edgecolor=OKABE_ITO["orange"], lw=1.4))
     ax.text(20, 16, "vessie\n(réf. RCF à venir)", ha="center", va="center", fontsize=8.5)
 
-    # plaque CF/PEKK soudee sur les deux ailes
-    ax.add_patch(Rectangle((0, 27), 40, 3.4, facecolor=CFPEKK, edgecolor="0.2"))
-    ax.annotate("plaque CF/PEKK consolidée\n120 × 40 mm", xy=(4, 28.7), xytext=(-15, 33),
+    # plaque 1 : referme le U pour en faire un tube
+    ax.add_patch(Rectangle((0, 27), 40, 3, facecolor=CFPEKK, edgecolor="0.2"))
+    # plaque 2 : soudee sur la premiere, meme longueur
+    ax.add_patch(Rectangle((0, 30.4), 40, 3, facecolor=CFPEKK, edgecolor="0.2"))
+    ax.annotate("2 plaques\nCF/PEKK\n120 × 40 mm", xy=(1.5, 31.9), xytext=(-16.5, 28),
                 fontsize=8.5, color=CFPEKK, ha="left", va="center",
                 arrowprops=dict(arrowstyle="->", color=CFPEKK, lw=1.1))
 
-    # interfaces de soudure
-    for x in (2.5, 37.5):
-        ax.plot([x - 2.5, x + 2.5], [27, 27], color=OKABE_ITO["rose"], lw=2.6,
-                solid_capstyle="butt", zorder=5)
-    ax.annotate("interfaces\nde soudure", xy=(37.5, 27), xytext=(52, 22),
+    # INTERFACE DE SOUDURE : entre les deux plaques, pas sur les ailes du U
+    ax.plot([0, 40], [30.2, 30.2], color=OKABE_ITO["rose"], lw=3.0,
+            solid_capstyle="butt", zorder=6)
+    ax.annotate("interface de soudure\n(CF/PEKK sur CF/PEKK)", xy=(36, 30.2), xytext=(44, 24),
                 fontsize=8.5, color=OKABE_ITO["rose"], ha="left",
                 arrowprops=dict(arrowstyle="->", color=OKABE_ITO["rose"], lw=1.1))
 
-    # cellule de force
-    ax.add_patch(Rectangle((14, 36), 12, 5, facecolor="white", edgecolor="0.2", lw=1.3))
-    ax.text(20, 38.5, "cellule de force", ha="center", va="center", fontsize=8.5)
-    ax.add_patch(FancyArrowPatch((20, 36), (20, 31), arrowstyle="-|>",
-                                 mutation_scale=16, color="0.2", lw=2))
+    # outil superieur + cellule au-dessus
+    ax.add_patch(Rectangle((-3, 34), 46, 3, facecolor="0.55", edgecolor="0.3"))
+    ax.text(20, 35.5, "outil supérieur", ha="center", va="center", fontsize=8.5,
+            color="white")
+    ax.add_patch(Rectangle((14, 39), 12, 4.5, facecolor="white", edgecolor="0.2", lw=1.3))
+    ax.text(20, 41.2, "cellule de force", ha="center", va="center", fontsize=8.5)
 
     # chemin PARASITE : par les ailes
     for x in (2.5, 37.5):
         ax.add_patch(FancyArrowPatch((x, 26), (x, 6), arrowstyle="-|>", mutation_scale=13,
                                      color=PARASITE, lw=2.4, alpha=0.9))
-    ax.text(-8.5, 16, "chemin\nPARASITE\n(ailes du U)", ha="center", va="center",
-            fontsize=8.5, color=PARASITE, fontweight="bold")
+    ax.text(-9, 16, "chemin\nPARASITE\n(ailes du U)\nen traction", ha="center",
+            va="center", fontsize=8.5, color=PARASITE, fontweight="bold")
 
-    # chemin VOULU : par la vessie
+    # chemin VOULU : la vessie POUSSE VERS LE HAUT, l'outil reagit
     for x in (11, 20, 29):
         ax.add_patch(FancyArrowPatch((x, 23.2), (x, 26.6), arrowstyle="-|>",
                                      mutation_scale=15, color=VOULU, lw=2.6))
-    ax.annotate("chemin VOULU\n(par la vessie)", xy=(29, 25), xytext=(52, 33),
+    ax.annotate("chemin VOULU\nvessie → interface → outil",
+                xy=(29, 25), xytext=(44, 13),
                 fontsize=8.5, color=VOULU, fontweight="bold", ha="left", va="center",
                 arrowprops=dict(arrowstyle="->", color=VOULU, lw=1.1))
 
-    ax.set_xlim(-16, 62)
-    ax.set_ylim(-8, 43)
+    ax.set_xlim(-17, 66)
+    ax.set_ylim(-8, 46)
     ax.set_aspect("equal")
     ax.axis("off")
     ax.set_title("Coupe transverse du substitut", pad=8)
