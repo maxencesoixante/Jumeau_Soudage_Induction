@@ -130,6 +130,49 @@ Le levier « pas serré » ouvre donc une fenêtre entre le moment où les chant
 atteignent la fusion et celui où le centre dépasse la dégradation. Où elle se
 situe, et pour quelle configuration elle est la plus large : voir le balayage.
 
+## Et si on exige que TOUTE la matière dépasse 337 °C en quatre passes ?
+
+Question posée directement : à quel réglage la séquence de quatre passes au MFC
+réduit (hypothèse A, pas de 30 mm) amène-t-elle tout l'interface au-dessus du
+point de fusion ?
+
+![Quatre passes réglées pour tout dépasser 337 °C](figures/fig_4passes_toute_matiere_337.png)
+
+**On y arrive, et le prix est la plaque.** Balayage conjoint courant × durée
+(200-250 A, 30-150 s) : aucun réglage n'amène 100 % de l'interface au-dessus de
+337 °C sans en porter au moins **98 %** au-delà du seuil de dégradation. Le moins
+destructeur trouvé est **200 A / 120 s** — 100 % au-dessus de 337 °C, **98,4 %
+dégradé**, et 1,6 % seulement dans la fenêtre utile.
+
+| durée par passe (200 A) | > 337 °C | > 450 °C |
+|---|---|---|
+| 20 s | 0,0 % | 0,0 % |
+| 30 s | 8,7 % | 0,0 % |
+| **45 s** | **54,5 %** | **6,3 %** |
+| 60 s | 83,1 % | 42,4 % |
+| 75 s | 97,2 % | 71,4 % |
+| 90 s | 99,2 % | 88,6 % |
+| 120 s | 100,0 % | 98,4 % |
+
+**La raison est géométrique, pas énergétique.** Le point le plus froid et le plus
+chaud de la plaque sont dans un rapport d'environ 3, et ce rapport **ne descend
+pas quand on chauffe plus** : monter la puissance monte les deux ensemble. Le
+point froid vient de deux endroits que la source n'atteint pas — le centre de la
+largeur, qui est la ligne nodale de la dissipation, et les extrémités en longueur
+au-delà de la première et de la dernière passe. Tant que ce rapport reste
+au-dessus de 450/337 = 1,33, il n'existe aucune fenêtre où tout fond sans que
+rien ne brûle.
+
+Le meilleur compromis de la courbe est **200 A / 45 s** : 54,5 % de la matière
+au-dessus de la fusion pour 6,3 % de dégradation. Au-delà, chaque point gagné en
+fusion coûte davantage en brûlure.
+
+Réserve : 120 s par passe, c'est six fois le dwell du procédé réel, et la
+dégradation est ici calculée avec la config canonique qui surestime l'interface
+au-delà du point de fusion — les pourcentages dégradés sont donc des majorants.
+Ils ne sont pas majorants au point de renverser la conclusion : à 45 s déjà, la
+fenêtre se ferme.
+
 ## Ce que ce calcul ne prouve pas
 
 - **Le taux de dégradation de la famille A est à prendre avec réserve.** Le seuil 450 °C est appliqué à une température d'interface calculée avec la config canonique, dont la chaleur latente vaut 130 J/g (valeur 100 % cristallin, ~3× trop) et qui n'a pas de plateau de fusion. Sur le cycle 231 A, cette config donne 865 °C là où le modèle de fusion donne 508 °C : au-delà du point de fusion, elle **surestime systématiquement** l'interface. Les 33 % dégradés sont donc un majorant, pas une mesure. Le verdict « non uniforme » ne repose pas dessus : 44.9 % de soudé n'est de toute façon pas une couverture.
