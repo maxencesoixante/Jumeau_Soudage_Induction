@@ -12,6 +12,7 @@ from ..materiaux import Config
 from ..procede import Essai
 from ..geometrie import masque_empreinte_cfc
 from ..em.source_joule import source_spot
+from .empreinte import FAMILLES
 
 _RACINE = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())  # racine depot
 _GABARIT = _RACINE / "code" / "config" / "essais" / "exp7_200A.yaml"
@@ -56,16 +57,26 @@ def planifier(lib: dict, *, ambiant: float = 20.0, fusion: float = 337.0,
     return passes, combine, metriques(combine, fusion=fusion, degrad=degrad)
 
 
-def verifier_sequentiel(cfg: Config, passes_params, *, facteur: float = 6.0123,
+def verifier_sequentiel(cfg: Config, passes_params, *, famille: str = "tronquer",
+                        h_bord_x0: float | None = None, facteur: float = 6.0123,
                         nx: int = 61, ny: int = 21, nz: int = 15):
     """Rejoue le plan en UNE séquence multi-passes (chaleur résiduelle incluse)
     et renvoie ``(grille, Tmax_reel(x, y))``. Chaque passe = un spot successif
     (patron de ``scripts/gen/gen_procede_semistatique.py``). ``passes_params`` = liste
     de dicts ``{"x_c", "y_c", "courant", "duree"[, "mfc_longueur"]}`` ; le masquage
-    MFC réduit (#39) est appliqué PAR PASSE (chaque passe peut avoir sa largeur)."""
+    MFC réduit (#39) est appliqué PAR PASSE (chaque passe peut avoir sa largeur).
+
+    ``famille`` / ``h_bord_x0`` : mêmes quatre modèles de réduction et même θ*
+    que ``empreinte`` — la vérification séquentielle DOIT être rejouée dans la
+    famille qui a servi à bâtir le plan, sans quoi on vérifie un autre modèle
+    que celui qu'on a planifié."""
+    if famille not in FAMILLES:
+        raise ValueError(f"famille doit être l'une de {FAMILLES}, reçu {famille!r}")
+    cfg = copy.deepcopy(cfg)
     cfg.contact.h_haut = 30.087
     cfg.ambiant.h_bas_2d = 37.424
-    cfg.ambiant.h_bord_x0 = 250.0
+    if h_bord_x0 is not None:
+        cfg.ambiant.h_bord_x0 = float(h_bord_x0)
     # masquage MFC appliqué à la main par passe -> Essai en masque_source_mfc=False
     e = Essai(cfg, _GABARIT, nx=nx, ny=ny, nz=nz,
               facteur_couplage=facteur, decalage_x=0.0, racine=_RACINE)
@@ -78,10 +89,22 @@ def verifier_sequentiel(cfg: Config, passes_params, *, facteur: float = 6.0123,
             cfg_p = copy.deepcopy(cfg)
             cfg_p.geometrie["cfc"]["longueur"] = float(mfc)
         mask = masque_empreinte_cfc(e.grille, cfg_p, p["x_c"], centre_y=p["y_c"])
-        Q = source_spot(e.grille, cfg, e.couches, p["courant"], p["x_c"],
-                        facteur_couplage=facteur, centre_y=p["y_c"])
-        if mfc is not None:              # source coupée à l'empreinte du MFC réduit
+        image_finie = mfc is not None and famille.startswith("image_")
+        # cfg_p (et non cfg) : la longueur réduite du bloc entre dans le calcul
+        # de champ des familles "image_*" -- l'ancienne version passait cfg,
+        # donc un bloc de 55 mm, ce qui les aurait rendues inopérantes ici.
+        Q = source_spot(e.grille, cfg_p, e.couches, p["courant"], p["x_c"],
+                        facteur_couplage=facteur, centre_y=p["y_c"],
+                        image_mfc_finie=image_finie,
+                        mode_troncature_image=(famille.removeprefix("image_")
+                                               if image_finie else "observation"))
+        if mfc is not None and famille in ("tronquer", "conserver"):
+            total = float(Q.sum())       # source coupée à l'empreinte du MFC réduit
             Q = Q * mask[:, :, None]
+            if famille == "conserver":   # ... puis renormalisée : le flux se reconcentre
+                masque_total = float(Q.sum())
+                if masque_total > 0.0:
+                    Q = Q * (total / masque_total)
         spots.append({"centre_x": p["x_c"], "t_debut": t, "t_fin": t + p["duree"]})
         Qs.append(Q)
         masks.append(mask)
