@@ -55,8 +55,12 @@ Rien de ce qui suit n'est vérifié — ce sont les familles de solutions à ins
 - **Où se situe la cellule** dans la chaîne actuelle du banc — au-dessus de l'empilement, ou en réaction sous le bâti ? La réponse change complètement laquelle des pistes 2 et 3 s'applique.
 - **Rôle mécanique attendu du U pendant la soudure** : s'il doit tenir la géométrie sous pression, il ne peut pas être rendu souple.
 
-## Lien avec le reste du projet
+## Ce montage est une conception neuve, pas une adaptation
 
-Le montage plan actuel comporte déjà une vessie (cf. `biblio/modele/leviers_refutes.md`, « face opposée côté vessie ») : la chaîne d'effort de ce montage-là est le point de comparaison le plus direct, et sans doute la première chose à documenter.
+**Le montage actuel ne comporte pas de vessie.** Le prochain en introduit deux choses à la fois : la **vessie** et le **tube en U**. Il n'existe donc aucune chaîne d'effort existante dont s'inspirer ou qu'il suffirait d'adapter — le cheminement est à concevoir de zéro, ce qui est précisément pourquoi la question se pose maintenant et non après coup.
+
+Conséquence pratique : le choix entre les pistes ci-dessus n'est contraint par aucun existant. Il peut se faire sur les seuls critères de mesure et de pression d'interface, ce qui est plutôt une liberté.
+
+⚠️ Un commentaire de `code/config/essais/chauffe_250A_3TC.yaml` annote la face opposée « côté tube/vessie ». Il décrit la face **destinée** au futur montage, pas un équipement en place — il m'a induit en erreur une fois, il peut le refaire.
 
 Figure reproductible : `.venv/bin/python code/scripts/gen/gen_schema_substitut_tube.py`
