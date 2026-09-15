@@ -75,6 +75,8 @@ def main() -> None:
                     help="incrémente le ?v= des images (figures régénérées)")
     ap.add_argument("--verifier-seulement", action="store_true",
                     help="contrôle les images sans rien publier")
+    ap.add_argument("--forcer-close", action="store_true",
+                    help="autorise la republication vers une issue CLOSE (archive)")
     a = ap.parse_args()
 
     source = fichier_source(a.numero)
@@ -99,6 +101,14 @@ def main() -> None:
     if a.verifier_seulement:
         print("vérification seule, rien n'a été publié")
         return
+
+    # Une issue CLOSE est un record historique : son corps est archivé au dépôt,
+    # pas piloté depuis lui. Republier y réécrirait une trace figée.
+    etat = subprocess.run(["gh", "issue", "view", str(a.numero), "--json", "state",
+                           "-q", ".state"], capture_output=True, text=True, cwd=R)
+    if etat.stdout.strip() == "CLOSED" and not a.forcer_close:
+        raise SystemExit(f"issue #{a.numero} est CLOSE — archive seulement. "
+                         f"Passer --forcer-close pour republier malgré tout.")
 
     subprocess.run(["gh", "issue", "edit", str(a.numero), "--body-file", str(source)],
                    check=True, cwd=R, stdout=subprocess.DEVNULL)
