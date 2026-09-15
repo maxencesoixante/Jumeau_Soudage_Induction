@@ -119,9 +119,16 @@ MFC labo et **brûle deux fois plus** : en concentrant vers le centre, il empile
 le recouvrement là où la chaleur s'évacue le moins. Sous l'hypothèse corroborée,
 il soude un peu moins mais dégrade six fois moins.
 
-Le levier « pas serré » ouvre donc une fenêtre, mais étroite : entre le moment où
-les chants atteignent la fusion et celui où le centre dépasse la dégradation. Le
-pas optimal, s'il existe, est entre 15 et 30 mm — non calculé ici.
+⚠️ **Ce classement vaut à 15 mm, et seulement là.** Le balayage complet du pas
+(`balayage_pas_mfc_reduit.md`) montre que les trois configurations n'ont pas le
+même pas optimal : 15 mm est déjà trop serré pour le MFC réduit, pas encore pour
+le 55 mm. Comparées chacune **à son propre pas**, les conclusions s'inversent —
+le MFC réduit triple la surface soudable sans dégradation. Ne pas lire ce tableau
+comme un verdict sur le concentrateur.
+
+Le levier « pas serré » ouvre donc une fenêtre entre le moment où les chants
+atteignent la fusion et celui où le centre dépasse la dégradation. Où elle se
+situe, et pour quelle configuration elle est la plus large : voir le balayage.
 
 ## Ce que ce calcul ne prouve pas
 
