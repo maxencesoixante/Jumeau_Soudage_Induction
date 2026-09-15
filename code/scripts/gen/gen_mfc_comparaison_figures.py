@@ -160,7 +160,7 @@ def main() -> None:
         ax.set_xlabel("$x$ (mm)")
         ax.set_ylabel("$y$ (mm)")
         pic = r["Tmax"].max()
-        ax.set_title(f"{nom} — pic {pic:.0f} °C", fontsize=10.5, pad=6)
+        ax.set_title(nom, fontsize=10.5, pad=6)
         cb = fig.colorbar(im, ax=ax, fraction=0.030, pad=0.015)
         cb.set_label("T interface au pic (°C)", fontsize=9)
         cb.ax.tick_params(labelsize=8)
@@ -216,8 +216,7 @@ def main() -> None:
         ax.set_aspect("equal")
         ax.set_xlabel("$x$ (mm)")
         ax.set_ylabel("$y$ (mm)")
-        ax.set_title(f"{nom} — max {r['P2d'].max() * 1e-3:.0f} kW/m²",
-                     fontsize=10.5, pad=6)
+        ax.set_title(nom, fontsize=10.5, pad=6)
         cb = fig.colorbar(im, ax=ax, fraction=0.030, pad=0.015)
         cb.set_label("Puissance déposée (kW/m²)", fontsize=9)
         cb.ax.tick_params(labelsize=8)
