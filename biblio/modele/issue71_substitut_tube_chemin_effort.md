@@ -21,7 +21,7 @@ Le tube CF/PEKK ne sera pas disponible pour le projet. Le substitut envisagé :
 
 ![Cheminement de l'effort](https://raw.githubusercontent.com/maxencesoixante/Jumeau_Soudage_Induction/main/biblio/labo/figures/fig_substitut_tube_chemins_effort.png?v=2)
 
-*À gauche : la coupe transverse et les deux trajets possibles de l'effort. À droite : le même montage réduit à deux raideurs en parallèle.*
+*À gauche : la coupe transverse, le contact posé (pointillés) et le trajet de l'effort. À droite : les deux cas d'empilement — celui où les ailes ne portent pas, et celui où elles court-circuitent.*
 
 ## Le problème se dissout — sous une condition
 
@@ -75,19 +75,25 @@ Trois réponses ont fermé les inconnues de conception :
 
 Le circuit voulu est donc : **vessie → plaque inférieure → interface de soudure → plaque supérieure → outil → cellule**. La pression de consolidation vient de la vessie, et c'est l'outil supérieur qui fournit la réaction.
 
-### Ce que les ailes du U détournent
+### Ce que les ailes détourneraient si les plaques y étaient fixées
 
-Les ailes relient l'âme (poussée vers le bas par la vessie) aux plaques (retenues en haut par l'outil) : elles travaillent donc en **traction**, et cette traction **soustrait** à ce qui traverse l'interface. Sur la plaque inférieure :
+Ce paragraphe garde la trace du mécanisme redouté, parce qu'il redevient vrai dès
+que les cotes sont mauvaises.
+
+Des plaques **solidaires** des ailes relieraient l'âme (poussée vers le bas par la
+vessie) aux plaques (retenues en haut par l'outil) : les ailes travailleraient en
+**traction**, et cette traction **soustrairait** à ce qui traverse l'interface —
 
 $$p \cdot A = R_{\text{outil}} + T_{\text{ailes}}$$
 
-Autrement dit, **plus les ailes sont raides, moins la pression de la vessie atteint la soudure** — il faut alors gonfler davantage pour une même pression d'interface, et le rapport entre les deux devient inconnu. C'est exactement la crainte formulée au départ, et elle est fondée.
+— si bien que plus les ailes seraient raides, moins la pression de la vessie
+atteindrait la soudure, avec un rapport entre les deux inconnu.
 
-### Un point favorable, qu'il faut vérifier
-
-Si rien d'autre que l'outil ne touche la plaque supérieure, la cellule mesure $R_{\text{outil}}$, c'est-à-dire **l'effort qui traverse réellement l'interface** — pas la somme polluée. Dans ce cas l'instrumentation est saine, et le problème se réduit à un rendement : quelle fraction de $p \cdot A$ arrive à la soudure.
-
-⚠️ **À confirmer sur le montage réel** : la plaque supérieure ne doit toucher que l'outil. Tout appui latéral ou toute reprise sur le U rouvrirait le problème de mesure.
+Ce n'est pas le montage décrit : les plaques sont posées, le contact est
+unilatéral, et il s'ouvre. **Mais une interférence de cotes le remet en
+compression et restaure exactement cette équation.** C'est pourquoi la condition
+de cotes ci-dessus n'est pas un détail d'ajustage : c'est ce qui sépare les deux
+régimes.
 
 ## Ce montage est une conception neuve, pas une adaptation
 
