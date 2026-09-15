@@ -81,6 +81,48 @@ d'une passe mais du **recouvrement** de deux dwells successifs, c'est-à-dire de
 chaleur résiduelle. Ce qui soude dans cette séquence, ce n'est pas le
 concentrateur, c'est l'accumulation.
 
+## Et avec un pas plus serré ?
+
+Même séquence, même étendue (premier et dernier centre inchangés), même courant
+et même durée par passe — seul le pas change : **15 mm au lieu de 30**, donc
+**7 passes au lieu de 4**. Attention, l'énergie déposée augmente d'autant : la
+comparaison répond à « que donne un pas plus serré ? », pas à « à énergie
+égale ».
+
+![Sept passes au pas de 15 mm](figures/fig_sequence_passes_mfc_reduit_pas15mm.png)
+
+| après | soudé | dégradé | T max (°C) |
+|---|---|---|---|
+| 1 passe | 1,2 % | 0 % | 345,1 |
+| 3 passes | 17,6 % | 5,2 % | 524,5 |
+| 5 passes | 25,6 % | 18,7 % | 554,8 |
+| 7 passes | **37,2 %** | **29,7 %** | 559,2 |
+
+**Le pas serré tient sa promesse — et révèle le vrai plafond.** La couverture
+passe de 8,0 à 37,2 %, ce qui confirme que c'est bien le recouvrement qui soude.
+Mais la contrainte a changé de camp : à 30 mm rien n'atteignait la fusion ; à
+15 mm le centre *dépasse le seuil de dégradation* (478 °C) pendant que les chants
+sont encore tout juste à la fusion (332 °C). Le profil en largeur s'est
+complètement inversé — le M des chants est devenu un dôme central.
+
+**Et le MFC réduit n'est alors plus le meilleur choix.** À pas égal, la même
+séquence donne :
+
+| configuration | soudé | dégradé |
+|---|---|---|
+| MFC réduit, hypothèse favorable (A) | 37,2 % | 29,7 % |
+| MFC labo 55 mm | 37,3 % | 15,6 % |
+| MFC réduit, hypothèse corroborée (B) | 34,5 % | **4,7 %** |
+
+Le MFC réduit dans son hypothèse la plus favorable **ne soude pas plus** que le
+MFC labo et **brûle deux fois plus** : en concentrant vers le centre, il empile
+le recouvrement là où la chaleur s'évacue le moins. Sous l'hypothèse corroborée,
+il soude un peu moins mais dégrade six fois moins.
+
+Le levier « pas serré » ouvre donc une fenêtre, mais étroite : entre le moment où
+les chants atteignent la fusion et celui où le centre dépasse la dégradation. Le
+pas optimal, s'il existe, est entre 15 et 30 mm — non calculé ici.
+
 ## Ce que ce calcul ne prouve pas
 
 - **Le taux de dégradation de la famille A est à prendre avec réserve.** Le seuil 450 °C est appliqué à une température d'interface calculée avec la config canonique, dont la chaleur latente vaut 130 J/g (valeur 100 % cristallin, ~3× trop) et qui n'a pas de plateau de fusion. Sur le cycle 231 A, cette config donne 865 °C là où le modèle de fusion donne 508 °C : au-delà du point de fusion, elle **surestime systématiquement** l'interface. Les 33 % dégradés sont donc un majorant, pas une mesure. Le verdict « non uniforme » ne repose pas dessus : 44.9 % de soudé n'est de toute façon pas une couverture.
