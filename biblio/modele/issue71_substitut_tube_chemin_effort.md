@@ -19,52 +19,51 @@ Le tube CF/PEKK ne sera pas disponible pour le projet. Le substitut envisagé :
 
 **Comment faire passer les efforts transmis par la cellule de force dans la vessie, et non dans les parois du U ?**
 
-![Cheminement de l'effort](https://raw.githubusercontent.com/maxencesoixante/Jumeau_Soudage_Induction/main/biblio/labo/figures/fig_substitut_tube_chemins_effort.png?v=1)
+![Cheminement de l'effort](https://raw.githubusercontent.com/maxencesoixante/Jumeau_Soudage_Induction/main/biblio/labo/figures/fig_substitut_tube_chemins_effort.png?v=2)
 
 *À gauche : la coupe transverse et les deux trajets possibles de l'effort. À droite : le même montage réduit à deux raideurs en parallèle.*
 
-## Pourquoi ce n'est pas un réglage mais un problème de conception
+## Le problème se dissout — sous une condition
 
-Il y a **deux chemins en parallèle** entre la cellule et le bâti :
+Les plaques sont **simplement posées** sur les ailes, non solidaires. Ce contact est donc **unilatéral** : il transmet de la compression, jamais de traction. Et la vessie pousse la plaque **vers le haut**, c'est-à-dire *loin* des ailes.
 
-| chemin | trajet | effet |
-|---|---|---|
-| **voulu** | cellule → plaque → vessie → interfaces | met les interfaces en pression |
-| **parasite** | cellule → plaque → ailes du U → bâti | court-circuite la vessie |
+**Le chemin parasite ne se contente pas d'être faible : il se déconnecte de lui-même.** Dès la mise en pression, le contact plaque/aile s'ouvre, les ailes ne portent plus rien, et la totalité de $p \cdot A$ traverse l'interface de soudure jusqu'à l'outil.
 
-Deux raideurs en parallèle se partagent l'effort **au prorata de leur raideur** :
+Le circuit est alors simple et sans dérivation :
 
-$$\frac{F_{\text{paroi}}}{F_{\text{vessie}}} = \frac{k_{\text{paroi}}}{k_{\text{vessie}}}$$
+**vessie → plaque inférieure → interface → plaque supérieure → outil → cellule**
 
-Or une paroi de verre en compression est **raide**, une vessie sous pression est **souple**. Le rapport est donc très supérieur à 1, et par défaut **presque tout l'effort part dans les ailes**.
+Ce qui a deux conséquences favorables :
 
-⚠️ **Le chemin qu'on veut privilégier est précisément le plus souple — donc celui qui refuse naturellement l'effort.** « De préférence dans la vessie » ne peut pas s'obtenir par un réglage : il faut agir sur la topologie du montage. Tant que les deux chemins coexistent, la cellule mesure surtout la raideur du U.
+- **la pression d'interface vaut la poussée de la vessie**, sans rendement inconnu ;
+- **la cellule mesure exactement l'effort qui traverse la soudure** — elle est en série avec le chemin utile, pas en parallèle avec une dérivation.
 
-### La cellule est au-dessus de l'empilement — et cela décide de tout
+### La seule chose qui reste à garantir : les cotes
 
-**Position confirmée : la cellule est au-dessus de l'empilement.** Elle est donc en série avec l'ensemble, et en parallèle avec les deux chemins réunis :
+Le raisonnement ci-dessus tombe si les ailes **portent la plaque avant que l'outil ne la touche**. Dans ce cas l'outil plaque l'empilement sur les ailes, le contact passe en compression, et elles court-circuitent la vessie — le problème initial réapparaît intégralement.
 
-$$F_{\text{cellule}} = F_{\text{vessie}} + F_{\text{paroi}}$$
+C'est donc une **condition d'empilement de cotes**, pas un problème de raideur :
 
-Elle mesure la **somme**, sans pouvoir la répartir. Or, $k_{\text{paroi}} \gg k_{\text{vessie}}$ donnant $F_{\text{paroi}} \approx F_{\text{cellule}}$ et $F_{\text{vessie}} \approx 0$ :
+$$h_U + e_{\text{plaques}} < \text{course disponible sous l'outil}$$
 
-⚠️ **Telle qu'elle est placée, la cellule mesure presque exclusivement le chemin parasite — c'est-à-dire précisément la grandeur dont on ne veut pas.** Elle est quasi aveugle à l'effort qui atteint les interfaces, qui est pourtant le seul qui compte pour la soudure.
+Autrement dit, le U doit être **légèrement trop court**, de sorte que ce soit la vessie — et non les ailes — qui amène les plaques au contact de l'outil.
 
-Deux conséquences pour les pistes ci-dessous. La piste 1 devient celle qui **rend la cellule utile** : sans contact des ailes, $F_{\text{cellule}} = F_{\text{vessie}}$ exactement, et la mesure redevient celle de l'interface. La piste 2 n'est plus une option de câblage mais un **déplacement de la cellule**, puisqu'on sait maintenant qu'elle n'est pas en série avec la vessie.
+⚠️ **À vérifier au montage, et à re-vérifier à chaud** : le U en verre, les plaques et l'outil ne se dilatent pas de la même façon, et la soudure fait fondre l'interface donc réduit l'épaisseur de l'empilement pendant le cycle. Une cote juste à froid peut devenir une interférence à chaud, ou l'inverse.
 
-## Pistes à évaluer
+## Ce qu'il reste des quatre pistes
 
-Rien de ce qui suit n'est vérifié — ce sont les familles de solutions à instruire, pas une recommandation.
+1. **Découpler les ailes de l'empilement** — **déjà acquis par construction.** Les plaques sont posées, pas fixées : le découplage est obtenu par la nature du contact, sans pièce supplémentaire. Il ne reste qu'à le préserver par les cotes.
+2. ~~**Mettre la cellule en série avec la vessie**~~ — **sans objet.** Elle l'est déjà.
+3. **Piloter en pression plutôt qu'en effort** — **devenu redondant** si les cotes sont correctes, puisque effort mesuré et pression vessie deviennent équivalents. Garde son intérêt comme **contrôle croisé** : un écart entre les deux signalerait précisément qu'une aile porte.
+4. ~~**Assouplir localement les ailes**~~ — **écartée.** Le U doit tenir la géométrie sous pression.
 
-1. **Découpler les ailes de l'empilement.** Si les plaques ne sont pas solidaires des ailes, celles-ci ne peuvent plus tirer vers le bas : toute la poussée de la vessie traverse l'interface. C'est la piste la plus directe au vu du circuit établi. Reste à savoir comment le U tient alors la géométrie — les deux fonctions doivent être portées par des éléments distincts.
-2. ~~**Mettre la cellule en série avec la vessie**~~ — **sans objet.** La cellule mesure déjà la réaction de l'outil, donc l'effort qui traverse l'interface, sous réserve du point de vérification ci-dessus.
-3. **Piloter en pression plutôt qu'en effort.** La pression d'interface vaut la pression vessie (à la géométrie près), indépendamment du chemin parasite ; la cellule ne sert plus que de sécurité. Demande de connaître la pression réellement transmise par la vessie.
-4. ~~**Assouplir localement les ailes**~~ — **écartée.** Le U doit tenir la géométrie sous pression pendant la soudure (confirmé) : il ne peut pas être rendu souple. La piste est close, pas en attente.
+**Le travail se déplace donc de la conception mécanique vers le contrôle dimensionnel.**
 
 ## Ce qu'il faut savoir avant de trancher
 
-- **Référence et caractéristiques de la vessie** — attendues de RCF Technologies. Sans sa raideur et sa plage de pression, le rapport $k_{\text{paroi}}/k_{\text{vessie}}$ n'est pas chiffrable, et aucune piste ne peut être comparée.
-- **Section du U** : hauteur, largeur intérieure, épaisseur des ailes. Seule la plaque est cotée (120 × 40 mm).
+- **Référence et caractéristiques de la vessie** — attendues de RCF Technologies. La raideur n'est plus l'enjeu ; ce qu'il faut désormais, c'est la **plage de pression** et l'**épaisseur de la vessie gonflée**, qui entre dans l'empilement de cotes.
+- **Hauteur du U et épaisseur des ailes**, pour écrire la condition de cotes. Seules les plaques sont cotées (120 × 40 mm).
+- **Comportement à chaud de l'empilement** : dilatations différentielles et perte d'épaisseur à la fusion de l'interface.
 
 ## Le circuit, maintenant établi
 

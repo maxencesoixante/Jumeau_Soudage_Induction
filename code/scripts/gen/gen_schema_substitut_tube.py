@@ -12,6 +12,12 @@ interfaces sur les ailes du U.)
 LA VESSIE pousse l'empilement vers le haut contre l'OUTIL SUPÉRIEUR : c'est cette
 réaction qui comprime l'interface de soudure.
 
+LES PLAQUES SONT SEULEMENT POSÉES sur les ailes, non solidaires. Le contact est
+donc UNILATÉRAL : il ne transmet que de la compression, jamais de traction. Comme
+la vessie pousse la plaque VERS LE HAUT, c'est-à-dire loin des ailes, le contact
+s'ouvre et le chemin parasite SE DÉCONNECTE DE LUI-MÊME. Il ne subsiste que si
+les cotes le forcent (voir le panneau de droite).
+
 LA QUESTION : faire passer l'effort de la cellule de force DANS LA VESSIE, et non
 dans les parois du U.
 
@@ -89,12 +95,14 @@ def panneau_montage(ax) -> None:
     ax.add_patch(Rectangle((14, 39), 12, 4.5, facecolor="white", edgecolor="0.2", lw=1.3))
     ax.text(20, 41.2, "cellule de force", ha="center", va="center", fontsize=8.5)
 
-    # chemin PARASITE : par les ailes
+    # contact UNILATERAL plaque / ailes : il s'ouvre quand la vessie pousse
     for x in (2.5, 37.5):
-        ax.add_patch(FancyArrowPatch((x, 26), (x, 6), arrowstyle="-|>", mutation_scale=13,
-                                     color=PARASITE, lw=2.4, alpha=0.9))
-    ax.text(-9, 16, "chemin\nPARASITE\n(ailes du U)\nen traction", ha="center",
-            va="center", fontsize=8.5, color=PARASITE, fontweight="bold")
+        ax.plot([x - 2.4, x + 2.4], [27, 27], color=PARASITE, lw=2.2, ls=(0, (2, 1.6)),
+                solid_capstyle="butt", zorder=6)
+    ax.annotate("contact simplement POSÉ\n→ unilatéral, il s'ouvre", xy=(2.5, 27),
+                xytext=(-16.5, 19), fontsize=8.5, color=PARASITE, fontweight="bold",
+                ha="left", va="center",
+                arrowprops=dict(arrowstyle="->", color=PARASITE, lw=1.1))
 
     # chemin VOULU : la vessie POUSSE VERS LE HAUT, l'outil reagit
     for x in (11, 20, 29):
@@ -113,42 +121,37 @@ def panneau_montage(ax) -> None:
 
 
 def panneau_raideurs(ax) -> None:
-    """Le même montage vu comme deux raideurs en parallèle."""
-    ax.add_patch(Rectangle((0, 0), 30, 3, facecolor="0.75", edgecolor="0.4"))
-    ax.add_patch(Rectangle((0, 22), 30, 3, facecolor=CFPEKK, edgecolor="0.2"))
-    ax.add_patch(FancyArrowPatch((15, 31), (15, 25.6), arrowstyle="-|>",
-                                 mutation_scale=16, color="0.2", lw=2))
-    ax.text(15, 32.6, "$F$ (cellule)", ha="center", fontsize=9.5)
+    """Ce qui reste du problème : une condition de cotes, pas un partage d'effort."""
+    ax.text(15, 34, "Les plaques étant seulement posées,\nle chemin parasite n'existe que\nsi les COTES le forcent.",
+            ha="center", va="center", fontsize=9.5)
 
-    import numpy as np
-    for x0, tours, coul, nom in ((5, 11, PARASITE, "$k_{\\rm paroi}$ (raide)"),
-                                 (22, 4, VOULU, "$k_{\\rm vessie}$ (souple)")):
-        t = np.linspace(0, 1, 400)
-        ax.plot(x0 + 2.0 * np.sin(2 * np.pi * tours * t), 4 + 17 * t,
-                color=coul, lw=2.0)
-        ax.text(x0, -1.6, nom, ha="center", va="top", fontsize=9, color=coul)
+    for y0, coul, titre, detail in (
+            (18, VOULU, "cotes correctes", "l'outil touche la plaque,\nles ailes ne portent pas\n→ tout passe par la vessie"),
+            (2, PARASITE, "interférence de cotes", "les ailes portent la plaque\navant l'outil\n→ elles court-circuitent")):
+        ax.add_patch(Rectangle((0, y0 + 7), 30, 1.8, facecolor="0.55", edgecolor="0.3"))
+        ax.add_patch(Rectangle((0, y0 + 4.4), 30, 2.4, facecolor=CFPEKK, edgecolor="0.2"))
+        ax.add_patch(Rectangle((2, y0), 3, 4.4 if coul is PARASITE else 3.4,
+                               facecolor=VERRE, edgecolor="0.35"))
+        ax.add_patch(Rectangle((25, y0), 3, 4.4 if coul is PARASITE else 3.4,
+                               facecolor=VERRE, edgecolor="0.35"))
+        ax.text(15, y0 + 2.2, titre, ha="center", va="center", fontsize=9,
+                color=coul, fontweight="bold")
+        ax.text(33, y0 + 3, detail, ha="left", va="center", fontsize=8.3, color=coul)
 
-    ax.annotate("", xy=(20.4, 13), xytext=(7.4, 13),
-                arrowprops=dict(arrowstyle="<->", color="0.35", lw=1.1))
-    ax.text(14, 14.2, "en parallèle", ha="center", fontsize=8.5, color="0.35")
-    ax.text(15, -9.4, r"$\dfrac{F_{\rm paroi}}{F_{\rm vessie}} = "
-                      r"\dfrac{k_{\rm paroi}}{k_{\rm vessie}} \gg 1$",
-            ha="center", va="center", fontsize=12.5)
-
-    ax.set_xlim(-4, 34)
-    ax.set_ylim(-15, 38)
+    ax.set_xlim(-3, 62)
+    ax.set_ylim(-3, 39)
     ax.set_aspect("equal")
     ax.axis("off")
-    ax.set_title("Le problème, en une ligne", pad=8)
+    ax.set_title("Ce qu'il reste à garantir", pad=8)
 
 
 def main() -> None:
     SORTIE.parent.mkdir(parents=True, exist_ok=True)
-    fig, (ag, ad) = plt.subplots(1, 2, figsize=(11.4, 5.0),
-                                 gridspec_kw={"width_ratios": [1.75, 1]})
+    fig, (ag, ad) = plt.subplots(1, 2, figsize=(12.6, 5.2),
+                                 gridspec_kw={"width_ratios": [1.25, 1]})
     panneau_montage(ag)
     panneau_raideurs(ad)
-    fig.suptitle("Substitut de tube : par où passe l'effort de la cellule ?", y=1.02)
+    fig.suptitle("Substitut de tube : le chemin de l'effort vers la soudure", y=1.02)
     savefig(fig, SORTIE)
     plt.close(fig)
     print("ecrit :", SORTIE)
