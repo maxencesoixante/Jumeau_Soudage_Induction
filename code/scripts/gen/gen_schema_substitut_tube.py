@@ -7,14 +7,14 @@ un tube. Une vessie gonflable occupe la cavité.
 LA SOUDURE EST ENTRE DEUX PLAQUES CF/PEKK de même longueur, posées sur le tube,
 comme sur le montage plan actuel. Le U n'est PAS un substrat de soudure : il est
 purement structurel. (Une version antérieure de ce schéma plaçait à tort les
-interfaces sur les ailes du U.)
+interfaces sur les parois du U.)
 
 LA VESSIE pousse l'empilement vers le haut contre l'OUTIL SUPÉRIEUR : c'est cette
 réaction qui comprime l'interface de soudure.
 
-LES PLAQUES SONT SEULEMENT POSÉES sur les ailes, non solidaires. Le contact est
+LES PLAQUES SONT SEULEMENT POSÉES sur les parois, non solidaires. Le contact est
 donc UNILATÉRAL : il ne transmet que de la compression, jamais de traction. Comme
-la vessie pousse la plaque VERS LE HAUT, c'est-à-dire loin des ailes, le contact
+la vessie pousse la plaque VERS LE HAUT, c'est-à-dire loin des parois, le contact
 s'ouvre et le chemin parasite SE DÉCONNECTE DE LUI-MÊME. Il ne subsiste que si
 les cotes le forcent (voir le panneau de droite).
 
@@ -24,14 +24,14 @@ dans les parois du U.
 Ce schéma pose le problème tel qu'il est, c'est-à-dire un partage d'effort entre
 DEUX CHEMINS EN PARALLÈLE :
   - le chemin voulu   : cellule -> vessie -> interfaces de soudure ;
-  - le chemin parasite : cellule -> plaque -> ailes du U -> bâti.
+  - le chemin parasite : cellule -> plaque -> parois du U -> bâti.
 Deux raideurs en parallèle se partagent l'effort au prorata de leur raideur. Or
 une paroi de verre en compression est raide, une vessie sous pression est
 souple : par défaut, l'effort part presque entièrement dans les parois. Le chemin
 souhaité est précisément le plus souple — c'est tout le problème.
 
 COTES : seules celles de la plaque sont connues (120 x 40 mm, comme les
-échantillons actuels). La section du U, l'épaisseur des ailes et la vessie ne le
+échantillons actuels). La section du U, l'épaisseur des parois et la vessie ne le
 sont pas — la référence vessie est attendue de RCF Technologies. Le schéma les
 laisse donc explicitement en « ? » plutôt que d'inventer des valeurs.
 
@@ -62,7 +62,7 @@ def panneau_montage(ax) -> None:
     ax.add_patch(Rectangle((-6, -6), 52, 6, facecolor="0.75", edgecolor="0.4"))
     ax.text(40, -3, "bâti", ha="center", va="center", fontsize=8.5, color="0.25")
 
-    # U en fibre de verre : ame + deux ailes
+    # U en fibre de verre : ame + deux parois
     ax.add_patch(Rectangle((0, 0), 40, 5, facecolor=VERRE, edgecolor="0.35"))
     ax.add_patch(Rectangle((0, 5), 5, 22, facecolor=VERRE, edgecolor="0.35"))
     ax.add_patch(Rectangle((35, 5), 5, 22, facecolor=VERRE, edgecolor="0.35"))
@@ -81,7 +81,7 @@ def panneau_montage(ax) -> None:
                 fontsize=8.5, color=CFPEKK, ha="left", va="center",
                 arrowprops=dict(arrowstyle="->", color=CFPEKK, lw=1.1))
 
-    # INTERFACE DE SOUDURE : entre les deux plaques, pas sur les ailes du U
+    # INTERFACE DE SOUDURE : entre les deux plaques, pas sur les parois du U
     ax.plot([0, 40], [30.2, 30.2], color=OKABE_ITO["rose"], lw=3.0,
             solid_capstyle="butt", zorder=6)
     ax.annotate("interface de soudure\n(CF/PEKK sur CF/PEKK)", xy=(36, 30.2), xytext=(44, 24),
@@ -95,7 +95,7 @@ def panneau_montage(ax) -> None:
     ax.add_patch(Rectangle((14, 39), 12, 4.5, facecolor="white", edgecolor="0.2", lw=1.3))
     ax.text(20, 41.2, "cellule de force", ha="center", va="center", fontsize=8.5)
 
-    # contact UNILATERAL plaque / ailes : il s'ouvre quand la vessie pousse
+    # contact UNILATERAL plaque / parois : il s'ouvre quand la vessie pousse
     for x in (2.5, 37.5):
         ax.plot([x - 2.4, x + 2.4], [27, 27], color=PARASITE, lw=2.2, ls=(0, (2, 1.6)),
                 solid_capstyle="butt", zorder=6)
@@ -126,8 +126,8 @@ def panneau_raideurs(ax) -> None:
             ha="center", va="center", fontsize=9.5)
 
     for y0, coul, titre, detail in (
-            (18, VOULU, "cotes correctes", "l'outil touche la plaque,\nles ailes ne portent pas\n→ tout passe par la vessie"),
-            (2, PARASITE, "interférence de cotes", "les ailes portent la plaque\navant l'outil\n→ elles court-circuitent")):
+            (18, VOULU, "cotes correctes", "l'outil touche la plaque,\nles parois ne portent pas\n→ tout passe par la vessie"),
+            (2, PARASITE, "interférence de cotes", "les parois portent la plaque\navant l'outil\n→ elles court-circuitent")):
         ax.add_patch(Rectangle((0, y0 + 7), 30, 1.8, facecolor="0.55", edgecolor="0.3"))
         ax.add_patch(Rectangle((0, y0 + 4.4), 30, 2.4, facecolor=CFPEKK, edgecolor="0.2"))
         ax.add_patch(Rectangle((2, y0), 3, 4.4 if coul is PARASITE else 3.4,

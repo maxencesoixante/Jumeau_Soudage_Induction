@@ -21,13 +21,13 @@ Le tube CF/PEKK ne sera pas disponible pour le projet. Le substitut envisagé :
 
 ![Cheminement de l'effort](https://raw.githubusercontent.com/maxencesoixante/Jumeau_Soudage_Induction/main/biblio/labo/figures/fig_substitut_tube_chemins_effort.png?v=2)
 
-*À gauche : la coupe transverse, le contact posé (pointillés) et le trajet de l'effort. À droite : les deux cas d'empilement — celui où les ailes ne portent pas, et celui où elles court-circuitent.*
+*À gauche : la coupe transverse, le contact posé (pointillés) et le trajet de l'effort. À droite : les deux cas d'empilement — celui où les parois ne portent pas, et celui où elles court-circuitent.*
 
 ## Le problème se dissout — sous une condition
 
-Les plaques sont **simplement posées** sur les ailes, non solidaires. Ce contact est donc **unilatéral** : il transmet de la compression, jamais de traction. Et la vessie pousse la plaque **vers le haut**, c'est-à-dire *loin* des ailes.
+Les plaques sont **simplement posées** sur les parois, non solidaires. Ce contact est donc **unilatéral** : il transmet de la compression, jamais de traction. Et la vessie pousse la plaque **vers le haut**, c'est-à-dire *loin* des parois.
 
-**Le chemin parasite ne se contente pas d'être faible : il se déconnecte de lui-même.** Dès la mise en pression, le contact plaque/aile s'ouvre, les ailes ne portent plus rien, et la totalité de $p \cdot A$ traverse l'interface de soudure jusqu'à l'outil.
+**Le chemin parasite ne se contente pas d'être faible : il se déconnecte de lui-même.** Dès la mise en pression, le contact plaque/paroi s'ouvre, les parois ne portent plus rien, et la totalité de $p \cdot A$ traverse l'interface de soudure jusqu'à l'outil.
 
 Le circuit est alors simple et sans dérivation :
 
@@ -40,29 +40,29 @@ Ce qui a deux conséquences favorables :
 
 ### La seule chose qui reste à garantir : les cotes
 
-Le raisonnement ci-dessus tombe si les ailes **portent la plaque avant que l'outil ne la touche**. Dans ce cas l'outil plaque l'empilement sur les ailes, le contact passe en compression, et elles court-circuitent la vessie — le problème initial réapparaît intégralement.
+Le raisonnement ci-dessus tombe si les parois **portent la plaque avant que l'outil ne la touche**. Dans ce cas l'outil plaque l'empilement sur les parois, le contact passe en compression, et elles court-circuitent la vessie — le problème initial réapparaît intégralement.
 
 C'est donc une **condition d'empilement de cotes**, pas un problème de raideur :
 
 $$h_U + e_{\text{plaques}} < \text{course disponible sous l'outil}$$
 
-Autrement dit, le U doit être **légèrement trop court**, de sorte que ce soit la vessie — et non les ailes — qui amène les plaques au contact de l'outil.
+Autrement dit, le U doit être **légèrement trop court**, de sorte que ce soit la vessie — et non les parois — qui amène les plaques au contact de l'outil.
 
 ⚠️ **À vérifier au montage, et à re-vérifier à chaud** : le U en verre, les plaques et l'outil ne se dilatent pas de la même façon, et la soudure fait fondre l'interface donc réduit l'épaisseur de l'empilement pendant le cycle. Une cote juste à froid peut devenir une interférence à chaud, ou l'inverse.
 
 ## Ce qu'il reste des quatre pistes
 
-1. **Découpler les ailes de l'empilement** — **déjà acquis par construction.** Les plaques sont posées, pas fixées : le découplage est obtenu par la nature du contact, sans pièce supplémentaire. Il ne reste qu'à le préserver par les cotes.
+1. **Découpler les parois de l'empilement** — **déjà acquis par construction.** Les plaques sont posées, pas fixées : le découplage est obtenu par la nature du contact, sans pièce supplémentaire. Il ne reste qu'à le préserver par les cotes.
 2. ~~**Mettre la cellule en série avec la vessie**~~ — **sans objet.** Elle l'est déjà.
-3. **Piloter en pression plutôt qu'en effort** — **devenu redondant** si les cotes sont correctes, puisque effort mesuré et pression vessie deviennent équivalents. Garde son intérêt comme **contrôle croisé** : un écart entre les deux signalerait précisément qu'une aile porte.
-4. ~~**Assouplir localement les ailes**~~ — **écartée.** Le U doit tenir la géométrie sous pression.
+3. **Piloter en pression plutôt qu'en effort** — **devenu redondant** si les cotes sont correctes, puisque effort mesuré et pression vessie deviennent équivalents. Garde son intérêt comme **contrôle croisé** : un écart entre les deux signalerait précisément qu'une paroi porte.
+4. ~~**Assouplir localement les parois**~~ — **écartée.** Le U doit tenir la géométrie sous pression.
 
 **Le travail se déplace donc de la conception mécanique vers le contrôle dimensionnel.**
 
 ## Ce qu'il faut savoir avant de trancher
 
 - **Référence et caractéristiques de la vessie** — attendues de RCF Technologies. La raideur n'est plus l'enjeu ; ce qu'il faut désormais, c'est la **plage de pression** et l'**épaisseur de la vessie gonflée**, qui entre dans l'empilement de cotes.
-- **Hauteur du U et épaisseur des ailes**, pour écrire la condition de cotes. Seules les plaques sont cotées (120 × 40 mm).
+- **Hauteur du U et épaisseur des parois**, pour écrire la condition de cotes. Seules les plaques sont cotées (120 × 40 mm).
 - **Comportement à chaud de l'empilement** : dilatations différentielles et perte d'épaisseur à la fusion de l'interface.
 
 ## Le circuit, maintenant établi
@@ -75,18 +75,18 @@ Trois réponses ont fermé les inconnues de conception :
 
 Le circuit voulu est donc : **vessie → plaque inférieure → interface de soudure → plaque supérieure → outil → cellule**. La pression de consolidation vient de la vessie, et c'est l'outil supérieur qui fournit la réaction.
 
-### Ce que les ailes détourneraient si les plaques y étaient fixées
+### Ce que les parois détourneraient si les plaques y étaient fixées
 
 Ce paragraphe garde la trace du mécanisme redouté, parce qu'il redevient vrai dès
 que les cotes sont mauvaises.
 
-Des plaques **solidaires** des ailes relieraient l'âme (poussée vers le bas par la
-vessie) aux plaques (retenues en haut par l'outil) : les ailes travailleraient en
+Des plaques **solidaires** des parois relieraient l'âme (poussée vers le bas par la
+vessie) aux plaques (retenues en haut par l'outil) : les parois travailleraient en
 **traction**, et cette traction **soustrairait** à ce qui traverse l'interface —
 
-$$p \cdot A = R_{\text{outil}} + T_{\text{ailes}}$$
+$$p \cdot A = R_{\text{outil}} + T_{\text{parois}}$$
 
-— si bien que plus les ailes seraient raides, moins la pression de la vessie
+— si bien que plus les parois seraient raides, moins la pression de la vessie
 atteindrait la soudure, avec un rapport entre les deux inconnu.
 
 Ce n'est pas le montage décrit : les plaques sont posées, le contact est
