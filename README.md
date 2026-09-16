@@ -266,8 +266,61 @@ guide le choix courant × temps.*
 
 ![Fenêtre de soudage](biblio/labo/figures/fig_fenetre_soudage.png)
 
-> *La zone admissible entre l'atteinte de la fusion (337 °C) et la dégradation (~450 °C), en
-> fonction du courant et du temps de chauffe.*
+> *La zone admissible entre l'atteinte de la fusion (337 °C) et la dégradation, en fonction
+> du courant et du temps de chauffe.*
+
+⚠️ **Le seuil de dégradation employé dans cette figure est un seuil de PIC à 450 °C, et il a
+deux défauts.** Il n'a **aucune provenance** dans le projet — c'est un littéral, absent de la
+configuration et de toute référence du corpus. Et il ne voit qu'un facteur : il déclare
+identiques une brève excursion à 450 °C et une demi-heure de maintien à 400 °C. Un **critère de
+dose en temps × température** le remplace depuis le 2026-09-16
+([`biblio/modele/critere_dose_degradation.md`](biblio/modele/critere_dose_degradation.md),
+module `jumeau.thermique.dose_degradation`), ancré pour ne créer aucun seuil nouveau. Les
+figures et scripts qui portent encore le seuil de pic sont à migrer.
+
+### Thermographie plein champ — ce que cinq thermocouples ne voient pas
+
+*Cinq thermocouples échantillonnent une ligne ; une caméra voit le champ. La différence a
+révélé un défaut que trois mois de confrontation aux TC n'avaient pas montré.*
+
+Campagne FLIR A700 sur plaque CF/PEKK découplée, plafond de température sous $T_g$ pour ne pas
+déconsolider. Résultat principal : **la source est bimodale** — les deux jambes du hairpin
+(entraxe 12,35 mm) créent une double bosse que le modèle à pic unique lissait en un seul
+maximum. Robuste sur trois conditions (150 A, 200 A, centré et au bord). Corrigé par le flag
+`bimodal_sigma_mm` (≈ 2,5 mm). Une asymétrie apparente s'est avérée être un **tilt d'image**,
+pas de la physique.
+
+Conséquence en cascade : une fois la source et le tilt traités, le `k_plan` effectif ressort
+**élevé** — le « k ≈ 3 » lu au premier jour était **confondu avec le défaut de source**.
+Détail : [`biblio/labo/synthese_issue69.md`](biblio/labo/synthese_issue69.md).
+
+### MFC réduit — prédiction figée avant campagne
+
+*Le concentrateur va passer de 55 à 31,75 mm. Que prédit le modèle ? La question s'est révélée
+plus profonde que prévu.*
+
+![Profils d'interface selon la configuration de MFC](biblio/modele/figures/fig_mfc_cmp_2_profils.png)
+
+> *Profil de température à l'interface sur la largeur, pour trois configurations de
+> concentrateur. C'est le contraste bord/centre qui discrimine les modèles.*
+
+Le MFC est modélisé par la **méthode des images**, c'est-à-dire un **demi-espace infini** : la
+longueur du bloc n'entre tout simplement pas dans le calcul du champ. Il a donc fallu construire
+des modèles de réduction — et il en existe **trois**, qui ne diffèrent pas par leur finesse mais
+par une affirmation physique : *le flux qui n'est plus sous le bloc se reconcentre-t-il ?* Deux
+d'entre eux répondent non et **s'accordent entre eux** ; le troisième répond oui et donne un
+profil radicalement différent.
+
+**Aucun calcul ne peut les départager** : c'est une campagne de mesure qui le fera (issue #55,
+dont le critère de succès est une table de verdict pré-enregistrée). Prédictions figées :
+[`biblio/modele/prediction_mfc_familles.md`](biblio/modele/prediction_mfc_familles.md).
+
+Découverte annexe qui éclaire tout le reste : **le centre de la largeur est une ligne nodale
+exacte de la dissipation** — la puissance Joule y est nulle par symétrie. Le centre ne chauffe
+que par conduction latérale, et **aucune géométrie de concentrateur ne change cela**. C'est ce
+qui explique qu'un planificateur de passes (`code/scripts/planifier_soudage.py`) conclue, dans
+les quatre hypothèses de modèle testées, qu'**aucun plan ne soude toute la largeur sans
+dégrader** : [`biblio/modele/plan_passes_familles.md`](biblio/modele/plan_passes_familles.md).
 
 ### Vérification croisée du solveur EM (eppy)
 
@@ -304,6 +357,23 @@ Paramètres de référence 2D (θ\* canonique) : `facteur_couplage = 6,0123`,
 de la correction de bord en x qui agit sur le même chant — cf.
 `biblio/labo/reouverture_h_bord_x0_heldout.md`).
 
+**Validation croisée** (modèle 2D, θ\* canonique, aucun recalibrage) — RMSE et écart de pic
+moyens, en °C, recalculés le 2026-09-16 :
+
+| Essai | Rôle | RMSE | \|ΔT_max\| |
+|---|---|---|---|
+| exp7 150 A | profil en largeur (5 TC) | 25,4 | 36,3 |
+| exp7 200 A | profil en largeur (5 TC) | 21,8 | 40,6 |
+| exp7 250 A | profil en largeur (5 TC) | 22,6 | 51,4 |
+| exp9 200 A | dissipation longitudinale | 12,0 | 15,8 |
+| série A-1 | **calibration**, 250 A | 35,0 | 26,6 |
+| série A-3 | validation aveugle, 200 A | 31,6 | 47,3 |
+| série B-2 | validation, 250 A basse consigne | 65,1 | 55,3 |
+
+Les campagnes à spot fixe (exp7, exp9) sont **nettement mieux reproduites** que les séries
+multi-passes A/B : l'écart vient du régime hors-spot, où l'étalement dans le plan est trop lent
+— le défaut structurel décrit au §6.
+
 ---
 
 ## 6. Hypothèses et limites connues
@@ -317,17 +387,24 @@ de la correction de bord en x qui agit sur le même chant — cf.
 | MFC = demi-espace perméable (images) | approximation 1er ordre de la concentration de flux ($\mu_r = 16$) |
 | Laminé homogénéisé ($\sigma, k$ quasi-iso plan) | O'Shaughnessey 2014 ; Grouve 2020 |
 | $\mu_r = 1$ pour le laminé | Grouve 2020 (Lionetto 2017) |
-| Fusion via $c_p$ apparent gaussien | notebook 1D ; Samanis et al. 2026 |
+| Fusion via $c_p$ apparent gaussien | notebook 1D ; Samanis et al. 2026. **Réserve** : la chaleur latente en config vaut 130 J/g (100 % cristallin), soit ~3× la valeur physique (~40 J/g à 30 % de cristallinité). Un **modèle de fusion physique** existe derrière flag (L_f = 40 + transport du bain fondu) : il plafonne l'interface à 508 °C au lieu de 865 et reproduit le plateau mesuré, mais reste **non adopté** (RMSE neutre sur les TC de bord). Conséquence : **au-dessus du point de fusion, la config canonique surestime systématiquement l'interface.** |
 | Fréquence figée à 388 kHz | relevé machine (sinon corrélée au facteur d'échelle) |
 | Bobine + MFC refroidis → puits 20 °C | O'Shaughnessey 2014 |
 | Pertes propres du MFC non modélisées | ≈ 0,6–1,4 W chiffrés (fiche Fluxtrol) vs 50–260 W dans le twill |
 
 ### Limites (résumé — détail dans les docs liées)
 
-- **Profil en M sur-contrasté** — le modèle prédit un contraste bord/centre ~3,0 vs ~2,1
-  mesuré (réduction requise ~−34 %). C'est de la **vraie physique** (écrasement du courant au
-  chant), **pas** un bug EM (confirmé par eppy) : c'est la **limite d'étalement in-plane** du
-  modèle plaque-mince, principale piste de travail restante.
+- **Étalement in-plane trop lent — arc clos, limite acceptée.** Le modèle sur-contraste le
+  profil en M et remplit trop lentement le centre. Ce n'est **pas** un bug EM (confirmé par
+  eppy) mais la limite d'étalement du modèle plaque-mince. **La thermographie plein champ
+  (septembre 2026) a déplacé le diagnostic** : une partie de l'écart venait d'un **défaut de
+  source** — la source est **bimodale** (les deux jambes du hairpin, entraxe 12,35 mm), que le
+  modèle à pic unique ne résolvait pas (flag `bimodal_sigma_mm`, calibré ≈ 2,5 mm). Une fois la
+  source et un tilt d'image corrigés, le `k_plan` effectif ressort **élevé, ≥ 7,5 W/(m·K)** —
+  soit ≈ 2,5× la valeur physique 3,0, alors que la littérature place l'enveloppe publiée
+  **encore en dessous** (2,2-2,5). Tous les leviers ont été essayés et réfutés (`k(T)`,
+  anisotropie kx≠ky, lissage de source, 3D, source × conduction) : c'est une **limite
+  documentée**, plus une piste ouverte.
 - **Gradient dans l'épaisseur trop faible** — les 5 TC des séries A/B sont **à l'interface**
   (mesuré : surface ≈ interface, ratio ≈ 0,97) ; le modèle **sur-chauffe la face opposée**
   (opposée/interface ≈ 0,9 simulé vs ≈ 0,42 mesuré). Mécanisme = **confinement transverse
