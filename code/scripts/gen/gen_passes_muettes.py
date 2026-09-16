@@ -11,9 +11,16 @@ tronquée, la famille que deux troncatures indépendantes soutiennent), 235 A, 2
 par passe. `--pas-mm` choisit le pas — **seule variable entre deux figures**, pour
 que deux séquences se comparent panneau à panneau.
 
-Deux pas valent d'être tracés : **15 mm**, le plus couvrant qui ne dégrade rien
-dans cette hypothèse, et **22,5 mm**, qui est l'optimum propre des *deux autres*
-configurations (MFC labo 55 mm et MFC réduit sous l'hypothèse favorable).
+`--mfc` choisit le bloc : `reduit` (défaut) ou `55` pour le MFC labo. Avec le
+bloc de 55 mm il n'y a aucune réduction à modéliser — donc aucune hypothèse de
+famille en jeu — et son empreinte DÉBORDE la plaque en largeur : le liseré sort
+du cadre en haut et en bas, ce qui est exactement ce qu'il faut voir. Les limites
+d'axes restent celles de la plaque dans tous les cas, pour que les figures se
+comparent entre elles.
+
+Trois figures valent d'être tracées : le bloc réduit à **15 mm** (le plus couvrant
+qui ne dégrade rien dans son hypothèse), le bloc réduit à **22,5 mm** (pour isoler
+l'effet du pas), et le **bloc de 55 mm à 22,5 mm**, qui est son propre optimum.
 
 Trois états, trois aplats : sous la fusion / soudé / dégradé. La dégradation est
 jugée en temps × température (`jumeau.thermique.dose_degradation`), pas au pic.
@@ -69,15 +76,23 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--pas-mm", type=float, default=15.0,
                     help="pas entre centres de passe (mm ; défaut 15)")
+    ap.add_argument("--mfc", choices=("reduit", "55"), default="reduit",
+                    help="bloc tracé : réduit 31,75 mm (défaut) ou labo 55 mm")
     a = ap.parse_args()
+    labo = a.mfc == "55"
+    mfc_longueur = None if labo else MFC_REDUIT
+    empreinte_y = 55.0 if labo else EMPREINTE_Y
     cfg = Config.charger(R / "code" / "config")
     cs = centres(a.pas_mm)
     pas_eff = (X_DERNIER - X_PREMIER) * 1e3 / (len(cs) - 1)
-    sortie = FIGURES / f"fig_passes_muettes_pas{pas_eff:.0f}mm.png"
+    # le nom sans préfixe reste celui du bloc réduit : ses deux figures sont
+    # déjà publiées sur #62 et leurs URL ne doivent pas se rompre.
+    prefixe = "fig_passes_muettes_mfc55" if labo else "fig_passes_muettes"
+    sortie = FIGURES / f"{prefixe}_pas{pas_eff:.0f}mm.png"
     etats = []
     for n in range(1, len(cs) + 1):
         passes = [{"x_c": x, "y_c": Y_C, "courant": COURANT,
-                   "mfc_longueur": MFC_REDUIT, "duree": DUREE} for x in cs[:n]]
+                   "mfc_longueur": mfc_longueur, "duree": DUREE} for x in cs[:n]]
         g, _, t, champs = verifier_sequentiel(cfg, passes, famille=FAMILLE,
                                               retour_historique=True)
         etats.append((g, etat(champs, t), cs[n - 1]))
@@ -89,8 +104,8 @@ def main() -> None:
         x_mm, y_mm = g.x * 1e3, g.y * 1e3
         ax.pcolormesh(x_mm, y_mm, e.T, cmap=ETATS, norm=BORNES, shading="auto")
         ax.add_patch(Rectangle((x_courant * 1e3 - EMPREINTE_X / 2.0,
-                                Y_C * 1e3 - EMPREINTE_Y / 2.0),
-                               EMPREINTE_X, EMPREINTE_Y, facecolor="none",
+                                Y_C * 1e3 - empreinte_y / 2.0),
+                               EMPREINTE_X, empreinte_y, facecolor="none",
                                edgecolor="0.15", lw=1.4, zorder=3))
         # limites IDENTIQUES sur tous les panneaux : l'autoscale les rendait
         # incomparables (l'empreinte qui deborde la plaque etirait l'axe).
