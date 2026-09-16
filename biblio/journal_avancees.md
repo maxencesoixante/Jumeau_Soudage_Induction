@@ -306,7 +306,7 @@ comme référence physique (#4) ; le `k(T)` décroissant est confirmé par la do
 **déclencheur de réouverture nommé** — patron réutilisé depuis. **Cote hauteur bobine 5,0 mm**
 (#6) et **position de TC1** au centre de la largeur, l'hypothèse « coin y=0 » réfutée (#8).
 **Dette de code** (#9) : les leviers réfutés restent derrière flags, avec un registre
-`docs/modele/leviers_refutes.md` — supprimer aurait coûté plus que garder.
+`biblio/modele/leviers_refutes.md` — supprimer aurait coûté plus que garder.
 
 **La loi thermostat « capteurs » est rejetée définitivement.** Le fit joint pleine famille la
 donne **pire partout** (held-out 30,0 → 41,2) : l'ancien gain « B-2 45 → 23 » tenait à un
@@ -464,7 +464,7 @@ uniformiser » reposait entièrement sur lui — un signal qu'il mérite mieux q
 | Correction de bord en x | **active par défaut** | 2026-08-30 |
 
 Il ne reste aucune correction en attente d'intégration. Les leviers réfutés sont conservés
-derrière flags avec un registre (`docs/modele/leviers_refutes.md`) : ils sont le **registre des
+derrière flags avec un registre (`biblio/modele/leviers_refutes.md`) : ils sont le **registre des
 négatifs** du projet, et des capacités réutilisables.
 
 ---
@@ -539,6 +539,15 @@ Détail archivé dans `biblio/labo/releves_resolus.md`.
   - `labo/releves_resolus.md` — relevés terrain déjà tranchés (archive).
 - **`biblio/modele/`** (résultats modèle numérique) :
   - `modele/figures_catalogue.md` — catalogue des figures.
+  - **Campagne MFC (septembre 2026)** : `modele/prediction_mfc_reduit.md` (prédiction figée),
+    `modele/prediction_mfc_familles.md` (les trois familles), `modele/plan_passes_familles.md`
+    (robustesse du plan de passes, pas resserré, « tout > 337 °C »),
+    `modele/balayage_pas_mfc_reduit.md` (pas optimal),
+    `modele/modulation_courant_limite.md` et `modele/modulation_deux_leviers.md` (conduite du
+    courant), `modele/critere_dose_degradation.md` (critère temps × température).
+  - **Corps d'issues versionnés** : `modele/issue<N>_*.md` — source de vérité du texte publié
+    sur GitHub, synchronisé par `code/scripts/gen/sync_issue.py`. Ne pas éditer l'issue dans le
+    navigateur : la synchro suivante écraserait sans avertir.
   - `modele/audit_lionetto_2017.md`, `modele/verification_croisee_eppy.md`, `modele/leviers_refutes.md`, `modele/facteur_couplage_decomposition.md`.
 - **`biblio/presentations/`** (rapports & présentations) :
   - `presentations/rapport_directrice_jumeau.md` — rapport complet pour la direction.
