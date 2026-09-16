@@ -460,6 +460,27 @@ ajoutées à la main : c'était un fichier **généré**. Contenu récupéré et
 qui le produisent. Règle : ne jamais éditer à la main un fichier portant une ligne
 « Reproduire : … ».
 
+**Les séquences de passes, tracées sans commentaire, montrent ce que les pourcentages
+cachaient.** Trois figures — bloc réduit au pas de 15 mm, le même au pas de 22,5 mm, et le bloc
+labo 55 mm à 22,5 mm — un panneau par passe, à la même échelle, sans titre ni axes ; seules les
+cotes figurent, sur les deux premiers panneaux.
+
+**Au pas de 22,5 mm, les zones soudées restent des îlots disjoints**, un par zone de
+recouvrement, qui ne se rejoignent jamais sur la longueur. **À 15 mm elles fusionnent en deux
+cordons continus.** Le pas ne règle donc pas seulement *combien* de surface se soude : il décide
+si le joint est **continu ou une rangée de points**. Aucun des deux chiffres — 9,2 % contre
+39,2 % — ne dit cela, et c'est pourtant une question de tenue mécanique. Cela donne un critère
+d'acceptation supplémentaire à **#61** : au pas large, la coupe devrait montrer une alternance
+soudé / non-soudé le long de `x`, et non un joint uniforme plus faible.
+
+Deuxième lecture, sur le bloc de 55 mm : **l'îlotage est le même**, donc c'est **le pas qui
+commande, pas la géométrie du concentrateur**. L'argument en faveur du MFC réduit n'est pas
+qu'il chauffe mieux — c'est qu'il autorise le pas serré qui rend le joint continu.
+
+Et un fait de géométrie que la cotation rend évident : l'empreinte du bloc de 55 mm **déborde la
+plaque en largeur** (55 mm pour 40), là où le bloc réduit laisse 4,1 mm de chant découvert de
+chaque côté.
+
 ---
 
 ## 3. Résidus ouverts (par priorité)
@@ -586,6 +607,9 @@ Détail archivé dans `biblio/labo/releves_resolus.md`.
     `modele/prediction_mfc_familles.md` (les trois familles), `modele/plan_passes_familles.md`
     (robustesse du plan de passes, pas resserré, « tout > 337 °C »),
     `modele/balayage_pas_mfc_reduit.md` (pas optimal),
+    `modele/sequence_passes_mfc_reduit_pas30mm.md` et `…_pas15mm.md` (la séquence, passe par
+    passe), `modele/positions_passes_pas_optimal.md` (où se pose le bloc),
+    `modele/4passes_toute_matiere_337.md` (ce que coûte de tout amener au-dessus de la fusion),
     `modele/modulation_courant_limite.md` et `modele/modulation_deux_leviers.md` (conduite du
     courant), `modele/critere_dose_degradation.md` (critère temps × température).
   - **Corps d'issues versionnés** : `modele/issue<N>_*.md` — source de vérité du texte publié
