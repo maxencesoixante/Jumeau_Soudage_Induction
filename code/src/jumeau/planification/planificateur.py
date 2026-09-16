@@ -20,7 +20,24 @@ _GABARIT = _RACINE / "code" / "config" / "essais" / "exp7_200A.yaml"
 
 def metriques(Tmax: np.ndarray, *, fusion: float = 337.0, degrad: float = 450.0) -> dict:
     """Pourcentages de surface : soudée (fusion..degrad), non soudée (<fusion),
-    dégradée (>=degrad)."""
+    dégradée (>=degrad).
+
+    ⚠️ CRITÈRE DE PIC — À N'UTILISER QUE POUR LE CRIBLAGE. ``degrad`` compare une
+    température de POINTE à un seuil, et ne voit donc pas la DURÉE d'exposition :
+    il déclare identiques une brève excursion à 450 °C et une demi-heure de
+    maintien à 400 °C. Le critère de verdict est la DOSE en temps × température
+    (``jumeau.thermique.dose_degradation.metriques_dose``), qui demande
+    l'historique et non la seule carte de pics.
+
+    Où l'un et l'autre s'emploient : le glouton ``planifier`` ne dispose que de
+    cartes de pics (stocker l'historique de chaque candidat coûterait ~1 Go), il
+    CRIBLE donc au pic ; le verdict final se prend sur l'historique reconstitué
+    par ``verifier_sequentiel(..., retour_historique=True)``. Pour les cycles
+    courts du procédé (dwell 20 s), le pic est le critère le PLUS SÉVÈRE des deux
+    — une brève excursion n'accumule pas assez de dose — donc le criblage est
+    conservateur : il écarte des passes que la dose accepterait, il n'en accepte
+    aucune qu'elle refuserait.
+    """
     n = Tmax.size
     degrade = Tmax >= degrad
     soude = (Tmax >= fusion) & ~degrade
@@ -58,7 +75,8 @@ def planifier(lib: dict, *, ambiant: float = 20.0, fusion: float = 337.0,
 
 
 def verifier_sequentiel(cfg: Config, passes_params, *, famille: str = "tronquer",
-                        h_bord_x0: float | None = None, facteur: float = 6.0123,
+                        h_bord_x0: float | None = None, retour_historique: bool = False,
+                        facteur: float = 6.0123,
                         nx: int = 61, ny: int = 21, nz: int = 15):
     """Rejoue le plan en UNE séquence multi-passes (chaleur résiduelle incluse)
     et renvoie ``(grille, Tmax_reel(x, y))``. Chaque passe = un spot successif
@@ -69,7 +87,10 @@ def verifier_sequentiel(cfg: Config, passes_params, *, famille: str = "tronquer"
     ``famille`` / ``h_bord_x0`` : mêmes quatre modèles de réduction et même θ*
     que ``empreinte`` — la vérification séquentielle DOIT être rejouée dans la
     famille qui a servi à bâtir le plan, sans quoi on vérifie un autre modèle
-    que celui qu'on a planifié."""
+    que celui qu'on a planifié.
+
+    ``retour_historique`` : renvoie ``(grille, Tmax, temps, champs)`` au lieu de
+    ``(grille, Tmax)``, pour que l'appelant puisse juger à la DOSE et non au pic."""
     if famille not in FAMILLES:
         raise ValueError(f"famille doit être l'une de {FAMILLES}, reçu {famille!r}")
     cfg = copy.deepcopy(cfg)
@@ -119,4 +140,8 @@ def verifier_sequentiel(cfg: Config, passes_params, *, famille: str = "tronquer"
     e.spec["duree_totale"] = t
     sv, sol = e.simuler(modele="2D")
     champs = np.array([sv.resultat_2d(sol, i) for i in range(sol.t.size)])
+    if retour_historique:
+        # l'historique est nécessaire au critère de DOSE : la carte de pics seule
+        # ne permet aucun verdict de dégradation qui tienne compte de la durée.
+        return e.grille, champs.max(axis=0), np.asarray(sol.t, dtype=float), champs
     return e.grille, champs.max(axis=0)

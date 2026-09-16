@@ -86,7 +86,9 @@ DISSIP_FILES = {
 # Reference temperature lines (PEKK) — same convention as the reference figure
 T_FUSION = 337.0      # °C — fusion PEKK (config/materiaux.yaml)
 T_PROCEDE = 390.0     # °C — cible procédé
-T_DEGRAD = 450.0      # °C — dégradation
+T_DEGRAD = 450.0      # °C — SEUIL DE PIC, pas un critère de dégradation : il ignore
+                      # la durée. Équivaut à la dose limite pour 20 s d'exposition
+                      # (cf. jumeau.thermique.dose_degradation). Ligne de repère seulement.
 COL_FUSION = "#0072B2"
 COL_PROCEDE = "#E69F00"
 COL_DEGRAD = "#C1272D"
@@ -124,7 +126,7 @@ def add_temp_lines(ax, lines=("fusion", "procede", "degrad"), x_label=0.015):
     conf = {
         "fusion": (T_FUSION, COL_FUSION, "-", "Fusion PEKK (337 °C)"),
         "procede": (T_PROCEDE, COL_PROCEDE, "--", "Cible procédé (390 °C)"),
-        "degrad": (T_DEGRAD, COL_DEGRAD, "-", "Dégradation (450 °C)"),
+        "degrad": (T_DEGRAD, COL_DEGRAD, "-", "Seuil de pic 450 °C (≡ dose 1 pour 20 s)"),
     }
     for key in lines:
         T, col, ls, txt = conf[key]

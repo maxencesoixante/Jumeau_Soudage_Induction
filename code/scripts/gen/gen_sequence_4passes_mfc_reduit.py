@@ -37,6 +37,7 @@ from __future__ import annotations
 
 import argparse
 import sys
+from datetime import date
 from pathlib import Path
 
 import numpy as np
@@ -50,10 +51,12 @@ from jumeau.materiaux import Config                                # noqa: E402
 from jumeau.planification.empreinte import empreinte               # noqa: E402
 from jumeau.planification.planificateur import (                   # noqa: E402
     verifier_sequentiel, metriques)
+from jumeau.thermique.dose_degradation import metriques_dose      # noqa: E402
 
 apply_style(**{"font.size": 9.5, "axes.titlesize": 10.5})
 
 FIGURES = R / "biblio" / "modele" / "figures"
+NOTES = R / "biblio" / "modele"
 FUSION, DEGRAD = 337.0, 450.0
 X_PREMIER, X_DERNIER = 0.015875, 0.105875            # étendue du procédé réel
 PAS_REEL_MM = 30.0                                   # pas du procédé semi-statique
@@ -126,19 +129,22 @@ def main() -> None:
     cfg = Config.charger(R / "code" / "config")
     etapes = []
     for n in jalons(len(cs)):
-        g, T = verifier_sequentiel(cfg, passes(cs, n), famille=FAMILLE)
-        m = metriques(T, fusion=FUSION, degrad=DEGRAD)
+        g, T, tt, ch = verifier_sequentiel(cfg, passes(cs, n), famille=FAMILLE,
+                                           retour_historique=True)
+        m = metriques_dose(ch, tt, fusion=FUSION)
         etapes.append((n, g, T, m))
         print(f"  {n:2d} passe(s) : soudé {m['pct_soude']:5.1f} %  "
               f"dégradé {m['pct_degrade']:5.1f} %  Tmax {T.max():6.1f} °C", flush=True)
 
     # contrepoints, à séquence identique : MFC labo, et famille B
-    g4, T_labo = verifier_sequentiel(
-        cfg, [{**q, "mfc_longueur": None} for q in passes(cs, len(cs))], famille=FAMILLE)
-    _, T_bobs = verifier_sequentiel(cfg, passes(cs, len(cs)),
-                                    famille="image_observation")
-    m_labo = metriques(T_labo, fusion=FUSION, degrad=DEGRAD)
-    m_bobs = metriques(T_bobs, fusion=FUSION, degrad=DEGRAD)
+    g4, T_labo, t_labo, ch_labo = verifier_sequentiel(
+        cfg, [{**q, "mfc_longueur": None} for q in passes(cs, len(cs))],
+        famille=FAMILLE, retour_historique=True)
+    _, T_bobs, t_bobs, ch_bobs = verifier_sequentiel(
+        cfg, passes(cs, len(cs)), famille="image_observation",
+        retour_historique=True)
+    m_labo = metriques_dose(ch_labo, t_labo, fusion=FUSION)
+    m_bobs = metriques_dose(ch_bobs, t_bobs, fusion=FUSION)
     print(f"  MFC labo 55 mm       : soudé {m_labo['pct_soude']:5.1f} %  "
           f"dégradé {m_labo['pct_degrade']:5.1f} %")
     print(f"  MFC réduit famille B : soudé {m_bobs['pct_soude']:5.1f} %  "
@@ -185,6 +191,47 @@ def main() -> None:
                  f"tireté : dégradation {DEGRAD:.0f} °C", y=0.985)
     savefig(fig, sortie)
     plt.close(fig)
+
+    # La note est ECRITE PAR CE SCRIPT, pas a la main dans une note voisine :
+    # une prose ajoutee a un fichier genere disparait a la regeneration suivante.
+    note = NOTES / f"sequence_passes_mfc_reduit_pas{pas_eff:.0f}mm.md"
+    L = [f"# {len(cs)} passes au MFC reduit, pas de {pas_eff:.0f} mm".replace(
+             "reduit", "réduit"),
+         "",
+         f"Généré le {date.today().isoformat()}. Séquence réelle du procédé : "
+         f"{len(cs)} dwells au pas de {pas_eff:.0f} mm "
+         f"(`x` = {cs[0]*1e3:.1f} → {cs[-1]*1e3:.1f} mm), spot centré en largeur "
+         f"(`y` = {Y_C*1e3:.0f} mm), {COURANT:.0f} A, {DUREE:.0f} s par passe, "
+         "chaleur résiduelle incluse.",
+         "",
+         "⚠️ **Hypothèse la plus favorable, pas la plus crédible.** Le calcul est fait "
+         "dans la famille « le flux se reconcentre » — la seule des quatre où le MFC "
+         "réduit produit un point chaud déplaçable, donc la seule qui vaille d'être "
+         "regardée passe par passe. Mais c'est **l'intrus** des trois familles "
+         "(cf. `prediction_mfc_familles.md`) : ce qui suit est une **borne optimiste**, "
+         "pas une prédiction.",
+         "",
+         f"![Séquence de passes](figures/{sortie.name})",
+         "",
+         "| après | soudé | dégradé | T max (°C) |",
+         "|---|---|---|---|",
+         *[f"| {n} passe{'s' if n > 1 else ''} | {m['pct_soude']:.1f} % | "
+           f"{m['pct_degrade']:.1f} % | {T.max():.1f} |" for n, _, T, m in etapes],
+         "",
+         f"À séquence identique, le **MFC labo 55 mm** donne {m_labo['pct_soude']:.1f} % "
+         f"soudé / {m_labo['pct_degrade']:.1f} % dégradé, et le MFC réduit sous "
+         f"l'**hypothèse corroborée** {m_bobs['pct_soude']:.1f} % / "
+         f"{m_bobs['pct_degrade']:.1f} %.",
+         "",
+         "La dégradation est jugée en **temps × température** "
+         "(`jumeau.thermique.dose_degradation`), pas au seuil de pic.",
+         "",
+         "Reproduire : `.venv/bin/python code/scripts/gen/"
+         "gen_sequence_4passes_mfc_reduit.py"
+         + (f" --pas-mm {a.pas_mm:.0f}" if abs(a.pas_mm - PAS_REEL_MM) > 1e-9 else "")
+         + "`"]
+    note.write_text("\n".join(L) + "\n", encoding="utf-8")
+    print("ecrit :", note)
     print("ecrit :", sortie)
 
 

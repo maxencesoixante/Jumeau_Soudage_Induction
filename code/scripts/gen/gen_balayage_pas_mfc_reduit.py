@@ -43,6 +43,7 @@ from _style import apply_style, savefig, OKABE_ITO                 # noqa: E402
 from jumeau.materiaux import Config                                 # noqa: E402
 from jumeau.planification.planificateur import (                    # noqa: E402
     verifier_sequentiel, metriques)
+from jumeau.thermique.dose_degradation import metriques_dose      # noqa: E402
 
 apply_style(**{"font.size": 10, "axes.titlesize": 11})
 
@@ -80,8 +81,10 @@ def main() -> None:
     for nom, mfc, famille, _ in CONFIGS:
         soude, degrade = [], []
         for n in N_INTERVALLES:
-            _, T = verifier_sequentiel(cfg, sequence(n, mfc), famille=famille)
-            m = metriques(T, fusion=FUSION, degrad=DEGRAD)
+            _, T, tt, ch = verifier_sequentiel(cfg, sequence(n, mfc),
+                                               famille=famille,
+                                               retour_historique=True)
+            m = metriques_dose(ch, tt, fusion=FUSION)
             soude.append(m["pct_soude"])
             degrade.append(m["pct_degrade"])
             print(f"  {nom:40s} pas {span_mm / n:5.1f} mm ({n + 1:2d} passes) : "

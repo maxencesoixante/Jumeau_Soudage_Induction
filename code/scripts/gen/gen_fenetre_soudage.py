@@ -6,8 +6,20 @@ CHAUD (lobe du M au bord, y=0) — le centre (creux du M) reste trop froid (c'es
 pourquoi le procédé réel est semi-statique / balayé). L'abaque raisonne donc sur
 le pic d'interface au point chaud, en fonction de (courant, durée de chauffe).
 
-Zones : sous-chauffe (pic < fusion) / SOUDAGE (fusion ≤ pic < dégradation) /
-dégradation (pic ≥ 450 °C). Ancrages : essais mesurés 150/200/250 A.
+Zones : sous-chauffe (pic < fusion) / SOUDAGE / dégradation.
+
+LA BORNE HAUTE EST UNE DOSE, PAS UN PIC (migré le 2026-09-16). Elle valait
+« instant où le point chaud franchit 450 °C » — un critère de pointe, aveugle à
+la DURÉE d'exposition : il donne le même verdict pour une brève excursion à
+450 °C et pour une demi-heure à 400 °C. Or une abaque courant × durée porte
+précisément sur la durée. La borne est désormais l'instant où la DOSE d'Arrhenius
+cumulée atteint 1 (`jumeau.thermique.dose_degradation`), ancrée pour que dose = 1
+corresponde exactement à l'ancien seuil lu comme exposition : 450 °C pendant une
+durée de passe. Aux forts courants, où la montée est brutale, les deux bornes
+coïncident presque ; aux faibles courants, la dose est plus sévère — c'est là que
+l'ancienne abaque promettait des durées qu'un maintien long ne permet pas.
+
+Ancrages : essais mesurés 150/200/250 A.
 
 NB : le modèle SUR-ESTIME le pic au bord d'environ ~50 °C (biais validé) → la
 frontière de dégradation est CONSERVATRICE (côté sûr) ; abaque indicatif ±~30-50 °C.
@@ -32,6 +44,7 @@ apply_style(**{
 from jumeau.materiaux import Config
 from jumeau.procede import Essai
 from jumeau.em.source_joule import source_spot
+from jumeau.thermique.dose_degradation import premier_depassement
 
 OUT = R / "biblio" / "labo" / "figures" / "fig_fenetre_soudage.png"
 FACTEUR = 6.0123
@@ -57,7 +70,7 @@ def serie_bord(courant):
     return sol.t, sv.serie_temporelle(sol, 0.060, 0.0, "interface")
 
 
-def premier_passage(t, T, seuil):
+def premier_passage(t, T, seuil):  # noqa: D401 — conservé pour les bornes basses
     """Premier instant où T franchit le seuil (interp linéaire), ou nan."""
     idx = np.where(T >= seuil)[0]
     if len(idx) == 0:
@@ -74,7 +87,7 @@ for I in COURANTS:
     t, Te = serie_bord(float(I))
     t_weld.append(premier_passage(t, Te, T_FUSION))       # point chaud atteint fusion
     t_proc.append(premier_passage(t, Te, T_PROCEDE))      # point chaud atteint cible procédé
-    t_degrade.append(premier_passage(t, Te, T_DEGRAD))    # point chaud atteint dégradation
+    t_degrade.append(premier_depassement(t, Te))          # dose cumulée atteint 1
     print(f"I={I:3.0f} A : t_fusion={t_weld[-1]!s:>6.6} "
           f"t_procédé={t_proc[-1]!s:>6.6} t_dégrad={t_degrade[-1]!s:>6.6}")
 
@@ -96,7 +109,8 @@ ax.fill_betweenx(COURANTS, td, tmax, color="#F4C7C3", zorder=0)     # dégradati
 # frontières (courbes)
 ax.plot(t_weld, COURANTS, "-o", color="#0072B2", lw=2, ms=4, label="Point chaud (lobe M, bord) → fusion 337 °C : début soudage")
 ax.plot(t_proc, COURANTS, "--", color="#1B7837", lw=1.6, label="Point chaud → cible procédé 390 °C")
-ax.plot(t_degrade, COURANTS, "-s", color="#C1272D", lw=2, ms=4, label="Point chaud → dégradation PEKK 450 °C")
+ax.plot(t_degrade, COURANTS, "-s", color="#C1272D", lw=2, ms=4,
+        label="Point chaud → dose de dégradation atteinte (temps × température)")
 
 # ancrages mesurés (pics réels exp7) — durée de chauffe mesurée ~ approx.
 anchors = {150: 57, 200: 18, 250: 10}   # durée de chauffe mesurée (README exp7 / baseline)

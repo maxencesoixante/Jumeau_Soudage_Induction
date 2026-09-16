@@ -197,7 +197,8 @@ ax_prof.plot(d_labo["y"] * 1e3, d_labo["prof_y"], "-o", ms=3, color="#333333",
 ax_prof.plot(d_red["y"] * 1e3, d_red["prof_y"], "-s", ms=3, color="#D55E00",
             label=f"MFC réduit (31.75 mm) — bord {d_red['T_bord']:.0f} °C / centre {d_red['T_centre']:.0f} °C")
 ax_prof.axhline(T_FUSION, color="#4DA6FF", lw=1.1, ls="--", label="fusion 337 °C")
-ax_prof.axhline(T_DEGRAD, color="#FF5555", lw=1.1, ls="--", label="dégradation 450 °C")
+ax_prof.axhline(T_DEGRAD, color="#FF5555", lw=1.1, ls="--",
+                label="seuil de pic 450 °C (≡ dose 1 pour 20 s)")
 ax_prof.set_xlabel("Largeur $y$ (mm) — coupe à $x$ = 60 mm")
 ax_prof.set_ylabel("T interface au pic (°C)")
 ax_prof.set_title("Profil en largeur — bord (M) vs centré ?", fontsize=10.5)

@@ -27,6 +27,7 @@ Sortie : biblio/modele/figures/fig_4passes_toute_matiere_337.png
 from __future__ import annotations
 
 import sys
+from datetime import date
 from pathlib import Path
 
 import numpy as np
@@ -41,10 +42,12 @@ from _style import apply_style, savefig, OKABE_ITO                 # noqa: E402
 from jumeau.materiaux import Config                                 # noqa: E402
 from jumeau.planification.planificateur import (                    # noqa: E402
     verifier_sequentiel, metriques)
+from jumeau.thermique.dose_degradation import metriques_dose      # noqa: E402
 
 apply_style(**{"font.size": 9.5, "axes.titlesize": 10.5})
 
 SORTIE = R / "biblio" / "modele" / "figures" / "fig_4passes_toute_matiere_337.png"
+NOTE = R / "biblio" / "modele" / "4passes_toute_matiere_337.md"
 FUSION, DEGRAD = 337.0, 450.0
 CENTRES = [0.015875, 0.045875, 0.075875, 0.105875]      # pas 30 mm, procédé réel
 Y_C, MFC_REDUIT, FAMILLE = 0.020, 0.03175, "conserver"
@@ -95,8 +98,9 @@ def main() -> None:
 
     etapes = []
     for n in (1, 2, 3, 4):
-        g, T = verifier_sequentiel(cfg, passes(n, COURANT, DUREE), famille=FAMILLE)
-        m = metriques(T, fusion=FUSION, degrad=DEGRAD)
+        g, T, tt, ch = verifier_sequentiel(cfg, passes(n, COURANT, DUREE),
+                                           famille=FAMILLE, retour_historique=True)
+        m = metriques_dose(ch, tt, fusion=FUSION)
         etapes.append((n, g, T, m))
         print(f"  {n} passe(s) : >=337 sur {m['pct_soude'] + m['pct_degrade']:5.1f} %  "
               f"dégradé {m['pct_degrade']:5.1f} %  "
@@ -104,8 +108,9 @@ def main() -> None:
 
     au_dessus, degrade = [], []
     for d in DUREES_BALAYAGE:
-        _, T = verifier_sequentiel(cfg, passes(4, COURANT, d), famille=FAMILLE)
-        m = metriques(T, fusion=FUSION, degrad=DEGRAD)
+        _, T, tt, ch = verifier_sequentiel(cfg, passes(4, COURANT, d),
+                                           famille=FAMILLE, retour_historique=True)
+        m = metriques_dose(ch, tt, fusion=FUSION)
         au_dessus.append(m["pct_soude"] + m["pct_degrade"])
         degrade.append(m["pct_degrade"])
         print(f"  durée {d:5.1f} s : >=337 sur {au_dessus[-1]:5.1f} %  "
@@ -144,6 +149,45 @@ def main() -> None:
                  f"{DUREE:.0f} s par passe", y=0.985)
     savefig(fig, SORTIE)
     plt.close(fig)
+
+    # Note ECRITE PAR CE SCRIPT (cf. gen_sequence_4passes : une prose ajoutee a la
+    # main dans une note generee voisine disparait a la regeneration suivante).
+    L = [f"# Faire dépasser {FUSION:.0f} °C à toute la matière en quatre passes, "
+         "et ce que ça coûte",
+         "",
+         f"Généré le {date.today().isoformat()}. MFC réduit 31,75 mm, hypothèse la "
+         f"plus favorable, pas de 30 mm, {COURANT:.0f} A, {DUREE:.0f} s par passe.",
+         "",
+         f"![Quatre passes](figures/{SORTIE.name})",
+         "",
+         "| après | au-dessus de 337 °C | dégradé | T min | T max |",
+         "|---|---|---|---|---|",
+         *[f"| {n} passe{'s' if n > 1 else ''} | "
+           f"{m['pct_soude'] + m['pct_degrade']:.1f} % | {m['pct_degrade']:.1f} % | "
+           f"{T.min():.0f} °C | {T.max():.0f} °C |" for n, _, T, m in etapes],
+         "",
+         f"### Balayage de la durée de passe, à {COURANT:.0f} A",
+         "",
+         "| durée par passe | > 337 °C | dégradé |",
+         "|---|---|---|",
+         *[f"| {d:.0f} s | {a:.1f} % | {dg:.1f} % |"
+           for d, a, dg in zip(DUREES_BALAYAGE, au_dessus, degrade)],
+         "",
+         "**La contrainte est géométrique, pas énergétique.** Le point le plus froid et "
+         "le plus chaud sont dans un rapport d'environ 3, et ce rapport ne descend pas "
+         "quand on chauffe plus : monter la puissance monte les deux ensemble. Le froid "
+         "vient de deux endroits que la source n'atteint pas — le centre de la largeur, "
+         "ligne nodale de la dissipation, et les extrémités en longueur au-delà des "
+         "passes extrêmes.",
+         "",
+         "La dégradation est jugée en **temps × température** "
+         "(`jumeau.thermique.dose_degradation`), pas au seuil de pic — ce qui change "
+         "le verdict des maintiens longs.",
+         "",
+         "Reproduire : `.venv/bin/python code/scripts/gen/"
+         "gen_4passes_toute_matiere_337.py`"]
+    NOTE.write_text("\n".join(L) + "\n", encoding="utf-8")
+    print("ecrit :", NOTE)
     print("ecrit :", SORTIE)
 
 

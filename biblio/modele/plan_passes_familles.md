@@ -1,6 +1,6 @@
 # Le verdict « pas de soudage uniforme » survit-il au changement d'hypothèse sur le MFC réduit ?
 
-Généré le 2026-09-15. Plan de passes glouton puis vérification séquentielle (chaleur résiduelle incluse), seuils fusion 337 °C / dégradation 450 °C.
+Généré le 2026-09-16. Plan de passes glouton puis vérification séquentielle (chaleur résiduelle incluse), seuils fusion 337 °C / dégradation 450 °C.
 
 ## Contrôle d'attribution
 
@@ -27,7 +27,7 @@ Deux choses séparent ce contrôle de la matrice qui suit : le θ* et la grille 
 | hypothèse sur le flux hors empreinte | soudé | dégradé | passes | MFC réduit retenu | uniforme |
 |---|---|---|---|---|---|
 | il disparaît (troncature dure) | 10.6 % | 0.0 % | 4 | non | NON |
-| il se reconcentre (famille A) | 44.9 % | 33.4 % | 10 | oui | NON |
+| il se reconcentre (famille A) | 47.9 % | 30.4 % | 10 | oui | NON |
 | il ne se reconcentre pas — obs. (famille B) | 10.6 % | 0.0 % | 4 | non | NON |
 | il ne se reconcentre pas — source (famille B) | 10.6 % | 0.0 % | 4 | non | NON |
 
@@ -49,129 +49,14 @@ Une seule passe centrée en `x = 60 mm`, `y = 20 mm`, 235 A, 20 s. Le centre de 
 
 Aucune hypothèse n'amène le centre à la fusion (337 °C). La seule qui l'en rapproche est celle où le flux se reconcentre — et elle y parvient en portant les chants au-delà du seuil de dégradation.
 
-## Les quatre passes du procédé, au MFC réduit
+## Ce que ces quatre hypothèses donnent en pratique
 
-La séquence réelle — quatre dwells au pas de 30 mm (`x` = 15,9 / 45,9 / 75,9 /
-105,9 mm), spot centré en largeur, 235 A, 20 s — jouée avec le MFC réduit dans
-l'hypothèse **la plus favorable** des quatre (le flux se reconcentre, famille A).
-C'est une **borne optimiste**, pas une prédiction : c'est précisément l'hypothèse
-que les deux variantes de la famille B contredisent en s'accordant entre elles.
+Trois notes voisines déroulent la séquence réelle du procédé sous l'hypothèse la plus favorable, et chacune est écrite par son propre script :
 
-![Quatre passes au MFC réduit](figures/fig_sequence_4passes_mfc_reduit.png)
-
-| après | soudé | dégradé | T max (°C) |
-|---|---|---|---|
-| 1 passe | 1,2 % | 0 % | 345,1 |
-| 2 passes | 2,8 % | 0 % | 345,1 |
-| 3 passes | 5,7 % | 0 % | 345,1 |
-| 4 passes | 8,0 % | 0 % | 392,3 |
-
-Pour comparaison, les mêmes quatre passes donnent **7,5 %** au MFC labo 55 mm et
-**3,3 %** au MFC réduit sous l'hypothèse corroborée (famille B).
-
-**Ce que la figure montre.** Le MFC réduit fait bien ce qu'on attendait de lui :
-le profil en largeur **s'inverse**. Le M des chants disparaît, remplacé par un
-plateau qui culmine à 330 °C vers `y` = 8 et 32 mm et retombe à 297 °C au centre.
-La largeur entière passe donc dans une bande de 35 °C — mais **sous** le seuil de
-fusion, qu'aucun point n'atteint. À 235 A, il manque une quarantaine de degrés
-partout à la fois.
-
-Les seules zones fondues sont les croissants entre passes : elles ne viennent pas
-d'une passe mais du **recouvrement** de deux dwells successifs, c'est-à-dire de la
-chaleur résiduelle. Ce qui soude dans cette séquence, ce n'est pas le
-concentrateur, c'est l'accumulation.
-
-## Et avec un pas plus serré ?
-
-Même séquence, même étendue (premier et dernier centre inchangés), même courant
-et même durée par passe — seul le pas change : **15 mm au lieu de 30**, donc
-**7 passes au lieu de 4**. Attention, l'énergie déposée augmente d'autant : la
-comparaison répond à « que donne un pas plus serré ? », pas à « à énergie
-égale ».
-
-![Sept passes au pas de 15 mm](figures/fig_sequence_passes_mfc_reduit_pas15mm.png)
-
-| après | soudé | dégradé | T max (°C) |
-|---|---|---|---|
-| 1 passe | 1,2 % | 0 % | 345,1 |
-| 3 passes | 17,6 % | 5,2 % | 524,5 |
-| 5 passes | 25,6 % | 18,7 % | 554,8 |
-| 7 passes | **37,2 %** | **29,7 %** | 559,2 |
-
-**Le pas serré tient sa promesse — et révèle le vrai plafond.** La couverture
-passe de 8,0 à 37,2 %, ce qui confirme que c'est bien le recouvrement qui soude.
-Mais la contrainte a changé de camp : à 30 mm rien n'atteignait la fusion ; à
-15 mm le centre *dépasse le seuil de dégradation* (478 °C) pendant que les chants
-sont encore tout juste à la fusion (332 °C). Le profil en largeur s'est
-complètement inversé — le M des chants est devenu un dôme central.
-
-**Et le MFC réduit n'est alors plus le meilleur choix.** À pas égal, la même
-séquence donne :
-
-| configuration | soudé | dégradé |
-|---|---|---|
-| MFC réduit, hypothèse favorable (A) | 37,2 % | 29,7 % |
-| MFC labo 55 mm | 37,3 % | 15,6 % |
-| MFC réduit, hypothèse corroborée (B) | 34,5 % | **4,7 %** |
-
-Le MFC réduit dans son hypothèse la plus favorable **ne soude pas plus** que le
-MFC labo et **brûle deux fois plus** : en concentrant vers le centre, il empile
-le recouvrement là où la chaleur s'évacue le moins. Sous l'hypothèse corroborée,
-il soude un peu moins mais dégrade six fois moins.
-
-⚠️ **Ce classement vaut à 15 mm, et seulement là.** Le balayage complet du pas
-(`balayage_pas_mfc_reduit.md`) montre que les trois configurations n'ont pas le
-même pas optimal : 15 mm est déjà trop serré pour le MFC réduit, pas encore pour
-le 55 mm. Comparées chacune **à son propre pas**, les conclusions s'inversent —
-le MFC réduit triple la surface soudable sans dégradation. Ne pas lire ce tableau
-comme un verdict sur le concentrateur.
-
-Le levier « pas serré » ouvre donc une fenêtre entre le moment où les chants
-atteignent la fusion et celui où le centre dépasse la dégradation. Où elle se
-situe, et pour quelle configuration elle est la plus large : voir le balayage.
-
-## Et si on exige que TOUTE la matière dépasse 337 °C en quatre passes ?
-
-Question posée directement : à quel réglage la séquence de quatre passes au MFC
-réduit (hypothèse A, pas de 30 mm) amène-t-elle tout l'interface au-dessus du
-point de fusion ?
-
-![Quatre passes réglées pour tout dépasser 337 °C](figures/fig_4passes_toute_matiere_337.png)
-
-**On y arrive, et le prix est la plaque.** Balayage conjoint courant × durée
-(200-250 A, 30-150 s) : aucun réglage n'amène 100 % de l'interface au-dessus de
-337 °C sans en porter au moins **98 %** au-delà du seuil de dégradation. Le moins
-destructeur trouvé est **200 A / 120 s** — 100 % au-dessus de 337 °C, **98,4 %
-dégradé**, et 1,6 % seulement dans la fenêtre utile.
-
-| durée par passe (200 A) | > 337 °C | > 450 °C |
-|---|---|---|
-| 20 s | 0,0 % | 0,0 % |
-| 30 s | 8,7 % | 0,0 % |
-| **45 s** | **54,5 %** | **6,3 %** |
-| 60 s | 83,1 % | 42,4 % |
-| 75 s | 97,2 % | 71,4 % |
-| 90 s | 99,2 % | 88,6 % |
-| 120 s | 100,0 % | 98,4 % |
-
-**La raison est géométrique, pas énergétique.** Le point le plus froid et le plus
-chaud de la plaque sont dans un rapport d'environ 3, et ce rapport **ne descend
-pas quand on chauffe plus** : monter la puissance monte les deux ensemble. Le
-point froid vient de deux endroits que la source n'atteint pas — le centre de la
-largeur, qui est la ligne nodale de la dissipation, et les extrémités en longueur
-au-delà de la première et de la dernière passe. Tant que ce rapport reste
-au-dessus de 450/337 = 1,33, il n'existe aucune fenêtre où tout fond sans que
-rien ne brûle.
-
-Le meilleur compromis de la courbe est **200 A / 45 s** : 54,5 % de la matière
-au-dessus de la fusion pour 6,3 % de dégradation. Au-delà, chaque point gagné en
-fusion coûte davantage en brûlure.
-
-Réserve : 120 s par passe, c'est six fois le dwell du procédé réel, et la
-dégradation est ici calculée avec la config canonique qui surestime l'interface
-au-delà du point de fusion — les pourcentages dégradés sont donc des majorants.
-Ils ne sont pas majorants au point de renverser la conclusion : à 45 s déjà, la
-fenêtre se ferme.
+- `sequence_passes_mfc_reduit_pas30mm.md` — les quatre passes du procédé ;
+- `sequence_passes_mfc_reduit_pas15mm.md` — la même séquence resserrée ;
+- `balayage_pas_mfc_reduit.md` — le pas qui couvre le plus sans dégrader ;
+- `4passes_toute_matiere_337.md` — ce que coûte d'amener toute la matière au-dessus de la fusion.
 
 ## Ce que ce calcul ne prouve pas
 

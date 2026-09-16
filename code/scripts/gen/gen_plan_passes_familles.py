@@ -43,6 +43,7 @@ from jumeau.materiaux import Config                            # noqa: E402
 from jumeau.planification.empreinte import bibliotheque        # noqa: E402
 from jumeau.planification.planificateur import (               # noqa: E402
     planifier, metriques, verifier_sequentiel)
+from jumeau.thermique.dose_degradation import metriques_dose   # noqa: E402
 
 apply_style(**{"font.size": 9.5, "axes.titlesize": 10.5})
 
@@ -74,9 +75,10 @@ def cellule(cfg, famille, courants, h_bord_x0):
     params = [{"x_c": k[0], "y_c": k[1], "courant": k[2],
                "mfc_longueur": k[3], "duree": DUREE} for k in passes]
     if params:
-        _, T_seq = verifier_sequentiel(cfg, params, famille=famille,
-                                       h_bord_x0=h_bord_x0)
-        m_seq = metriques(T_seq, fusion=FUSION, degrad=DEGRAD)
+        _, T_seq, t_seq, champs_seq = verifier_sequentiel(
+            cfg, params, famille=famille, h_bord_x0=h_bord_x0,
+            retour_historique=True)
+        m_seq = metriques_dose(champs_seq, t_seq, fusion=FUSION)
     else:
         T_seq, m_seq = Tc, m
     return {"grille": grille, "passes": params, "T_seq": T_seq,
@@ -245,6 +247,17 @@ def main() -> None:
         f"Aucune hypothèse n'amène le centre à la fusion ({FUSION:.0f} °C). La "
         "seule qui l'en rapproche est celle où le flux se reconcentre — et elle "
         "y parvient en portant les chants au-delà du seuil de dégradation.",
+        "",
+        "## Ce que ces quatre hypothèses donnent en pratique",
+        "",
+        "Trois notes voisines déroulent la séquence réelle du procédé sous l'hypothèse "
+        "la plus favorable, et chacune est écrite par son propre script :",
+        "",
+        "- `sequence_passes_mfc_reduit_pas30mm.md` — les quatre passes du procédé ;",
+        "- `sequence_passes_mfc_reduit_pas15mm.md` — la même séquence resserrée ;",
+        "- `balayage_pas_mfc_reduit.md` — le pas qui couvre le plus sans dégrader ;",
+        "- `4passes_toute_matiere_337.md` — ce que coûte d'amener toute la matière "
+        "au-dessus de la fusion.",
         "",
         "## Ce que ce calcul ne prouve pas",
         "",

@@ -22,6 +22,7 @@ apply_style(**{"font.size": 11, "axes.labelsize": 12, "savefig.pad_inches": 0.06
 from jumeau.materiaux import Config  # noqa: E402
 from jumeau.planification.empreinte import bibliotheque  # noqa: E402
 from jumeau.planification.planificateur import planifier, metriques, verifier_sequentiel  # noqa: E402
+from jumeau.thermique.dose_degradation import metriques_dose  # noqa: E402
 
 FUSION, DEGRAD = 337.0, 450.0
 
@@ -75,9 +76,10 @@ def main():
 
     if passes_params:
         print("\nVérification séquentielle (chaleur résiduelle incluse)…")
-        _, T_seq = verifier_sequentiel(cfg, passes_params, famille=FAMILLE,
-                                       h_bord_x0=H_BORD_X0)
-        m_seq = metriques(T_seq, fusion=FUSION, degrad=DEGRAD)
+        _, T_seq, t_seq, champs_seq = verifier_sequentiel(
+            cfg, passes_params, famille=FAMILLE, h_bord_x0=H_BORD_X0,
+            retour_historique=True)
+        m_seq = metriques_dose(champs_seq, t_seq, fusion=FUSION)
         print(f"  séquentiel : soudé {m_seq['pct_soude']:.1f} %, "
               f"non soudé {m_seq['pct_non_soude']:.1f} %, dégradé {m_seq['pct_degrade']:.1f} %")
     else:
@@ -95,8 +97,8 @@ def main():
         print("  Ce verdict ne dépend PAS de l'hypothèse de MFC réduit : il a été rejoué dans "
               "les quatre (flux qui disparaît / se reconcentre / ne se reconcentre pas, deux "
               "variantes) et reste NON dans toutes. La seule qui fasse retenir le MFC réduit "
-              "est celle où le flux se reconcentre, et elle n'atteint que 45 % de soudé en "
-              "brûlant un tiers de la plaque. Le centre de la largeur est la ligne nodale de "
+              "est celle où le flux se reconcentre, et elle n'atteint que 48 % de soudé en "
+              "dégradant 30 % de la plaque. Le centre de la largeur est la ligne nodale de "
               "la dissipation : il ne chauffe que par conduction latérale, et aucune géométrie "
               "de concentrateur ne change cela. Cf. biblio/modele/plan_passes_familles.md, "
               "issue #39.")

@@ -91,3 +91,27 @@ def metriques_dose(champs, temps, fusion: float = 337.0,
             "pct_degrade": float(degrade.sum()) / n * 100.0,
             "pct_non_soude": float((~soude & ~degrade).sum()) / n * 100.0,
             "dose_max": float(D.max()), "dose_mediane": float(np.median(D))}
+
+
+def premier_depassement(temps, T_celsius, ea: float = EA_DEFAUT,
+                        t_ref: float = T_REF_DEFAUT,
+                        duree_ref: float = T_REF_DUREE) -> float:
+    """Premier instant où la dose cumulée atteint 1, ou ``nan`` si jamais.
+
+    C'est la forme utile pour une abaque de procédé : elle remplace « l'instant
+    où le point chaud franchit 450 °C » par « l'instant où l'exposition devient
+    inacceptable », qui est la même chose quand la montée est brutale mais pas du
+    tout quand le cycle est long. Interpolation linéaire dans le pas où la dose
+    franchit 1."""
+    temps = np.asarray(temps, dtype=float)
+    vitesse = _vitesse_relative(T_celsius, ea, t_ref)
+    cumul = np.concatenate(([0.0], np.cumsum(
+        0.5 * (vitesse[1:] + vitesse[:-1]) * np.diff(temps)))) / duree_ref
+    idx = np.flatnonzero(cumul >= 1.0)
+    if idx.size == 0:
+        return float("nan")
+    i = int(idx[0])
+    if i == 0:
+        return float(temps[0])
+    d0, d1 = cumul[i - 1], cumul[i]
+    return float(temps[i - 1] + (1.0 - d0) / (d1 - d0) * (temps[i] - temps[i - 1]))

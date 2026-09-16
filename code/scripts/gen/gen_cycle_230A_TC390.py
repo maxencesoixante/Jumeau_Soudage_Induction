@@ -148,7 +148,7 @@ if __name__ == "__main__":
         ax.plot(t, series[nom], color=coul, lw=1.2, label=nom)
     for seuil, coul, lab in ((g.T_FUSION, OKABE_ITO["cyan"], "fusion 337"),
                              (390.0, OKABE_ITO["vert"], "consigne 390 (réel)"),
-                             (g.T_DEGRAD, OKABE_ITO["vermillon"], "dégrad. 450")):
+                             (g.T_DEGRAD, OKABE_ITO["vermillon"], "seuil de pic 450")):
         ax.axhline(seuil, color=coul, lw=0.9, ls="--", zorder=1)
     ax.axhline(g.T_REFROID, color="0.5", lw=0.9, ls=":", zorder=1)
 
