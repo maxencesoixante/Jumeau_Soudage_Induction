@@ -2,7 +2,7 @@
 
 **Projet** : simulation de l'empreinte thermique bobine + concentrateur de flux (MFC) sur
 laminés CF/PEKK, soudage par induction semi-statique (maîtrise, LIPEC / ÉTS).
-**Dépôt** : `Jumeau_Soudage_Induction` (Python) &nbsp;·&nbsp; **Dernière mise à jour** : 2026-07-30.
+**Dépôt** : `Jumeau_Soudage_Induction` (Python) &nbsp;·&nbsp; **Dernière mise à jour** : 2026-09-16.
 
 > **But de ce document** : point d'entrée unique. Sa lecture donne l'état complet du projet —
 > ce que fait le modèle, où il en est, ce qui a été fait et pourquoi, ce qui reste ouvert, et
@@ -35,20 +35,27 @@ argument runtime par modèle×essai) :
 | `h_haut` | **30,09** W/m²·K ± 1,3 | perte vers céramique/MFC |
 | `h_bas_2d` | **37,42** W/m²·K ± 0,5 | perte vers face opposée/bâti |
 | `decalage_x` | 0 (figé) | position bobine↔spot, non mesurée |
-| `h_bord_x0` | 250 (figé) | puits de bord x=0 — **effectif, pas physique** (§4) |
+| `h_bord_x0` | **125** (recalibré le 2026-09-06, `fc92052`) | puits de bord x=0 — **effectif, pas physique** (§4) ; `=0` reste réfuté |
 
 **Validation croisée** (grille 61×21, θ\* de référence + twill 0,20 mm, sans recalibrage) —
 RMSE / |ΔT_max| moyen (°C), 7 essais formels (`code/config/essais/`) :
 
-| Essai | Rôle / conditions | RMSE | \|ΔT_max\| |
-|---|---|---|---|
-| **exp7 150 A** | validation, profil M en largeur (5 TC) | 25,4 | 36,4 |
-| **exp7 200 A** | validation, profil M en largeur (5 TC) | 21,8 | 40,7 |
-| **exp7 250 A** | validation, profil M en largeur (5 TC) | 22,6 | 51,4 |
-| **exp9 200 A** | validation, dissipation longitudinale (spot fixe) | 12,1 | 15,9 |
-| **A-1** | calibration, 250 A coupure 400 °C | 36,3 | 20,8 |
-| **A-3** | validation aveugle, 200 A coupure 400 °C | 33,0 | 48,9 |
-| **B-2** | validation, 250 A coupure 360 °C (loi capteurs) | 72,3 | 14,2 |
+| Essai | Rôle / conditions | RMSE | \|ΔT_max\| | RMSE au 30-07 |
+|---|---|---|---|---|
+| **exp7 150 A** | validation, profil M en largeur (5 TC) | 25,4 | 36,3 | 25,4 |
+| **exp7 200 A** | validation, profil M en largeur (5 TC) | 21,8 | 40,6 | 21,8 |
+| **exp7 250 A** | validation, profil M en largeur (5 TC) | 22,6 | 51,4 | 22,6 |
+| **exp9 200 A** | validation, dissipation longitudinale (spot fixe) | 12,0 | 15,8 | 12,1 |
+| **A-1** | calibration, 250 A coupure 400 °C | 35,0 | 26,6 | 36,3 |
+| **A-3** | validation aveugle, 200 A coupure 400 °C | 31,6 | 47,3 | 33,0 |
+| **B-2** | validation, 250 A coupure 360 °C | 65,1 | 55,3 | 72,3 |
+
+**Recalculée le 2026-09-16** — deux changements de modèle l'avaient périmée : correction de
+bord en x active par défaut (2026-08-30) et `h_bord_x0` 250 → 125 (2026-09-06). Le résultat
+confirme ce qui était annoncé : **exp7 et exp9 sont strictement inchangés** (l'intérieur du
+domaine n'est pas touché), et **les séries A/B s'améliorent** (A-1 36,3 → 35,0 ; A-3 33,0 →
+31,6 ; B-2 72,3 → 65,1). La colonne `|ΔT_max|` de B-2 n'est pas comparable à celle de juillet :
+l'ancienne était calculée sous la loi « capteurs », **rejetée définitivement depuis** (§2, 3 août).
 
 Le modèle **ordonne et explique** les niveaux de température (profil M validé, dissipation
 longitudinale reproduite, séquence spatio-temporelle juste) mais ne pilote pas encore au degré
@@ -56,7 +63,20 @@ près ; le résidu du RMSE reste **structurel** (profil M trop contrasté hors-s
 **recalibration groupée (2026-07-30) a confirmé ce θ\* comme optimum** : aucun recalibrage sur
 un seul essai (exp7 200 A) ne le bat sur le jeu tenu à l'écart ; `h_bord_x0=0` réfuté
 (emballement +200 °C au chant série A) et lissage σ sur-ajuste un seul régime (cf. §2, 30 juil.).
-**39 tests** automatisés verts (~4-5 min ; dont un bilan d'énergie 2D, résidu 0,6 %).
+**142 tests** automatisés verts (~25 s ; dont un bilan d'énergie 2D, résidu 0,6 %).
+
+**Ce que le modèle a gagné depuis juillet** (détail en §2) :
+
+- **Source bimodale** (`bimodal_sigma_mm` ≈ 2,5 mm) — les deux jambes du hairpin sont résolues
+  séparément ; le pic unique était un défaut de source, révélé par la thermographie plein champ.
+- **Correction de bord en x** (`lambda_bord_x_mm`, **active par défaut** depuis le 2026-08-30) —
+  supprime l'effondrement non physique de la source aux extrémités, sans paramètre libre.
+- **Modèle de fusion** (L_f = 40 J/g physique + `k_plan(T>Tf)`, **derrière flag, non adopté**) —
+  plafonne l'interface à 508 °C au lieu de 865 et reproduit le plateau mesuré.
+- **Planificateur de passes** (`code/scripts/planifier_soudage.py`) — plan glouton, vérification
+  séquentielle, carte de couverture et verdict.
+- **Critère de dégradation en temps × température** (`jumeau.thermique.dose_degradation`,
+  2026-09-16) — remplace un seuil de pic qui n'avait aucune provenance.
 
 **Reproduire** (les `h` sont maintenant les défauts de `code/config/materiaux.yaml`) :
 ```bash
@@ -277,61 +297,198 @@ rapide (−67 %), un seul défaut = étalement in-plane scalaire. `k_plan=3,0` r
 
 ---
 
+### 3-4 août — Consolidation : six décisions actées, huit issues closes
+
+Le mois s'ouvre par une purge de décisions en attente. **`k_plan`** : la config 3,0 est gardée
+comme référence physique (#4) ; le `k(T)` décroissant est confirmé par la donnée (k_cold ≈ 8,5
+→ k_hot = 2) mais **ne franchit pas le held-out** — il régresse le pic de bord, source-dominé →
+#13 close *not planned*. **Écarts vs Lionetto 2017 tranchés** (#5), chacun assorti d'un
+**déclencheur de réouverture nommé** — patron réutilisé depuis. **Cote hauteur bobine 5,0 mm**
+(#6) et **position de TC1** au centre de la largeur, l'hypothèse « coin y=0 » réfutée (#8).
+**Dette de code** (#9) : les leviers réfutés restent derrière flags, avec un registre
+`docs/modele/leviers_refutes.md` — supprimer aurait coûté plus que garder.
+
+**La loi thermostat « capteurs » est rejetée définitivement.** Le fit joint pleine famille la
+donne **pire partout** (held-out 30,0 → 41,2) : l'ancien gain « B-2 45 → 23 » tenait à un
+facteur propre à B-2 et ne survit pas à un fit qui partage le facteur entre familles.
+
+**Vérification croisée EM** : `eppy` (Grouve, Nagel 2019) sert de **second solveur indépendant**
+et corrobore le contraste M ≈ 3 comme physique de plaque mince réelle, champ de réaction
+négligeable au régime.
+
+### 7 août — Planificateur de soudage uniforme (#31-#37) — verdict NON
+
+Bibliothèque d'empreintes, planificateur glouton, vérification séquentielle avec chaleur
+résiduelle, CLI et carte de couverture. **Verdict : seules de fines bandes de bord se soudent
+sans dégrader**, 6-7 % de couverture. Le MFC réduit ajouté comme levier (#39) **ne débloque pas
+le centre**. Ces deux verdicts seront rejoués et confirmés le 15 septembre, sous quatre
+hypothèses au lieu d'une.
+
+### 12-19 août — L'arc du résidu d'étalement se ferme
+
+**Carte de faisabilité source × conduction** (`lambda_bord` + `k(T)` **ensemble**, la dernière
+porte encore ouverte) : **NO-GO**, held-out ~26 °C bien au-delà de la barre. **Anisotropie
+kx ≠ ky** (#12) : NO-GO décisif sur données complètes → close *not planned*.
+
+**Quantification d'incertitude** sur toutes les données exp7/exp9 : `k_plan` est **identifiable
+à 8,25 ± 0,09**, et le `k_plan` effectif est **constant en courant** (χ²/ddl = 0,18) à ≈ 2,5× la
+valeur physique 3,0 — le résidu structurel est donc reconfirmé, pas expliqué. Le θ\* consolidé
+est **NO-GO** en held-out (13,8 → 19,3) : la config reste inchangée.
+
+**Six-probe** : l'extraction inverse de conductivité est codée (#49) puis la campagne est
+abandonnée (#50, #51 *not planned*). Du code livré pour une mesure qui ne se fera pas.
+
+### 22 août — La campagne MFC est écrite (#55-#63)
+
+Neuf issues créées d'un bloc, protocole `biblio/labo/protocole_mfc_reduit.md`. **Aucune n'a
+encore été exécutée au 16 septembre** — c'est le goulot du projet.
+
+### 26-31 août — L'essai 231 A valide le cycle, et révèle la fusion
+
+**L'essai réel 231 A valide le cycle prédit** : pics intérieurs TC2/3/4 à ± 12-20 °C (#64).
+Les écarts restants sont cadrés : refroidissement modèle ~10 % lent, TC1 coin sous-capté.
+
+**Le plateau 350-390 °C des TC est la signature de la fusion du PEKK** — intuition de
+l'utilisateur, validée. La chaleur latente en config valait **130 J/g** (100 % cristallin),
+soit ~3× trop ; la valeur physique est **40 J/g** (cristallinité ~30 %). Le modèle de fusion
+(L_f physique + transport du bain `k_plan(T>Tf)`) **plafonne l'interface de 865 à 508 °C** et
+reproduit le plateau, à coût held-out quasi nul (+0,6). **Non adopté par défaut** (RMSE neutre
+sur les TC de bord), mais décisif pour toute décision fondée sur la température d'interface :
+la config canonique y produit un **faux positif systématique** de dégradation (#68).
+
+**Correction de bord en x activée par défaut** (`0dab38d`) : l'effondrement de la source aux
+extrémités était pathologique, le center-peaking ne l'était pas.
+
+### 1-6 septembre — Thermographie plein champ : un défaut de SOURCE, pas de conduction (#69)
+
+Campagne FLIR sur plaque CF/PEKK découplée, plafond sous Tg. Trois résultats, dans cet ordre :
+
+1. **La source est bimodale.** Les deux jambes du hairpin (entraxe 12,35 mm) donnent une
+   double bosse que le modèle à pic unique ne résolvait pas. Robuste sur trois conditions.
+   Flag `bimodal_sigma_mm` livré, calibré ≈ 2,5 mm.
+2. **L'asymétrie était un tilt d'image**, pas de la physique.
+3. **Une fois source et tilt traités, `k_plan` ressort ÉLEVÉ (≥ 7,5, pas 3).** Le « k ≈ 3 » du
+   premier jour était **confondu avec le défaut de source**. Le résidu structurel d'étalement
+   in-plane est donc reconfirmé — et désormais **mesuré en plein champ**, plus seulement déduit
+   de thermocouples.
+
+**`h_bord_x0` recalibré en held-out : 250 → 125** (`fc92052`). `= 0` reste **réfuté** (+98 °C
+sur TC1) malgré ce que suggérait le près-bord FLIR. L'agrégat « +0,2-0,4 °C » de la correction
+de bord masquait en réalité TC1 −72 °C et TC5 +36 °C.
+
+### 9-13 septembre — Infrastructure littérature
+
+Zotero + Obsidian sur carte SD, et un **pipeline d'extraction local** (AutoGen + Ollama) sur le
+corpus converti. Acquis principal : **l'enveloppe `k_plan` de la littérature est 2,2-2,5
+W/(m·K), donc SOUS la config 3,0** — l'écart ×2,5 du modèle n'est **pas** une dispersion de
+valeurs publiées, il est à expliquer autrement.
+
+### 14-15 septembre — Le MFC réduit a trois modèles, pas un (#70)
+
+Constat structurel : le MFC est modélisé par la **méthode des images**, c'est-à-dire un
+**demi-espace infini** — la longueur du bloc n'entre tout simplement pas dans le calcul du
+champ. Aucun raffinement ne fera parler une géométrie que le modèle ne voit pas.
+
+Deux familles nouvelles sont rendues calculables en tronquant l'image, côté observateur et côté
+source. Elles **s'accordent entre elles** (contraste 2,62 et 2,49) là où la famille « masque
+conservatif » donne 1,03 : celle-ci est **l'intrus**, et elle ne diffère pas par sa finesse mais
+par une **affirmation physique** — le flux hors du bloc se reconcentre-t-il, oui ou non ?
+Prédiction figée avant campagne, douze figures, issue #70.
+
+Découverte annexe qui éclaire tout le reste : **le centre de la largeur est une ligne nodale
+exacte de la dissipation** (y = 20 mm, puissance Joule nulle par symétrie). Il ne chauffe que
+par conduction latérale — aucune géométrie de concentrateur ne change cela.
+
+### 15-16 septembre — Plan de passes, pas optimal, et critère de dégradation
+
+- **Le verdict « pas de soudage uniforme » tient dans les quatre hypothèses** de MFC réduit,
+  courants élargis à 250 A. Deux défauts corrigés au passage dans le code du planificateur :
+  un `h_bord_x0 = 250` figé en dur par-dessus la config, et un bloc de 55 mm passé au calcul de
+  champ là où le masque utilisait le bloc réduit.
+- **Le pas entre passes a un optimum, et il renverse la comparaison.** Comparées chacune à son
+  propre pas, les configurations se classent autrement : le **MFC réduit triple la surface
+  soudable sans dégradation** (22,8 % à un pas de 18 mm, contre 7,5 % à 30 mm pour le 55 mm) —
+  non par son empreinte, mais parce qu'il **tolère un pas plus serré**.
+- **Moduler le courant** ne peut pas changer le rapport chaud/froid de l'état stationnaire
+  (vérifié : indépendant de l'amplitude), mais **déplace l'obstacle de la largeur vers les
+  extrémités** — au stationnaire, la largeur est pratiquement plate.
+- **Le critère de dégradation est refait en temps × température.** L'ancien seuil « pic >
+  450 °C » n'avait **aucune provenance** dans le projet et ne voyait qu'un facteur. Une dose
+  d'Arrhenius le remplace, **ancrée pour ne créer aucun seuil nouveau**. Conséquence immédiate :
+  le résultat de modulation « 100 % de l'interface dans la fenêtre utile » **s'effondre** — le
+  pic n'était qu'à 403 °C, mais tenu 1600 s, soit 10 à 19 fois la dose admissible.
+- **Le critère de succès de #55 est réécrit** : il désignait une seule des trois familles, celle
+  identifiée comme l'intrus. Table de verdict à quatre observables, tous en rapports.
+
+---
+
 ## 3. Résidus ouverts (par priorité)
 
-1. **Amplitude du profil en « M » — RÉSOLU / campagne close (28 juillet).** La cartographie
-   bord→centre a d'abord semblé montrer un modèle qui sur-contraste (série SANS céramique,
-   contraste ~1,85 vs 2,46). Mais la **reprise AVEC céramique** (géométrie standard,
-   `donnees/data/exp7_bord-centre_2026-07-28_avec-ceramique/`) donne un contraste mesuré **2,17 ≈ 2,43
-   modèle**, forme normalisée quasi superposée : **le modèle a raison sur l'amplitude du M**. Le
-   « sur-contraste » venait du retrait de la céramique (gap 0), pas du modèle. → **Le levier
-   « adoucir le M » (courants de retour 3D / contact twill) n'est plus justifié.** **Confirmé aux
-   3 courants (150 / 200 / 250 A, 3 essais chacun) — campagne close** : M symétrique et de bonne
-   forme d'équilibre partout. Reste ouvert seulement le résidu **transitoire** de centre-fill
-   (résidu #2), indépendant du courant.
-2. **Lobes A/B trop froids / montée lente hors-spot — LE résidu dominant du RMSE, DIAGNOSTIQUÉ.**
-   Les TC A/B TC2-4 (sur les lobes y=0, mais HORS-SPOT en x) sont sous-estimés de 20-30 °C et
-   montent ~2× trop lentement. **Diagnostic du taux** (`donnees/journaux/archive/resultats_diag_taux_chauffe.log`) : ce
-   N'EST PAS un défaut de taux fondamental — directement sous le spot (chants exp 7, 200 A) le
-   modèle chauffe à 13,7 °C/s vs 16,1 mesuré (~15 % lent). cp / masse thermique / e_eff (stack
-   complet) ÉCARTÉS (réduire e_eff sur-corrige). Le « 2× lent » est spécifique aux points
-   HORS-SPOT (TC2 à ~15 mm du spot) → **étalement latéral trop lent**, même famille que le
-   centre-fill. Aucun levier 2D simple (cp, k_plan, lissage) ne ferme A/B sans casser les
-   pics/le contraste → **limite structurelle probable du 2D lumpé** au régime multi-passes
-   hors-spot (piste : effet 3D, à vérifier en 3D si besoin, coûteux).
+**1. Résidu structurel d'étalement in-plane — ARC CLOS, limite acceptée.** Le `k_plan` effectif
+identifié (≈ 7,5-8,3) vaut ≈ 2,5× la valeur physique 3,0, et la littérature place l'enveloppe
+publiée **encore en dessous** (2,2-2,5) : l'écart n'est donc pas une dispersion de valeurs. Tous
+les leviers ont été essayés et réfutés — `k_plan` scalaire, `k(T)`, anisotropie kx≠ky, lissage
+de source, 3D, et la combinaison source × conduction. La thermographie plein champ (#69) l'a
+**mesuré** au lieu de le déduire. C'est une **limite documentée du 2D lumpé**, pas une piste.
 
-**Résidu résolu / tranché (28 juillet) — le remplissage du centre.** La cartographie 200 A
-avec céramique (chauffe longue, v4/v5/v6) montrait le centre du modèle ~4× trop lent (à chant
-ΔT=200 : centre 76 mesuré vs 18 modèle). Diagnostic (`donnees/journaux/archive/resultats_diag_centre_transitoire.log`) :
-ni `cp` (invariant), ni `k_plan` seul (mauvaise forme), ni placement TC3 (5 mm insuffisant) →
-œil de boucle (source ≈0 au centre exact) + source trop concentrée. **Prototype « source
-adoucie » (gaussienne σ, délocalisation twill) IMPLÉMENTÉ derrière `lissage_sigma_mm`
-(défaut off) + recalibré σ=6 + validé croisé** : il reproduit bien la cible exp 7 mais
-**n'améliore PAS le fit global A/B** (RMSE ~-1 °C, mais écart de pic +13 à +17 °C : il abaisse
-les lobes A/B déjà sous-estimés). → **gardé derrière le flag, défaut OFF, θ\* de référence
-inchangé** ; correctif physique valable pour le régime « spot unique/centre », pas pour A/B. Le
-vrai verrou A/B est la vitesse de chauffe (résidu n°2 ci-dessus).
-3. **Régime basse consigne (B-2).** Cause confirmée (le modèle coupe au centre du spot, le
-   procédé coupait sur le max des TC d'interface) ; correctif « capteurs » prêt derrière flag,
-   à activer conjointement avec la correction du M. Réf. `donnees/journaux/archive/resultats_diag_b2_thermostat_capteurs.log`.
-4. **Gradient dans l'épaisseur trop faible (face opposée).** Recalculé sur l'essai 3-TC :
-   surface ≈ interface (ratio ≈ 0,97) — l'ancien « déficit de surface TC1 » était faux ; le
-   modèle sur-chauffe la face opposée (o/i ≈ 0,9 simulé vs ≈ 0,42 mesuré). Mécanisme =
-   confinement transverse insuffisant ; levier `r_contact_interface` NO-GO en validation
-   croisée (correction 2026-08-13). Mesure de la face du MFC (exp 8) pour le champ proche.
+**2. Gradient dans l'épaisseur (face opposée).** Le modèle sur-chauffe la face opposée
+(o/i ≈ 0,9 simulé vs ≈ 0,42 mesuré) ; mécanisme = confinement transverse insuffisant. Levier
+`r_contact_interface` NO-GO en validation croisée. Attend la mesure de la face du MFC (#15).
 
-## 3 bis. Corrections préparées (à intégrer ensemble à la prochaine recalibration)
+**3. Les trois familles de MFC réduit ne sont pas départagées.** Aucun calcul ne peut le faire :
+la méthode des images suppose un demi-espace infini. **#55 est le discriminateur**, et son
+critère de succès a été réécrit en conséquence le 2026-09-16.
 
-| Correction | Source | Statut |
+**4. `Ea` de la dégradation n'est pas mesurée.** Le critère de dose est en place et ancré sans
+seuil nouveau, mais son énergie d'activation est une hypothèse balayée de 100 à 250 kJ/mol.
+Tous les verdicts de dégradation de la campagne MFC en dépendent. Une TGA la fixerait.
+
+**5. `h_bord_x0` reste un paramètre effectif sans base physique.** Recalibré à 125, `=0`
+réfuté, mais les chants sont tous libres au montage : il compense autre chose, sans qu'on sache
+quoi. Il est apparu le 2026-09-16 que le verdict « la modulation du courant ne peut pas
+uniformiser » reposait entièrement sur lui — un signal qu'il mérite mieux qu'un rattrapage.
+
+## 3 bis. Corrections préparées — toutes closes
+
+| Correction | Verdict | Date |
 |---|---|---|
-| Épaisseur twill 0,28 → **0,20 mm** | mesure user | **APPLIQUÉE en config** (2026-07-30), test recalé |
-| `h_bord_x0` | chants libres (user) | **gardé effectif = 250** ; `h_bord_x0=0` **réfuté** (emballement +200 °C au chant série A, 2026-07-30) |
-| Loi thermostat « capteurs » | cahier de labo + données B-2 | flag prêt (défaut off) ; utilisé pour valider B-2 |
-| Lissage source σ (centre-fill) | diag centre transitoire | flag prêt (défaut off) ; **sur-ajuste** (améliore M, dégrade spot isolé) — à recalibrer conjointement |
-| ~~Fréquence par essai (383 kHz A-3)~~ | ~~relevé user~~ | **ABANDONNÉE** : mesure 5 courants = 388±2 kHz constante (2026-07-28), ancien 383 infirmé |
+| Épaisseur twill 0,28 → **0,20 mm** | **appliquée en config** | 2026-07-30 |
+| Fréquence par essai (383 kHz A-3) | **abandonnée** — mesure 5 courants = 388 ± 2 kHz | 2026-07-28 |
+| Loi thermostat « capteurs » | **rejetée** — pire partout en fit joint | 2026-08-03 |
+| Lissage de source σ (centre-fill) | **non adopté** — sur-ajuste un seul régime | 2026-07-30 |
+| `h_bord_x0` | **recalibré 250 → 125** ; `=0` réfuté | 2026-09-06 |
+| `k(T)` décroissant | **non adopté** — held-out non franchi | 2026-08-03 |
+| Anisotropie kx ≠ ky | **NO-GO décisif** | 2026-08-17 |
+| Modèle de fusion (L_f = 40 + transport du bain) | **gardé derrière flag** — gain physique net, RMSE neutre | 2026-08-31 |
+| Source bimodale | **livrée**, calibrée ≈ 2,5 mm | 2026-09-02 |
+| Correction de bord en x | **active par défaut** | 2026-08-30 |
 
-Restant : le **recalage vraiment gagnant** passe par une **calibration jointe multi-familles**
-(profil M exp7 + spot isolé exp9, `h_bord_x0` libre) — cf. §2, 30 juillet.
+Il ne reste aucune correction en attente d'intégration. Les leviers réfutés sont conservés
+derrière flags avec un registre (`docs/modele/leviers_refutes.md`) : ils sont le **registre des
+négatifs** du projet, et des capacités réutilisables.
+
+---
+
+## 3 ter. Prochaines étapes
+
+**Le projet a un goulot unique : la campagne MFC (#63) n'a pas démarré.** Neuf issues créées le
+22 août, le bloc réduit reçu, et tout le travail de modélisation de septembre qui attend une
+mesure. Le jumeau a épuisé ce qu'il peut trancher seul — treize des quinze issues ouvertes sont
+des mesures.
+
+| # | Étape | Pourquoi maintenant | Bloque |
+|---|---|---|---|
+| **1** | **#55 — profil en largeur, 5 TC** | le discriminateur des trois familles, critère réécrit, prédictions figées | #60, #62, tout le reste de la campagne |
+| **2** | **#59 + #15 — thermographie des deux MFC** | même montage, même calibration d'émissivité : **une seule séance**, décrite deux fois | résidu #2 (face opposée) |
+| **3** | **#14 — DSC du PEKK, et y ajouter une TGA** | la DSC est déjà planifiée ; la TGA est une rampe de plus sur le même échantillon, et elle fixe `Ea` | résidu #4, rouvre #5 |
+| **4** | **#56, #58 — fusion au centre à 250 A, fenêtre de soudage** | découlent de #55 ; prédictions déjà figées en #70 | #61, #62 |
+| **5** | Propager le critère de dose dans le planificateur | le seuil de pic est encore un littéral dans huit scripts ; tous les verdicts de couverture tournent dessus | — |
+| **6** | **#71 — substitut de tube en U** | en attente de la référence vessie (RCF Technologies) | montage suivant |
+
+**Ce qui n'est pas une prochaine étape** : rouvrir le résidu d'étalement in-plane (arc clos,
+tous leviers réfutés), rouvrir `h_bord_x0 = 0` (réfuté, y compris contre le près-bord FLIR), ou
+raffiner les familles de MFC par le calcul (structurellement impossible avec la méthode des
+images).
 
 ---
 
