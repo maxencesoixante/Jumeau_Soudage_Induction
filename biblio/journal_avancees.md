@@ -420,6 +420,46 @@ par conduction latérale — aucune géométrie de concentrateur ne change cela.
 - **Le critère de succès de #55 est réécrit** : il désignait une seule des trois familles, celle
   identifiée comme l'intrus. Table de verdict à quatre observables, tous en rapports.
 
+### 16 septembre — Le critère de dégradation est refait, et les figures y sont migrées
+
+**Le seuil « pic > 450 °C » n'avait aucune provenance** : littéral répété dans dix-sept
+scripts, absent de la configuration et de toute référence du corpus ; aucune donnée de cinétique
+sur le PEKK dans la bibliographie. Et il ne voyait qu'un facteur — il déclarait identiques une
+brève excursion à 450 °C et une demi-heure de maintien à 400 °C.
+
+Il est remplacé par une **dose d'Arrhenius** (`jumeau.thermique.dose_degradation`), **ancrée
+pour ne créer aucun seuil nouveau** : `dose = 1` correspond exactement à l'ancien critère relu
+comme une exposition — 450 °C pendant une durée de passe. La seule hypothèse ajoutée est `Ea`,
+balayée de 100 à 250 kJ/mol faute d'être mesurée ; **un résultat qui change de signe sur ce
+balayage est déclaré indécidable**, pas tranché.
+
+**Migration.** Les dix-sept scripts se partageaient en deux usages. Six rendaient un *verdict* :
+ils jugent maintenant à la dose (`verifier_sequentiel` gagne `retour_historique=True`, la carte
+de pics seule ne permettant aucun verdict qui tienne compte de la durée). Quatre ne traçaient
+qu'une *ligne de repère* en l'annonçant comme « la dégradation » : le libellé dit désormais ce
+qu'elle est. La **fenêtre de soudage** était contradictoire — une abaque courant × *durée* dont
+la borne haute était jugée au pic ; sa borne est l'instant où la dose cumulée atteint 1.
+
+Le glouton du planificateur continue de **cribler** au pic (stocker l'historique de chaque
+candidat coûterait ~1 Go) et c'est documenté comme conservateur : sur les cycles courts du
+procédé, le pic est le critère *le plus sévère* des deux.
+
+**Ce que la migration déplace.** Le verdict du planificateur ne bouge pas (7,0 % / 0 %) : cycle
+court, dose très inférieure à 1. Mais **l'optimum du pas se déplace** — hypothèse corroborée
+18,0 → **15,0 mm** (22,8 → **39,2 %** soudé propre), MFC labo 30,0 → **22,5 mm** (7,5 →
+**16,2 %**). Le MFC réduit reste devant, et l'écart se creuse.
+
+**Un fait de géométrie révélé au passage** : le bloc n'est pas réduit dans le sens où il avance.
+Son empreinte vaut 31,5 mm le long de `x` (le déplacement) et 55 ou 31,75 mm le long de `y`.
+Donc le **recouvrement ne dépend que du pas**, jamais de la taille du bloc ; et raccourcir le
+MFC agit **en largeur**, laissant 4,1 mm de chant découvert de chaque côté. C'est la raison
+géométrique, enfin visible, du « le MFC réduit coupe les lobes de bord » de #39.
+
+⚠️ **Incident de méthode.** Régénérer une note a effacé 126 lignes de prose que j'y avais
+ajoutées à la main : c'était un fichier **généré**. Contenu récupéré et déplacé dans les scripts
+qui le produisent. Règle : ne jamais éditer à la main un fichier portant une ligne
+« Reproduire : … ».
+
 ---
 
 ## 3. Résidus ouverts (par priorité)
@@ -439,9 +479,11 @@ de source, 3D, et la combinaison source × conduction. La thermographie plein ch
 la méthode des images suppose un demi-espace infini. **#55 est le discriminateur**, et son
 critère de succès a été réécrit en conséquence le 2026-09-16.
 
-**4. `Ea` de la dégradation n'est pas mesurée.** Le critère de dose est en place et ancré sans
-seuil nouveau, mais son énergie d'activation est une hypothèse balayée de 100 à 250 kJ/mol.
-Tous les verdicts de dégradation de la campagne MFC en dépendent. Une TGA la fixerait.
+**4. `Ea` de la dégradation n'est pas mesurée.** Le critère de dose est en place, ancré sans
+seuil nouveau, et **toutes les figures à verdict y sont migrées** (2026-09-16). Mais son énergie
+d'activation reste une hypothèse balayée de 100 à 250 kJ/mol. Tous les verdicts de dégradation
+de la campagne MFC en dépendent — et l'optimum du pas s'est déjà déplacé une fois en changeant
+de critère. Une TGA la fixerait, pour une rampe de plus sur l'échantillon de la DSC (#14).
 
 **5. `h_bord_x0` reste un paramètre effectif sans base physique.** Recalibré à 125, `=0`
 réfuté, mais les chants sont tous libres au montage : il compense autre chose, sans qu'on sache
@@ -482,7 +524,8 @@ des mesures.
 | **2** | **#59 + #15 — thermographie des deux MFC** | même montage, même calibration d'émissivité : **une seule séance**, décrite deux fois | résidu #2 (face opposée) |
 | **3** | **#14 — DSC du PEKK, et y ajouter une TGA** | la DSC est déjà planifiée ; la TGA est une rampe de plus sur le même échantillon, et elle fixe `Ea` | résidu #4, rouvre #5 |
 | **4** | **#56, #58 — fusion au centre à 250 A, fenêtre de soudage** | découlent de #55 ; prédictions déjà figées en #70 | #61, #62 |
-| **5** | Propager le critère de dose dans le planificateur | le seuil de pic est encore un littéral dans huit scripts ; tous les verdicts de couverture tournent dessus | — |
+| ~~5~~ | ~~Propager le critère de dose~~ — **fait le 2026-09-16** | six scripts à verdict migrés, quatre lignes de repère relabellées, fenêtre de soudage passée en dose | — |
+| **5** | **TGA sur le PEKK** (à greffer sur la DSC de #14) | `Ea` est la seule hypothèse libre du critère de dose, et tous les verdicts de dégradation en dépendent | résidu #4 |
 | **6** | **#71 — substitut de tube en U** | en attente de la référence vessie (RCF Technologies) | montage suivant |
 
 **Ce qui n'est pas une prochaine étape** : rouvrir le résidu d'étalement in-plane (arc clos,
