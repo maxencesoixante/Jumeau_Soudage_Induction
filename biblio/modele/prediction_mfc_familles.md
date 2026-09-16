@@ -15,7 +15,7 @@ A et B ne diffèrent pas par leur finesse mais par une **hypothèse physique**. 
 
 ## Pics d'interface (°C)
 
-| TC | y (mm) | MFC labo 55 mm | A — masque dur | B — image, observation | B — image, source |
+| TC | y (mm) | MFC labo 55 mm | A — masque conservatif | B — image, observation | B — image, source |
 |---|---|---|---|---|---|
 | TC1 | 0 | 321.5 | 174.8 | 286.2 | 219.9 |
 | TC2 | 10 | 161.6 | 212.8 | 150.8 | 116.4 |

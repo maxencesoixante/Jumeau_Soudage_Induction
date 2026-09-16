@@ -123,7 +123,7 @@ def main() -> None:
         "",
         "## Pics d'interface (°C)",
         "",
-        "| TC | y (mm) | MFC labo 55 mm | A — masque dur | B — image, observation | B — image, source |",
+        "| TC | y (mm) | MFC labo 55 mm | A — masque conservatif | B — image, observation | B — image, source |",
         "|---|---|---|---|---|---|",
     ]
     for tc in ORDRE_TC:
