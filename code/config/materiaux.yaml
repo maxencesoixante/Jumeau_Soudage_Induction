@@ -6,11 +6,28 @@
 
 cf_pekk:
   densite: 1600.0            # kg/m3
+  # cp_base — VALEUR CONSTANTE, et on sait depuis le 2026-09-16 qu'elle ne l'est pas.
+  # Hamon & Laberge Lebel 2025 (manuscrit, MÊME consortium COMPAAM, MÊME ruban APC AS4D)
+  # publient un Cp(T) MESURÉ du C/PEKK, sans pic de fusion — donc directement comparable
+  # à cette ligne de base (source : thèse Saffar 2019) :
+  #     T (°C)  :   50    100    150    200    250    300    350    400    450
+  #     Cp J/gK : 0,939  1,090  1,224  1,341  1,441  1,524  1,590  1,639  1,671
+  # Soit +78 % sur la plage. Aux températures d'interface qui comptent (300-400 °C), le
+  # vrai cp vaut 1524-1639, soit 27-37 % AU-DESSUS du 1200 ci-dessous ; sous Tg il est
+  # plus bas. 1200 est donc un compromis de milieu de gamme, pas une valeur fausse.
+  # NON ADOPTÉ : `cp` a déjà été écarté plusieurs fois comme levier scalaire du résidu, et
+  # `facteur_couplage` absorbe déjà une part de cette erreur — attendre le même sort en
+  # held-out que k(T) (issue #4). C'est un ACQUIS DE PROPRIÉTÉ, utile surtout pour les
+  # affirmations sur la TEMPÉRATURE ABSOLUE d'interface (modèle de fusion).
+  # Cf. biblio/references/donnees_materiau_hamon2025.md
   cp_base: 1200.0            # J/kg.K (hors pic de fusion)
-  T_fusion: 337.0            # °C (PEKK)
+  T_fusion: 337.0            # °C (PEKK) — SOURCÉ : fiche technique Syensqo APC (PEKK-FC),
+                             # via Hamon 2025 §3.1. Valeur identique à celle portée ici.
   delta_T_fusion: 15.0       # °C — largeur du pic gaussien de fusion (DSC)
-  chaleur_latente: 130000.0  # J/kg
-  T_glass: 159.0             # °C (Tg, repère seulement)
+  chaleur_latente: 130000.0  # J/kg — valeur 100 % cristallin. La TDS donne une cristallinité
+                             # de 30 % (confirmée par Hamon 2025 §3.1), d'où L_f physique
+                             # ≈ 40 000 J/kg : le modèle de fusion (flag) utilise celle-là.
+  T_glass: 159.0             # °C (Tg, repère seulement) — SOURCÉ : TDS Syensqo, via Hamon 2025.
   # Conductivité thermique du laminé homogénéisé quasi-iso [45/-45/0/90]3s
   # k_plan — RÉFÉRENCE = 3,0 W/m·K. Tension documentée (issue #4, résolue 2026-08-04) :
   #  · la CALIBRATION identifie ~7,5–8,5 W/m·K DÉCROISSANT avec T (3× : scalaire joint 7,3 ;
@@ -22,7 +39,9 @@ cf_pekk:
   #    validité acté). Acquis de PROPRIÉTÉ, pas correctif adoptable. Mesure 9 (k(T)) non
   #    réalisée. Cf. docs/modele/README.md §résidu, mémoire kt-residu-structurel-piste.
   k_plan: 3.0                # W/m.K — dans le plan (homogénéisé quasi-iso), calibré (cf. note)
-  k_z: 0.64                  # W/m.K — transverse (Buser / CLAUDE.md vault)
+  k_z: 0.64                  # W/m.K — transverse (Buser / CLAUDE.md vault). CORROBORÉ à 2 %
+                             # par une voie indépendante : Hamon 2025 utilise la valeur de la
+                             # thèse Saffar 2019, soit ≈ 0,65 W/(m·K) à l'état consolidé.
   # Conductivité thermique DÉPENDANTE DE T (Lionetto et al. 2017, éq. 5 :
   # k = k(T) ; cf. docs/modele/audit_lionetto_2017.md §3.1/§4.3). Table
   # [[T_°C, k_W/mK], ...], interpolée linéairement (extrapolation plate hors
