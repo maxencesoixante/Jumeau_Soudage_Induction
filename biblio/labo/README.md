@@ -9,7 +9,7 @@ protocoles et décisions de terrain. Les données brutes sont dans **[`../../dat
 | Campagne | Dossier | Contenu |
 |---|---|---|
 | **Série A** | `donnees/data/Serie A/` | Essais historiques 3–5 TC (A-1 calibration, A-3 aveugle). |
-| **Série B** | `donnees/data/Serie B/` | Essai basse consigne B-2 (loi thermostat « capteurs »). |
+| **Série B** | `donnees/data/Serie B/` | Essai basse consigne B-2 (loi thermostat « capteurs »). B-1 et B-2 sont deux extraits d'un même relevé, dont la source d'acquisition est archivée dans le dossier (horodatage absolu, et les 26 points TC4 écrasés au nettoyage de B-1). |
 | **exp7 — profil M (largeur)** | `donnees/data/exp7_bord-centre_2026-07-28_avec-ceramique/` | Cartographie bord→centre, 5 TC, 5 courants (150/176/200/225/250 A), **avec céramique** (géométrie de référence). Profil en M validé. |
 | **exp9 — dissipation (bord y=0)** | `donnees/data/exp9_dissipation-longitudinale_2026-07-28/` | Décroissance longitudinale, spot fixe, monospot 175/200/226/250 A + semi-statique. Forme de source en longueur invariante en courant. |
 | **exp9 — dissipation (centre y=20)** | `donnees/data/exp9_dissipation-longitudinale_2026-07-30/` | Ligne centrale (conduction dominante) → sonde `k_plan` / résidu d'étalement. |
