@@ -1,0 +1,28 @@
+# Essai 201A_3TC — gradient dans l'épaisseur, 3 TC empilés en (60, 20).
+# Source : data/epaisseur_3TC_2026-05/README.md. Même montage que
+# chauffe_250A_3TC : bobine + MFC posés FIXES au centre de l'échantillon, cycle
+# de soudage complet, protocole antérieur au semi-statique (confirmé terrain
+# 2026-09-22). Les quatre courants de la campagne sont donc comparables entre
+# eux et avec l'essai 250 A.
+#
+# Courant lu dans la CELLULE du classeur source, pas dans le nom de feuille —
+# les deux se contredisent et les noms de feuille sont faux (cf. README).
+#
+# Fenêtre MESURÉE sur la série brute (onset = première montée > 3 °C au-dessus
+# de l'ambiante, pic = maximum d'interface) : chauffe 44.0 s, relevé 203.0 s.
+# La coupure suit le pic d'interface ; le reste du relevé est du refroidissement.
+#
+nom: 201A_3TC
+fichier_mesures: donnees/data/epaisseur_3TC_2026-05/201A_v1.txt
+courant: 201.6
+duree_chauffe: 44.0
+duree_totale: 203.0
+spots:                       # spot UNIQUE fixe, centré en longueur
+  - centre_x: 0.060
+    t_debut: 0.0
+    t_fin: 44.0
+thermocouples:
+  TC1: {x: 0.060, y: 0.020, z: surface}     # surface côté bobine
+  TC2: {x: 0.060, y: 0.020, z: interface}   # interface (tissu PW)
+  TC3: {x: 0.060, y: 0.020, z: opposee}     # face opposée (côté tube/vessie)
+tc_valides: [TC1, TC2, TC3]
