@@ -52,6 +52,22 @@ Le rapport surface/interface, lui, est stable (0,84-0,94) et confirme sur quatre
 courants ce que le seul 250 A disait déjà : **la surface chauffe comme
 l'interface**. L'ancienne cible `taux_TC1/TC2 ≈ 1,71` reste fausse.
 
+## Durées de cycle portées par l'opérateur
+
+Le classeur source porte, à côté de chaque série, une durée de cycle saisie à la
+main. Elle ne se déduit pas des relevés et n'est reprise dans aucun `.txt` :
+
+| Courant | « 1 cycle (s) » | « Cycle est » |
+|---|---|---|
+| 174,4 A | 214 | Lent |
+| 201,6 A | 203 | Lent |
+| 226 A | *(non renseigné)* | Lent |
+| 250 A | 184 | À définir |
+
+Pour 201,6 A et 250 A cette valeur coïncide avec la longueur du relevé ; pour
+174,4 A elle lui est inférieure de 14 s. Faute de définition écrite, on la prend
+pour ce qu'elle est — une note d'opérateur — et non pour une grandeur mesurée.
+
 ## Provenance et réserves
 
 Extraits de `MAX-WELDING-DATA-14_05_26.xlsx` (classeur créé le 14/05, enregistré
@@ -65,6 +81,11 @@ foi.
 **La date des essais n'est pas établie.** Le classeur a été créé le 14/05 et
 enregistré le 20/05 ; le relevé 250 A du même montage est daté du 20/05. Le
 dossier porte donc le mois, pas le jour.
+
+Le classeur lui-même est conservé ici sous
+`source_MAX-WELDING-DATA-14_05_26.xlsx` : les `.txt` n'en reprennent que les
+colonnes numériques, et il reste la seule pièce portant les en-têtes d'origine et
+les dates du fichier.
 
 La cinquième feuille du classeur, `PW_interface_250A`, n'est pas reprise ici :
 c'est exactement `../chauffe_250A_3TC-epaisseur_2026-05-20.txt` (lignes 11 à 195,
