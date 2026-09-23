@@ -57,16 +57,25 @@ l'interface**. L'ancienne cible `taux_TC1/TC2 ≈ 1,71` reste fausse.
 Le classeur source porte, à côté de chaque série, une durée de cycle saisie à la
 main. Elle ne se déduit pas des relevés et n'est reprise dans aucun `.txt` :
 
-| Courant | « 1 cycle (s) » | « Cycle est » |
-|---|---|---|
-| 174,4 A | 214 | Lent |
-| 201,6 A | 203 | Lent |
-| 226 A | *(non renseigné)* | Lent |
-| 250 A | 184 | À définir |
+| Courant | « 1 cycle (s) » | « donc (min) » | « Cycle est » |
+|---|---|---|---|
+| 174,4 A | 214 | 3,567 | Lent |
+| 201,6 A | 203 | 3,383 | Lent |
+| 226 A | 184 | 3,383 | Lent |
+| 250 A | 184 | 3,067 | À définir |
 
-Pour 201,6 A et 250 A cette valeur coïncide avec la longueur du relevé ; pour
-174,4 A elle lui est inférieure de 14 s. Faute de définition écrite, on la prend
-pour ce qu'elle est — une note d'opérateur — et non pour une grandeur mesurée.
+La valeur coïncide avec la longueur du relevé à 201,6 A et à 250 A. À 174,4 A
+elle lui est inférieure de 14 s. À 226 A elle vaut 184, soit la longueur du
+**second** passage (`226A_v2.txt`, 184 s) et non du premier (288 s) : la note
+semble n'avoir été tenue que pour l'un des deux.
+
+**La cellule « donc (min) » du 226 A est périmée.** Elle affiche 3,383, qui est
+203/60 — la valeur du 201,6 A, recopiée sans être recalculée ; son propre cycle
+donnerait 3,067. Les trois autres feuilles sont cohérentes. C'est une cellule
+dérivée à la main, pas une mesure : ne rien en tirer.
+
+Faute de définition écrite, on prend ces durées pour ce qu'elles sont — des
+notes d'opérateur — et non pour des grandeurs mesurées.
 
 ## Provenance et réserves
 
