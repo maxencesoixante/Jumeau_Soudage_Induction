@@ -5,13 +5,14 @@ Le tube substitut est assemblé à partir de plaques CF/PEKK consolidées à la
 presse chauffante, drapage [45,-45,0,-45,45,0_3]_S (16 plis) :
   - deux MURS de 40 mm de haut,
   - une plaque de DESSUS de 50 mm posée sur les murs,
-  - les rainures dessus/murs fondues au fer à souder (assemblage de maintien).
+  - une plaque de FOND de 50 mm sous les murs,
+  - les rainures dessus/murs et fond/murs fondues au fer à souder (maintien).
 Le « connecteur » habituel ([45,-45,0,90]_3S, 120 × 40 mm, 3,36 mm) est soudé
 sur la plaque de dessus, en cycle semi-statique.
 
 HYPOTHÈSES DE DESSIN (à confirmer terrain, reprises dans l'issue) :
   - épaisseur des parois du tube : 1,68 mm (valeur utilisateur, 2026-09-28) ;
-  - section en Π, fond OUVERT : les murs reposent directement sur le bâti ;
+  - section en caisson FERMÉ (fond soudé comme le dessus, user 2026-09-28) ;
   - faces extérieures des murs affleurant les bords de la plaque de 50 mm ;
   - tube de même longueur que le connecteur (120 mm), connecteur centré en largeur ;
   - TC : même ligne de 5 TC d'interface qu'en exp9 (bord du connecteur, y = 0).
@@ -46,7 +47,8 @@ PORTEE = W_DESSUS - 2 * E_TUBE  # portée libre entre murs, 46,64 mm
 Z_INTERF = -g.E_SUP                       # -3,36
 Z_FILM_BOT = Z_INTERF - g.E_FILM          # -3,46
 Z_DESSUS_BOT = Z_FILM_BOT - E_TUBE        # -5,14 (face intérieure, côté cavité)
-Z_MUR_BOT = Z_DESSUS_BOT - H_MUR          # -45,14 (appui sur le bâti)
+Z_MUR_BOT = Z_DESSUS_BOT - H_MUR          # -45,14 (face intérieure du fond)
+Z_FOND_BOT = Z_MUR_BOT - E_TUBE           # -46,82 (appui sur le bâti)
 
 C_TUBE = "#56B4E9"      # bleu ciel Okabe-Ito : plaques du tube (≠ connecteur)
 C_SOUDURE_FER = "#D55E00"  # vermillon : rainures fondues au fer
@@ -113,7 +115,7 @@ def make():
         ax1.spines[s].set_visible(False)
 
     # --- Panneau 2 : coupe transverse y-z à x = 60 mm, 1:1 -------------------
-    # connecteur (0 .. -3,36), film, plaque de dessus du tube, murs, bâti
+    # connecteur (0 .. -3,36), film, plaque de dessus du tube, murs, fond, bâti
     rect(ax2, 0, Z_INTERF, g.W, g.E_SUP, facecolor=g.C_COUPON, alpha=0.22,
          edgecolor=g.C_COUPON, linewidth=1.0, zorder=3)
     for k in range(1, 4):
@@ -124,12 +126,15 @@ def make():
     plaque_tube(ax2, Y0_TUBE, Z_DESSUS_BOT, W_DESSUS, E_TUBE, zorder=3)
     for yb in (Y0_TUBE, Y0_TUBE + W_DESSUS - E_TUBE):
         plaque_tube(ax2, yb, Z_MUR_BOT, E_TUBE, H_MUR, zorder=3)
-    # rainures fondues au fer (coins intérieurs dessus/mur)
+    plaque_tube(ax2, Y0_TUBE, Z_FOND_BOT, W_DESSUS, E_TUBE, zorder=3)
+    # rainures fondues au fer (4 coins intérieurs : dessus/murs et fond/murs)
     for yb, sgn in ((Y0_TUBE + E_TUBE, 1), (Y0_TUBE + W_DESSUS - E_TUBE, -1)):
         ax2.scatter([yb + sgn * 0.6], [Z_DESSUS_BOT - 0.6], s=38, marker="v",
                     color=C_SOUDURE_FER, edgecolor="0.2", linewidth=0.4, zorder=9)
+        ax2.scatter([yb + sgn * 0.6], [Z_MUR_BOT + 0.6], s=38, marker="^",
+                    color=C_SOUDURE_FER, edgecolor="0.2", linewidth=0.4, zorder=9)
     # bâti
-    rect(ax2, Y0_TUBE - 6, Z_MUR_BOT - 3.0, W_DESSUS + 12, 3.0, facecolor=C_BATI,
+    rect(ax2, Y0_TUBE - 6, Z_FOND_BOT - 3.0, W_DESSUS + 12, 3.0, facecolor=C_BATI,
          edgecolor="0.4", hatch="\\\\\\", linewidth=0.6, zorder=2)
     # céramique + MFC + tubes Cu (vus en long : ils courent selon y)
     rect(ax2, 0, 0, g.W, g.H_CERAM_TOP, facecolor=g.C_CERAM, alpha=0.55,
@@ -156,20 +161,20 @@ def make():
                  ha="center", va="top", zorder=10, bbox=g.BOXPROPS,
                  arrowprops=dict(arrowstyle="-", color=g.C_TC, lw=0.6))
 
-    # chemin d'effort : pression de consolidation -> dessus -> murs -> bâti
+    # chemin d'effort : pression de consolidation -> dessus -> murs -> fond -> bâti
     for y in (6, 13, 20, 27, 34):
         fleche(ax2, y, g.H_MFC_TOP + 7, g.H_MFC_TOP + 0.6)
     ax2.text(yc, g.H_MFC_TOP + 7.8, "pression de consolidation", ha="center",
              va="bottom", fontsize=7.6, color=C_EFFORT, fontweight="bold")
     for yb in (Y0_TUBE + E_TUBE / 2, Y0_TUBE + W_DESSUS - E_TUBE / 2):
         fleche(ax2, yb, Z_DESSUS_BOT - 4, Z_MUR_BOT + 2)
-    ax2.text(yc, -26, "cavité d'air\n(pas de contre-pression)", ha="center",
+    ax2.text(yc, -26, "cavité d'air fermée\n(pas de contre-pression)", ha="center",
              va="center", fontsize=7.6, color="0.3", style="italic")
     ax2.annotate("rainures fondues\nau fer à souder", xy=(Y0_TUBE + E_TUBE + 0.8, Z_DESSUS_BOT - 0.8),
                  xytext=(Y0_TUBE + 6, -15), fontsize=6.8, color=C_SOUDURE_FER, ha="left",
                  va="center", zorder=10, bbox=g.BOXPROPS,
                  arrowprops=dict(arrowstyle="-", color=C_SOUDURE_FER, lw=0.6))
-    ax2.text(yc, Z_MUR_BOT - 4.5, "bâti — les murs reprennent l'effort", ha="center",
+    ax2.text(yc, Z_FOND_BOT - 4.5, "bâti — murs puis fond reprennent l'effort", ha="center",
              va="top", fontsize=7.2, color="0.25")
 
     # cotes
@@ -183,14 +188,14 @@ def make():
              fontsize=6.6, color=g.C_COUPON, ha="left", va="center")
 
     ax2.set_xlim(y_lo - 11, y_lo + g.MFC_Y + 22)
-    ax2.set_ylim(Z_MUR_BOT - 9, g.H_MFC_TOP + 12)
+    ax2.set_ylim(Z_FOND_BOT - 9, g.H_MFC_TOP + 12)
     ax2.set_aspect("equal")
     ax2.set_xlabel("y (mm) — largeur (coupe à x = 60 mm)")
     ax2.set_ylabel("z (mm) — hauteur\n(0 = surface du connecteur)")
     ax2.set_title("Coupe transverse (plan y–z, x = 60 mm) — échelle 1:1", fontsize=10)
-    ax2.set_yticks([Z_MUR_BOT, Z_DESSUS_BOT, 0, g.H_MFC_TOP])
+    ax2.set_yticks([Z_FOND_BOT, Z_DESSUS_BOT, 0, g.H_MFC_TOP])
     ax2.set_yticklabels([f"{z:+.1f}".replace("-", "−").replace(".", ",").replace("+0,0", "0")
-                         for z in (Z_MUR_BOT, Z_DESSUS_BOT, 0, g.H_MFC_TOP)])
+                         for z in (Z_FOND_BOT, Z_DESSUS_BOT, 0, g.H_MFC_TOP)])
     ax2.tick_params(length=3, labelsize=8)
     for s in ("top", "right"):
         ax2.spines[s].set_visible(False)
