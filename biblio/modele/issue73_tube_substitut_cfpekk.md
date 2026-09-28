@@ -13,15 +13,15 @@ Il prolonge #71 (substitut en U fibre de verre + vessie) : si les parois du tube
 
 ## Le montage
 
-![Montage tube substitut](https://raw.githubusercontent.com/maxencesoixante/Jumeau_Soudage_Induction/main/biblio/labo/figures/fig_montage_tube_substitut.png?v=2)
+![Montage tube substitut](https://raw.githubusercontent.com/maxencesoixante/Jumeau_Soudage_Induction/main/biblio/labo/figures/fig_montage_tube_substitut.png?v=3)
 
-*En haut : vue de dessus, connecteur centré sur le tube, ligne de TC d'interface et avance du spot. En bas : coupe transverse à l'échelle 1:1, avec le chemin d'effort (outil → plaque de dessus → murs → bâti) et la cavité d'air.*
+*En haut : vue de dessus, connecteur centré sur le tube, ligne de TC d'interface et avance du spot. En bas : coupe transverse à l'échelle 1:1, avec le chemin d'effort (outil → plaque de dessus → murs → plaque de fond → bâti) et la cavité d'air fermée.*
 
 **Fabrication du tube substitut**
 
 1. Consolidation à la presse chauffante de plaques CF/PEKK **[45,−45,0,−45,45,0₃]ₛ** (16 plis, 1,68 mm).
-2. Découpe d'échantillons aux dimensions du tube : **deux murs de 40 mm** de haut et **une plaque de dessus de 50 mm** de large.
-3. Plaque de 50 mm **posée sur les murs**, puis la rainure au contact des murs est **fondue au fer à souder** pour que l'ensemble reste solidaire pendant le soudage.
+2. Découpe d'échantillons aux dimensions du tube : **deux murs de 40 mm** de haut, **une plaque de dessus** et **une plaque de fond** de 50 mm de large.
+3. Plaques de 50 mm **posées sur et sous les murs**, puis les rainures au contact des murs sont **fondues au fer à souder** (dessus et fond) pour que l'ensemble forme un caisson fermé, solidaire pendant le soudage.
 
 **Soudage**
 
@@ -47,7 +47,7 @@ L'idée : le tube étant creux, la face intérieure (côté cavité) pourrait re
 Ce qu'on sait déjà et ce qui reste ouvert :
 
 - La face opposée est **déjà froide** sur le montage à plat : opposée/interface = **0,32–0,48** au pic sur 4 courants (campagne épaisseur de mai, `donnees/data/epaisseur_3TC_2026-05/`).
-- Deux effets tirent en sens contraire. L'air confiné d'une cavité fermée par le bâti échange peu (convection naturelle, quelques W/(m²·K)) : il isole plutôt qu'il ne refroidit, comparé à un laminé posé sur le bâti. À l'inverse, la plaque de dessus est deux fois plus mince (1,68 mm au lieu de 3,36 mm) et a moins d'inertie : la chaleur l'atteint plus vite.
+- Deux effets tirent en sens contraire. L'air confiné du caisson fermé échange peu (convection naturelle, quelques W/(m²·K)) : il isole plutôt qu'il ne refroidit, comparé à un laminé posé sur le bâti. À l'inverse, la plaque de dessus est deux fois plus mince (1,68 mm au lieu de 3,36 mm) et a moins d'inertie : la chaleur l'atteint plus vite.
 - Le sens de l'effet n'est donc **pas acquis**. Il faut le mesurer plutôt que le supposer. **Proposition : un TC collé sur la face intérieure du dessus, à x = 60 mm** (cercle creux sur la figure), à comparer à la campagne épaisseur.
 - Le jumeau peut donner une prédiction à l'aveugle avant l'essai (en 3D, avec la face inférieure passée en condition de cavité). Ce serait un test à la manière de #64.
 
@@ -58,7 +58,6 @@ Ce qu'on sait déjà et ce qui reste ouvert :
 
 ## Hypothèses de la figure, à confirmer
 
-- [ ] section en Π à **fond ouvert**, les murs reposant directement sur le bâti (pas de plaque de fond) ;
 - [ ] faces extérieures des murs affleurant les bords de la plaque de 50 mm ;
 - [ ] tube de 120 mm de long, comme le connecteur, qui est centré en largeur ;
 - [ ] même instrumentation que le semi-statique (5 TC d'interface sur la ligne y = 0).
