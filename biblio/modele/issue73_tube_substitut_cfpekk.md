@@ -13,13 +13,13 @@ Il prolonge #71 (substitut en U fibre de verre + vessie) : si les parois du tube
 
 ## Le montage
 
-![Montage tube substitut](https://raw.githubusercontent.com/maxencesoixante/Jumeau_Soudage_Induction/main/biblio/labo/figures/fig_montage_tube_substitut.png?v=1)
+![Montage tube substitut](https://raw.githubusercontent.com/maxencesoixante/Jumeau_Soudage_Induction/main/biblio/labo/figures/fig_montage_tube_substitut.png?v=2)
 
 *En haut : vue de dessus, connecteur centré sur le tube, ligne de TC d'interface et avance du spot. En bas : coupe transverse à l'échelle 1:1, avec le chemin d'effort (outil → plaque de dessus → murs → bâti) et la cavité d'air.*
 
 **Fabrication du tube substitut**
 
-1. Consolidation à la presse chauffante de plaques CF/PEKK **[45,−45,0,−45,45,0₃]ₛ** (16 plis, ≈ 2,24 mm).
+1. Consolidation à la presse chauffante de plaques CF/PEKK **[45,−45,0,−45,45,0₃]ₛ** (16 plis, 1,68 mm).
 2. Découpe d'échantillons aux dimensions du tube : **deux murs de 40 mm** de haut et **une plaque de dessus de 50 mm** de large.
 3. Plaque de 50 mm **posée sur les murs**, puis la rainure au contact des murs est **fondue au fer à souder** pour que l'ensemble reste solidaire pendant le soudage.
 
@@ -37,7 +37,7 @@ Si oui, **pas besoin de contre-pression à l'intérieur du tube**. Et le résult
 Ce qu'il faut regarder :
 
 - **les murs** : pas d'écrasement ni de flambement sous l'effort de la cellule ;
-- **la plaque de dessus** : elle travaille en flexion sur une **portée libre de ≈ 45,5 mm** entre les murs, et elle est chaude pendant la chauffe. Mesurer sa flèche résiduelle après l'essai ;
+- **la plaque de dessus** : elle travaille en flexion sur une **portée libre de ≈ 46,6 mm** entre les murs, et elle est chaude pendant la chauffe. Mesurer sa flèche résiduelle après l'essai ;
 - **la soudure** : consolidation comparable au montage à plat, sans déconsolidation ni porosité visibles en coupe. Une pression bien appliquée par l'outil mais perdue par la flexion du dessus se verrait ici, pas sur les murs.
 
 ### Q2 — La cavité creuse modifie-t-elle la thermique de la face opposée ?
@@ -47,7 +47,7 @@ L'idée : le tube étant creux, la face intérieure (côté cavité) pourrait re
 Ce qu'on sait déjà et ce qui reste ouvert :
 
 - La face opposée est **déjà froide** sur le montage à plat : opposée/interface = **0,32–0,48** au pic sur 4 courants (campagne épaisseur de mai, `donnees/data/epaisseur_3TC_2026-05/`).
-- Deux effets tirent en sens contraire. L'air confiné d'une cavité fermée par le bâti échange peu (convection naturelle, quelques W/(m²·K)) : il isole plutôt qu'il ne refroidit, comparé à un laminé posé sur le bâti. À l'inverse, la plaque de dessus est plus mince (2,24 mm au lieu de 3,36 mm) et a moins d'inertie : la chaleur l'atteint plus vite.
+- Deux effets tirent en sens contraire. L'air confiné d'une cavité fermée par le bâti échange peu (convection naturelle, quelques W/(m²·K)) : il isole plutôt qu'il ne refroidit, comparé à un laminé posé sur le bâti. À l'inverse, la plaque de dessus est deux fois plus mince (1,68 mm au lieu de 3,36 mm) et a moins d'inertie : la chaleur l'atteint plus vite.
 - Le sens de l'effet n'est donc **pas acquis**. Il faut le mesurer plutôt que le supposer. **Proposition : un TC collé sur la face intérieure du dessus, à x = 60 mm** (cercle creux sur la figure), à comparer à la campagne épaisseur.
 - Le jumeau peut donner une prédiction à l'aveugle avant l'essai (en 3D, avec la face inférieure passée en condition de cavité). Ce serait un test à la manière de #64.
 
@@ -58,7 +58,6 @@ Ce qu'on sait déjà et ce qui reste ouvert :
 
 ## Hypothèses de la figure, à confirmer
 
-- [ ] épaisseur de pli 0,14 mm (d'après le connecteur : 3,36 mm / 24 plis), soit 2,24 mm pour le tube ;
 - [ ] section en Π à **fond ouvert**, les murs reposant directement sur le bâti (pas de plaque de fond) ;
 - [ ] faces extérieures des murs affleurant les bords de la plaque de 50 mm ;
 - [ ] tube de 120 mm de long, comme le connecteur, qui est centré en largeur ;
