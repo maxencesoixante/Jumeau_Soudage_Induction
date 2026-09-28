@@ -10,7 +10,7 @@ Le « connecteur » habituel ([45,-45,0,90]_3S, 120 × 40 mm, 3,36 mm) est soud�
 sur la plaque de dessus, en cycle semi-statique.
 
 HYPOTHÈSES DE DESSIN (à confirmer terrain, reprises dans l'issue) :
-  - épaisseur de pli 0,14 mm (3,36 mm / 24 plis du connecteur) -> 16 plis = 2,24 mm ;
+  - épaisseur des parois du tube : 1,68 mm (valeur utilisateur, 2026-09-28) ;
   - section en Π, fond OUVERT : les murs reposent directement sur le bâti ;
   - faces extérieures des murs affleurant les bords de la plaque de 50 mm ;
   - tube de même longueur que le connecteur (120 mm), connecteur centré en largeur ;
@@ -36,18 +36,17 @@ OUT = g.R / "biblio" / "labo" / "figures" / "fig_montage_tube_substitut.png"
 # ----------------------------------------------------------------------
 # Géométrie du tube substitut (mm)
 # ----------------------------------------------------------------------
-E_PLI = g.E_SUP / 24            # 0,14 mm
-E_TUBE = 16 * E_PLI             # [45,-45,0,-45,45,0_3]_S -> 2,24 mm
+E_TUBE = 1.68                   # [45,-45,0,-45,45,0_3]_S, épaisseur donnée par l'utilisateur
 H_MUR = 40.0                    # hauteur des murs (plaques de 40 mm)
 W_DESSUS = 50.0                 # largeur de la plaque de dessus
 Y0_TUBE = (g.W - W_DESSUS) / 2  # -5 : tube centré sous le connecteur (y 0..40)
-PORTEE = W_DESSUS - 2 * E_TUBE  # portée libre entre murs, 45,52 mm
+PORTEE = W_DESSUS - 2 * E_TUBE  # portée libre entre murs, 46,64 mm
 
 # cotes z (0 = surface du connecteur, + vers le haut)
 Z_INTERF = -g.E_SUP                       # -3,36
 Z_FILM_BOT = Z_INTERF - g.E_FILM          # -3,46
-Z_DESSUS_BOT = Z_FILM_BOT - E_TUBE        # -5,70 (face intérieure, côté cavité)
-Z_MUR_BOT = Z_DESSUS_BOT - H_MUR          # -45,70 (appui sur le bâti)
+Z_DESSUS_BOT = Z_FILM_BOT - E_TUBE        # -5,14 (face intérieure, côté cavité)
+Z_MUR_BOT = Z_DESSUS_BOT - H_MUR          # -45,14 (appui sur le bâti)
 
 C_TUBE = "#56B4E9"      # bleu ciel Okabe-Ito : plaques du tube (≠ connecteur)
 C_SOUDURE_FER = "#D55E00"  # vermillon : rainures fondues au fer
@@ -178,7 +177,7 @@ def make():
              f"portée libre {PORTEE:.1f} mm".replace(".", ","), fs=7.0)
     g.cote_v(ax2, Z_MUR_BOT, Z_DESSUS_BOT, Y0_TUBE + W_DESSUS + 3.0,
              f"mur {H_MUR:.0f} mm", fs=7.0)
-    ax2.text(Y0_TUBE + W_DESSUS + 2.0, (Z_INTERF + Z_DESSUS_BOT) / 2 - 0.6,
+    ax2.text(Y0_TUBE + W_DESSUS + 4.5, (Z_INTERF + Z_DESSUS_BOT) / 2 - 0.6,
              f"dessus {E_TUBE:.2f} mm".replace(".", ","), fontsize=6.6, color="#2B7FB0", ha="left", va="center")
     ax2.text(g.W + 7.5, Z_INTERF / 2 + 0.3, f"connecteur {g.E_SUP:.2f} mm".replace(".", ","),
              fontsize=6.6, color=g.C_COUPON, ha="left", va="center")
@@ -190,7 +189,8 @@ def make():
     ax2.set_ylabel("z (mm) — hauteur\n(0 = surface du connecteur)")
     ax2.set_title("Coupe transverse (plan y–z, x = 60 mm) — échelle 1:1", fontsize=10)
     ax2.set_yticks([Z_MUR_BOT, Z_DESSUS_BOT, 0, g.H_MFC_TOP])
-    ax2.set_yticklabels(["−45,7", "−5,7", "0", "+14"])
+    ax2.set_yticklabels([f"{z:+.1f}".replace("-", "−").replace(".", ",").replace("+0,0", "0")
+                         for z in (Z_MUR_BOT, Z_DESSUS_BOT, 0, g.H_MFC_TOP)])
     ax2.tick_params(length=3, labelsize=8)
     for s in ("top", "right"):
         ax2.spines[s].set_visible(False)
