@@ -74,4 +74,4 @@ C'est pourquoi aucun seuil absolu n'apparaît dans la table de verdict.
 
 ## Dépendances / liens
 
-Protocole `biblio/labo/protocole_mfc_reduit.md`. MFC réduit **reçu**. Prédictions figées : `biblio/modele/prediction_mfc_familles.md`, `biblio/modele/prediction_mfc_reduit.md`. Alimente la recalibration θ\* (#60). Campagne parente #63. Conséquences procédé : #62.
+Protocole `biblio/labo/protocole_mfc_reduit.md`. MFC réduit **reçu**. Prédictions figées : `biblio/modele/prediction_mfc_familles.md`, `biblio/modele/prediction_mfc_reduit.md`. Alimente la recalibration θ\* (#60), **qu'elle bloque** : #60 ne peut démarrer qu'avec cette mesure. Campagne parente #63. Conséquences procédé : #62.
