@@ -11,6 +11,8 @@ Nouveau montage, **plus fidèle au montage final** que la plaque posée à plat 
 
 Il prolonge #71 (substitut en U fibre de verre + vessie) : si les parois du tube tiennent seules la pression de consolidation, la question du chemin d'effort vers la vessie ne se pose plus pour ce montage.
 
+**Cette issue bloque #71** : #71 ne reprend que si l'essai conclut qu'une contre-pression est nécessaire.
+
 ## Le montage
 
 ![Montage tube substitut](https://raw.githubusercontent.com/maxencesoixante/Jumeau_Soudage_Induction/main/biblio/labo/figures/fig_montage_tube_substitut.png?v=3)

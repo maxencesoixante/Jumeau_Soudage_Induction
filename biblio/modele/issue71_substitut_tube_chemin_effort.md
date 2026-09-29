@@ -5,6 +5,8 @@ Ne pas éditer l'issue directement dans le navigateur : la prochaine synchro
 écraserait la modification sans avertir.
 Ce commentaire HTML est invisible dans l'issue rendue.
 -->
+> **Bloquée par #73** (2026-09-28). #73 teste un tube substitut tout CF/PEKK **sans contre-pression** : si ses murs tiennent la pression de consolidation, la vessie n'est plus nécessaire et la question de cette issue ne se pose plus. Reprendre ici seulement si #73 conclut qu'une contre-pression est nécessaire.
+
 ## Contexte
 
 Le tube CF/PEKK ne sera pas disponible pour le projet. Le substitut envisagé :
