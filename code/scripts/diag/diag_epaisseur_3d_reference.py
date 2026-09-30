@@ -18,6 +18,9 @@ chose sur la face opposée, qui culmine après l'interface :
   - « pics » : max(T_opposée) / max(T_interface) ;
   - « instant » : T_opposée / T_interface à l'instant du pic d'interface.
 
+Option --kz-inf : k_z du laminé inférieur seul (transport transverse ralenti sous
+l'interface, réparti). Colonnes « T(pic+100 s) » : 2e métrique, le refroidissement.
+
 Option --alpha-inf : multiplie la source Joule sous l'interface (test de la piste
 « source plus concentrée vers le haut » ; 0 = aucune chaleur déposée dessous).
 
@@ -51,6 +54,27 @@ def rapports(t, s, i, o):
     return (np.nanmax(o) / i[k], np.nanmax(s) / i[k], o[k] / i[k], s[k] / i[k], i[k])
 
 
+def queue(t, s, i, o, dt=100.0):
+    """Températures (surface, interface, opposée) dt après le pic d'interface :
+    2e métrique, le refroidissement (une perte trop forte vide la colonne trop vite)."""
+    k = int(np.nanargmax(i))
+    tq = t[k] + dt
+    return tuple(float(np.interp(tq, t, v)) for v in (s, i, o))
+
+
+def appliquer_kz_inf(mat, grille, lam, kz_inf):
+    """k_z = kz_inf dans le laminé inférieur (sous l'interface + film), k_z
+    inchangé au-dessus. Passe par le chemin flux-conservatif à k variable du
+    3D (moyenne arithmétique des k de nœud aux faces). Transport transverse
+    RÉPARTI dans tout le laminé inf, à distinguer de r_contact_interface
+    (résistance LOCALISÉE à l'interface, NO-GO du 2026-08-13)."""
+    dessous = grille.z > lam["epaisseur_sup"] + lam["epaisseur_film"] / 2
+    kz = float(mat.k_z)
+    mat.a_k_variable = lambda: True
+    mat.k_z_field = lambda T: np.where(dessous[None, None, :], kz_inf, kz) * np.ones_like(T)
+    mat.k_plan_field = lambda T: np.full_like(T, float(mat.k_plan))
+
+
 def mesure(essai: Essai):
     df = charger_mesures(essai.fichier_mesures, seuil_aberrant=2000.0)
     t = df.iloc[:, 0].to_numpy()
@@ -71,6 +95,8 @@ def main():
     ap.add_argument("--essais", nargs="+", default=ESSAIS)
     ap.add_argument("--alpha-inf", type=float, default=1.0,
                     help="facteur sur la source Joule SOUS l'interface (laminé inf) ; 1 = inchangé")
+    ap.add_argument("--kz-inf", type=float, default=None,
+                    help="k_z du laminé inférieur (W/m.K) ; défaut = k_z uniforme")
     a = ap.parse_args()
 
     lignes = []
@@ -78,9 +104,9 @@ def main():
         print(s, flush=True); lignes.append(s)
 
     log(f"3D : facteur {a.facteur}, h_contact {a.h_contact}, h_bas {a.h_bas}, "
-        f"grille {a.nx}×{a.ny}×{a.nz}, alpha_inf {a.alpha_inf}")
+        f"grille {a.nx}×{a.ny}×{a.nz}, alpha_inf {a.alpha_inf}, kz_inf {a.kz_inf}")
     log(f"{'essai':22s} {'':6s} {'o/i pics':>9s} {'s/i pics':>9s} {'o/i inst':>9s} "
-        f"{'s/i inst':>9s} {'T_i max':>8s} {'durée':>6s}")
+        f"{'s/i inst':>9s} {'T_i max':>8s}  T(pic+100 s) surf/int/opp {'durée':>6s}")
     for nom in a.essais:
         cfg = Config.charger(R / "code" / "config")
         cfg.contact.h_contact = a.h_contact
@@ -92,17 +118,24 @@ def main():
             dessous = e.grille.z > lam["epaisseur_sup"] + lam["epaisseur_film"] / 2
             for Q in e._Q_spots:
                 Q[:, :, dessous] *= a.alpha_inf
+        if a.kz_inf is not None:
+            appliquer_kz_inf(cfg.materiau, e.grille, cfg.geometrie["laminate"], a.kz_inf)
         tm, sm, im, om = mesure(e)
         rm = rapports(tm, sm, im, om)
+        qm = queue(tm, sm, im, om)
         t0 = time.time()
         solveur, sol = e.simuler(modele="3D")
         ser = e.series_tc(solveur, sol)
         rs = rapports(sol.t, ser["TC1"], ser["TC2"], ser["TC3"])
+        qs = queue(sol.t, ser["TC1"], ser["TC2"], ser["TC3"])
         dt = time.time() - t0
-        log(f"{nom:22s} {'mesuré':6s} " + " ".join(f"{v:9.2f}" for v in rm[:4]) + f" {rm[4]:8.0f}")
-        log(f"{'':22s} {'3D':6s} " + " ".join(f"{v:9.2f}" for v in rs[:4]) + f" {rs[4]:8.0f} {dt:5.0f}s")
-    OUT = OUT_DIR / ("diag_epaisseur_3d_reference.log" if a.alpha_inf == 1.0
-                     else f"diag_epaisseur_3d_alpha_inf{a.alpha_inf:g}.log")
+        log(f"{nom:22s} {'mesuré':6s} " + " ".join(f"{v:9.2f}" for v in rm[:4]) + f" {rm[4]:8.0f}  "
+            + " / ".join(f"{v:4.0f}" for v in qm))
+        log(f"{'':22s} {'3D':6s} " + " ".join(f"{v:9.2f}" for v in rs[:4]) + f" {rs[4]:8.0f}  "
+            + " / ".join(f"{v:4.0f}" for v in qs) + f"      {dt:5.0f}s")
+    suffixe = (f"_alpha_inf{a.alpha_inf:g}" if a.alpha_inf != 1.0 else "") + \
+              (f"_kz_inf{a.kz_inf:g}" if a.kz_inf is not None else "")
+    OUT = OUT_DIR / f"diag_epaisseur_3d_reference{suffixe}.log"
     OUT.write_text("\n".join(lignes) + "\n", encoding="utf-8")
 
 
