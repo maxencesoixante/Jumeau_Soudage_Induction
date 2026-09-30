@@ -38,7 +38,9 @@ EXP9 = ["exp9_175A_monospot", "exp9_200A_monospot", "exp9_200A_y20_monospot",
         "exp9_226A_monospot", "exp9_250A_monospot"]
 CONFIGS = {"actuel": ("k_z uniforme 0,64 · h_contact 5", GRIS_MODELE),
            "kzinf": ("k_z inférieur 0,10 · h_contact 40", OKABE_ITO["bleu"]),
-           "rcfusion": ("résistance d'interface jusqu'à la fusion 0,04 · h_contact 40", OKABE_ITO["vermillon"])}
+           "rcfusion": ("résistance d'interface jusqu'à la fusion 0,04 · h_contact 40", OKABE_ITO["vermillon"]),
+           "combiA": ("combinaison k_z inf 0,25 + résistance 0,02", OKABE_ITO["vert"]),
+           "combiB": ("combinaison k_z inf 0,15 + résistance 0,01", OKABE_ITO["rose"])}
 
 
 def rmse_par_tc(chemin):
@@ -54,7 +56,8 @@ def rmse_par_tc(chemin):
     return res
 
 
-def main():
+def main(configs=("actuel", "kzinf", "rcfusion"), nom_fig="fig74_compromis_facteur.png"):
+    """``configs`` : configurations tracées (toutes sont écrites dans synthese.csv)."""
     lignes = ["config,facteur,rmse_AB_TC2-4,rmse_exp9_TC3,cout,ecart_pic_AB_TC2-4,ecart_pic_exp9_TC3"]
     donnees = {c: [] for c in CONFIGS}
     for chemin in sorted(D.glob("*_f*.log")):
@@ -81,6 +84,8 @@ def main():
 
     fig, axes = plt.subplots(1, 3, figsize=(8.4, 2.9), sharex=True, gridspec_kw=dict(wspace=0.32))
     for cfg, (lab, c) in CONFIGS.items():
+        if cfg not in configs:
+            continue
         v = sorted(donnees[cfg])
         if not v:
             continue
@@ -94,13 +99,16 @@ def main():
         ax.set_xlabel("facteur_couplage")
     axes[0].set_ylabel("RMSE (°C)")
     h, l = axes[0].get_legend_handles_labels()
-    fig.legend(h, l, frameon=False, fontsize=7.8, loc="lower center", ncol=3,
-               bbox_to_anchor=(0.5, -0.12))
+    rangs = -(-len(h) // 3)
+    fig.legend(h, l, frameon=False, fontsize=7.8, loc="upper center", ncol=3,
+               bbox_to_anchor=(0.5, -0.06 - 0.0 * rangs))
     fig.suptitle("Balayage de facteur_couplage, grille 3D 31×11×15 (étoiles : optimum du coût joint)",
                  fontsize=8.8, y=1.03)
-    savefig(fig, R / "biblio" / "labo" / "figures" / "issue74" / "fig74_compromis_facteur.png",
+    savefig(fig, R / "biblio" / "labo" / "figures" / "issue74" / nom_fig,
             bbox_inches="tight")
 
 
 if __name__ == "__main__":
     main()
+    main(configs=("actuel", "kzinf", "rcfusion", "combiA", "combiB"),
+         nom_fig="fig74_compromis_combinaison.png")
