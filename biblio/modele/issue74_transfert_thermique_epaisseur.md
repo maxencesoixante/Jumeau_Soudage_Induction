@@ -161,6 +161,19 @@ Deux enseignements au passage :
 - **Le 3D actuel est mal calé sur son facteur par défaut** : à 4,5 au lieu de 6,01, son coût tombe de 42 à 32 °C, avant même de toucher à l'épaisseur (étape 0).
 - **Les séries A/B dépendent peu du facteur**, parce que leur chauffe est coupée par le thermostat : c'est exp9 qui fixe le facteur.
 
+### 4. Vue de côté du flux de chaleur dans l'épaisseur
+
+![Flux de chaleur dans l'épaisseur](https://raw.githubusercontent.com/maxencesoixante/Jumeau_Soudage_Induction/main/biblio/labo/figures/issue74/fig74_flux_epaisseur.png?v=1)
+
+*Vue de côté à l'échelle 1:1, dans le plan de la colonne des 3 TC (essai 201 A, y = 20 mm), centrée sur le spot. Au-dessus de l'empilement : brins de la bobine, MFC (tronqué) et céramique. Dans l'empilement : température en couleur et flux de chaleur en flèches blanches (direction du flux ; longueur proportionnelle à la racine de son intensité). Pastilles : les 3 TC mesurés, sur la même échelle de couleur. Colonnes : modèle 3D actuel et transport ralenti ; lignes : pic d'interface, puis 100 s après. À droite : profil T(z) de la colonne.*
+
+- **Modèle actuel** : la colonne est presque isotherme ; la chaleur part surtout sur les côtés et le bas du laminé reste chaud, alors que la face opposée mesurée est froide.
+- **Transport ralenti** : une frontière thermique apparaît juste sous l'interface, la chaleur y reste concentrée et le bas refroidit comme la mesure ; le profil T(z) suit les trois points mesurés. 100 s plus tard, le bas reste plus froid que le haut, comme mesuré.
+
+⚠️ **Le niveau de chaque configuration est recalé sur le pic mesuré en ce point** (facteur 11,6 et 10,4), pour l'illustration seulement : ce point est au centre de la boucle de la bobine, son niveau absolu est faussé par la conduction dans le plan (limite #1). La figure compare la **forme** du gradient et du flux, pas le niveau ; c'est pourquoi, à +100 s, les deux modèles restent plus chauds que la mesure en surface et à l'interface. Sur cette grille fine (121×21×25), le modèle actuel donne face opposée / interface = 0,79 au lieu de 0,89 sur la grille 31×11×15 : il existe une sensibilité au maillage dans l'épaisseur, sans changer le constat.
+
+Script : `code/scripts/gen/gen_fig74_flux_epaisseur.py`.
+
 ### Avant toute adoption
 
 - **Le gain est modeste** (2,4 °C sur le coût joint) et repose surtout sur A-1 et sur l'essai exp9 au centre.
