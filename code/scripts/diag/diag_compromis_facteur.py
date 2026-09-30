@@ -37,7 +37,8 @@ AB = ["serieA_A-1", "serieA_A-3", "serieB_B-2"]
 EXP9 = ["exp9_175A_monospot", "exp9_200A_monospot", "exp9_200A_y20_monospot",
         "exp9_226A_monospot", "exp9_250A_monospot"]
 CONFIGS = {"actuel": ("k_z uniforme 0,64 · h_contact 5", GRIS_MODELE),
-           "kzinf": ("k_z inférieur 0,10 · h_contact 40", OKABE_ITO["bleu"])}
+           "kzinf": ("k_z inférieur 0,10 · h_contact 40", OKABE_ITO["bleu"]),
+           "rcfusion": ("résistance d'interface jusqu'à la fusion 0,04 · h_contact 40", OKABE_ITO["vermillon"])}
 
 
 def rmse_par_tc(chemin):
@@ -93,7 +94,7 @@ def main():
         ax.set_xlabel("facteur_couplage")
     axes[0].set_ylabel("RMSE (°C)")
     h, l = axes[0].get_legend_handles_labels()
-    fig.legend(h, l, frameon=False, fontsize=7.8, loc="lower center", ncol=2,
+    fig.legend(h, l, frameon=False, fontsize=7.8, loc="lower center", ncol=3,
                bbox_to_anchor=(0.5, -0.12))
     fig.suptitle("Balayage de facteur_couplage, grille 3D 31×11×15 (étoiles : optimum du coût joint)",
                  fontsize=8.8, y=1.03)

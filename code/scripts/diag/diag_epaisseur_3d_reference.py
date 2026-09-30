@@ -95,16 +95,25 @@ def main():
     ap.add_argument("--essais", nargs="+", default=ESSAIS)
     ap.add_argument("--alpha-inf", type=float, default=1.0,
                     help="facteur sur la source Joule SOUS l'interface (laminé inf) ; 1 = inchangé")
+    ap.add_argument("--rc-fusion", type=float, default=None,
+                    help="résistance d'interface (m².K/W) active sous Tf, nulle au-dessus")
+    ap.add_argument("--cp-hamon", action="store_true", help="cp(T) mesuré (Hamon 2025)")
     ap.add_argument("--kz-inf", type=float, default=None,
                     help="k_z du laminé inférieur (W/m.K) ; défaut = k_z uniforme")
     a = ap.parse_args()
+    import variantes_epaisseur as var
+    if a.rc_fusion is not None:
+        var.appliquer_rc_fusion(a.rc_fusion)
+    if a.cp_hamon:
+        var.appliquer_cp_hamon()
 
     lignes = []
     def log(s=""):
         print(s, flush=True); lignes.append(s)
 
     log(f"3D : facteur {a.facteur}, h_contact {a.h_contact}, h_bas {a.h_bas}, "
-        f"grille {a.nx}×{a.ny}×{a.nz}, alpha_inf {a.alpha_inf}, kz_inf {a.kz_inf}")
+        f"grille {a.nx}×{a.ny}×{a.nz}, alpha_inf {a.alpha_inf}, kz_inf {a.kz_inf}, "
+        f"rc_fusion {a.rc_fusion}, cp_hamon {a.cp_hamon}")
     log(f"{'essai':22s} {'':6s} {'o/i pics':>9s} {'s/i pics':>9s} {'o/i inst':>9s} "
         f"{'s/i inst':>9s} {'T_i max':>8s}  T(pic+100 s) surf/int/opp {'durée':>6s}")
     for nom in a.essais:
@@ -134,7 +143,9 @@ def main():
         log(f"{'':22s} {'3D':6s} " + " ".join(f"{v:9.2f}" for v in rs[:4]) + f" {rs[4]:8.0f}  "
             + " / ".join(f"{v:4.0f}" for v in qs) + f"      {dt:5.0f}s")
     suffixe = (f"_alpha_inf{a.alpha_inf:g}" if a.alpha_inf != 1.0 else "") + \
-              (f"_kz_inf{a.kz_inf:g}" if a.kz_inf is not None else "")
+              (f"_kz_inf{a.kz_inf:g}" if a.kz_inf is not None else "") + \
+              (f"_rc{a.rc_fusion:g}" if a.rc_fusion is not None else "") + \
+              ("_cphamon" if a.cp_hamon else "")
     OUT = OUT_DIR / f"diag_epaisseur_3d_reference{suffixe}.log"
     OUT.write_text("\n".join(lignes) + "\n", encoding="utf-8")
 
