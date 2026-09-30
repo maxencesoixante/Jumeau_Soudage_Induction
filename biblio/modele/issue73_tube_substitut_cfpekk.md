@@ -15,19 +15,19 @@ Il prolonge #71 (substitut en U fibre de verre + vessie) : si les parois du tube
 
 ## Le montage
 
-![Montage tube substitut](https://raw.githubusercontent.com/maxencesoixante/Jumeau_Soudage_Induction/main/biblio/labo/figures/fig_montage_tube_substitut.png?v=3)
+![Montage tube substitut](https://raw.githubusercontent.com/maxencesoixante/Jumeau_Soudage_Induction/main/biblio/labo/figures/fig_montage_tube_substitut.png?v=4)
 
-*En haut : vue de dessus, connecteur centré sur le tube, ligne de TC d'interface et avance du spot. En bas : coupe transverse à l'échelle 1:1, avec le chemin d'effort (outil → plaque de dessus → murs → plaque de fond → bâti) et la cavité d'air fermée.*
+*Trois vues à l'échelle 1:1 : dessus (connecteur centré sur le tube, ligne de TC d'interface, avance du spot), côté (tube de 240 mm, connecteur de 120 mm) et coupe transverse au centre du connecteur (chemin de l'effort de consolidation jusqu'au bâti).*
 
 **Fabrication du tube substitut**
 
 1. Consolidation à la presse chauffante de plaques CF/PEKK **[45,−45,0,−45,45,0₃]ₛ** (16 plis, 1,68 mm).
-2. Découpe d'échantillons aux dimensions du tube : **deux murs de 40 mm** de haut, **une plaque de dessus** et **une plaque de fond** de 50 mm de large.
+2. Découpe d'échantillons aux dimensions du tube, **240 mm de long** : **deux murs de 40 mm** de haut, **une plaque de dessus** et **une plaque de fond** de 50 mm de large.
 3. Plaques de 50 mm **posées sur et sous les murs**, puis les rainures au contact des murs sont **fondues au fer à souder** (dessus et fond) pour que l'ensemble forme un caisson fermé, solidaire pendant le soudage.
 
 **Soudage**
 
-4. Soudage sur la plaque de dessus d'un **connecteur** identique aux essais précédents : **[45,−45,0,90]₃ₛ**, 120 × 40 mm, 3,36 mm.
+4. Soudage sur la plaque de dessus d'un **connecteur** identique aux essais précédents : **[45,−45,0,90]₃ₛ**, 120 × 40 mm, 3,36 mm, **centré sur le tube** (60 mm de tube de chaque côté).
 5. **Cycle semi-statique** (même protocole que #64, pas ≈ 30 mm).
 
 ## Ce que l'expérience doit montrer
@@ -73,13 +73,12 @@ Le substitut doit reproduire la face du montage réel. Sinon, un résultat posit
 
 ⚠️ **La section du vrai tube est incohérente dans les notes.** Cavité 47 × 37 mm + paroi 1,5 mm donnent une section extérieure d'environ **50 × 40 mm**. Pourtant le `CLAUDE.md` du vault indique « section externe **60 × 50 mm** ». À vérifier sur la CAO en même temps.
 
-### Garder le tube à 120 mm ou l'allonger ?
+### Longueur du tube : 240 mm (décidé le 2026-09-30)
 
-Le tube fait **120 mm pour l'instant**, comme le connecteur. Avec cette longueur, le premier et le dernier spot tombent sur un **bord libre** du tube. Dans l'application réelle (cavité prévue sur environ 250 mm), la matière continue au-delà du connecteur : le courant induit et la chaleur s'y étalent, dans de la matière qui n'est pas soudée.
+**Le tube fait 240 mm**, avec le connecteur de 120 mm centré : 60 mm de tube dépassent de chaque côté. Avec un tube de la longueur du connecteur, le premier et le dernier spot seraient tombés sur un **bord libre**. Dans l'application réelle (cavité prévue sur environ 250 mm), la matière continue au-delà du connecteur : le courant induit et la chaleur s'y étalent, dans de la matière qui n'est pas soudée. Le montage à 240 mm reproduit cette situation.
 
 - Ce sont précisément les extrémités (TC1 à x = 0, TC5 à x = 120) que le jumeau reproduit le moins bien. Un bord libre ajoute un effet que l'application réelle n'aura pas.
-- **Un tube plus long que le connecteur** serait plus fidèle pour les spots d'extrémité. En contrepartie, les deux extrémités ne seraient plus comparables à exp9 ni au 231 A (#64).
-- Le jumeau peut **chiffrer l'écart** entre 120 mm et un tube allongé avant de fabriquer, en prolongeant le substrat au-delà du connecteur.
+- **Contrepartie** : TC1 et TC5, aux extrémités du connecteur, ne sont plus directement comparables à exp9 ni au 231 A (#64). TC2 à TC4 le restent.
 
 ## Points de vigilance
 
@@ -89,13 +88,13 @@ Le tube fait **120 mm pour l'instant**, comme le connecteur. Avec cette longueur
 ## Hypothèses de la figure, à confirmer
 
 - [ ] faces extérieures des murs affleurant les bords de la plaque de 50 mm ;
-- [x] tube de 120 mm de long, comme le connecteur, qui est centré en largeur (confirmé le 2026-09-28, un allongement reste possible, voir plus haut) ;
+- [x] tube de 240 mm de long, connecteur de 120 mm centré en longueur et en largeur (décidé le 2026-09-30) ;
 - [ ] même instrumentation que le semi-statique (5 TC d'interface sur la ligne y = 0).
 
 ## À faire
 
 - [ ] trancher la face soudée (40 ou 50 mm) d'après la CAO du montage réel, et corriger la section extérieure du tube dans les notes
-- [ ] décider de la longueur du tube (120 mm ou allongé), éventuellement après un chiffrage par le jumeau
+- [x] décider de la longueur du tube : 240 mm (2026-09-30)
 - [ ] consolider les plaques [45,−45,0,−45,45,0₃]ₛ et relever leur épaisseur réelle
 - [ ] découper et assembler le tube (rainures au fer)
 - [ ] instrumenter : 5 TC d'interface + TC face intérieure
