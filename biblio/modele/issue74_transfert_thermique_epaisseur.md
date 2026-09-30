@@ -182,6 +182,50 @@ Script : `code/scripts/gen/gen_fig74_flux_epaisseur.py`.
 
 Scripts : `code/scripts/diag/diag_epaisseur_3d_reference.py` (option `--kz-inf`, métrique de refroidissement), `code/scripts/diag/diag_valider_kz_inf.py` (valider.py avec k_z inférieur réduit), `code/scripts/diag/diag_compromis_facteur.py` (coût joint et figure). Journaux : `resultats/compromis/` et `resultats/compromis_fin/` (non versionnés).
 
+## Résultats (2026-09-30, après-midi) : convergence, Cp(T) et résistance levée à la fusion
+
+> **En bref.** Les rapports d'épaisseur sont **convergés en maillage**. Le **Cp(T) mesuré n'agit pas** sur le gradient d'épaisseur. Une **résistance d'interface qui disparaît à la fusion** reproduit l'épaisseur sur 4 essais sur 5 et **corrige les coins des séries A/B d'environ 60 °C**, le défaut le plus tenace du modèle. Le k_z réduit reste meilleur à l'intérieur de la plaque. Prochaine étape : **combiner les deux**.
+
+### 1. Convergence du maillage
+
+Rapport face opposée / interface, essai 201 A :
+
+| Configuration | nz de 15 à 51 (plan 31×11) | Plan 61×21 (nz 15 / 25) |
+|---|---|---|
+| Actuelle | 0,90 → 0,90 | 0,90 / 0,89 |
+| k_z inférieur réduit | 0,44 → 0,40 | 0,43 / 0,40 |
+| Résistance levée à la fusion | 0,46 → 0,46 | 0,45 / 0,44 |
+
+Les rapports ne dépendent pas du maillage. Le 0,79 de la figure du flux (§ 4 des résultats du matin) vient du **facteur de recalage élevé** : à ce niveau, l'interface fond et la chaleur latente modifie le rapport.
+
+### 2. Le Cp(T) mesuré n'est pas un levier de l'épaisseur
+
+Avec le Cp(T) de Hamon 2025 (939 → 1671 J/(kg·K)) à la place de 1200 constant, la face opposée reste à 0,89 × l'interface ; seul le refroidissement ralentit un peu. C'est un acquis de propriété, pas une correction du gradient.
+
+### 3. Résistance d'interface levée à la fusion
+
+**La forme.** Une résistance R en série à l'interface, active tant que l'interface n'a pas fondu, nulle au-dessus de Tf (rampe sur 337 ± 5 °C). C'est la forme physique visée par l'hypothèse de l'interface non soudée : deux pièces séparées, avec un film et des contacts imparfaits, qui ne forment un seul solide qu'à la fusion. Elle se distingue de `r_contact_interface`, constante, rejetée le 2026-08-13.
+
+**Épaisseur** (R = 0,04 m²·K/W, `h_contact` = 40) : face opposée / interface de 0,46 à 0,51 et surface / interface de 0,91 à 0,92 sur 4 essais sur 5. **Échec sur le 226 A à chauffe longue** (0,77 contre 0,32 mesuré) : dans le modèle, l'interface fond, la résistance disparaît et la face opposée se réchauffe ; la mesure montre au contraire sa face opposée la plus froide.
+
+**Séries A/B et exp9**, au meilleur facteur de chaque configuration, confirmé sur la grille fine (61×21×15) :
+
+| Configuration (meilleur facteur) | Coût joint (TC intérieurs) | Écart de pic TC1, coin : A-1 / A-3 / B-2 | Écart de pic TC5 : A-1 / A-3 | RMSE par essai : A-1 / A-3 / B-2 |
+|---|---|---|---|---|
+| Actuelle (4,5) | 33,3 °C | +106 / +80 / +40 °C | +68 / +70 °C | 42,1 / 32,8 / 63,7 °C |
+| k_z inférieur réduit (4,0) | **30,9 °C** | +110 / +87 / +60 °C | +64 / +66 °C | 37,7 / 33,0 / 62,4 °C |
+| Résistance levée à la fusion (3,5) | 31,8 °C | **+42 / +18 / −20 °C** | **+34 / +14 °C** | **36,4 / 33,8 / 61,4 °C** |
+
+Au TC3 d'exp9, la résistance levée à la fusion donne des écarts plus homogènes (+51 / +64 / +2 / +58 / +57 °C, contre +10 / +40 / 0 / +79 / +97 pour l'actuelle).
+
+![Compromis de facteur, trois configurations](https://raw.githubusercontent.com/maxencesoixante/Jumeau_Soudage_Induction/main/biblio/labo/figures/issue74/fig74_compromis_facteur.png?v=2)
+
+*Balayage de `facteur_couplage` (grille 31×11×15) pour les trois configurations ; mêmes conventions qu'au § 3 des résultats du matin. La résistance levée à la fusion atteint son optimum à un facteur plus bas (3,5).*
+
+**Lecture.** Là où l'interface fond (les points les plus chauds, dont les coins), la résistance disparaît et la chaleur peut enfin descendre dans le laminé inférieur : la surchauffe est écrêtée. C'est l'inverse de la résistance constante, qui aggravait ces mêmes coins. Les deux formes du transport ralenti corrigent donc des choses différentes : **le k_z réduit l'intérieur et le 226 A à chauffe longue, la résistance levée à la fusion les coins**. D'où la suite : les combiner.
+
+Scripts : `code/scripts/diag/variantes_epaisseur.py` (k_z inférieur, résistance levée à la fusion, Cp(T)), `code/scripts/diag/diag_valider_variante.py`, `code/scripts/diag/diag_compromis_facteur.py`.
+
 ## Démarche proposée
 
 0. **Remettre le 3D à niveau.** *(Partiellement fait : le facteur ne se cale pas au point des 3 TC, voir Résultats du 2026-09-29 § 4 ; le 3D actuel est mieux calé à 4,5 qu'à 6,01, voir Résultats du 2026-09-30 § 3.)* Il n'est pas recalé sur le θ\* canonique du 2D (avec `facteur_couplage` = 6,0123, il surestime d'environ 130 °C). Il doit d'abord reproduire l'interface avant qu'on juge l'épaisseur. Vérifier aussi la convergence en z (nz = 15).
