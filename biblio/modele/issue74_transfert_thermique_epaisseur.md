@@ -50,14 +50,79 @@ Données : `donnees/data/epaisseur_3TC_2026-05/` et `chauffe_250A_3TC-epaisseur_
 
 ## Pistes ouvertes
 
-1. **Une source plus concentrée vers le haut.** Le modèle dépose déjà plus de puissance au-dessus de l'interface, mais seulement environ 2× (laminé supérieur 85 W, twill 138 W, laminé inférieur 40 W). L'orthotropie électrique transverse est de « plusieurs ordres de grandeur » (Buser), ce qui ferait déposer encore moins de chaleur sous l'interface. **Jamais testée** : seule la voie thermique l'a été.
+1. ~~**Une source plus concentrée vers le haut.**~~ **Testée et close le 2026-09-29** (voir Résultats) : même sans aucune chaleur déposée sous l'interface, la face opposée reste à 0,88 × l'interface.
 2. **Un Cp(T) mesuré.** Hamon (même consortium COMPAAM) donne un Cp mesuré de 939 à 1671 J/(kg·K) selon la température, alors que le modèle utilise 1200 constant. La diffusion transitoire dans l'épaisseur y est directement sensible.
 3. **Une mesure qui départage les mécanismes** : la température de la face active du MFC (#15, Mesure A). Elle dirait si une part de la puissance passe par le concentrateur, en champ proche.
 
+## Résultats (2026-09-29)
+
+> **En bref.** Le symptôme est reproduit. La source n'y est pour rien : c'est le **transport** de la chaleur qui compte. Des pertes fortes par les deux faces reproduisent le gradient d'épaisseur sur les cinq essais, mais **aucun jeu de paramètres unique ne ferme les trois familles d'essais** (3 TC, exp9, séries A/B), et ces pertes refroidissent beaucoup trop vite. **Rien n'est adopté.**
+
+### 1. Point de référence : le symptôme est reproduit
+
+Modèle 3D dans la configuration du diagnostic du 2026-08-13 (`facteur_couplage` 6,0123, `h_contact` 5, `h_bas` 15, grille 31×11×15), rapports pris à l'instant du pic d'interface :
+
+| Essai | Face opposée / interface, mesuré | Face opposée / interface, 3D | Surface / interface, mesuré | Surface / interface, 3D |
+|---|---|---|---|---|
+| 174 A | 0,48 | 0,89 | 0,84 | 1,03 |
+| 201 A | 0,42 | 0,89 | 0,88 | 1,03 |
+| 226 A | 0,32 | 0,89 | 0,90 | 1,02 |
+| 226 A bis | 0,44 | 0,89 | 0,87 | 1,03 |
+| 250 A | 0,39 | 0,89 | 0,94 | 1,03 |
+
+### 2. La piste « source » est close
+
+Avec **zéro chaleur déposée sous l'interface**, la face opposée reste à **0,88** × l'interface (0,89 avec la source normale). Ce n'est donc pas l'endroit où la chaleur est déposée qui compte, mais la vitesse à laquelle elle traverse l'empilement : dans le modèle, elle franchit les 3,36 mm du laminé inférieur en environ 30 s, pour une chauffe de 60 s.
+
+### 3. Les deux rapports se règlent par les pertes aux deux faces
+
+![Carte des pertes de face](https://raw.githubusercontent.com/maxencesoixante/Jumeau_Soudage_Induction/main/biblio/labo/figures/issue74/fig74_carte_pertes.png?v=1)
+
+*Rapports du 3D selon les pertes par la face haute (`h_contact`, vers la céramique, le MFC et la bobine) et par la face basse (`h_bas`, vers le support), essai 201 A. Traits noirs : bornes des fourchettes mesurées. Zone hachurée verte : les deux rapports dans leur fourchette. Rond : jeu 3D actuel. Étoile : `h_contact` 100 / `h_bas` 500. Pointillés : borne haute de `h_bas` dans la calibration 3D. Les rapports ne dépendent presque pas de `facteur_couplage` (face opposée / interface de 0,37 à 0,44 pour un facteur de 3,9 à 17), la carte vaut donc quel que soit le facteur.*
+
+- `h_bas` règle la face opposée, `h_contact` règle la surface : les deux effets sont presque indépendants.
+- La zone qui satisfait les deux rapports est **vers `h_contact` ≈ 100 et `h_bas` ≈ 500 W/(m²·K)**, loin du jeu actuel (5 / 15).
+- **La calibration 3D ne pouvait pas la trouver** : la borne haute de `h_bas` est fixée à 300 W/(m²·K) (`Calibrateur.BORNES_PAR_MODELE`).
+
+### 4. Validation sur les séries A/B et exp9 : NO-GO
+
+Grille 61×21×15, `valider.py` sans recalage. Trois jeux : l'actuel ; les pertes fortes avec le facteur calé sur le point des 3 TC (201 A) ; les pertes fortes avec le facteur calé sur le TC3 d'exp9 à 200 A (TC d'interface au bord, à l'aplomb du spot).
+
+![Validation 3D sur A/B et exp9](https://raw.githubusercontent.com/maxencesoixante/Jumeau_Soudage_Induction/main/biblio/labo/figures/issue74/fig74_validation_3D.png?v=1)
+
+*En haut : RMSE moyen par essai. En bas : écart de pic au TC de référence (moyenne de TC2 à TC4 pour les séries A/B, TC3 pour exp9) ; les barres hors échelle portent leur valeur. Chiffres : `biblio/labo/figures/issue74/validation_3D.csv`.*
+
+| Jeu (facteur / `h_contact` / `h_bas`) | Épaisseur (3 TC) | exp9, TC3 au bord | A/B, TC2 à TC4 |
+|---|---|---|---|
+| 6,01 / 5 / 15 (actuel) | ✗ (0,89) | ✗ (+90 à +203 °C) | ≈ (−24 à −57 °C) |
+| 17,1 / 100 / 500 (calé au point des 3 TC) | ✓ | ✗✗ (+678 à +1080 °C) | ≈ (−15 à −36 °C) |
+| 3,93 / 100 / 500 (calé sur exp9) | ✓ (0,40–0,44 et 0,90–0,91) | ✓ (−34 à +49 °C ; au centre y = 20 : −59) | ✗ (−121 à −193 °C) |
+
+- **Caler le facteur au point des 3 TC est une erreur de méthode.** Ce point (x = 60, y = 20) est au centre de la boucle de la bobine, où la source est presque nulle : il chauffe par conduction dans le plan. Y caler le niveau fait compenser ce déficit connu (limite #1) par 2,8 fois plus de puissance, qui explose partout où la source chauffe directement.
+- **Calé sur exp9**, le jeu à pertes fortes tient l'épaisseur et exp9, mais sous-estime fortement les TC intérieurs des séries A/B : avec des pertes aussi fortes, les longues chauffes des cycles semi-statiques (environ 80 s par passe) plafonnent trop bas.
+
+### 5. Deuxième métrique : ces pertes refroidissent beaucoup trop vite
+
+![Courbes du 201 A](https://raw.githubusercontent.com/maxencesoixante/Jumeau_Soudage_Induction/main/biblio/labo/figures/issue74/fig74_courbes_201A.png?v=1)
+
+*Les 3 TC empilés du 201 A, mesurés (traits pleins) et simulés (tirets). À droite, le niveau est recalé sur ce point pour comparer les formes : ce recalage est illustratif, et rejeté en validation (section 4).*
+
+À gauche, le jeu actuel donne une colonne presque isotherme. À droite, les pertes fortes creusent le bon gradient au pic, **mais toute la colonne se vide ensuite bien trop vite** : vers 200 s, le 3D est autour de 35 °C quand les trois TC mesurés sont encore vers 110–120 °C. La face opposée mesurée reste chaude longtemps, ce qu'une perte forte et constante par le dessous ne peut pas reproduire.
+
+Le rapport au pic est donc bon **pour une mauvaise raison**. Ce que la mesure suggère plutôt, c'est une chaleur qui **atteint lentement** la face opposée (transport transverse ralenti), et non une chaleur **évacuée vite** par le support.
+
+### Ce qui reste ouvert
+
+- **Les pertes de face dépendent-elles du montage ?** Si l'éprouvette ne reposait pas sur le même support d'une campagne à l'autre (3 TC en mai, séries A/B en juillet, exp9 et 231 A en août), un `h_bas` unique est faux par construction. Le 231 A avait déjà demandé une perte par le bas trois fois plus forte, rejetée en 2D parce qu'elle dégradait les séries A/B. **Question terrain : sur quoi reposait l'éprouvette dans chaque campagne, et quelle céramique la séparait du MFC ?**
+- **Un transport transverse ralenti sous l'interface** (k_z plus faible dans le laminé inférieur) est compatible avec la section 5 et reproduisait déjà les deux rapports le 2026-08-13. Attention : sa forme localisée à l'interface (`r_contact_interface`) est NO-GO, parce qu'elle faisait monter TC1. Une version répartie devra passer la même validation avant tout.
+- **Le Cp(T) mesuré** (Hamon) reste à tester : il ralentit lui aussi la diffusion.
+
+Scripts : `code/scripts/diag/diag_epaisseur_3d_reference.py` (rapports, options `--alpha-inf`, `--h-contact`, `--h-bas`, `--facteur`), `code/scripts/gen/gen_figures_issue74.py` (figures). Journaux de validation : `resultats/valid3d_*.log` (non versionnés).
+
 ## Démarche proposée
 
-0. **Remettre le 3D à niveau.** Il n'est pas recalé sur le θ\* canonique du 2D (avec `facteur_couplage` = 6,0123, il surestime d'environ 130 °C). Il doit d'abord reproduire l'interface avant qu'on juge l'épaisseur. Vérifier aussi la convergence en z (nz = 15).
-1. **Point de référence.** Rejouer les 5 essais à 3 TC en 3D, et relever face opposée / interface et surface / interface pour chacun.
+0. **Remettre le 3D à niveau.** *(Partiellement fait : le facteur ne se cale pas au point des 3 TC, voir Résultats § 4.)* Il n'est pas recalé sur le θ\* canonique du 2D (avec `facteur_couplage` = 6,0123, il surestime d'environ 130 °C). Il doit d'abord reproduire l'interface avant qu'on juge l'épaisseur. Vérifier aussi la convergence en z (nz = 15).
+1. ✅ **Point de référence.** *(Fait le 2026-09-29.)* Rejouer les 5 essais à 3 TC en 3D, et relever face opposée / interface et surface / interface pour chacun.
 2. **Tester les pistes une par une** (source, puis Cp(T)), en mesurant l'effet là où elles agissent, c'est-à-dire dans l'épaisseur. Pour chacune, contrôler la validation croisée des TC d'interface. C'est précisément le piège qui a fait tomber `r_contact_interface` : un levier qui corrige l'épaisseur mais déplace le résidu ailleurs.
 3. **Appliquer au montage.** Prédire la face intérieure du tube substitut (paroi de 1,68 mm, cavité fermée) pour #73, et la face au contact de la vessie pour #71.
 
