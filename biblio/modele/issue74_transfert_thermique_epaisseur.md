@@ -226,6 +226,41 @@ Au TC3 d'exp9, la résistance levée à la fusion donne des écarts plus homogè
 
 Scripts : `code/scripts/diag/variantes_epaisseur.py` (k_z inférieur, résistance levée à la fusion, Cp(T)), `code/scripts/diag/diag_valider_variante.py`, `code/scripts/diag/diag_compromis_facteur.py`.
 
+## Résultats (2026-09-30, soir) : combinaison des deux mécanismes
+
+> **En bref.** Combiner le k_z réduit et la résistance levée à la fusion donne **l'épaisseur juste sur les 5 essais**, y compris le 226 A à chauffe longue, mais **pas de synergie** sur les séries A/B et exp9 : la combinaison se place entre les deux mécanismes seuls. On est sur une **frontière de compromis**, aucune configuration ne gagne sur tous les critères. La combinaison A est la plus équilibrée. *Confirmation sur la grille fine en cours.*
+
+### Dosage sur les 5 essais à 3 TC
+
+Les deux mécanismes s'additionnent : chacun doit être moins fort que seul. Deux dosages (`h_contact` = 40, facteur 4,0) placent les 5 essais dans la fourchette :
+
+| Dosage | Face opposée / interface : 174 A / 201 A / 226 A / 226 A bis / 250 A | Surface / interface |
+|---|---|---|
+| **A** : k_z inférieur 0,25 + R = 0,02 m²·K/W | 0,43 / 0,41 / 0,43 / 0,41 / 0,41 | 0,92 à 0,94 |
+| B : k_z inférieur 0,15 + R = 0,01 m²·K/W | 0,44 / 0,41 / 0,42 / 0,40 / 0,40 | 0,93 à 0,95 |
+
+Le dosage A réduit k_z d'un facteur 2,6 seulement (contre 6,4 pour le k_z réduit seul).
+
+### Compromis de facteur sur A/B et exp9 (grille 31×11×15)
+
+![Compromis de facteur, cinq configurations](https://raw.githubusercontent.com/maxencesoixante/Jumeau_Soudage_Induction/main/biblio/labo/figures/issue74/fig74_compromis_combinaison.png?v=1)
+
+| Configuration (meilleur facteur) | Coût joint (TC intérieurs) | TC1, coin : A-1 / A-3 / B-2 | Épaisseur, 5 essais |
+|---|---|---|---|
+| Actuelle (4,5) | 32,4 °C | +71 / +60 / +10 °C | ✗ (0,89) |
+| k_z inférieur réduit (4,0) | **29,9 °C** | +73 / +68 / +20 °C | ✓ |
+| Résistance levée à la fusion (3,5) | 30,8 °C | **+13 / −4 / −21 °C** | ✗ (226 A long : 0,77) |
+| **Combinaison A** (3,5) | 31,1 °C | +45 / +24 / −20 °C | ✓ |
+| Combinaison B (4,0) | 31,0 °C | +71 / +65 / +15 °C | ✓ |
+
+**Lecture.** La correction des coins vient de la résistance levée à la fusion. Pour garder l'épaisseur juste quand on ajoute le k_z réduit, il faut diminuer cette résistance, et on perd une partie de la correction. Le choix dépend donc de ce qui compte le plus :
+
+- **l'épaisseur juste partout** (face intérieure du tube de #73, vessie de #71) : combinaison A ;
+- **les coins des séries A/B** : résistance levée à la fusion seule ;
+- **l'intérieur de la plaque** : k_z réduit seul.
+
+La combinaison A est la plus équilibrée : épaisseur juste sur les 5 essais, coins corrigés d'environ 30 °C par rapport à l'actuelle, coût joint meilleur que l'actuel. Sa confirmation sur la grille fine (61×21×15) est en cours ; les résultats seront ajoutés ici.
+
 ## Démarche proposée
 
 0. **Remettre le 3D à niveau.** *(Partiellement fait : le facteur ne se cale pas au point des 3 TC, voir Résultats du 2026-09-29 § 4 ; le 3D actuel est mieux calé à 4,5 qu'à 6,01, voir Résultats du 2026-09-30 § 3.)* Il n'est pas recalé sur le θ\* canonique du 2D (avec `facteur_couplage` = 6,0123, il surestime d'environ 130 °C). Il doit d'abord reproduire l'interface avant qu'on juge l'épaisseur. Vérifier aussi la convergence en z (nz = 15).
