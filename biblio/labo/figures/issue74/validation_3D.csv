@@ -1,0 +1,25 @@
+jeu,essai,rmse_moyen,ecart_pic_reference
+"actuel 6,01 / 5 / 15",serieA_A-1,41.7,-23.6
+"actuel 6,01 / 5 / 15",serieA_A-3,31.2,-40.8
+"actuel 6,01 / 5 / 15",serieB_B-2,66.6,-56.8
+"actuel 6,01 / 5 / 15",exp9_175A_monospot,14.8,90.4
+"actuel 6,01 / 5 / 15",exp9_200A_monospot,15.4,125.7
+"actuel 6,01 / 5 / 15",exp9_200A_y20_monospot,22.9,45.0
+"actuel 6,01 / 5 / 15",exp9_226A_monospot,14.7,181.7
+"actuel 6,01 / 5 / 15",exp9_250A_monospot,16.4,203.3
+"facteur calé au point 3 TC 17,1 / 100 / 500",serieA_A-1,71.1,-14.8
+"facteur calé au point 3 TC 17,1 / 100 / 500",serieA_A-3,57.8,-30.1
+"facteur calé au point 3 TC 17,1 / 100 / 500",serieB_B-2,84.4,-35.9
+"facteur calé au point 3 TC 17,1 / 100 / 500",exp9_175A_monospot,46.0,678.1
+"facteur calé au point 3 TC 17,1 / 100 / 500",exp9_200A_monospot,44.0,804.5
+"facteur calé au point 3 TC 17,1 / 100 / 500",exp9_200A_y20_monospot,27.6,162.7
+"facteur calé au point 3 TC 17,1 / 100 / 500",exp9_226A_monospot,48.5,1004.8
+"facteur calé au point 3 TC 17,1 / 100 / 500",exp9_250A_monospot,48.3,1080.5
+"facteur calé sur exp9 3,93 / 100 / 500",serieA_A-1,76.7,-129.5
+"facteur calé sur exp9 3,93 / 100 / 500",serieA_A-3,70.9,-193.4
+"facteur calé sur exp9 3,93 / 100 / 500",serieB_B-2,93.4,-120.5
+"facteur calé sur exp9 3,93 / 100 / 500",exp9_175A_monospot,21.0,-34.3
+"facteur calé sur exp9 3,93 / 100 / 500",exp9_200A_monospot,21.4,-3.1
+"facteur calé sur exp9 3,93 / 100 / 500",exp9_200A_y20_monospot,25.3,-58.5
+"facteur calé sur exp9 3,93 / 100 / 500",exp9_226A_monospot,14.4,40.1
+"facteur calé sur exp9 3,93 / 100 / 500",exp9_250A_monospot,19.3,48.9
