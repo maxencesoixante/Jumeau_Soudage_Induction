@@ -60,12 +60,12 @@ Ce qu'on sait déjà et ce qui reste ouvert :
 - Deux effets tirent en sens contraire. L'air confiné du caisson fermé échange peu (convection naturelle, quelques W/(m²·K)) : il isole plutôt qu'il ne refroidit, comparé à un laminé posé sur le bâti. À l'inverse, la plaque de dessus est deux fois plus mince (1,68 mm au lieu de 3,36 mm) et a moins d'inertie : la chaleur l'atteint plus vite.
 - Le sens de l'effet n'est donc **pas acquis**. Il faut le mesurer plutôt que le supposer. **Proposition : un TC collé sur la face intérieure du dessus, à x = 60 mm** (cercle creux sur la figure), à comparer à la campagne épaisseur.
 
+- Le jumeau peut donner une prédiction à l'aveugle avant l'essai (en 3D, avec la face inférieure passée en condition de cavité). Ce serait un test à la manière de #64.
+- La modélisation de la face intérieure (transfert thermique dans l'épaisseur) est suivie en **#74**.
+
 ![Instrumentation comparée](https://raw.githubusercontent.com/maxencesoixante/Jumeau_Soudage_Induction/main/biblio/labo/figures/issue73/fig73_instrumentation.png?v=1)
 
 *À la même échelle (1:1) : la colonne de TC mesurée à plat (surface, interface, face opposée sous 3,36 mm) et celle proposée sur le tube (surface, interface, face intérieure sous 1,68 mm, au-dessus de la cavité). La colonne complète de 3 TC sur le tube va au-delà du seul TC de face intérieure proposé ci-dessus : elle permettrait de comparer directement les rapports face intérieure / interface et surface / interface à ceux mesurés à plat (#74).*
-
-- Le jumeau peut donner une prédiction à l'aveugle avant l'essai (en 3D, avec la face inférieure passée en condition de cavité). Ce serait un test à la manière de #64.
-- La modélisation de la face intérieure (transfert thermique dans l'épaisseur) est suivie en **#74**.
 
 ## Deux choix de conception à trancher
 
