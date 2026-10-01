@@ -25,6 +25,14 @@ Le modèle 2D ne peut répondre à aucune de ces trois questions.
 
 **Les mesures.** Cinq essais à 3 TC empilés à (x = 60, y = 20) : surface, interface et face opposée, avec la bobine et le MFC fixes au centre.
 
+![Montage de la campagne à 3 TC](https://raw.githubusercontent.com/maxencesoixante/Jumeau_Soudage_Induction/main/biblio/labo/figures/issue74/fig74_montage_3TC.png?v=1)
+
+*Montage de la campagne « épaisseur ». En haut, vue de dessus : bobine et MFC fixes au centre de l'éprouvette, colonne des 3 TC en (60, 20), au centre de la boucle de la bobine. En bas, coupe x-z à 1:1 : TC1 en surface sous la céramique, TC2 à l'interface, TC3 sur la face opposée.*
+
+![Mesures brutes des 5 essais](https://raw.githubusercontent.com/maxencesoixante/Jumeau_Soudage_Induction/main/biblio/labo/figures/issue74/fig74_mesures_3TC.png?v=1)
+
+*Les 5 essais mesurés, température brute. Zone grisée : chauffe. Valeur en gras : face opposée / interface au pic d'interface. La surface et l'interface montent ensemble ; la face opposée reste sous 180 °C.*
+
 | Essai | Face opposée / interface (au pic) |
 |---|---|
 | 174 A | 0,48 |
@@ -47,6 +55,12 @@ Données : `donnees/data/epaisseur_3TC_2026-05/` et `chauffe_250A_3TC-epaisseur_
 - Un **découplage asymétrique** (k_z = 0,64 au-dessus de l'interface, ≈ 0,08 en dessous) reproduit les deux rapports à la fois. C'est une reproduction, pas encore une explication physique.
 
 **Déjà testé et réfuté :** une **résistance de contact à l'interface** (`r_contact_interface`, flag conservé mais désactivé par défaut). Elle refroidit bien la face opposée (face opposée / interface 0,40), mais en validation croisée elle déplace le résidu sur l'interface de bord : TC1 prend **+43 à +90 °C**, dans le mauvais sens. Verdict : NO-GO, ne pas la rouvrir sans élément nouveau.
+
+## Les trois représentations testées
+
+![Schéma des mécanismes](https://raw.githubusercontent.com/maxencesoixante/Jumeau_Soudage_Induction/main/biblio/labo/figures/issue74/fig74_mecanismes.png?v=1)
+
+*Schéma sans échelle. Le modèle actuel laisse passer un flux fort vers la face opposée. Le k_z réduit freine la conduction dans le laminé inférieur. La résistance d'interface freine le passage tant que l'interface n'a pas fondu, puis disparaît (au niveau réel, cette forme est contredite par la mesure, voir le correctif du 2026-10-01).*
 
 ## Pistes ouvertes
 
