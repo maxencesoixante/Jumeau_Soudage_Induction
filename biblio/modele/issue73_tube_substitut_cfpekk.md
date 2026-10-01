@@ -32,6 +32,14 @@ Il prolonge #71 (substitut en U fibre de verre + vessie) : si les parois du tube
 
 ## Ce que l'expérience doit montrer
 
+![Effort et chaleur : à plat, tube substitut, tube avec vessie](https://raw.githubusercontent.com/maxencesoixante/Jumeau_Soudage_Induction/main/biblio/labo/figures/issue73/fig73_mecanismes.png?v=1)
+
+*Schéma sans échelle. À plat, l'effort descend directement dans le bâti et la chaleur passe dans le laminé inférieur. Sur le tube substitut, le dessus travaille en flexion entre les murs (déformée exagérée en pointillés), l'effort descend par les murs puis le fond, et la chaleur sous l'interface arrive dans une cavité d'air : ce sont Q1 et Q2. Avec la vessie (#71), la contre-pression soutient le dessus.*
+
+![Mesures de référence à plat](https://raw.githubusercontent.com/maxencesoixante/Jumeau_Soudage_Induction/main/biblio/labo/figures/issue73/fig73_references.png?v=1)
+
+*Les mesures à plat auxquelles l'essai sera comparé. À gauche, le cycle semi-statique réel à 231 A, avec les 5 TC d'interface au bord comme prévu sur le tube : référence pour TC2 à TC4. À droite, la campagne à 3 TC : la face opposée culmine entre 135 et 180 °C, autour de Tg (159 °C), sous 3,36 mm de laminé. Avec une paroi de 1,68 mm, la face intérieure du tube sera probablement plus chaude : c'est l'enjeu de Q1 (paroi au-dessus de Tg, sous pression) et de Q2.*
+
 ### Q1 — Les murs supportent-ils la pression de consolidation ?
 
 Si oui, **pas besoin de contre-pression à l'intérieur du tube**. Et le résultat est conservateur : sur le montage réel, les murs porteront beaucoup plus que dans ce substitut.
@@ -51,6 +59,11 @@ Ce qu'on sait déjà et ce qui reste ouvert :
 - La face opposée est **déjà froide** sur le montage à plat : opposée/interface = **0,32–0,48** au pic sur 4 courants (campagne épaisseur de mai, `donnees/data/epaisseur_3TC_2026-05/`).
 - Deux effets tirent en sens contraire. L'air confiné du caisson fermé échange peu (convection naturelle, quelques W/(m²·K)) : il isole plutôt qu'il ne refroidit, comparé à un laminé posé sur le bâti. À l'inverse, la plaque de dessus est deux fois plus mince (1,68 mm au lieu de 3,36 mm) et a moins d'inertie : la chaleur l'atteint plus vite.
 - Le sens de l'effet n'est donc **pas acquis**. Il faut le mesurer plutôt que le supposer. **Proposition : un TC collé sur la face intérieure du dessus, à x = 60 mm** (cercle creux sur la figure), à comparer à la campagne épaisseur.
+
+![Instrumentation comparée](https://raw.githubusercontent.com/maxencesoixante/Jumeau_Soudage_Induction/main/biblio/labo/figures/issue73/fig73_instrumentation.png?v=1)
+
+*À la même échelle (1:1) : la colonne de TC mesurée à plat (surface, interface, face opposée sous 3,36 mm) et celle proposée sur le tube (surface, interface, face intérieure sous 1,68 mm, au-dessus de la cavité). La colonne complète de 3 TC sur le tube va au-delà du seul TC de face intérieure proposé ci-dessus : elle permettrait de comparer directement les rapports face intérieure / interface et surface / interface à ceux mesurés à plat (#74).*
+
 - Le jumeau peut donner une prédiction à l'aveugle avant l'essai (en 3D, avec la face inférieure passée en condition de cavité). Ce serait un test à la manière de #64.
 - La modélisation de la face intérieure (transfert thermique dans l'épaisseur) est suivie en **#74**.
 
