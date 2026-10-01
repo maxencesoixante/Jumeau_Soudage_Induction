@@ -228,7 +228,7 @@ Scripts : `code/scripts/diag/variantes_epaisseur.py` (k_z inférieur, résistanc
 
 ## Résultats (2026-09-30, soir) : combinaison des deux mécanismes
 
-> **En bref.** Combiner le k_z réduit et la résistance levée à la fusion donne **l'épaisseur juste sur les 5 essais**, y compris le 226 A à chauffe longue, mais **pas de synergie** sur les séries A/B et exp9 : la combinaison se place entre les deux mécanismes seuls. On est sur une **frontière de compromis**, aucune configuration ne gagne sur tous les critères. La combinaison A est la plus équilibrée. *Confirmation sur la grille fine en cours.*
+> **En bref.** Combiner le k_z réduit et la résistance levée à la fusion donne **l'épaisseur juste sur les 5 essais**, y compris le 226 A à chauffe longue, mais **pas de synergie** sur les séries A/B et exp9 : la combinaison se place entre les deux mécanismes seuls. On est sur une **frontière de compromis**, aucune configuration ne gagne sur tous les critères. La combinaison A est la plus équilibrée ; la grille fine confirme ce classement.
 
 ### Dosage sur les 5 essais à 3 TC
 
@@ -259,7 +259,24 @@ Le dosage A réduit k_z d'un facteur 2,6 seulement (contre 6,4 pour le k_z rédu
 - **les coins des séries A/B** : résistance levée à la fusion seule ;
 - **l'intérieur de la plaque** : k_z réduit seul.
 
-La combinaison A est la plus équilibrée : épaisseur juste sur les 5 essais, coins corrigés d'environ 30 °C par rapport à l'actuelle, coût joint meilleur que l'actuel. Sa confirmation sur la grille fine (61×21×15) est en cours ; les résultats seront ajoutés ici.
+La combinaison A est la plus équilibrée : épaisseur juste sur les 5 essais, coins corrigés par rapport à l'actuelle, coût joint meilleur que l'actuel.
+
+### Confirmation sur la grille fine (61×21×15)
+
+| Configuration (facteur) | Coût joint | RMSE TC1 / TC5 (A/B) | TC1, coin : A-1 / A-3 / B-2 | TC5 : A-1 / A-3 | RMSE par essai : A-1 / A-3 / B-2 |
+|---|---|---|---|---|---|
+| Actuelle (4,5) | 33,3 °C | 55,8 / 42,0 °C | +106 / +80 / +40 °C | +68 / +70 °C | 42,1 / 32,8 / 63,7 °C |
+| k_z inférieur réduit (4,0) | **30,9 °C** | 55,3 / 36,0 °C | +110 / +87 / +60 °C | +64 / +66 °C | 37,7 / 33,0 / 62,4 °C |
+| Résistance levée à la fusion (3,5) | 31,8 °C | **48,9** / 36,7 °C | **+42 / +18 / −20 °C** | **+34 / +14 °C** | **36,4** / 33,8 / 61,4 °C |
+| **Combinaison A** (3,5) | 31,9 °C | 50,6 / 37,1 °C | +81 / +56 / −3 °C | +57 / +49 °C | 37,4 / 34,4 / **61,3** °C |
+
+La grille fine confirme la lecture de la grille grossière :
+
+- **la combinaison A se place entre les deux mécanismes seuls** : coût joint équivalent à la résistance seule (31,9 contre 31,8 °C), coins corrigés d'environ 25 à 45 °C par rapport à l'actuelle, soit environ moitié moins que la résistance seule ;
+- **c'est la seule des quatre qui tient aussi l'épaisseur sur les 5 essais** ;
+- TC3 d'exp9 : +43 / +62 / −6 / +58 / +62 °C, homogène comme avec la résistance seule.
+
+**Pour la suite**, ce qui départagerait vraiment ces configurations n'est plus une simulation mais une mesure : la réponse sur le support de chaque campagne (pertes de face propres au montage ?), ou un essai à 3 TC empilés **près d'un coin** de l'éprouvette, là où les configurations divergent le plus.
 
 ## Démarche proposée
 
