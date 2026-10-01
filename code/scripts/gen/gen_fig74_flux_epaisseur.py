@@ -52,6 +52,7 @@ TMIN, TMAX = 20.0, 450.0
 CONFIGS = {
     "actuel": dict(titre="3D actuel", facteur=11.6, h_contact=5.0, kz_inf=None),
     "ralenti": dict(titre="Transport ralenti sous l'interface", facteur=10.4, h_contact=40.0, kz_inf=0.10),
+    "combiA": dict(titre="Combinaison A", facteur=11.3, h_contact=40.0, kz_inf=0.25, rc_fusion=0.02),
 }
 
 
@@ -69,7 +70,15 @@ def simuler(nom, c):
         lam = cfg.geometrie["laminate"]
         appliquer_kz_inf(cfg.materiau, e.grille, lam, c["kz_inf"])
         kz[e.grille.z > lam["epaisseur_sup"] + lam["epaisseur_film"] / 2] = c["kz_inf"]
+    rhs_orig = None
+    if c.get("rc_fusion") is not None:
+        import variantes_epaisseur as var
+        from jumeau.thermique import solveur3d as s3
+        rhs_orig = s3.SolveurThermique3D._rhs
+        var.appliquer_rc_fusion(c["rc_fusion"])
     solveur, sol = e.simuler(modele="3D")
+    if rhs_orig is not None:
+        s3.SolveurThermique3D._rhs = rhs_orig
     g = e.grille
     T4 = sol.y.reshape(g.nx, g.ny, g.nz, -1)
     iy = int(np.argmin(np.abs(g.y - Y_TC)))
@@ -140,7 +149,7 @@ def carte(ax, d, k_t, tm, mes, k_m):
     return im
 
 
-def main():
+def main(configs=("actuel", "ralenti"), nom_fig="fig74_flux_epaisseur.png"):
     e = Essai(Config.charger(R / "code" / "config"), ESSAI, nx=31, ny=11, nz=15,
               facteur_couplage=1.0, racine=R)
     tm, sm, im_, om = mesure(e)
@@ -148,7 +157,8 @@ def main():
     instants_mes = [tm[km], tm[km] + 100.0]
     mes = [[float(np.interp(tq, tm, v)) for v in (sm, im_, om)] for tq in instants_mes]
 
-    donnees = {n: simuler(n, c) for n, c in CONFIGS.items()}
+    choix = {n: CONFIGS[n] for n in configs}
+    donnees = {n: simuler(n, c) for n, c in choix.items()}
     instants = {}
     for nom, d in donnees.items():
         k0 = int(np.argmax(d["i"]))
@@ -157,10 +167,10 @@ def main():
     fig = plt.figure(figsize=(8.6, 6.0))
     gs = fig.add_gridspec(2, 3, width_ratios=[1, 1, 0.66], wspace=0.24, hspace=0.34,
                           left=0.09, right=0.98, top=0.92, bottom=0.15)
-    coul = {"actuel": "0.35", "ralenti": OKABE_ITO["bleu"]}
+    coul = {"actuel": "0.35", "ralenti": OKABE_ITO["bleu"], "combiA": OKABE_ITO["vert"]}
     lignes = ("Pic d'interface", "100 s après le pic")
     for r, lab in enumerate(lignes):
-        for col, (nom, c) in enumerate(CONFIGS.items()):
+        for col, (nom, c) in enumerate(choix.items()):
             ax = fig.add_subplot(gs[r, col])
             img = carte(ax, donnees[nom], instants[nom][r], tm, mes[r], km)
             if r == 0:
@@ -172,7 +182,7 @@ def main():
             if r == 1:
                 ax.set_xlabel("x (mm)")
         ax = fig.add_subplot(gs[r, 2])
-        for nom, c in CONFIGS.items():
+        for nom, c in choix.items():
             d = donnees[nom]
             ax.plot(d["colonne"][:, instants[nom][r]], -d["z"] * 1e3, color=coul[nom], lw=1.6,
                     label=c["titre"].replace(" sous l'interface", ""))
@@ -193,10 +203,11 @@ def main():
     cax = fig.add_axes([0.09, 0.05, 0.50, 0.018])
     cb = fig.colorbar(img, cax=cax, orientation="horizontal")
     cb.set_label("température (°C)")
-    savefig(fig, OUT, bbox_inches="tight")
+    savefig(fig, OUT.parent / nom_fig, bbox_inches="tight")
     plt.close(fig)
 
 
 if __name__ == "__main__":
     main()
+    main(configs=("actuel", "combiA"), nom_fig="fig74_flux_combinaison.png")
     print(OUT.relative_to(R))
