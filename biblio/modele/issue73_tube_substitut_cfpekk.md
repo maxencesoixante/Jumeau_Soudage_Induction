@@ -59,7 +59,6 @@ Ce qu'on sait déjà et ce qui reste ouvert :
 - La face opposée est **déjà froide** sur le montage à plat : opposée/interface = **0,32–0,48** au pic sur 4 courants (campagne épaisseur de mai, `donnees/data/epaisseur_3TC_2026-05/`).
 - Deux effets tirent en sens contraire. L'air confiné du caisson fermé échange peu (convection naturelle, quelques W/(m²·K)) : il isole plutôt qu'il ne refroidit, comparé à un laminé posé sur le bâti. À l'inverse, la plaque de dessus est deux fois plus mince (1,68 mm au lieu de 3,36 mm) et a moins d'inertie : la chaleur l'atteint plus vite.
 - Le sens de l'effet n'est donc **pas acquis**. Il faut le mesurer plutôt que le supposer. **Proposition : un TC collé sur la face intérieure du dessus, à x = 60 mm** (cercle creux sur la figure), à comparer à la campagne épaisseur.
-
 - Le jumeau peut donner une prédiction à l'aveugle avant l'essai (en 3D, avec la face inférieure passée en condition de cavité). Ce serait un test à la manière de #64.
 - La modélisation de la face intérieure (transfert thermique dans l'épaisseur) est suivie en **#74**.
 
