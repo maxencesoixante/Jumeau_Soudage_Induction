@@ -184,7 +184,7 @@ Scripts : `code/scripts/diag/diag_epaisseur_3d_reference.py` (option `--kz-inf`,
 
 ## Résultats (2026-09-30, après-midi) : convergence, Cp(T) et résistance levée à la fusion
 
-> **En bref.** Les rapports d'épaisseur sont **convergés en maillage**. Le **Cp(T) mesuré n'agit pas** sur le gradient d'épaisseur. Une **résistance d'interface qui disparaît à la fusion** reproduit l'épaisseur sur 4 essais sur 5 et **corrige les coins des séries A/B d'environ 60 °C**, le défaut le plus tenace du modèle. Le k_z réduit reste meilleur à l'intérieur de la plaque. Prochaine étape : **combiner les deux**.
+> **En bref.** Les rapports d'épaisseur sont **convergés en maillage**. Le **Cp(T) mesuré n'agit pas** sur le gradient d'épaisseur. Une **résistance d'interface qui disparaît à la fusion** **corrige les coins des séries A/B d'environ 60 °C**, le défaut le plus tenace du modèle ; elle reproduit l'épaisseur sur 4 essais sur 5 au facteur de compromis, *mais pas au niveau de température réel (correctif du 2026-10-01, section suivante)*. Le k_z réduit reste meilleur à l'intérieur de la plaque. Prochaine étape : **combiner les deux**.
 
 ### 1. Convergence du maillage
 
@@ -206,7 +206,7 @@ Avec le Cp(T) de Hamon 2025 (939 → 1671 J/(kg·K)) à la place de 1200 constan
 
 **La forme.** Une résistance R en série à l'interface, active tant que l'interface n'a pas fondu, nulle au-dessus de Tf (rampe sur 337 ± 5 °C). C'est la forme physique visée par l'hypothèse de l'interface non soudée : deux pièces séparées, avec un film et des contacts imparfaits, qui ne forment un seul solide qu'à la fusion. Elle se distingue de `r_contact_interface`, constante, rejetée le 2026-08-13.
 
-**Épaisseur** (R = 0,04 m²·K/W, `h_contact` = 40) : face opposée / interface de 0,46 à 0,51 et surface / interface de 0,91 à 0,92 sur 4 essais sur 5. **Échec sur le 226 A à chauffe longue** (0,77 contre 0,32 mesuré) : dans le modèle, l'interface fond, la résistance disparaît et la face opposée se réchauffe ; la mesure montre au contraire sa face opposée la plus froide.
+**Épaisseur** (R = 0,04 m²·K/W, `h_contact` = 40, au facteur 4,0) : face opposée / interface de 0,46 à 0,51 et surface / interface de 0,91 à 0,92 sur 4 essais sur 5. *Corrigé le 2026-10-01 : ce résultat tient seulement parce qu'à ce facteur l'interface reste sous la fusion au point des 3 TC ; au niveau réel, la résistance se lève et la face opposée se réchauffe (voir le correctif dans la section suivante).* **Échec sur le 226 A à chauffe longue** (0,77 contre 0,32 mesuré) : dans le modèle, l'interface fond, la résistance disparaît et la face opposée se réchauffe ; la mesure montre au contraire sa face opposée la plus froide.
 
 **Séries A/B et exp9**, au meilleur facteur de chaque configuration, confirmé sur la grille fine (61×21×15) :
 
@@ -228,7 +228,24 @@ Scripts : `code/scripts/diag/variantes_epaisseur.py` (k_z inférieur, résistanc
 
 ## Résultats (2026-09-30, soir) : combinaison des deux mécanismes
 
-> **En bref.** Combiner le k_z réduit et la résistance levée à la fusion donne **l'épaisseur juste sur les 5 essais**, y compris le 226 A à chauffe longue, mais **pas de synergie** sur les séries A/B et exp9 : la combinaison se place entre les deux mécanismes seuls. On est sur une **frontière de compromis**, aucune configuration ne gagne sur tous les critères. La combinaison A est la plus équilibrée ; la grille fine confirme ce classement.
+> ### ⚠️ Correctif (2026-10-01) : au niveau de température réel, la résistance levée à la fusion ne tient pas l'épaisseur
+>
+> Les rapports d'épaisseur de la résistance levée à la fusion et de la combinaison A ont été obtenus **au facteur de compromis** (3,5 à 4,0). À ce facteur, le modèle sous-estime le niveau au point des 3 TC (limite #1), et l'interface y reste **sous la fusion** (190 à 300 °C) : la résistance y est donc toujours active. Or l'interface mesurée en ce point monte à **390 °C**, au-dessus de la fusion. Au niveau réel, le modèle lève la résistance et la face opposée se réchauffe :
+>
+> | Au niveau réel, point des 3 TC (201 A) | Face opposée / interface |
+> |---|---|
+> | Mesuré | **0,42** |
+> | Modèle actuel | 0,79 |
+> | Combinaison A | 0,63 |
+> | k_z inférieur réduit seul | **0,41** |
+>
+> **La mesure montre une face opposée froide avec une interface fondue.** C'est le même contre-indice que le 226 A à chauffe longue, mais cette fois sur le point de mesure lui-même. L'hypothèse « la résistance disparaît à la fusion » est donc contredite à ce point. La correction des coins qu'elle apporte reste un fait du modèle, mais son mécanisme physique devient douteux. **Seul le k_z réduit, qui ne dépend pas de la température, tient l'épaisseur au niveau réel.** Les affirmations concernées plus bas et dans les résultats de l'après-midi sont corrigées et marquées.
+>
+> ![Flux dans l'épaisseur, combinaison A](https://raw.githubusercontent.com/maxencesoixante/Jumeau_Soudage_Induction/main/biblio/labo/figures/issue74/fig74_flux_combinaison.png?v=1)
+>
+> *Même figure que la vue de côté du flux (résultats du matin, § 4), pour le modèle actuel et la combinaison A, niveau recalé sur le pic mesuré (facteur 11,6 et 11,3, illustratif). Au pic, la combinaison A crée un gradient sous l'interface, mais la face opposée reste vers 265 °C contre 167 °C mesuré.*
+
+> **En bref** *(corrigé le 2026-10-01)*. Combiner le k_z réduit et la résistance levée à la fusion donne l'épaisseur juste sur les 5 essais **au facteur de compromis seulement** (au niveau réel : 0,63, voir le correctif), et **pas de synergie** sur les séries A/B et exp9 : la combinaison se place entre les deux mécanismes seuls. On est sur une **frontière de compromis**, aucune configuration ne gagne sur tous les critères. La combinaison A est la plus équilibrée ; la grille fine confirme ce classement.
 
 ### Dosage sur les 5 essais à 3 TC
 
@@ -245,7 +262,7 @@ Le dosage A réduit k_z d'un facteur 2,6 seulement (contre 6,4 pour le k_z rédu
 
 ![Compromis de facteur, cinq configurations](https://raw.githubusercontent.com/maxencesoixante/Jumeau_Soudage_Induction/main/biblio/labo/figures/issue74/fig74_compromis_combinaison.png?v=1)
 
-| Configuration (meilleur facteur) | Coût joint (TC intérieurs) | TC1, coin : A-1 / A-3 / B-2 | Épaisseur, 5 essais |
+| Configuration (meilleur facteur) | Coût joint (TC intérieurs) | TC1, coin : A-1 / A-3 / B-2 | Épaisseur, 5 essais, au facteur 4,0 (voir le correctif pour le niveau réel) |
 |---|---|---|---|
 | Actuelle (4,5) | 32,4 °C | +71 / +60 / +10 °C | ✗ (0,89) |
 | k_z inférieur réduit (4,0) | **29,9 °C** | +73 / +68 / +20 °C | ✓ |
@@ -255,11 +272,11 @@ Le dosage A réduit k_z d'un facteur 2,6 seulement (contre 6,4 pour le k_z rédu
 
 **Lecture.** La correction des coins vient de la résistance levée à la fusion. Pour garder l'épaisseur juste quand on ajoute le k_z réduit, il faut diminuer cette résistance, et on perd une partie de la correction. Le choix dépend donc de ce qui compte le plus :
 
-- **l'épaisseur juste partout** (face intérieure du tube de #73, vessie de #71) : combinaison A ;
+- **l'épaisseur juste partout** (face intérieure du tube de #73, vessie de #71) : ~~combinaison A~~ **k_z réduit seul**, le seul qui tient l'épaisseur au niveau réel *(corrigé le 2026-10-01)* ;
 - **les coins des séries A/B** : résistance levée à la fusion seule ;
 - **l'intérieur de la plaque** : k_z réduit seul.
 
-La combinaison A est la plus équilibrée : épaisseur juste sur les 5 essais, coins corrigés par rapport à l'actuelle, coût joint meilleur que l'actuel.
+La combinaison A est la plus équilibrée au facteur de compromis : coins corrigés par rapport à l'actuelle, coût joint meilleur que l'actuel. *Corrigé le 2026-10-01 : son épaisseur n'est juste qu'à ce facteur, pas au niveau réel.*
 
 ### Confirmation sur la grille fine (61×21×15)
 
@@ -273,7 +290,7 @@ La combinaison A est la plus équilibrée : épaisseur juste sur les 5 essais, c
 La grille fine confirme la lecture de la grille grossière :
 
 - **la combinaison A se place entre les deux mécanismes seuls** : coût joint équivalent à la résistance seule (31,9 contre 31,8 °C), coins corrigés d'environ 25 à 45 °C par rapport à l'actuelle, soit environ moitié moins que la résistance seule ;
-- **c'est la seule des quatre qui tient aussi l'épaisseur sur les 5 essais** ;
+- ~~c'est la seule des quatre qui tient aussi l'épaisseur sur les 5 essais~~ *(corrigé le 2026-10-01 : faux deux fois — le k_z réduit seul la tient aussi au facteur de compromis, et c'est le seul qui la tient au niveau réel)* ;
 - TC3 d'exp9 : +43 / +62 / −6 / +58 / +62 °C, homogène comme avec la résistance seule.
 
 **Pour la suite**, ce qui départagerait vraiment ces configurations n'est plus une simulation mais une mesure : la réponse sur le support de chaque campagne (pertes de face propres au montage ?), ou un essai à 3 TC empilés **près d'un coin** de l'éprouvette, là où les configurations divergent le plus.
