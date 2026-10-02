@@ -9,8 +9,9 @@ La documentation est organisée en **deux parties** :
   figures, rapports.
 
 ## Transverses
-- **[`journal_avancees.md`](journal_avancees.md)** — journal maître (point d'entrée : état du
-  projet, chronologie, résidus ouverts, carte des documents §6).
+- **Cahier de laboratoire unique** — [`cahier_laboratoire_soudage_induction.md`](https://github.com/maxencesoixante/Memoire_Cahier_Labo_archive/blob/main/cahier_laboratoire_soudage_induction.md)
+  (dépôt `Memoire_Cahier_Labo_archive`) : point d'entrée — état du projet, chronologie (partie 7),
+  fiches de campagne et données (partie 6). [`journal_avancees.md`](journal_avancees.md) n'est plus qu'un renvoi.
 
 ## Références (`references/`)
 - [`etat_art_induction.md`](references/etat_art_induction.md) — revue de littérature (état de l'art).

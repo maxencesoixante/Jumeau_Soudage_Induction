@@ -20,7 +20,9 @@ PARTIES = [
    LAB/"synthese_issue69.md", LAB/"resultats_issue69_150A.md", LAB/"resultats_issue69_bord_150A.md",
    LAB/"resultats_issue69_proto_source_bimodale.md", LAB/"resultats_issue69_calibration.md",
    LAB/"resultats_issue69_flag_bimodal.md"]),
- ("PARTIE 7 — JOURNAL CHRONOLOGIQUE DES AVANCÉES (juillet → octobre 2026)", [J/"biblio/journal_avancees.md"]),
+ # Partie 7 : depuis le 2026-10-02, le journal chronologique VIT dans le cahier (biblio/journal_avancees.md
+ # n'est plus qu'un renvoi). Le script la conserve telle quelle, sans la régénérer.
+ ("PARTIE 7 — JOURNAL CHRONOLOGIQUE DES AVANCÉES (juillet → octobre 2026)", None),
  ("PARTIE 8 — NOTES D'ANALYSE", [
    LAB/"synthese_issue68_investigation_fusion_2026-08-31.md", LAB/"reouverture_h_bord_x0_heldout.md",
    LAB/"releves_resolus.md", LAB/"explication_source_xyz.md"]),
@@ -81,12 +83,21 @@ def reduit_figures(texte: str) -> str:
 
 
 base = CAH.read_text(encoding="utf-8")
+m7 = re.search(r"\n# PARTIE 7[^\n]*\n(.*?)(?=\n---\n\n# PARTIE 8|\Z)", base, re.S)
+assert m7 and "#### " in m7.group(1), "partie 7 introuvable dans le cahier : arrêt (rien n'est écrit)"
+partie7 = m7.group(1).strip()
 i = base.find("\n# PARTIE 5")                     # rejouable : on repart du cahier d'origine
 if i != -1:
-    base = base[:i].rstrip() + "\n"
+    base = base[:i].rstrip()
+    while base.endswith("---"):                   # séparateur laissé par le passage précédent
+        base = base[:-3].rstrip()
+    base += "\n"
 blocs = [base.rstrip(), ""]
 for titre, fichiers in PARTIES:
     blocs += ["---", "", f"# {titre}", ""]
+    if fichiers is None:
+        blocs += [partie7, ""]
+        continue
     for f in fichiers:
         t = f.read_text(encoding="utf-8").strip()
         rel = f.relative_to(J).as_posix()
