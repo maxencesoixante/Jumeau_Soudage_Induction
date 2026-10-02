@@ -61,6 +61,25 @@ def decale(texte: str) -> str:
         out.append(l)
     return "\n".join(out)
 
+IMG_MD = re.compile(r"!\[([^\]]*)\]\((images/[^)\s]+)\)")
+
+
+def reduit_figures(texte: str) -> str:
+    """Affiche les figures en taille réduite : balise <img> avec une largeur fixée
+    (420 px, 560 px pour les figures très larges, ratio > 2,2)."""
+    from PIL import Image
+    def f(m):
+        alt, src = m.groups()
+        try:
+            with Image.open(C / src.replace("%20", " ")) as im:
+                w, h = im.size
+        except OSError:
+            w, h = 4, 3
+        larg = 560 if w / h > 2.2 else 420
+        return f'<img src="{src}" alt="{alt.replace(chr(34), "&quot;")}" width="{larg}">'
+    return IMG_MD.sub(f, texte)
+
+
 base = CAH.read_text(encoding="utf-8")
 i = base.find("\n# PARTIE 5")                     # rejouable : on repart du cahier d'origine
 if i != -1:
@@ -77,5 +96,5 @@ for titre, fichiers in PARTIES:
         lignes = t.split("\n")
         lignes.insert(1, f"\n*Source fusionnée : `{rel}` (dépôt Jumeau_Soudage_Induction).*")
         blocs += ["\n".join(lignes), ""]
-CAH.write_text("\n".join(blocs).rstrip() + "\n", encoding="utf-8")
+CAH.write_text(reduit_figures("\n".join(blocs)).rstrip() + "\n", encoding="utf-8")
 print(len(copies), "figures copiées ;", sum(1 for _ in CAH.open(encoding="utf-8")), "lignes")
