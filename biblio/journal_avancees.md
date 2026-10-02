@@ -985,6 +985,19 @@ Leur **combinaison** se place entre les deux, sans synergie : frontière de comp
 ![Vue de côté du flux de chaleur, 3D actuel vs transport ralenti sous l'interface (pic et +100 s).](labo/figures/issue74/fig74_flux_epaisseur.png)
 *Vue de côté du flux de chaleur, 3D actuel vs transport ralenti sous l'interface (pic et +100 s).*
 
+> **Comment lire la figure.** Coupe verticale x-z à travers la colonne des 3 TC (essai 201 A,
+> y = 20 mm), à l'échelle 1:1. Au-dessus de z = 0 : céramique (gris foncé, 2 mm) et les deux brins
+> de la bobine (orange). En dessous : l'empilement — stratifié supérieur de 0 à −3,36 mm, interface
+> (pointillé blanc) à −3,36 mm, stratifié inférieur jusqu'à la face opposée à −6,82 mm. Couleur =
+> température simulée ; flèches blanches = sens du flux de chaleur (longueur ∝ √|q|) ; pastilles =
+> les 3 TC mesurés, colorées à leur température mesurée (une pastille de même couleur que le fond =
+> accord modèle-mesure). Ligne du haut : au pic d'interface ; ligne du bas : 100 s plus tard.
+> Colonne de gauche : 3D actuel — la chaleur traverse tout le stratifié inférieur, la face opposée
+> sort à ~330 °C contre 167 °C mesuré. Colonne du milieu : k_z du stratifié inférieur abaissé à
+> 0,10 W/(m·K) — la chaleur reste au-dessus de l'interface et la face opposée tombe sur la mesure.
+> Colonne de droite : profils T(z) des deux modèles contre les 3 points mesurés ; à +100 s, le
+> modèle ralenti suit encore la mesure, le 3D actuel reste ~150 °C trop chaud.
+
 ### 1er octobre — Correctif : au niveau réel, la résistance levée à la fusion ne tient pas
 
 Les « 5 essais sur 5 » de la résistance levée à la fusion et de la combinaison n'étaient
