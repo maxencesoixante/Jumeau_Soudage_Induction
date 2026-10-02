@@ -66,7 +66,7 @@ IMG_MD = re.compile(r"!\[([^\]]*)\]\((images/[^)\s]+)\)")
 
 def reduit_figures(texte: str) -> str:
     """Affiche les figures en taille réduite : balise <img> avec une largeur fixée
-    (420 px, 560 px pour les figures très larges, ratio > 2,2)."""
+    (350 px pour toutes)."""
     from PIL import Image
     def f(m):
         alt, src = m.groups()
@@ -75,7 +75,7 @@ def reduit_figures(texte: str) -> str:
                 w, h = im.size
         except OSError:
             w, h = 4, 3
-        larg = 560 if w / h > 2.2 else 420
+        larg = 350
         return f'<img src="{src}" alt="{alt.replace(chr(34), "&quot;")}" width="{larg}">'
     return IMG_MD.sub(f, texte)
 
