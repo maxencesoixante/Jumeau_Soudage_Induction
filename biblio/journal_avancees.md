@@ -491,6 +491,24 @@ Toute calibration visant 0,42 à la décimale ajusterait du bruit d'essai. Surfa
 vaut 0,84–0,94 sur les quatre courants : « surface ≈ interface » devient multi-condition.
 Le relevé brut de la série B (dont B-1 et B-2 sont deux extraits) est archivé à côté.
 
+**Données (essais réalisés en mai 2026 : classeur source `source_MAX-WELDING-DATA-14_05_26.xlsx`
+daté du 14/05/26, essai 250 A du 20/05/26 ; intégrés au dépôt le 22/09).** Montage : 3 TC
+empilés au même point (x = 60, y = 20 mm) — surface côté bobine, interface (tissu PW), face
+opposée ; bobine + MFC fixes au centre, sans translation (protocole antérieur au semi-statique).
+Durée de chauffe = de l'onset au pic d'interface (mesurée, pas déclarée).
+
+| Fichier | Courant | Chauffe | Durée relevé | Pic interface | opposée / interface | surface / interface |
+|---|---|---|---|---|---|---|
+| `174A_v1.txt` | 174,4 A | 59 s | 228 s | 377,7 °C | 0,48 | 0,84 |
+| `201A_v1.txt` | 201,6 A | 44 s | 203 s | 390,1 °C | 0,42 | 0,88 |
+| `226A_v1.txt` | 226 A | 51 s | 288 s | 394,8 °C | 0,32 | 0,90 |
+| `226A_v2.txt` (répétition) | 226 A | 34 s | 184 s | 387,1 °C | 0,44 | 0,87 |
+| `chauffe_250A_3TC-epaisseur_2026-05-20.txt` | 250 A | 30 s | 300 s | — | 0,39 | 0,94 |
+
+Rapports pris à l'instant du pic d'interface. Courant lu dans la cellule du classeur, pas
+dans le nom de feuille. Fiches d'essai : `code/config/essais/chauffe_*_3TC*.yaml` ; détail et
+durées de cycle saisies par l'opérateur : `donnees/data/epaisseur_3TC_2026-05/README.md`.
+
 ### 28 septembre — Le montage « tube substitut » et le ménage des issues
 
 **Nouveau montage (#73)** : un tube entièrement en CF/PEKK, assemblé à partir de plaques
@@ -523,7 +541,9 @@ conduction latérale) est une erreur de méthode.
 **Transport ralenti sous l'interface** (k_z du laminé inférieur 0,10 au lieu de 0,64,
 `h_contact` 40) : épaisseur dans la fourchette **et** refroidissement de bonne forme. Au meilleur
 facteur de chaque configuration (exp9 fixe le facteur, A/B y sont peu sensibles à cause du
-thermostat), coût joint **33,3 → 30,9 °C** sur grille fine. Au passage : **le 3D actuel est mieux
+thermostat), coût joint **33,3 → 30,9 °C** sur grille fine. (coût joint = moyenne du RMSE TC2–TC4 des séries A/B et du
+RMSE TC3 d'exp9 ; tableaux et scripts : `code/scripts/diag/diag_compromis_facteur.py`,
+`biblio/labo/figures/issue74/validation_3D.csv`.) Au passage : **le 3D actuel est mieux
 calé vers 4,5 que vers 6,01** (coût 42 → 32 °C).
 
 **Variantes.** Convergence du maillage acquise (rapports stables de nz 15 à 51 et de 31×11 à
@@ -554,6 +574,27 @@ cavité d'air) ; cycle à 4 spots : 213 → 283–301 °C ; plus longtemps au-de
 sensible à la perte de la cavité (h = 2 à 10 : 17 °C), même sens avec le modèle actuel. Pour Q1,
 c'est le cas le plus défavorable : une paroi vers 300 °C, au-dessus de Tg et proche de Tf, sous
 pression, sans contre-pression. Limites : paroi de dessus seule, 40 mm de large, sans les murs.
+
+**Données de simulation** (`code/scripts/diag/diag_tube_q2.py`, 2 octobre ; grille 31×11×15 ;
+« k_z réduit » = k_z 0,10 sous l'interface + h_contact 40 ; « actuel » = k_z uniforme +
+h_contact 5 ; à plat = laminé 3,36 mm, h_bas 15 ; tube = paroi 1,68 mm, h_bas de cavité 2/5/10 ;
+spot fixe = essai 201 A à 3 TC, facteur 10,4 / 11,6 recalé sur le pic d'interface ; cycle =
+spécification A-1, facteur 4,0 / 4,5). Séries : `resultats/tube_q2/*.npz`, tableau
+`resultats/tube_q2/synthese.csv`.
+
+| Protocole | Modèle | Géométrie | T interface max | T face du bas max | bas / interface au pic | durée > Tg |
+|---|---|---|---|---|---|---|
+| spot | k_z réduit | à plat | 387 | 204 | 0,47 | 127 s |
+| spot | k_z réduit | tube h = 2 / 5 / 10 | 415 / 413 / 412 | 316 / 309 / 299 | 0,74 / 0,73 / 0,71 | 178 / 177 / 172 s |
+| spot | actuel | à plat | 389 | 330 | 0,83 | 179 s |
+| spot | actuel | tube h = 2 / 5 / 10 | 469 / 465 / 458 | 437 / 431 / 421 | 0,93 / 0,93 / 0,92 | 186 s |
+| cycle | k_z réduit | à plat | 858 | 213 | — | 174 s |
+| cycle | k_z réduit | tube h = 2 / 5 / 10 | 871 / 872 / 873 | 301 / 294 / 283 | — | 237 / 224 / 205 s |
+| cycle | actuel | à plat | 837 | 331 | — | 316 s |
+| cycle | actuel | tube h = 2 / 5 / 10 | 855 / 856 / 857 | 371 / 368 / 362 | — | 325 / 323 / 322 s |
+
+(°C. Le maximum d'interface du cycle, ~860 °C, est un maximum local du modèle, non représentatif
+du niveau mesuré : seule la comparaison à plat / tube de la face du bas est exploitée.)
 
 **Longueur du tube** (chiffrage non publié dans #73, à la demande) : par rapport à un tube de
 120 mm, un tube allongé refroidit les extrémités du connecteur (TC1 −34 °C, TC5 −39 °C) sans
