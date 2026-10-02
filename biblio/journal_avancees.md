@@ -107,6 +107,17 @@ Thermostat de coupure sur consigne (« chauffe jusqu'à T_processing »). Figure
 - Déficit TC1 : auto-échauffement du MFC (0,6-1,4 W) et `decalage_x` **écartés** avec chiffres.
 - Couche IA multi-agents locale (`ai_framework`) posée sur le jumeau (démonstrateur).
 
+**Figures**
+
+![Série A, essai A-2 (250 A, 9 juin 2026) : les 5 TC d'interface pendant le cycle semi-statique à 4 passes — format de référence des relevés.](labo/figures/serieA_A-2_250A_2026-06-09.png)
+*Série A, essai A-2 (250 A, 9 juin 2026) : les 5 TC d'interface pendant le cycle semi-statique à 4 passes — format de référence des relevés.*
+
+![Procédé semi-statique : positions successives de la bobine et du MFC sur l'échantillon (4 passes au pas de 30 mm).](presentations/figures_schemas/fig_passages_mfc_storyboard.png)
+*Procédé semi-statique : positions successives de la bobine et du MFC sur l'échantillon (4 passes au pas de 30 mm).*
+
+![Procédé semi-statique, vue d'ensemble des passages du MFC.](presentations/figures_schemas/fig_passages_mfc.png)
+*Procédé semi-statique, vue d'ensemble des passages du MFC.*
+
 ### 21 juillet — Convergence de maillage
 Le résidu « TC4 surestimé +74/+110 °C » était à **85-95 % un artefact de lecture** (nœud le
 plus proche sur grille grossière). Corrigé par interpolation bilinéaire des TC et du nœud de
@@ -146,6 +157,11 @@ Rapports/slides/mesures régénérés au θ\* corrigé. Diagnostic de la cote `h
   centre est un creux, le plus lent à monter, même forme aux 3 courants). Contraste mesuré
   ~1,35-1,88 vs 2,46 prédit — mais géométrie non standard (céramique retirée).
 
+**Figures**
+
+![Montage de la campagne bord → centre (exp7) : 5 TC répartis en largeur, du chant y = 0 au chant y = 40, sous le spot.](presentations/figures_schemas/schema_montage_exp7.png)
+*Montage de la campagne bord → centre (exp7) : 5 TC répartis en largeur, du chant y = 0 au chant y = 40, sous le spot.*
+
 ### 28 juillet — Le profil en « M » est VALIDÉ et SYMÉTRIQUE (avec céramique)
 - **Reprise AVEC céramique (200 A, géométrie standard), 3 essais v2/v3/v4** : contraste
   chant/centre mesuré **2,16 / 2,17 / 2,31 ≈ 2,43 modèle** (REPRODUIT), forme quasi superposée
@@ -179,6 +195,55 @@ Rapports/slides/mesures régénérés au θ\* corrigé. Diagnostic de la cote `h
   → **La source suit bien la loi en I² du modèle** ; l'écart apparent = les pertes, pas la source.
   Deux figures ajoutées : `fig4_courbes_brutes` (5 TC d'un essai) et `fig5_loi_courant`.
 
+**Figures**
+
+![200 A avec céramique, essai v2 : profil en largeur mesuré (TC1 cassé).](../donnees/data/exp7_bord-centre_2026-07-28_avec-ceramique/200A/analyse_v2.png)
+*200 A avec céramique, essai v2 : profil en largeur mesuré (TC1 cassé).*
+
+![200 A avec céramique, v2 et v3 superposés.](../donnees/data/exp7_bord-centre_2026-07-28_avec-ceramique/200A/analyse_v2_v3.png)
+*200 A avec céramique, v2 et v3 superposés.*
+
+![200 A avec céramique, v2/v3/v4 : la forme normalisée se superpose au modèle sur toute la largeur ; v4 (TC1 réparé) montre le M symétrique.](../donnees/data/exp7_bord-centre_2026-07-28_avec-ceramique/200A/analyse_v2_v3_v4.png)
+*200 A avec céramique, v2/v3/v4 : la forme normalisée se superpose au modèle sur toute la largeur ; v4 (TC1 réparé) montre le M symétrique.*
+
+![Montée en température du centre et du chant : le centre du modèle se remplit trop lentement (résidu transitoire).](../donnees/data/exp7_bord-centre_2026-07-28_avec-ceramique/200A/dynamique_centre_vs_chant.png)
+*Montée en température du centre et du chant : le centre du modèle se remplit trop lentement (résidu transitoire).*
+
+![Balayage de k_plan : remplir le centre casse le contraste du M.](../donnees/data/exp7_bord-centre_2026-07-28_avec-ceramique/200A/diag_kplan_sweep.png)
+*Balayage de k_plan : remplir le centre casse le contraste du M.*
+
+![Prototype de source lissée (gaussienne σ ≈ 6 mm) : remplit le centre mais abaisse les pics (non adopté).](../donnees/data/exp7_bord-centre_2026-07-28_avec-ceramique/200A/proto_source_adoucie.png)
+*Prototype de source lissée (gaussienne σ ≈ 6 mm) : remplit le centre mais abaisse les pics (non adopté).*
+
+![Profil en « M » mesuré en largeur aux trois courants (150 / 200 / 250 A).](labo/figures/fig1_profil_M.png)
+*Profil en « M » mesuré en largeur aux trois courants (150 / 200 / 250 A).*
+
+![Dynamique centre vs chant, mesure et modèle.](labo/figures/fig3_dynamique_centre.png)
+*Dynamique centre vs chant, mesure et modèle.*
+
+![Courbes brutes des 5 TC d'un essai bord → centre.](labo/figures/fig4_courbes_brutes.png)
+*Courbes brutes des 5 TC d'un essai bord → centre.*
+
+![Taux de chauffe au chant en fonction du courant : loi R = k·I² − L (R² = 0,999).](labo/figures/fig5_loi_courant.png)
+*Taux de chauffe au chant en fonction du courant : loi R = k·I² − L (R² = 0,999).*
+
+Versions diapositives des figures 1 à 5 : `labo/figures/presentation_fig*.png` (même contenu, format 16:9).
+
+![Toutes les courbes brutes de la campagne en largeur.](labo/figures/fig_courbes_largeur_brut.png)
+*Toutes les courbes brutes de la campagne en largeur.*
+
+![Essais en largeur regroupés par courant.](labo/figures/fig_essais_par_courant.png)
+*Essais en largeur regroupés par courant.*
+
+![Petits multiples : les 5 TC, un panneau par courant.](labo/figures/fig_essais_5TC_par_courant.png)
+*Petits multiples : les 5 TC, un panneau par courant.*
+
+![Température du chant, tous essais superposés.](labo/figures/fig_essais_chant_superpose.png)
+*Température du chant, tous essais superposés.*
+
+![Version poster de la campagne bord → centre.](labo/figures/poster_chauffe_exp7.png)
+*Version poster de la campagne bord → centre.*
+
 ### 28 juillet (soir) — Exp 9 : dissipation longitudinale T(x) — phase 1 (bord y=0)
 Nouvelle campagne (`donnees/data/exp9_dissipation-longitudinale_2026-07-28/`, fiche `biblio/protocole_exp_dissipation_longitudinale.md`) : 5 TC
 alignés en **longueur** à x=0/30/60/90/120 mm (pas 30 mm), y=0. Deux essais 200 A, ≤ 236 °C
@@ -193,12 +258,43 @@ alignés en **longueur** à x=0/30/60/90/120 mm (pas 30 mm), y=0. Deux essais 20
 - **Portée** : ceci valide la SOURCE en longueur, pas encore le résidu d'étalement. Le test décisif
   = **phase 2 à y=20 (centre, dominé par la conduction)** → probe direct de `k_plan`. FAITE le 30-07 (centre y=20, 200 + 175 A) : k_plan≈7,3 identifié via fit conjoint, résidu structurel confirmé (cf. §2 et issue #11). Figures : `donnees/data/exp9_dissipation-longitudinale_2026-07-28/200A/analyse_*.png`.
 
+**Figures**
+
+![Montage de la campagne longitudinale (exp9) : 5 TC alignés en longueur à x = 0/30/60/90/120 mm, au bord y = 0.](presentations/figures_schemas/schema_montage_exp9.png)
+*Montage de la campagne longitudinale (exp9) : 5 TC alignés en longueur à x = 0/30/60/90/120 mm, au bord y = 0.*
+
+![Spot fixe 200 A : historique des 5 TC (gauche) et profil longitudinal au pic (droite).](../donnees/data/exp9_dissipation-longitudinale_2026-07-28/200A/analyse_200A_y0_monospot.png)
+*Spot fixe 200 A : historique des 5 TC (gauche) et profil longitudinal au pic (droite).*
+
+![Spot fixe 200 A : profil longitudinal normalisé, mesure vs modèle — la forme de la source en longueur est reproduite.](../donnees/data/exp9_dissipation-longitudinale_2026-07-28/200A/analyse_200A_y0_monospot_vs_modele.png)
+*Spot fixe 200 A : profil longitudinal normalisé, mesure vs modèle — la forme de la source en longueur est reproduite.*
+
+![Semi-statique 200 A (4 passes) : historique longitudinal des 5 TC.](../donnees/data/exp9_dissipation-longitudinale_2026-07-28/200A/analyse_200A_y0.png)
+*Semi-statique 200 A (4 passes) : historique longitudinal des 5 TC.*
+
+![Semi-statique 200 A : mesure vs modèle multi-spots.](../donnees/data/exp9_dissipation-longitudinale_2026-07-28/200A/analyse_200A_y0_semistatique_vs_modele.png)
+*Semi-statique 200 A : mesure vs modèle multi-spots.*
+
+![Courbes brutes de la campagne longitudinale, spot fixe.](labo/figures/fig_courbes_longueur_statique_brut.png)
+*Courbes brutes de la campagne longitudinale, spot fixe.*
+
+![Courbes brutes de la campagne longitudinale, semi-statique.](labo/figures/fig_courbes_longueur_semistatique_brut.png)
+*Courbes brutes de la campagne longitudinale, semi-statique.*
+
+![Dissipation longitudinale en semi-statique (4 passes).](labo/figures/fig_dissipation_semistatique.png)
+*Dissipation longitudinale en semi-statique (4 passes).*
+
 ### 29 juillet — Exp 9 monospot étendu à 4 courants (bord y=0)
 Ajout des monospots **175 / 226 / 250 A** (+ 175 A semi-statique) à côté du 200 A. Tous coupés au
 même pic (~270 °C au spot, échantillons réutilisables) → les **profils normalisés au spot se
 superposent en une seule courbe** (0,02 / 0,08 / 1,00 / 0,14 / 0,03) : la **forme de la source en
 longueur est INVARIANTE avec le courant**, et le modèle (forme symétrique) la reproduit. Figure de
 présentation refondue en 2 panneaux (absolu °C + normalisé) : `biblio/labo/figures/fig_dissipation_monospot.png`.
+
+**Figures**
+
+![Spot fixe à 4 courants : profils absolus (°C) et normalisés — les profils normalisés se superposent en une seule courbe.](labo/figures/fig_dissipation_monospot.png)
+*Spot fixe à 4 courants : profils absolus (°C) et normalisés — les profils normalisés se superposent en une seule courbe.*
 
 ### 30 juillet — Consolidation du jumeau (θ\* canonique, essais labo formels)
 Consolidation groupée pilotée par agents (design : `biblio/superpowers/specs/2026-07-29-consolidation-jumeau-design.md`).
@@ -231,6 +327,11 @@ Consolidation groupée pilotée par agents (design : `biblio/superpowers/specs/2
   uniforme ne le corrige. Le vrai levier = **changement de modèle** (adoucir le M en largeur, forme
   de source), pas la calibration. Logs : `donnees/journaux/archive/resultats_calibration_joint_*.log`.
 
+**Figures**
+
+![Mesure directe de la conductivité dans le plan (campagne longitudinale, spot à x = 60) : (a) étalement en longueur, longueur caractéristique ≈ 26 mm ; (b) refroidissement après coupure, constante de temps ≈ 207 s.](labo/figures/fig_kplan_direct_exp9.png)
+*Mesure directe de la conductivité dans le plan (campagne longitudinale, spot à x = 60) : (a) étalement en longueur, longueur caractéristique ≈ 26 mm ; (b) refroidissement après coupure, constante de temps ≈ 207 s.*
+
 ### 31 juillet — Forme du M (lambda_bord), contraste réel, piste taux-de-chauffe
 Suite de la calibration jointe : on s'attaque à la FORME du M.
 - **Le sur-contraste vient de la CL `ψ=0` au chant** (`em/foucault.py`) — exacte pour une nappe
@@ -253,6 +354,11 @@ Suite de la calibration jointe : on s'attaque à la FORME du M.
   joint gagnant même une fois le M adouci. **Prochaine investigation = le taux de chauffe /
   transitoire** (dépôt de puissance instantané, masse thermique effective, dynamique de source) —
   hors calibration scalaire.
+
+**Figures**
+
+![Profil en largeur, mesure vs modèle, recalculé en direct : contraste modèle ~3,15 contre ~2,09 mesuré.](labo/figures/fig2_mesure_modele.png)
+*Profil en largeur, mesure vs modèle, recalculé en direct : contraste modèle ~3,15 contre ~2,09 mesuré.*
 
 ### 31 juillet (suite) — Taux de chauffe : UN SEUL défaut d'étalement in-plane (3D écarté)
 Investigation dédiée (`code/scripts/diag/diag_taux_dTdt_sous_hors_spot.py`, `diag_sensibilite_taux_leviers.py`,
@@ -295,6 +401,32 @@ rapide (−67 %), un seul défaut = étalement in-plane scalaire. `k_plan=3,0` r
   centre encore froid. **Signal qualitatif** (M adouci) ; absolu biaisé bas → **à mesurer au banc**.
   `code/scripts/gen/gen_mfc_reduit.py`, `fig_mfc_reduit.png`.
 
+**Figures**
+
+![Prédiction T(t) au chant pour plusieurs courants.](modele/figures/fig_prediction_chauffe_courant.png)
+*Prédiction T(t) au chant pour plusieurs courants.*
+
+![Prédiction des 5 TC, un panneau par courant.](modele/figures/fig_prediction_chauffe_par_courant.png)
+*Prédiction des 5 TC, un panneau par courant.*
+
+![Profil en « M » prédit selon le courant.](modele/figures/fig_prediction_profil_M.png)
+*Profil en « M » prédit selon le courant.*
+
+![Distribution de température en longueur prédite selon le courant (extrapolation).](modele/figures/fig_prediction_profil_longueur.png)
+*Distribution de température en longueur prédite selon le courant (extrapolation).*
+
+![Carte de température à l'interface prédite par le jumeau (empreinte de soudure).](modele/figures/fig_empreinte_soudure.png)
+*Carte de température à l'interface prédite par le jumeau (empreinte de soudure).*
+
+![Procédé semi-statique à 4 passes prédit : soudure en deux rails le long des chants, centre non soudé.](modele/figures/fig_procede_semistatique.png)
+*Procédé semi-statique à 4 passes prédit : soudure en deux rails le long des chants, centre non soudé.*
+
+![Loi de réglage durée × courant (t ≈ 9,6·10⁵/I²).](modele/figures/fig_loi_reglage.png)
+*Loi de réglage durée × courant (t ≈ 9,6·10⁵/I²).*
+
+![MFC réduit (31,75 mm) avec masque de source : M adouci, points chauds vers l'intérieur (signal qualitatif).](modele/figures/fig_mfc_reduit.png)
+*MFC réduit (31,75 mm) avec masque de source : M adouci, points chauds vers l'intérieur (signal qualitatif).*
+
 ---
 
 ### 3-4 août — Consolidation : six décisions actées, huit issues closes
@@ -315,6 +447,11 @@ facteur propre à B-2 et ne survit pas à un fit qui partage le facteur entre fa
 **Vérification croisée EM** : `eppy` (Grouve, Nagel 2019) sert de **second solveur indépendant**
 et corrobore le contraste M ≈ 3 comme physique de plaque mince réelle, champ de réaction
 négligeable au régime.
+
+**Figures**
+
+![Définitions de la loi de Biot-Savart, reproduites du dépôt eppy (W.J.B. Grouve) — second solveur EM de vérification.](presentations/figures_schemas/ext/biot_savart_grouve.png)
+*Définitions de la loi de Biot-Savart, reproduites du dépôt eppy (W.J.B. Grouve) — second solveur EM de vérification.*
 
 ### 7 août — Planificateur de soudage uniforme (#31-#37) — verdict NON
 
@@ -338,10 +475,23 @@ est **NO-GO** en held-out (13,8 → 19,3) : la config reste inchangée.
 **Six-probe** : l'extraction inverse de conductivité est codée (#49) puis la campagne est
 abandonnée (#50, #51 *not planned*). Du code livré pour une mesure qui ne se fera pas.
 
+**Figures**
+
+![Carte de faisabilité source × conduction : aucun réglage n'amène le contraste du M dans la cible sans dégrader le RMSE hors-échantillon (~26 °C).](modele/figures/pareto_source_conduction.png)
+*Carte de faisabilité source × conduction : aucun réglage n'amène le contraste du M dans la cible sans dégrader le RMSE hors-échantillon (~26 °C).*
+
+![k_plan effectif identifié à chaque courant : constant (≈ 7,5), environ 2,5× la valeur physique 3,0.](modele/figures/fig_kplan_courant.png)
+*k_plan effectif identifié à chaque courant : constant (≈ 7,5), environ 2,5× la valeur physique 3,0.*
+
 ### 22 août — La campagne MFC est écrite (#55-#63)
 
 Neuf issues créées d'un bloc, protocole `biblio/labo/protocole_mfc_reduit.md`. **Aucune n'a
 encore été exécutée au 16 septembre** — c'est le goulot du projet.
+
+**Figures**
+
+![Fiber flow sous un spot de pression localisé : la matière flue vers tous les bords libres, où les fibres sont expulsées (squeeze-out).](presentations/figures_schemas/fig_fiber_flow_spot_3d.png)
+*Fiber flow sous un spot de pression localisé : la matière flue vers tous les bords libres, où les fibres sont expulsées (squeeze-out).*
 
 ### 26-31 août — L'essai 231 A valide le cycle, et révèle la fusion
 
@@ -359,6 +509,89 @@ la config canonique y produit un **faux positif systématique** de dégradation 
 **Correction de bord en x activée par défaut** (`0dab38d`) : l'effondrement de la source aux
 extrémités était pathologique, le center-peaking ne l'était pas.
 
+**Figures**
+
+![Cycle semi-statique prédit à 130 A (avance dès que l'interface repasse sous Tg).](labo/figures/fig_cycle_parfait_semistatique_130A.png)
+*Cycle semi-statique prédit à 130 A (avance dès que l'interface repasse sous Tg).*
+
+![Cycle semi-statique prédit à 160 A.](labo/figures/fig_cycle_parfait_semistatique_160A.png)
+*Cycle semi-statique prédit à 160 A.*
+
+![Cycle semi-statique prédit à 230 A.](labo/figures/fig_cycle_parfait_semistatique_230A.png)
+*Cycle semi-statique prédit à 230 A.*
+
+![Cycle semi-statique prédit à 275 A.](labo/figures/fig_cycle_parfait_semistatique_275A.png)
+*Cycle semi-statique prédit à 275 A.*
+
+![Seuil de refroidissement entre passes, 120 °C contre Tg (159 °C) : repartir sous Tg raccourcit le cycle de 4 passes de 21 à 34 % (160-275 A) ; 130 A ne soude pas.](labo/figures/fig_cycle_parfait_comparaison_seuil.png)
+*Seuil de refroidissement entre passes, 120 °C contre Tg (159 °C) : repartir sous Tg raccourcit le cycle de 4 passes de 21 à 34 % (160-275 A) ; 130 A ne soude pas.*
+
+![Réchauffe maximale de chaque joint déjà soudé par les passes suivantes, rapportée à Tg : avec l'avance au seuil Tg, les joints restent juste sous Tg (−0,2 à −0,4 °C) à tous les courants.](labo/figures/fig_readoucissement_joint.png)
+*Réchauffe maximale de chaque joint déjà soudé par les passes suivantes, rapportée à Tg : avec l'avance au seuil Tg, les joints restent juste sous Tg (−0,2 à −0,4 °C) à tous les courants.*
+
+![Cycle 231 A prédit par le modèle seul, avant l'essai (sans données banc).](labo/figures/fig_predit_231A_seul.png)
+*Cycle 231 A prédit par le modèle seul, avant l'essai (sans données banc).*
+
+![Cycle 230 A prédit, coupure pilotée sur les TC à 390 °C.](labo/figures/fig_cycle_230A_TC390.png)
+*Cycle 230 A prédit, coupure pilotée sur les TC à 390 °C.*
+
+![Essai réel 231 A (26 août) : TC mesurés.](labo/figures/fig_exp_231A_mesure.png)
+*Essai réel 231 A (26 août) : TC mesurés.*
+
+![Validation 231 A : TC mesurés vs prédits — pics intérieurs TC2/3/4 à ± 12-20 °C.](labo/figures/fig_compare_230A_vs_reel.png)
+*Validation 231 A : TC mesurés vs prédits — pics intérieurs TC2/3/4 à ± 12-20 °C.*
+
+![Validation 231 A : correction du coin x = 0 (TC1).](labo/figures/fig_compare_230A_vs_reel_coin.png)
+*Validation 231 A : correction du coin x = 0 (TC1).*
+
+![Confrontation 231 A v2, source canonique, avant correction.](labo/figures/fig_compare_231A_v2.png)
+*Confrontation 231 A v2, source canonique, avant correction.*
+
+![Confrontation 231 A v2 après correction de l'artefact de source au bord.](labo/figures/fig_compare_231A_v2_corrige.png)
+*Confrontation 231 A v2 après correction de l'artefact de source au bord.*
+
+![Diagramme de parité mesuré / prédit, essai 231 A.](labo/figures/fig_parite_231A.png)
+*Diagramme de parité mesuré / prédit, essai 231 A.*
+
+![Analyse de la rampe 231 A : saturation à la fusion (plateau 350-390 °C).](labo/figures/fig_rampe_231A.png)
+*Analyse de la rampe 231 A : saturation à la fusion (plateau 350-390 °C).*
+
+![Modèle de fusion sur 231 A : reproduit le plateau, plafond d'interface ~500 °C.](labo/figures/fig_valider_fusion_231A.png)
+*Modèle de fusion sur 231 A : reproduit le plateau, plafond d'interface ~500 °C.*
+
+![Ablation chaleur latente × transport du bain : contribution de chaque ingrédient du modèle de fusion.](labo/figures/fig_ablation_fusion_231A.png)
+*Ablation chaleur latente × transport du bain : contribution de chaque ingrédient du modèle de fusion.*
+
+![TC4/TC5 : décorrélation accumulation de chaleur vs effet de bord.](labo/figures/fig_axe2_tc45_231A.png)
+*TC4/TC5 : décorrélation accumulation de chaleur vs effet de bord.*
+
+![Diagnostic de TC5 au bord : artefact de source.](labo/figures/fig_diag_tc5_bord.png)
+*Diagnostic de TC5 au bord : artefact de source.*
+
+![Recalibration sur l'essai 231 A.](labo/figures/fig_valider_recalibration_231A.png)
+*Recalibration sur l'essai 231 A.*
+
+![La recalibration sur 231 A, testée sur les essais tenus à l'écart : NO-GO.](labo/figures/fig_heldout_recalibration_231A.png)
+*La recalibration sur 231 A, testée sur les essais tenus à l'écart : NO-GO.*
+
+![Diagnostic du refroidissement entre passes (modèle ~10 % trop lent).](labo/figures/fig_diag_refroidissement_231A.png)
+*Diagnostic du refroidissement entre passes (modèle ~10 % trop lent).*
+
+![Diagnostic de la conduction latérale, 231 A.](labo/figures/fig_diag_conduction_laterale_231A.png)
+*Diagnostic de la conduction latérale, 231 A.*
+
+![Test d'un rayonnement de face sur 231 A.](labo/figures/fig_test_rayonnement_face_231A.png)
+*Test d'un rayonnement de face sur 231 A.*
+
+![Rayonnement de face testé sur les campagnes en largeur et en longueur (held-out).](labo/figures/fig_heldout_rayonnement_face.png)
+*Rayonnement de face testé sur les campagnes en largeur et en longueur (held-out).*
+
+![Prédiction du cycle à 160 A (volet bas de la campagne de validation).](labo/figures/fig_cycle_160A_prediction.png)
+*Prédiction du cycle à 160 A (volet bas de la campagne de validation).*
+
+![Prédiction du cycle à 275 A, disposition v2 (volet haut).](labo/figures/fig_cycle_275A_v2_prediction.png)
+*Prédiction du cycle à 275 A, disposition v2 (volet haut).*
+
 ### 1-6 septembre — Thermographie plein champ : un défaut de SOURCE, pas de conduction (#69)
 
 Campagne FLIR sur plaque CF/PEKK découplée, plafond sous Tg. Trois résultats, dans cet ordre :
@@ -375,6 +608,65 @@ Campagne FLIR sur plaque CF/PEKK découplée, plafond sous Tg. Trois résultats,
 **`h_bord_x0` recalibré en held-out : 250 → 125** (`fc92052`). `= 0` reste **réfuté** (+98 °C
 sur TC1) malgré ce que suggérait le près-bord FLIR. L'agrégat « +0,2-0,4 °C » de la correction
 de bord masquait en réalité TC1 −72 °C et TC5 +36 °C.
+
+**Figures**
+
+![Montage de la thermographie plein champ : caméra FLIR au-dessus d'une plaque CF/PEKK découplée.](labo/figures/issue69/schema_montage_flir.png)
+*Montage de la thermographie plein champ : caméra FLIR au-dessus d'une plaque CF/PEKK découplée.*
+
+![Même montage, format paysage.](presentations/figures_schemas/schema_montage_flir_paysage.png)
+*Même montage, format paysage.*
+
+![Champ thermique au pic, recalé en mm.](labo/figures/issue69/champ_mm_pic.png)
+*Champ thermique au pic, recalé en mm.*
+
+![Champ thermique à 200 A, recalé en mm.](labo/figures/issue69/champ_mm_200.png)
+*Champ thermique à 200 A, recalé en mm.*
+
+![Spot au bord : chaleur confinée à x ≈ 0-50 mm, froide au-delà.](labo/figures/issue69/champ_mm_bord.png)
+*Spot au bord : chaleur confinée à x ≈ 0-50 mm, froide au-delà.*
+
+![Profils transverses au pic.](labo/figures/issue69/transverses_pic.png)
+*Profils transverses au pic.*
+
+![Profils longitudinaux au pic.](labo/figures/issue69/longitudinaux_pic.png)
+*Profils longitudinaux au pic.*
+
+![Comparaison longitudinale rigoureuse mesure / modèle.](labo/figures/issue69/compare_rigoureux_longi.png)
+*Comparaison longitudinale rigoureuse mesure / modèle.*
+
+![Comparaison longitudinale à 200 A.](labo/figures/issue69/compare_200_longi.png)
+*Comparaison longitudinale à 200 A.*
+
+![Spot au bord : la mesure montre une double bosse, les 4 configurations du modèle un pic unique.](labo/figures/issue69/compare_bord.png)
+*Spot au bord : la mesure montre une double bosse, les 4 configurations du modèle un pic unique.*
+
+![Cartes de source, prototype bimodal (deux jambes du hairpin) vs pic unique.](labo/figures/issue69/proto_source_maps.png)
+*Cartes de source, prototype bimodal (deux jambes du hairpin) vs pic unique.*
+
+![Profils longitudinaux avec la source bimodale prototype.](labo/figures/issue69/proto_bimodal_longi.png)
+*Profils longitudinaux avec la source bimodale prototype.*
+
+![Robustesse de la source bimodale sur trois conditions.](labo/figures/issue69/robustesse.png)
+*Robustesse de la source bimodale sur trois conditions.*
+
+![Calibration de la largeur des jambes (σ ≈ 2,5 mm).](labo/figures/issue69/calibration_bimodal.png)
+*Calibration de la largeur des jambes (σ ≈ 2,5 mm).*
+
+![Validation du flag bimodal : σ contrôle la profondeur du creux thermique.](labo/figures/issue69/valide_flag_bimodal.png)
+*Validation du flag bimodal : σ contrôle la profondeur du creux thermique.*
+
+![Correction du tilt d'image (symétrisation).](labo/figures/issue69/detilt_calibration.png)
+*Correction du tilt d'image (symétrisation).*
+
+![k_plan ré-ouvert une fois source et tilt traités : élevé (≥ 7,5), k = 3 donne une largeur bien trop étroite.](labo/figures/issue69/kplan_reouvert.png)
+*k_plan ré-ouvert une fois source et tilt traités : élevé (≥ 7,5), k = 3 donne une largeur bien trop étroite.*
+
+![h_bord_x0 ré-ouvert sur le près-bord FLIR.](labo/figures/issue69/hbord_reouvert.png)
+*h_bord_x0 ré-ouvert sur le près-bord FLIR.*
+
+![Balayage de h_bord_x0 en held-out : 125 retenu, 0 réfuté.](labo/figures/issue69/hbord_sweep_heldout.png)
+*Balayage de h_bord_x0 en held-out : 125 retenu, 0 réfuté.*
 
 ### 9-13 septembre — Infrastructure littérature
 
@@ -399,6 +691,53 @@ Découverte annexe qui éclaire tout le reste : **le centre de la largeur est un
 exacte de la dissipation** (y = 20 mm, puissance Joule nulle par symétrie). Il ne chauffe que
 par conduction latérale — aucune géométrie de concentrateur ne change cela.
 
+**Figures**
+
+![Champ EM de la bobine seule.](modele/figures/fig_champ_em_1_bobine_seule.png)
+*Champ EM de la bobine seule.*
+
+![Champ EM avec le MFC de 55 mm.](modele/figures/fig_champ_em_2_mfc_actuel.png)
+*Champ EM avec le MFC de 55 mm.*
+
+![Champ EM avec le MFC réduit.](modele/figures/fig_champ_em_3_mfc_reduit.png)
+*Champ EM avec le MFC réduit.*
+
+![Puissance déposée en largeur selon la configuration de MFC.](modele/figures/fig_mfc_cmp_1_puissance.png)
+*Puissance déposée en largeur selon la configuration de MFC.*
+
+![Profils d'interface selon la configuration de MFC.](modele/figures/fig_mfc_cmp_2_profils.png)
+*Profils d'interface selon la configuration de MFC.*
+
+![Carte de température d'interface au pic, sans MFC.](modele/figures/fig_mfc_cmp_3a_sans_mfc.png)
+*Carte de température d'interface au pic, sans MFC.*
+
+![Carte de température d'interface au pic, MFC 55 mm.](modele/figures/fig_mfc_cmp_3b_mfc_55.png)
+*Carte de température d'interface au pic, MFC 55 mm.*
+
+![Carte de température d'interface au pic, MFC réduit, famille A.](modele/figures/fig_mfc_cmp_3c_reduit_A.png)
+*Carte de température d'interface au pic, MFC réduit, famille A.*
+
+![Carte de température d'interface au pic, MFC réduit, famille B.](modele/figures/fig_mfc_cmp_3d_reduit_B.png)
+*Carte de température d'interface au pic, MFC réduit, famille B.*
+
+![Cycles prédits pour chaque configuration de MFC.](modele/figures/fig_mfc_cmp_4_cycles.png)
+*Cycles prédits pour chaque configuration de MFC.*
+
+![Carte de puissance déposée (kW/m²), sans MFC.](modele/figures/fig_mfc_cmp_5a_sans_mfc.png)
+*Carte de puissance déposée (kW/m²), sans MFC.*
+
+![Carte de puissance déposée (kW/m²), MFC 55 mm.](modele/figures/fig_mfc_cmp_5b_mfc_55.png)
+*Carte de puissance déposée (kW/m²), MFC 55 mm.*
+
+![Carte de puissance déposée (kW/m²), MFC réduit, famille A.](modele/figures/fig_mfc_cmp_5c_reduit_A.png)
+*Carte de puissance déposée (kW/m²), MFC réduit, famille A.*
+
+![Carte de puissance déposée (kW/m²), MFC réduit, famille B.](modele/figures/fig_mfc_cmp_5d_reduit_B.png)
+*Carte de puissance déposée (kW/m²), MFC réduit, famille B.*
+
+![Répartition de la puissance Joule dans l'épaisseur selon la configuration de MFC.](modele/figures/fig_mfc_cmp_6_joule_epaisseur.png)
+*Répartition de la puissance Joule dans l'épaisseur selon la configuration de MFC.*
+
 ### 15-16 septembre — Plan de passes, pas optimal, et critère de dégradation
 
 - **Le verdict « pas de soudage uniforme » tient dans les quatre hypothèses** de MFC réduit,
@@ -419,6 +758,35 @@ par conduction latérale — aucune géométrie de concentrateur ne change cela.
   pic n'était qu'à 403 °C, mais tenu 1600 s, soit 10 à 19 fois la dose admissible.
 - **Le critère de succès de #55 est réécrit** : il désignait une seule des trois familles, celle
   identifiée comme l'intrus. Table de verdict à quatre observables, tous en rapports.
+
+**Figures**
+
+![Carte de couverture du planificateur : seules des bandes de bord se soudent sans dégrader.](modele/figures/fig_plan_soudage_couverture.png)
+*Carte de couverture du planificateur : seules des bandes de bord se soudent sans dégrader.*
+
+![Plan de passes pour les familles de MFC réduit.](modele/figures/fig_plan_passes_familles.png)
+*Plan de passes pour les familles de MFC réduit.*
+
+![Balayage du pas entre passes : il existe un optimum, et il renverse la comparaison.](modele/figures/fig_balayage_pas_mfc_reduit.png)
+*Balayage du pas entre passes : il existe un optimum, et il renverse la comparaison.*
+
+![Positions des passes au pas optimal.](modele/figures/fig_positions_passes_pas_optimal.png)
+*Positions des passes au pas optimal.*
+
+![Séquence de 4 passes, MFC réduit.](modele/figures/fig_sequence_4passes_mfc_reduit.png)
+*Séquence de 4 passes, MFC réduit.*
+
+![Limite de la modulation du courant : le rapport chaud/froid stationnaire ne change pas.](modele/figures/fig_modulation_courant_limite.png)
+*Limite de la modulation du courant : le rapport chaud/froid stationnaire ne change pas.*
+
+![Les deux leviers de conduite (courant et durée).](modele/figures/fig_modulation_deux_leviers.png)
+*Les deux leviers de conduite (courant et durée).*
+
+![Critère de dégradation en dose d'Arrhenius (temps × température) à la place du seuil de pic.](modele/figures/fig_critere_dose_degradation.png)
+*Critère de dégradation en dose d'Arrhenius (temps × température) à la place du seuil de pic.*
+
+![Substitut de tube : chemins de l'effort de consolidation (issue #71).](labo/figures/fig_substitut_tube_chemins_effort.png)
+*Substitut de tube : chemins de l'effort de consolidation (issue #71).*
 
 ### 16 septembre — Le critère de dégradation est refait, et les figures y sont migrées
 
@@ -481,6 +849,26 @@ Et un fait de géométrie que la cotation rend évident : l'empreinte du bloc de
 plaque en largeur** (55 mm pour 40), là où le bloc réduit laisse 4,1 mm de chant découvert de
 chaque côté.
 
+**Figures**
+
+![Fenêtre de soudage courant × durée, borne haute jugée à la dose cumulée.](labo/figures/fig_fenetre_soudage.png)
+*Fenêtre de soudage courant × durée, borne haute jugée à la dose cumulée.*
+
+![Ce que coûte d'amener toute la matière au-dessus de la fusion en 4 passes.](modele/figures/fig_4passes_toute_matiere_337.png)
+*Ce que coûte d'amener toute la matière au-dessus de la fusion en 4 passes.*
+
+![Séquence de passes, MFC réduit au pas de 15 mm : les zones soudées fusionnent en deux cordons continus.](modele/figures/fig_passes_muettes_pas15mm.png)
+*Séquence de passes, MFC réduit au pas de 15 mm : les zones soudées fusionnent en deux cordons continus.*
+
+![MFC réduit au pas de 22,5 mm : îlots soudés disjoints.](modele/figures/fig_passes_muettes_pas22mm.png)
+*MFC réduit au pas de 22,5 mm : îlots soudés disjoints.*
+
+![MFC 55 mm au pas de 22,5 mm : même îlotage, c'est le pas qui commande.](modele/figures/fig_passes_muettes_mfc55_pas22mm.png)
+*MFC 55 mm au pas de 22,5 mm : même îlotage, c'est le pas qui commande.*
+
+![Séquence de passes au pas de 15 mm, MFC réduit.](modele/figures/fig_sequence_passes_mfc_reduit_pas15mm.png)
+*Séquence de passes au pas de 15 mm, MFC réduit.*
+
 ### 22-23 septembre — La campagne « épaisseur » passe de un à quatre courants
 
 Trois courants de plus sur le même montage à 3 TC empilés (174, 201 et 226 A deux fois),
@@ -509,6 +897,14 @@ Rapports pris à l'instant du pic d'interface. Courant lu dans la cellule du cla
 dans le nom de feuille. Fiches d'essai : `code/config/essais/chauffe_*_3TC*.yaml` ; détail et
 durées de cycle saisies par l'opérateur : `donnees/data/epaisseur_3TC_2026-05/README.md`.
 
+**Figures**
+
+![Montage à 3 TC empilés au même point : surface, interface, face opposée.](labo/figures/issue74/fig74_montage_3TC.png)
+*Montage à 3 TC empilés au même point : surface, interface, face opposée.*
+
+![Les 5 essais à 3 TC : rapport face opposée / interface au pic de 0,32 à 0,48.](labo/figures/issue74/fig74_mesures_3TC.png)
+*Les 5 essais à 3 TC : rapport face opposée / interface au pic de 0,32 à 0,48.*
+
 ### 28 septembre — Le montage « tube substitut » et le ménage des issues
 
 **Nouveau montage (#73)** : un tube entièrement en CF/PEKK, assemblé à partir de plaques
@@ -523,6 +919,20 @@ ne tranche. Schéma à trois vues : `biblio/labo/figures/fig_montage_tube_substi
 #59 → #15 (Mesure C), #72 → #66 (validation 160 A et 275 A dans une seule campagne) ; #64 close
 (volet 231 A fait) ; dépendances natives #71 ← #73 et #60 ← #55. Ouverture de **#74**
 (transfert thermique dans l'épaisseur).
+
+**Figures**
+
+![Montage du tube substitut CF/PEKK (trois vues ; tube 240 mm, connecteur 120 mm).](labo/figures/fig_montage_tube_substitut.png)
+*Montage du tube substitut CF/PEKK (trois vues ; tube 240 mm, connecteur 120 mm).*
+
+![Tube substitut : mécanismes en jeu (Q1 tenue des murs, Q2 thermique de la face intérieure).](labo/figures/issue73/fig73_mecanismes.png)
+*Tube substitut : mécanismes en jeu (Q1 tenue des murs, Q2 thermique de la face intérieure).*
+
+![Mesures de référence à plat utilisées pour juger le tube.](labo/figures/issue73/fig73_references.png)
+*Mesures de référence à plat utilisées pour juger le tube.*
+
+![Instrumentation prévue sur le tube.](labo/figures/issue73/fig73_instrumentation.png)
+*Instrumentation prévue sur le tube.*
 
 ### 29-30 septembre — Le gradient d'épaisseur : c'est le transport, pas la source (#74)
 
@@ -552,6 +962,29 @@ levier. **Résistance d'interface levée à la fusion** : corrige les coins des 
 d'environ 60 °C (TC1 +106/+80/+40 → +42/+18/−20 °C), mais échoue sur le 226 A à chauffe longue.
 Leur **combinaison** se place entre les deux, sans synergie : frontière de compromis.
 
+**Figures**
+
+![Mécanismes candidats du gradient d'épaisseur.](labo/figures/issue74/fig74_mecanismes.png)
+*Mécanismes candidats du gradient d'épaisseur.*
+
+![Essai 201 A à 3 TC : mesure vs 3D actuel.](labo/figures/issue74/fig74_courbes_201A.png)
+*Essai 201 A à 3 TC : mesure vs 3D actuel.*
+
+![Carte des pertes de face (h_contact × h_bas) : le bon rapport n'est atteint qu'avec des pertes fortes.](labo/figures/issue74/fig74_carte_pertes.png)
+*Carte des pertes de face (h_contact × h_bas) : le bon rapport n'est atteint qu'avec des pertes fortes.*
+
+![Validation du 3D sur les séries A/B et la campagne longitudinale pour chaque jeu de paramètres.](labo/figures/issue74/fig74_validation_3D.png)
+*Validation du 3D sur les séries A/B et la campagne longitudinale pour chaque jeu de paramètres.*
+
+![Coût joint en fonction du facteur de couplage, par configuration.](labo/figures/issue74/fig74_compromis_facteur.png)
+*Coût joint en fonction du facteur de couplage, par configuration.*
+
+![Combinaison des mécanismes : frontière de compromis, sans synergie.](labo/figures/issue74/fig74_compromis_combinaison.png)
+*Combinaison des mécanismes : frontière de compromis, sans synergie.*
+
+![Vue de côté du flux de chaleur, 3D actuel vs transport ralenti sous l'interface (pic et +100 s).](labo/figures/issue74/fig74_flux_epaisseur.png)
+*Vue de côté du flux de chaleur, 3D actuel vs transport ralenti sous l'interface (pic et +100 s).*
+
 ### 1er octobre — Correctif : au niveau réel, la résistance levée à la fusion ne tient pas
 
 Les « 5 essais sur 5 » de la résistance levée à la fusion et de la combinaison n'étaient
@@ -565,6 +998,11 @@ marquées « corrigé le 2026-10-01 »).
 
 Figures de compréhension pour #74 : montage à 3 TC, mesures brutes des 5 essais, schéma des
 mécanismes, vue de côté du flux de chaleur (`biblio/labo/figures/issue74/`).
+
+**Figures**
+
+![Flux de chaleur pour la combinaison des mécanismes.](labo/figures/issue74/fig74_flux_combinaison.png)
+*Flux de chaleur pour la combinaison des mécanismes.*
 
 ### 1er-2 octobre — Ce que le jumeau prédit pour le tube substitut (#73)
 
@@ -600,6 +1038,14 @@ du niveau mesuré : seule la comparaison à plat / tube de la face du bas est ex
 120 mm, un tube allongé refroidit les extrémités du connecteur (TC1 −34 °C, TC5 −39 °C) sans
 toucher l'intérieur ; 180 et 240 mm sont équivalents.
 
+**Figures**
+
+![Face intérieure du tube vs face opposée à plat : spot fixe, cycle à 4 passes, sensibilité à la perte de cavité.](labo/figures/issue73/fig73_simulation_face_interieure.png)
+*Face intérieure du tube vs face opposée à plat : spot fixe, cycle à 4 passes, sensibilité à la perte de cavité.*
+
+![Tube de 120 mm vs tube allongé : écart sur les TC (non publié dans #73).](labo/figures/fig_tube_allonge_ecart.png)
+*Tube de 120 mm vs tube allongé : écart sur les TC (non publié dans #73).*
+
 ### 2 octobre — Figures de compréhension pour #73, #71 et #66
 
 Pour chaque issue, trois figures dans le même esprit : schéma des mécanismes, mesures de
@@ -613,6 +1059,26 @@ référence, instrumentation ou protocole (`biblio/labo/figures/issue73/`, `issu
   12 °C/s prévus à 160 A, 42 °C/s à 275 A). Et **la disposition v2 n'a aucun TC au point chaud**
   où doit se faire la coupure à 160 A : ajouter des TC sous les spots, ou couper à durée fixe
   sur des durées figées avant la mesure.
+
+**Figures**
+
+![#71 : hauteur du U + plaques face à la course sous l'outil — jeu positif (la vessie porte) ou interférence (les parois court-circuitent la vessie), à froid puis à chaud.](labo/figures/issue71/fig71_condition_cotes.png)
+*#71 : hauteur du U + plaques face à la course sous l'outil — jeu positif (la vessie porte) ou interférence (les parois court-circuitent la vessie), à froid puis à chaud.*
+
+![#71 : contrôle croisé — cellule de force et manomètre de vessie ; F = p·A tant qu'aucune paroi ne porte.](labo/figures/issue71/fig71_controle_croise.png)
+*#71 : contrôle croisé — cellule de force et manomètre de vessie ; F = p·A tant qu'aucune paroi ne porte.*
+
+![#71 : température maximale mesurée à plat sur la face au contact de la future vessie, face aux limites de service (Rishon, silicone, EPDM/nitrile).](labo/figures/issue71/fig71_temperature_vessie.png)
+*#71 : température maximale mesurée à plat sur la face au contact de la future vessie, face aux limites de service (Rishon, silicone, EPDM/nitrile).*
+
+![#66 : essais réalisés par campagne sur l'axe du courant, boîte de calibration et deux cibles (160 / 275 A).](labo/figures/issue66/fig66_domaine.png)
+*#66 : essais réalisés par campagne sur l'axe du courant, boîte de calibration et deux cibles (160 / 275 A).*
+
+![#66 : loi en I² et extrapolation aux deux cibles.](labo/figures/issue66/fig66_loi_I2.png)
+*#66 : loi en I² et extrapolation aux deux cibles.*
+
+![#66 : TC de la disposition v2 et capteur qui commande la coupure à 160 A et à 275 A.](labo/figures/issue66/fig66_protocoles.png)
+*#66 : TC de la disposition v2 et capteur qui commande la coupure à 160 A et à 275 A.*
 
 ---
 
