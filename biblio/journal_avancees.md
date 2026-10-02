@@ -996,7 +996,10 @@ Leur **combinaison** se place entre les deux, sans synergie : frontière de comp
 > sort à ~330 °C contre 167 °C mesuré. Colonne du milieu : k_z du stratifié inférieur abaissé à
 > 0,10 W/(m·K) — la chaleur reste au-dessus de l'interface et la face opposée tombe sur la mesure.
 > Colonne de droite : profils T(z) des deux modèles contre les 3 points mesurés ; à +100 s, le
-> modèle ralenti suit encore la mesure, le 3D actuel reste ~150 °C trop chaud.
+> modèle ralenti s'en rapproche nettement (+50 à +105 °C selon la face), le 3D actuel reste
+> 160 à 185 °C trop chaud — aucun des deux ne refroidit encore assez vite au point des 3 TC,
+> qui est au centre de la boucle et dont le niveau absolu est faussé par la limite d'étalement
+> dans le plan (#74).
 
 ### 1er octobre — Correctif : au niveau réel, la résistance levée à la fusion ne tient pas
 
