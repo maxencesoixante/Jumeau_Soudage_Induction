@@ -143,10 +143,15 @@ def carte(ax, d, k_t, tm, mes, k_m):
     ax.set_xlim(*FEN)
     ax.set_ylim(-sch.L_INF - 0.6, Z_HAUT)
     ax.set_yticks([-sch.L_INF, -sch.E_SUP, 0, sch.GAP_CERAM, sch.H_TUBE_TOP])
-    ax.set_yticklabels(["−6,8", "−3,4", "0", "2", "8"])
+    ax.set_yticklabels([mm(-sch.L_INF), mm(-sch.E_SUP), "0", "2", "8"])
     for s in ("top", "right"):
         ax.spines[s].set_visible(False)
     return im
+
+
+def mm(v):
+    """Cote en mm à deux décimales, virgule et vrai signe moins (−3,36 ; −6,82)."""
+    return f"{v:.2f}".replace("-", "−").replace(".", ",")
 
 
 def main(configs=("actuel", "ralenti"), nom_fig="fig74_flux_epaisseur.png"):
@@ -192,7 +197,7 @@ def main(configs=("actuel", "ralenti"), nom_fig="fig74_flux_epaisseur.png"):
         ax.set_ylim(-sch.L_INF - 0.4, 0.4)
         ax.set_xlim(0, TMAX)
         ax.set_yticks([-sch.L_INF, -sch.E_SUP, 0])
-        ax.set_yticklabels(["−6,8", "−3,4", "0"])
+        ax.set_yticklabels([mm(-sch.L_INF), mm(-sch.E_SUP), "0"])
         if r == 0:
             ax.set_title("Profil T(z), colonne des TC", fontsize=9.5)
             ax.legend(frameon=False, fontsize=6.8, loc="upper left")
