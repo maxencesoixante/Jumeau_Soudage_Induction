@@ -18,6 +18,14 @@ Tester le pouvoir prédictif du jumeau **de part et d'autre du 231 A**, déjà v
 
 Les deux volets partagent : le cycle semi-statique à 4 passes (mode opératoire serieA/B), des **prédictions figées avant la mesure**, et une validation **sans recalibration** (held-out pur).
 
+![Domaine des essais réalisés](https://raw.githubusercontent.com/maxencesoixante/Jumeau_Soudage_Induction/main/biblio/labo/figures/issue66/fig66_domaine.png?v=1)
+
+*Tous les essais réalisés, par campagne, sur l'axe du courant. Zone grisée : boîte de calibration (150–250 A). Le 160 A est dans la boîte mais dans sa partie basse, où un seul essai existe (exp7 à 150 A) ; le 275 A est au-delà de tout ce qui a été mesuré.*
+
+![Loi en I²](https://raw.githubusercontent.com/maxencesoixante/Jumeau_Soudage_Induction/main/biblio/labo/figures/issue66/fig66_loi_I2.png?v=1)
+
+*Ce que les deux volets testent sur la source : taux de chauffe mesuré au chant (exp7, élévation de 30 à 130 °C, min–max des répétitions) en fonction de I². L'ajustement R = k·I² − L (R² = 0,999, perte L = 3,4 °C/s) prévoit 12 °C/s à 160 A et 42 °C/s à 275 A.*
+
 ⚠️ **Les deux volets n'ont pas le même protocole de coupure** (voir le volet bas). Garder en revanche **la même disposition des TC** pour les deux, afin de ne pas confondre effet du courant et effet de la disposition : le volet haut prévoit la disposition v2 (TC1/TC5 au centre y = 20, TC2/3/4 au bord y = 0).
 
 ---
@@ -35,6 +43,12 @@ C'est aussi le seul moyen de vérifier que la **loi en I²** tient en prédictio
 ### ⚠️ Protocole de coupure : couper sur le point chaud, pas sur les TC de bord
 
 Le protocole « couper quand le TC de bord atteint 390 °C » ne tient qu'**à haut courant**. D'après le jumeau (2026-08-27), à 160 A les TC de bord chauffent trop lentement : les amener à 390 °C demanderait 220 à 300 s de chauffe par passe, pendant lesquelles le point chaud d'interface monterait à **530–590 °C, bien au-delà de la dégradation**. À 160 A, il faut donc **piloter sur le point chaud** (couper à 390 °C au point chaud). Ordre de grandeur prédit : chauffes de 92 / 54 / 57 / 79 s, cycle d'environ 620 s, et TC de bord plafonnant vers 255–293 °C réels seulement.
+
+![Protocoles de coupure](https://raw.githubusercontent.com/maxencesoixante/Jumeau_Soudage_Induction/main/biblio/labo/figures/issue66/fig66_protocoles.png?v=1)
+
+*Disposition des TC v2 et capteur qui commande la coupure de chaque passe (étoile) : point chaud au bord sous le spot à 160 A, TC de bord le plus proche à 275 A (TC2, TC3, TC4, TC4).*
+
+⚠️ **Point pratique (2026-10-02) : la disposition v2 n'a aucun TC au point chaud.** À 160 A, la coupure doit se faire au bord sous chaque spot (x ≈ 16, 46, 76 et 106 mm, y = 0), alors que les TC de bord v2 sont entre les spots (x = 30, 60 et 90 mm). Deux options : **ajouter des TC sous les spots**, ou **couper à durée fixe** sur les durées de chauffe prédites (de l'ordre de 92 / 54 / 57 / 79 s d'après l'analyse du 27/08), à figer avec les autres prédictions avant la mesure.
 
 ### À faire
 
