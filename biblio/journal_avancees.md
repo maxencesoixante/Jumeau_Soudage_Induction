@@ -2,7 +2,7 @@
 
 **Projet** : simulation de l'empreinte thermique bobine + concentrateur de flux (MFC) sur
 laminés CF/PEKK, soudage par induction semi-statique (maîtrise, LIPEC / ÉTS).
-**Dépôt** : `Jumeau_Soudage_Induction` (Python) &nbsp;·&nbsp; **Dernière mise à jour** : 2026-09-16.
+**Dépôt** : `Jumeau_Soudage_Induction` (Python) &nbsp;·&nbsp; **Dernière mise à jour** : 2026-10-02.
 
 > **But de ce document** : point d'entrée unique. Sa lecture donne l'état complet du projet —
 > ce que fait le modèle, où il en est, ce qui a été fait et pourquoi, ce qui reste ouvert, et
@@ -481,6 +481,98 @@ Et un fait de géométrie que la cotation rend évident : l'empreinte du bloc de
 plaque en largeur** (55 mm pour 40), là où le bloc réduit laisse 4,1 mm de chant découvert de
 chaque côté.
 
+### 22-23 septembre — La campagne « épaisseur » passe de un à quatre courants
+
+Trois courants de plus sur le même montage à 3 TC empilés (174, 201 et 226 A deux fois),
+extraits du classeur source livré par l'utilisateur (`donnees/data/epaisseur_3TC_2026-05/`).
+**Le rapport face opposée / interface n'est plus 0,42 mais une fourchette 0,32–0,48** : les deux
+répétitions à 226 A couvrent à elles seules toute l'amplitude, sans tendance avec le courant.
+Toute calibration visant 0,42 à la décimale ajusterait du bruit d'essai. Surface / interface
+vaut 0,84–0,94 sur les quatre courants : « surface ≈ interface » devient multi-condition.
+Le relevé brut de la série B (dont B-1 et B-2 sont deux extraits) est archivé à côté.
+
+### 28 septembre — Le montage « tube substitut » et le ménage des issues
+
+**Nouveau montage (#73)** : un tube entièrement en CF/PEKK, assemblé à partir de plaques
+[45,−45,0,−45,45,0₃]ₛ (murs de 40 mm, dessus et fond de 50 mm, rainures fondues au fer, paroi
+**1,68 mm**, caisson fermé, **240 mm** de long, connecteur de 120 mm centré), **sans
+contre-pression**. Deux questions : les murs tiennent-ils la pression de consolidation (Q1,
+auquel cas la vessie de #71 devient inutile) ; la cavité creuse change-t-elle la thermique de la
+face intérieure (Q2) ? Reste ouvert : la face soudée du vrai tube (40 ou 50 mm), qu'aucune note
+ne tranche. Schéma à trois vues : `biblio/labo/figures/fig_montage_tube_substitut.png`.
+
+**Ménage des issues : 17 → 13 ouvertes.** Fusions #56 → #58, #61 → #57 (qualité post-soudage),
+#59 → #15 (Mesure C), #72 → #66 (validation 160 A et 275 A dans une seule campagne) ; #64 close
+(volet 231 A fait) ; dépendances natives #71 ← #73 et #60 ← #55. Ouverture de **#74**
+(transfert thermique dans l'épaisseur).
+
+### 29-30 septembre — Le gradient d'épaisseur : c'est le transport, pas la source (#74)
+
+**Point de référence reproduit** : sur les 5 essais à 3 TC, le 3D donne face opposée /
+interface = 0,89 (mesuré 0,32–0,48). **Piste « source » close** : même sans aucune chaleur
+déposée sous l'interface, le rapport reste à 0,88 — c'est la vitesse de passage de la chaleur
+qui compte (≈ 30 s pour traverser 3,36 mm, pour 60 s de chauffe).
+
+**Pertes de face fortes** (`h_contact` ≈ 100, `h_bas` ≈ 500 W/(m²·K), hors de la borne de
+calibration de 300) : les deux rapports tombent dans leur fourchette, mais **NO-GO** — la
+validation sur A/B et exp9 casse, et **le refroidissement devient beaucoup trop rapide**
+(201 A à +100 s : 35 °C simulés contre 120 °C mesurés). Bon rapport au pic pour une mauvaise
+raison ; et caler le facteur sur le point des 3 TC (au centre de la boucle, chauffé par
+conduction latérale) est une erreur de méthode.
+
+**Transport ralenti sous l'interface** (k_z du laminé inférieur 0,10 au lieu de 0,64,
+`h_contact` 40) : épaisseur dans la fourchette **et** refroidissement de bonne forme. Au meilleur
+facteur de chaque configuration (exp9 fixe le facteur, A/B y sont peu sensibles à cause du
+thermostat), coût joint **33,3 → 30,9 °C** sur grille fine. Au passage : **le 3D actuel est mieux
+calé vers 4,5 que vers 6,01** (coût 42 → 32 °C).
+
+**Variantes.** Convergence du maillage acquise (rapports stables de nz 15 à 51 et de 31×11 à
+61×21). **Cp(T) mesuré (Hamon) : aucun effet sur le gradient** — acquis de propriété, pas
+levier. **Résistance d'interface levée à la fusion** : corrige les coins des séries A/B
+d'environ 60 °C (TC1 +106/+80/+40 → +42/+18/−20 °C), mais échoue sur le 226 A à chauffe longue.
+Leur **combinaison** se place entre les deux, sans synergie : frontière de compromis.
+
+### 1er octobre — Correctif : au niveau réel, la résistance levée à la fusion ne tient pas
+
+Les « 5 essais sur 5 » de la résistance levée à la fusion et de la combinaison n'étaient
+obtenus qu'au facteur de compromis, où l'interface reste **sous** la fusion au point des 3 TC.
+Au niveau réel (interface mesurée à 390 °C), le modèle lève la résistance et la face opposée se
+réchauffe (combinaison : 0,63 contre 0,42 mesuré). **La mesure montre une face opposée froide
+avec une interface fondue** : le mécanisme est contredit en ce point. **Seul le k_z réduit, qui
+ne dépend pas de la température, tient l'épaisseur au niveau réel** — c'est lui qui est retenu
+pour les prédictions de #73 et #71. Correctif publié dans #74 (encadré daté, affirmations
+marquées « corrigé le 2026-10-01 »).
+
+Figures de compréhension pour #74 : montage à 3 TC, mesures brutes des 5 essais, schéma des
+mécanismes, vue de côté du flux de chaleur (`biblio/labo/figures/issue74/`).
+
+### 1er-2 octobre — Ce que le jumeau prédit pour le tube substitut (#73)
+
+**Le tube creux ne refroidit pas la face intérieure : il la réchauffe nettement.** Avec le k_z
+réduit, spot fixe 201 A : face du bas 204 °C à plat → **299–316 °C** sur le tube (paroi 1,68 mm,
+cavité d'air) ; cycle à 4 spots : 213 → 283–301 °C ; plus longtemps au-dessus de Tg. Peu
+sensible à la perte de la cavité (h = 2 à 10 : 17 °C), même sens avec le modèle actuel. Pour Q1,
+c'est le cas le plus défavorable : une paroi vers 300 °C, au-dessus de Tg et proche de Tf, sous
+pression, sans contre-pression. Limites : paroi de dessus seule, 40 mm de large, sans les murs.
+
+**Longueur du tube** (chiffrage non publié dans #73, à la demande) : par rapport à un tube de
+120 mm, un tube allongé refroidit les extrémités du connecteur (TC1 −34 °C, TC5 −39 °C) sans
+toucher l'intérieur ; 180 et 240 mm sont équivalents.
+
+### 2 octobre — Figures de compréhension pour #73, #71 et #66
+
+Pour chaque issue, trois figures dans le même esprit : schéma des mécanismes, mesures de
+référence, instrumentation ou protocole (`biblio/labo/figures/issue73/`, `issue71/`,
+`issue66/`). Deux constats en sont sortis :
+
+- **#71** : la face au contact de la future vessie culmine entre 135 et 183 °C à plat — au-dessus
+  de l'EPDM / nitrile, juste sous le silicone générique ; sous une paroi de 1,68 mm (≈ 300 °C
+  prédits), **seul le Rishon conviendrait**.
+- **#66** : la loi en I² est reconfirmée avec la définition d'origine (R² = 0,999, L = 3,4 °C/s ;
+  12 °C/s prévus à 160 A, 42 °C/s à 275 A). Et **la disposition v2 n'a aucun TC au point chaud**
+  où doit se faire la coupure à 160 A : ajouter des TC sous les spots, ou couper à durée fixe
+  sur des durées figées avant la mesure.
+
 ---
 
 ## 3. Résidus ouverts (par priorité)
@@ -492,9 +584,14 @@ les leviers ont été essayés et réfutés — `k_plan` scalaire, `k(T)`, aniso
 de source, 3D, et la combinaison source × conduction. La thermographie plein champ (#69) l'a
 **mesuré** au lieu de le déduire. C'est une **limite documentée du 2D lumpé**, pas une piste.
 
-**2. Gradient dans l'épaisseur (face opposée).** Le modèle sur-chauffe la face opposée
-(o/i ≈ 0,9 simulé vs ≈ 0,42 mesuré) ; mécanisme = confinement transverse insuffisant. Levier
-`r_contact_interface` NO-GO en validation croisée. Attend la mesure de la face du MFC (#15).
+**2. Gradient dans l'épaisseur (face opposée) — mécanisme localisé, candidat en main (#74).**
+Le 3D sur-chauffe la face opposée (0,89 simulé vs 0,32–0,48 mesuré). C'est le **transport** sous
+l'interface, pas la source. Un **k_z réduit dans le laminé inférieur** reproduit l'épaisseur, le
+refroidissement et améliore le compromis A/B + exp9 (33,3 → 30,9 °C) ; il n'est **pas adopté** :
+gain modeste, forme probablement effective, et l'adoption exige l'inventaire des paramètres
+effectifs périmés (`h_contact`, facteur du 3D). Réfutés : `r_contact_interface` constante, pertes
+de face fortes (refroidissement trop rapide), résistance levée à la fusion (contredite au niveau
+réel), Cp(T). Ce qui départagerait : le support de chaque campagne, ou 3 TC empilés près d'un coin.
 
 **3. Les trois familles de MFC réduit ne sont pas départagées.** Aucun calcul ne peut le faire :
 la méthode des images suppose un demi-espace infini. **#55 est le discriminateur**, et son
@@ -536,18 +633,19 @@ négatifs** du projet, et des capacités réutilisables.
 
 **Le projet a un goulot unique : la campagne MFC (#63) n'a pas démarré.** Neuf issues créées le
 22 août, le bloc réduit reçu, et tout le travail de modélisation de septembre qui attend une
-mesure. Le jumeau a épuisé ce qu'il peut trancher seul — treize des quinze issues ouvertes sont
-des mesures.
+mesure. Le jumeau a épuisé ce qu'il peut trancher seul — dix des treize issues ouvertes
+(au 2026-10-02, après regroupement) sont des mesures.
 
 | # | Étape | Pourquoi maintenant | Bloque |
 |---|---|---|---|
 | **1** | **#55 — profil en largeur, 5 TC** | le discriminateur des trois familles, critère réécrit, prédictions figées | #60, #62, tout le reste de la campagne |
-| **2** | **#59 + #15 — thermographie des deux MFC** | même montage, même calibration d'émissivité : **une seule séance**, décrite deux fois | résidu #2 (face opposée) |
+| **2** | **#15 (absorbe #59) — thermographie des deux MFC** | même montage, même calibration d'émissivité : **une seule séance** | résidu #2 (face opposée) |
 | **3** | **#14 — DSC du PEKK, et y ajouter une TGA** | la DSC est déjà planifiée ; la TGA est une rampe de plus sur le même échantillon, et elle fixe `Ea` | résidu #4, rouvre #5 |
-| **4** | **#56, #58 — fusion au centre à 250 A, fenêtre de soudage** | découlent de #55 ; prédictions déjà figées en #70 | #61, #62 |
+| **4** | **#58 (absorbe #56) — fenêtre de soudage et fusion au centre à 250 A** | découle de #55 ; prédictions déjà figées en #70 | #57, #62 |
 | ~~5~~ | ~~Propager le critère de dose~~ — **fait le 2026-09-16** | six scripts à verdict migrés, quatre lignes de repère relabellées, fenêtre de soudage passée en dose | — |
 | **5** | **TGA sur le PEKK** (à greffer sur la DSC de #14) | `Ea` est la seule hypothèse libre du critère de dose, et tous les verdicts de dégradation en dépendent | résidu #4 |
-| **6** | **#71 — substitut de tube en U** | en attente de la référence vessie (RCF Technologies) | montage suivant |
+| **6** | **#73 — tube substitut sans contre-pression** | prédiction faite : face intérieure ≈ 300 °C ; trancher la face soudée (40 / 50 mm) ; instrumenter la face intérieure | #71 (bloquée par #73) |
+| **7** | **#66 — validation 160 A et 275 A** | volet bas : prévoir des TC au point chaud ou une coupure à durée figée | — |
 
 **Ce qui n'est pas une prochaine étape** : rouvrir le résidu d'étalement in-plane (arc clos,
 tous leviers réfutés), rouvrir `h_bord_x0 = 0` (réfuté, y compris contre le près-bord FLIR), ou
@@ -583,6 +681,16 @@ Détail archivé dans `biblio/labo/releves_resolus.md`.
   signal sur un autre déficit, pas une raison de garder une entrée fausse.
 - **Balayer les docs destinés à des tiers en même temps que le code** : `mesures_a_realiser.md`
   a un temps transporté vers le banc une prémisse (`k_plan`) déjà réfutée.
+- **Une métrique au pic peut être juste pour une mauvaise raison** (2026-09-29) : les pertes de
+  face fortes donnaient le bon rapport d'épaisseur au pic et vidaient la colonne en refroidissant.
+  Toujours une deuxième métrique indépendante (ici le refroidissement).
+- **Un mécanisme dépendant de la température se juge au niveau réel** (2026-10-01) : la
+  résistance levée à la fusion « tenait » l'épaisseur à un facteur où l'interface ne fondait pas
+  au point de mesure ; au niveau réel, elle se levait et contredisait la mesure.
+- **Ne pas caler un niveau sur un point chauffé indirectement** : le point des 3 TC est au centre
+  de la boucle (source ≈ 0) ; y caler le facteur fait compenser un autre déficit (×2,8 de puissance).
+- **Reprendre la définition d'origine d'une métrique publiée** (2026-10-02) : une pente
+  instantanée à 75 °C donnait R² = 0,92 pour la loi en I², la définition d'origine 0,999.
 
 ---
 
@@ -612,6 +720,12 @@ Détail archivé dans `biblio/labo/releves_resolus.md`.
     `modele/4passes_toute_matiere_337.md` (ce que coûte de tout amener au-dessus de la fusion),
     `modele/modulation_courant_limite.md` et `modele/modulation_deux_leviers.md` (conduite du
     courant), `modele/critere_dose_degradation.md` (critère temps × température).
+  - **Épaisseur (#74)** : scripts `code/scripts/diag/diag_epaisseur_3d_reference.py`,
+    `variantes_epaisseur.py`, `diag_valider_variante.py`, `diag_compromis_facteur.py` ; figures
+    `biblio/labo/figures/issue74/`.
+  - **Tube substitut (#73)** : `code/scripts/diag/diag_tube_q2.py` (face intérieure),
+    `diag_tube_allonge.py` (longueur) ; figures `biblio/labo/figures/issue73/`.
+  - **Figures de compréhension** : `biblio/labo/figures/issue71/`, `issue66/`.
   - **Corps d'issues versionnés** : `modele/issue<N>_*.md` — source de vérité du texte publié
     sur GitHub, synchronisé par `code/scripts/gen/sync_issue.py`. Ne pas éditer l'issue dans le
     navigateur : la synchro suivante écraserait sans avertir.
