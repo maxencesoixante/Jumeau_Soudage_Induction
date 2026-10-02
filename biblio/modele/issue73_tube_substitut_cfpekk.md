@@ -59,12 +59,33 @@ Ce qu'on sait déjà et ce qui reste ouvert :
 - La face opposée est **déjà froide** sur le montage à plat : opposée/interface = **0,32–0,48** au pic sur 4 courants (campagne épaisseur de mai, `donnees/data/epaisseur_3TC_2026-05/`).
 - Deux effets tirent en sens contraire. L'air confiné du caisson fermé échange peu (convection naturelle, quelques W/(m²·K)) : il isole plutôt qu'il ne refroidit, comparé à un laminé posé sur le bâti. À l'inverse, la plaque de dessus est deux fois plus mince (1,68 mm au lieu de 3,36 mm) et a moins d'inertie : la chaleur l'atteint plus vite.
 - Le sens de l'effet n'est donc **pas acquis**. Il faut le mesurer plutôt que le supposer. **Proposition : un TC collé sur la face intérieure du dessus, à x = 60 mm** (cercle creux sur la figure), à comparer à la campagne épaisseur.
-- Le jumeau peut donner une prédiction à l'aveugle avant l'essai (en 3D, avec la face inférieure passée en condition de cavité). Ce serait un test à la manière de #64.
+- Le jumeau peut donner une prédiction à l'aveugle avant l'essai (en 3D, avec la face inférieure passée en condition de cavité). Ce serait un test à la manière de #64. *Fait le 2026-10-02 : voir « Prédiction du jumeau » ci-dessous (le modèle prédit une face intérieure nettement plus chaude, vers 300 °C).*
 - La modélisation de la face intérieure (transfert thermique dans l'épaisseur) est suivie en **#74**.
 
 ![Instrumentation comparée](https://raw.githubusercontent.com/maxencesoixante/Jumeau_Soudage_Induction/main/biblio/labo/figures/issue73/fig73_instrumentation.png?v=1)
 
 *À la même échelle (1:1) : la colonne de TC mesurée à plat (surface, interface, face opposée sous 3,36 mm) et celle proposée sur le tube (surface, interface, face intérieure sous 1,68 mm, au-dessus de la cavité). La colonne complète de 3 TC sur le tube va au-delà du seul TC de face intérieure proposé ci-dessus : elle permettrait de comparer directement les rapports face intérieure / interface et surface / interface à ceux mesurés à plat (#74).*
+
+## Prédiction du jumeau : la face intérieure du tube (2026-10-02)
+
+> **En bref.** Le modèle prédit que **le tube creux ne refroidit pas la face intérieure : il la réchauffe nettement**, d'environ 100 °C par rapport à la face opposée à plat, jusque vers **300 °C**, bien au-dessus de Tg (159 °C) et proche de Tf (337 °C). Pour Q1, c'est le cas le plus défavorable : une paroi ramollie sous la pression de consolidation, sans contre-pression. Le TC de face intérieure devient essentiel.
+
+![Simulation de la face intérieure](https://raw.githubusercontent.com/maxencesoixante/Jumeau_Soudage_Induction/main/biblio/labo/figures/issue73/fig73_simulation_face_interieure.png?v=1)
+
+*Modèle 3D avec la représentation de l'épaisseur retenue dans #74 (k_z réduit sous l'interface, la seule qui reproduit le gradient mesuré au niveau réel). À gauche : spot fixe de la campagne à 3 TC (201 A), niveau recalé sur le pic d'interface mesuré. Au milieu : cycle semi-statique à 4 spots, face du bas sous chaque spot, au centre de la largeur. À droite : pic de la face du bas pour les deux modèles d'épaisseur et trois pertes de cavité.*
+
+| | À plat (3,36 mm sur le bâti) | Tube (paroi 1,68 mm, cavité d'air) |
+|---|---|---|
+| Spot fixe : pic de la face du bas | 204 °C (bas / interface 0,47, proche des 0,42 mesurés) | **299 à 316 °C** (0,71 à 0,74) |
+| Spot fixe : temps au-dessus de Tg | 127 s | environ 175 s |
+| Cycle à 4 spots : pic sous un spot | 213 °C | **283 à 301 °C** |
+| Cycle : temps au-dessus de Tg | 174 s | 205 à 237 s |
+
+- **Pourquoi** : la paroi est deux fois plus mince, et une cavité d'air fermée évacue très mal la chaleur ; elle isole plutôt qu'elle ne refroidit. À puissance égale, l'interface chauffe aussi un peu plus (environ +25 °C), ce qui raccourcira la chauffe si l'on coupe sur un seuil de TC.
+- **Robustesse** : la perte de la cavité n'est pas connue ; le résultat bouge peu entre h = 2 et h = 10 W/(m²·K) (17 °C). Le modèle actuel donne le même sens, encore plus marqué (421 à 437 °C).
+- **Limites** : seule la paroi de dessus est modélisée, sur 40 mm de large, sans les murs ni la largeur de 50 mm ; la cavité est une perte simple ; dans le cycle, l'interface du modèle s'emballe (environ 860 °C, faute de plateau de fusion) — les niveaux absolus du cycle ne sont pas fiables, la comparaison plat / tube l'est.
+
+Ce résultat répond par anticipation à Q2 et précise l'enjeu de Q1 ; c'est **une prédiction à confronter à l'essai**, pas un substitut à la mesure. Script : `code/scripts/diag/diag_tube_q2.py` ; figure : `code/scripts/gen/gen_fig73_simulation_q2.py`.
 
 ## Deux choix de conception à trancher
 

@@ -50,6 +50,10 @@ $$h_U + e_{\text{plaques}} < \text{course disponible sous l'outil}$$
 
 Autrement dit, le U doit être **légèrement trop court**, de sorte que ce soit la vessie — et non les parois — qui amène les plaques au contact de l'outil.
 
+![Condition de cotes](https://raw.githubusercontent.com/maxencesoixante/Jumeau_Soudage_Induction/main/biblio/labo/figures/issue71/fig71_condition_cotes.png?v=1)
+
+*Schéma sans échelle. À froid, un jeu positif entre le haut des parois et les plaques : la vessie amène seule les plaques à l'outil. À chaud, la dilatation et la fusion de l'interface réduisent ce jeu. En cas d'interférence, les plaques reposent sur les parois, qui détournent l'effort de la vessie.*
+
 ⚠️ **À vérifier au montage, et à re-vérifier à chaud** : le U en verre, les plaques et l'outil ne se dilatent pas de la même façon, et la soudure fait fondre l'interface donc réduit l'épaisseur de l'empilement pendant le cycle. Une cote juste à froid peut devenir une interférence à chaud, ou l'inverse.
 
 ## Ce qu'il reste des quatre pistes
@@ -57,6 +61,10 @@ Autrement dit, le U doit être **légèrement trop court**, de sorte que ce soit
 1. **Découpler les parois de l'empilement** — **déjà acquis par construction.** Les plaques sont posées, pas fixées : le découplage est obtenu par la nature du contact, sans pièce supplémentaire. Il ne reste qu'à le préserver par les cotes.
 2. ~~**Mettre la cellule en série avec la vessie**~~ — **sans objet.** Elle l'est déjà.
 3. **Piloter en pression plutôt qu'en effort** — **devenu redondant** si les cotes sont correctes, puisque effort mesuré et pression vessie deviennent équivalents. Garde son intérêt comme **contrôle croisé** : un écart entre les deux signalerait précisément qu'une paroi porte.
+
+   ![Contrôle croisé](https://raw.githubusercontent.com/maxencesoixante/Jumeau_Soudage_Induction/main/biblio/labo/figures/issue71/fig71_controle_croise.png?v=1)
+
+   *Cellule de force au-dessus de l'outil, manomètre sur la vessie. Tant qu'aucune paroi ne porte, l'effort lu vaut la pression multipliée par la surface (F = p·A) ; dès qu'une paroi porte, il passe en dessous. Schéma de principe.*
 4. ~~**Assouplir localement les parois**~~ — **écartée.** Le U doit tenir la géométrie sous pression.
 
 **Le travail se déplace donc de la conception mécanique vers le contrôle dimensionnel.**
@@ -64,6 +72,10 @@ Autrement dit, le U doit être **légèrement trop court**, de sorte que ce soit
 ## Ce qu'il faut savoir avant de trancher
 
 - **Référence et caractéristiques de la vessie** — attendues de RCF Technologies. La raideur n'est plus l'enjeu ; ce qu'il faut désormais, c'est la **plage de pression** et l'**épaisseur de la vessie gonflée**, qui entre dans l'empilement de cotes.
+
+  ![Température vue par la vessie](https://raw.githubusercontent.com/maxencesoixante/Jumeau_Soudage_Induction/main/biblio/labo/figures/issue71/fig71_temperature_vessie.png?v=1)
+
+  *Pic de température mesuré à plat sur la face qui sera au contact de la vessie (face opposée de la campagne à 3 TC, sous 3,36 mm), comparé aux limites de service des matériaux de vessie. À plat, la face culmine entre 135 et 183 °C : au-dessus de l'EPDM et du nitrile, juste sous le silicone générique, très loin de la limite du Rishon (454 °C). ⚠️ Sous une paroi plus mince, la face sera plus chaude : les simulations de #73 prédisent environ 300 °C sous une paroi de 1,68 mm. Seul le Rishon conviendrait alors.*
 - **Hauteur du U et épaisseur des parois**, pour écrire la condition de cotes. Seules les plaques sont cotées (120 × 40 mm).
 - **Comportement à chaud de l'empilement** : dilatations différentielles et perte d'épaisseur à la fusion de l'interface.
 
