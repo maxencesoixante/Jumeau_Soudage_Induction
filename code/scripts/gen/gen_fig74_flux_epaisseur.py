@@ -154,7 +154,12 @@ def mm(v):
     return f"{v:.2f}".replace("-", "−").replace(".", ",")
 
 
-def main(configs=("actuel", "ralenti"), nom_fig="fig74_flux_epaisseur.png"):
+# Libellés de la variante « mémoire » : sans nom d'essai ni de variante du code.
+TITRES_MEMOIRE = {"actuel": "Modèle de référence", "ralenti": "Transport transverse ralenti"}
+LEG_MEMOIRE = {"actuel": "référence", "ralenti": "ralenti"}
+
+
+def main(configs=("actuel", "ralenti"), nom_fig="fig74_flux_epaisseur.png", memoire=False):
     e = Essai(Config.charger(R / "code" / "config"), ESSAI, nx=31, ny=11, nz=15,
               facteur_couplage=1.0, racine=R)
     tm, sm, im_, om = mesure(e)
@@ -162,7 +167,7 @@ def main(configs=("actuel", "ralenti"), nom_fig="fig74_flux_epaisseur.png"):
     instants_mes = [tm[km], tm[km] + 100.0]
     mes = [[float(np.interp(tq, tm, v)) for v in (sm, im_, om)] for tq in instants_mes]
 
-    choix = {n: CONFIGS[n] for n in configs}
+    choix = {n: dict(CONFIGS[n], titre=TITRES_MEMOIRE[n]) if memoire else CONFIGS[n] for n in configs}
     donnees = {n: simuler(n, c) for n, c in choix.items()}
     instants = {}
     for nom, d in donnees.items():
@@ -190,19 +195,23 @@ def main(configs=("actuel", "ralenti"), nom_fig="fig74_flux_epaisseur.png"):
         for nom, c in choix.items():
             d = donnees[nom]
             ax.plot(d["colonne"][:, instants[nom][r]], -d["z"] * 1e3, color=coul[nom], lw=1.6,
-                    label=c["titre"].replace(" sous l'interface", ""))
+                    label=LEG_MEMOIRE[nom] if memoire else c["titre"].replace(" sous l'interface", ""))
         ax.scatter(mes[r], [0.0, -sch.E_SUP, -sch.L_INF], s=34, color=OKABE_ITO["vermillon"],
-                   edgecolor="k", lw=0.5, zorder=5, label="mesuré (3 TC)")
+                   edgecolor="k", lw=0.5, zorder=5, label="mesuré" if memoire else "mesuré (3 TC)")
         ax.axhline(-sch.E_SUP, color="0.6", lw=0.6, ls=":")
         ax.set_ylim(-sch.L_INF - 0.4, 0.4)
         ax.set_xlim(0, TMAX)
         ax.set_yticks([-sch.L_INF, -sch.E_SUP, 0])
         ax.set_yticklabels([mm(-sch.L_INF), mm(-sch.E_SUP), "0"])
         if r == 0:
-            ax.set_title("Profil T(z), colonne des TC", fontsize=9.5)
-            ax.legend(frameon=False, fontsize=6.8, loc="upper left")
+            ax.set_title("Profil T(z), colonne de mesure" if memoire else "Profil T(z), colonne des TC",
+                         fontsize=9.5)
+            if not memoire:
+                ax.legend(frameon=False, fontsize=6.8, loc="upper left")
         else:
             ax.set_xlabel("température (°C)")
+            if memoire:
+                ax.legend(frameon=False, fontsize=6.8, loc="center left", bbox_to_anchor=(0.0, 0.27))
         for s in ("top", "right"):
             ax.spines[s].set_visible(False)
     cax = fig.add_axes([0.09, 0.05, 0.50, 0.018])
@@ -215,4 +224,5 @@ def main(configs=("actuel", "ralenti"), nom_fig="fig74_flux_epaisseur.png"):
 if __name__ == "__main__":
     main()
     main(configs=("actuel", "combiA"), nom_fig="fig74_flux_combinaison.png")
+    main(nom_fig="fig_flux_epaisseur_memoire.png", memoire=True)
     print(OUT.relative_to(R))
